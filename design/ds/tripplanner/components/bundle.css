@@ -1,0 +1,142 @@
+/* TripPlanner — 컴포넌트 미리보기용 스타일. 값은 모두 tokens.json 변수(var(--…)). Android XML 과 1:1 대응 */
+.tp { font-family: var(--font-sans); color: var(--on_surface); background: var(--background); -webkit-font-smoothing: antialiased; }
+.tp *, .tp *::before, .tp *::after { box-sizing: border-box; }
+.tp-stage { padding: var(--space_l); display: flex; flex-wrap: wrap; gap: var(--space_m); align-items: flex-start; }
+.tp-col { display: flex; flex-direction: column; gap: var(--space_s); width: 100%; max-width: 380px; }
+.tp-ic { width: var(--icon_size); height: var(--icon_size); flex: none; }
+.tp-ic.sm { width: var(--icon_small); height: var(--icon_small); }
+.tp-ic.xs { width: 14px; height: 14px; }
+.tp-sub { color: var(--text_sub); }
+.tp-cap { font-size: 11px; color: var(--text_sub); margin: 0 0 2px; letter-spacing: .04em; }
+
+/* Button — Widget.Material3.Button.* (높이 40, 완전 둥근, LabelLarge) · 누르는 영역 48 */
+.tp-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space_s); min-height: 40px; padding: 0 24px; border-radius: var(--radius_pill); border: 1px solid transparent; font: 600 14px/20px var(--font-sans); letter-spacing: .0071em; cursor: pointer; background: none; }
+.tp-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.tp-btn.has-icon { padding-left: 16px; }
+.tp-btn .tp-ic { width: 18px; height: 18px; }
+.tp-btn.filled { background: var(--primary); color: var(--on_primary); }
+.tp-btn.tonal { background: var(--secondary_container); color: var(--on_secondary_container); }
+.tp-btn.outlined { border-color: var(--outline); color: var(--primary); }
+.tp-btn.text { color: var(--primary); padding: 0 12px; }
+.tp-btn[disabled] { opacity: .38; cursor: default; }
+
+/* Day chip — item_day_chip + bg_day_chip(_selected) */
+.tp-daychip { display: inline-flex; flex-direction: column; justify-content: center; min-height: var(--touch_min); padding: 6px var(--space_m); border-radius: var(--radius_day_chip); background: var(--card_bg); border: 1px solid var(--outline_variant); color: var(--on_surface); }
+.tp-daychip b { font: 600 14px/20px var(--font-sans); }
+.tp-daychip small { font: 500 12px/16px var(--font-sans); color: var(--text_sub); }
+.tp-daychip[aria-selected="true"] { background: var(--primary); border-color: var(--primary); color: var(--on_primary); }
+.tp-daychip[aria-selected="true"] small { color: var(--day_chip_sub_selected); }
+
+/* Category chip — M3 Chip (선택 = secondary_container) */
+.tp-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 8px; border-radius: 8px; border: 1px solid var(--outline_variant); background: var(--card_bg); font: 600 14px/20px var(--font-sans); color: var(--on_surface); }
+.tp-chip .tp-ic { width: 18px; height: 18px; }
+.tp-chip[aria-checked="true"] { background: var(--secondary_container); border-color: var(--secondary_container); color: var(--on_secondary_container); }
+
+/* Badge — Widget.TripPlanner.Badge + bg_badge / bg_warn_badge / bg_ok_badge */
+.tp-badge { display: inline-flex; align-items: center; gap: var(--space_xs); min-height: 20px; padding: 1px 8px; border-radius: var(--radius_badge); font: 500 12px/16px var(--font-sans); letter-spacing: .0417em; }
+.tp-badge.error { background: var(--error_container); color: var(--on_error_container); }
+.tp-badge.warn { background: var(--warn_bg); color: var(--warn_text); }
+.tp-badge.ok { background: var(--success_bg); color: var(--success); }
+.tp-badge.info { background: var(--primary_light); color: var(--on_primary_container); }
+
+/* Place thumb — Thumbs.bind (44, radius 12, 아이콘 패딩 10) */
+.tp-thumb { width: var(--thumb_size); height: var(--thumb_size); border-radius: var(--radius_thumb); display: grid; place-items: center; flex: none; }
+.tp-thumb .tp-ic { width: 24px; height: 24px; }
+.tp-thumb.sight { background: var(--cat_sight_bg); color: var(--cat_sight_fg); }
+.tp-thumb.food { background: var(--cat_food_bg); color: var(--cat_food_fg); }
+.tp-thumb.cafe { background: var(--cat_cafe_bg); color: var(--cat_cafe_fg); }
+.tp-thumb.shopping { background: var(--cat_shopping_bg); color: var(--cat_shopping_fg); }
+.tp-thumb.activity { background: var(--cat_activity_bg); color: var(--cat_activity_fg); }
+.tp-thumb.etc { background: var(--surface_container); color: var(--text_sub); }
+
+/* Card — bg_card */
+.tp-card { background: var(--card_bg); border: var(--stroke_card) solid var(--outline_variant); border-radius: var(--radius_card); }
+
+/* Trip card — item_trip */
+.tp-trip { width: 100%; max-width: 360px; background: var(--card_bg); border: var(--stroke_card) solid var(--outline_variant); border-radius: var(--radius_trip_card); overflow: hidden; }
+.tp-cover { position: relative; height: var(--cover_height); padding: var(--space_m) var(--space_m) var(--space_m) var(--space_l); color: var(--white); display: flex; flex-direction: column; justify-content: space-between; }
+.tp-cover.blue { background: linear-gradient(to top right, var(--cover_blue_dark), var(--cover_blue_light)); }
+.tp-cover.orange { background: linear-gradient(to top right, var(--cover_orange_dark), var(--cover_orange_light)); }
+.tp-cover.past { background: linear-gradient(to top right, var(--cover_past_dark), var(--cover_past_light)); }
+.tp-cover-top { display: flex; align-items: center; justify-content: space-between; }
+.tp-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: var(--radius_pill); background: var(--cover_pill_bg); border: 1px solid var(--cover_pill_stroke); font: 600 12px/16px var(--font-sans); }
+.tp-cover h3 { margin: 0; font: 700 22px/28px var(--font-sans); display: flex; align-items: center; gap: 6px; }
+.tp-trip-body { padding: var(--space_m) var(--space_l) var(--space_l); display: flex; flex-direction: column; gap: 6px; }
+.tp-meta { display: flex; align-items: center; gap: 6px; font: 500 14px/20px var(--font-sans); color: var(--text_sub); }
+.tp-progress { height: 6px; border-radius: 3px; background: var(--surface_container_highest); overflow: hidden; margin-top: 4px; }
+.tp-progress span { display: block; height: 100%; background: var(--primary); border-radius: 3px; }
+
+/* Place row — item_place (타임라인 + 카드) */
+.tp-place { display: flex; gap: var(--space_s); width: 100%; max-width: 380px; }
+.tp-rail { width: 32px; display: flex; flex-direction: column; align-items: center; flex: none; }
+.tp-rail i { width: 2px; background: var(--outline_variant); }
+.tp-rail i:first-child { height: 14px; } .tp-rail i:last-child { flex: 1; }
+.tp-dot { width: var(--timeline_dot); height: var(--timeline_dot); border-radius: 50%; display: grid; place-items: center; font: 600 14px/1 var(--font-sans); color: var(--white); background: var(--primary); flex: none; }
+.tp-dot.hollow { background: var(--card_bg); border: 2px solid var(--outline); }
+.tp-dot.d2 { background: var(--day_2); } .tp-dot.d3 { background: var(--day_3); }
+.tp-place-card { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space_m); min-height: 56px; padding: var(--space_s) var(--space_xs) var(--space_s) var(--space_m); margin-bottom: var(--space_s); }
+.tp-place-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tp-place-text b { font: 600 16px/20px var(--font-sans); }
+.tp-place-text span { font: 500 14px/20px var(--font-sans); color: var(--text_sub); }
+.tp-badges { display: flex; gap: var(--space_xs); flex-wrap: wrap; margin-top: 2px; }
+.tp-iconbtn { width: var(--touch_min); height: var(--touch_min); display: grid; place-items: center; color: var(--text_sub); border-radius: 50%; flex: none; }
+
+/* Day header — item_day_header */
+.tp-dayhead { display: flex; align-items: baseline; gap: var(--space_s); padding: var(--space_m) var(--screen_margin) var(--space_s); }
+.tp-dayhead b { font: 600 16px/20px var(--font-sans); display: inline-flex; align-items: center; gap: 6px; }
+.tp-dayhead b::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--day_1); }
+.tp-dayhead span { font: 500 14px/20px var(--font-sans); color: var(--text_sub); }
+
+/* Summary row — Widget.TripPlanner.SummaryRow/Icon/Chevron */
+.tp-summary { width: 100%; max-width: 380px; overflow: hidden; }
+.tp-srow { display: flex; align-items: center; min-height: var(--touch_min); padding: var(--space_xs) var(--space_m); gap: var(--space_m); color: var(--on_surface); }
+.tp-srow + .tp-srow { border-top: 1px solid var(--outline_variant); }
+.tp-srow .tp-ic { color: var(--text_sub); }
+.tp-srow p { margin: 0; flex: 1; font: 500 14px/20px var(--font-sans); }
+.tp-srow p b { font-weight: 600; }
+
+/* Section title — Widget.TripPlanner.SectionTitle */
+.tp-section { margin: 0; font: 600 14px/20px var(--font-sans); color: var(--primary); letter-spacing: .0071em; }
+
+/* Route option — item_route + bg_option(_selected) */
+.tp-route { width: 100%; max-width: 360px; padding: var(--space_m); border-radius: var(--radius_card); background: var(--card_bg); border: 1px solid var(--outline_variant); display: flex; flex-direction: column; gap: 6px; }
+.tp-route[aria-selected="true"] { background: var(--option_selected_bg); border: 2px solid var(--primary); padding: 11px; }
+.tp-route-head { display: flex; align-items: center; gap: var(--space_s); font: 600 14px/20px var(--font-sans); }
+.tp-key { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: var(--on_primary); display: grid; place-items: center; font: 700 12px/1 var(--font-sans); flex: none; }
+.tp-route p { margin: 0; font: 500 12px/16px var(--font-sans); color: var(--text_sub); }
+
+/* Map overlay — bg_map_overlay (범례·안내) */
+.tp-mapbox { position: relative; width: 100%; max-width: 380px; height: 168px; border-radius: var(--radius_card); overflow: hidden; background: var(--surface_container); border: 1px solid var(--outline_variant); }
+.tp-mapbox svg.bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tp-overlay { position: absolute; display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: center; padding: 6px 8px; border-radius: var(--radius_day_chip); background: var(--map_overlay); border: 1px solid var(--outline_variant); font: 500 12px/16px var(--font-sans); color: var(--on_surface); }
+.tp-overlay.legend { left: 8px; top: 8px; }
+.tp-overlay.note { left: 8px; right: 8px; bottom: 8px; color: var(--text_sub); }
+.tp-legend-item { display: inline-flex; align-items: center; gap: 4px; padding: 0 2px; }
+.tp-legend-item::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+
+/* Map place card — view_map_place_card */
+.tp-mapcard { width: 100%; max-width: 380px; padding: var(--space_m) var(--space_xs) var(--space_s) var(--space_l); }
+.tp-mapcard-head { display: flex; align-items: flex-start; gap: var(--space_m); }
+.tp-mapcard-head .tp-place-text b { font: 600 18px/24px var(--font-sans); }
+.tp-mapcard-actions { display: flex; flex-wrap: wrap; gap: var(--space_s); margin-top: var(--space_s); }
+
+/* Text field — Widget.Material3.TextInputLayout.OutlinedBox */
+.tp-field { position: relative; width: 100%; max-width: 340px; }
+.tp-field input { width: 100%; height: 56px; padding: 16px 16px 0 16px; border-radius: var(--radius_input); border: 1px solid var(--outline); background: transparent; color: var(--on_surface); font: 500 16px/24px var(--font-sans); }
+.tp-field input:focus { outline: none; border: 2px solid var(--primary); padding-left: 15px; }
+.tp-field label { position: absolute; left: 16px; top: 8px; font: 500 12px/16px var(--font-sans); color: var(--text_sub); }
+.tp-field .tp-end { position: absolute; right: 4px; top: 4px; }
+.tp-help { font: 500 12px/16px var(--font-sans); color: var(--text_sub); margin: 4px 16px 0; }
+
+/* Empty state — view_empty_state */
+.tp-empty { width: 100%; max-width: 360px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--space_s); padding: var(--space_xl); }
+.tp-empty > .tp-ic { width: 48px; height: 48px; color: var(--outline); }
+.tp-empty b { font: 600 16px/20px var(--font-sans); }
+.tp-empty p { margin: 0 0 var(--space_s); font: 500 14px/20px var(--font-sans); color: var(--text_sub); }
+
+/* Warning box — bg_warn */
+.tp-warnbox { width: 100%; max-width: 360px; display: flex; gap: var(--space_s); padding: var(--space_m); border-radius: var(--radius_warn); background: var(--warn_bg); color: var(--warn_text); font: 500 14px/20px var(--font-sans); }
+
+/* Bottom bar — bg_bottom_bar */
+.tp-bottombar { width: 100%; max-width: 380px; display: flex; gap: var(--space_s); padding: var(--space_s) var(--screen_margin); background: var(--card_bg); border-top: 1px solid var(--outline_variant); }
+.tp-bottombar .tp-btn { flex: 1; }
