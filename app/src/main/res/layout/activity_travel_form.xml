@@ -191,6 +191,44 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:labelFor="@id/inputAddressDetail"
+                    android:text="@string/label_address_detail" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.TripPlanner.TextField.NoLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:placeholderText="@string/placeholder_lodging_detail">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputAddressDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:labelFor="@id/inputLocationMemo"
+                    android:text="@string/label_location_memo" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.TripPlanner.TextField.NoLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:placeholderText="@string/placeholder_lodging_memo">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputLocationMemo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

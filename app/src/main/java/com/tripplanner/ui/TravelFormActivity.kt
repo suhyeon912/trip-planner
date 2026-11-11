@@ -45,7 +45,8 @@ class TravelFormActivity : AppCompatActivity() {
     private var checkOut = ""
     private var lat = 0.0
     private var lng = 0.0
-    private var locationLabel: String? = null
+    /** 위치 칸에 보일 주소 (검색 결과 또는 저장된 주소) */
+    private var address = ""
 
     private lateinit var fieldMode: SelectField
     private lateinit var fieldDepart: SelectField
@@ -93,8 +94,10 @@ class TravelFormActivity : AppCompatActivity() {
                 input(R.id.inputTo).setText(f.toAirport)
             } ?: finish()
             else repo.getLodgings(tripId).firstOrNull { it.id == itemId }?.let { l ->
-                checkIn = l.checkIn; checkOut = l.checkOut; lat = l.lat; lng = l.lng
+                checkIn = l.checkIn; checkOut = l.checkOut; lat = l.lat; lng = l.lng; address = l.address
                 input(R.id.inputLodgingName).setText(l.name)
+                input(R.id.inputAddressDetail).setText(l.addressDetail)
+                input(R.id.inputLocationMemo).setText(l.locationMemo)
             } ?: finish()
             render()
         } else render()
@@ -145,7 +148,11 @@ class TravelFormActivity : AppCompatActivity() {
         fieldCheckIn.setValue(checkIn.takeIf { it.isNotBlank() }?.let { TripFormat.dateWithDay(it) })
         fieldCheckOut.setValue(checkOut.takeIf { it.isNotBlank() }?.let { TripFormat.dateWithDay(it) })
         val hasLoc = lat != 0.0 || lng != 0.0
-        fieldLocation.setValue(if (!hasLoc) null else locationLabel ?: getString(R.string.location_set, lat, lng))
+        fieldLocation.setValue(when {
+            address.isNotBlank() -> address
+            hasLoc -> getString(R.string.location_set, lat, lng)
+            else -> null
+        })
     }
 
     /** 위치: 검색해서 고르기 / 위도·경도 직접 입력(검색 키가 없을 때) / 지우기 */
@@ -156,7 +163,7 @@ class TravelFormActivity : AppCompatActivity() {
                 val domestic = (lat == 0.0 && lng == 0.0) || Region.isKorea(lat, lng)
                 showPlaceSearch(this, name, domestic) { hit ->
                     lat = hit.lat; lng = hit.lng
-                    locationLabel = hit.address.ifBlank { hit.name }
+                    address = hit.address.ifBlank { hit.name }
                     render()
                 }
             },
@@ -166,12 +173,12 @@ class TravelFormActivity : AppCompatActivity() {
                     Field(getString(R.string.hint_lng), lng.takeIf { it != 0.0 }?.toString() ?: "", DECIMAL_INPUT)
                 )) { (a, b) ->
                     lat = a.toDoubleOrNull() ?: 0.0; lng = b.toDoubleOrNull() ?: 0.0
-                    locationLabel = null; render(); true
+                    address = ""; render(); true
                 }
             }
         )
         if (lat != 0.0 || lng != 0.0) rows += SelectRow.Option(getString(R.string.location_clear), danger = true) {
-            lat = 0.0; lng = 0.0; locationLabel = null; render()
+            lat = 0.0; lng = 0.0; address = ""; render()
         }
         showSelect(anchor, rows, widthDp = 220)
     }
@@ -196,7 +203,9 @@ class TravelFormActivity : AppCompatActivity() {
                     input(R.id.inputLodgingName).requestFocus(); return@launch
                 }
                 repo.saveLodging(Lodging(id = itemId, tripId = tripId, name = name,
-                    checkIn = checkIn, checkOut = checkOut, lat = lat, lng = lng))
+                    checkIn = checkIn, checkOut = checkOut, lat = lat, lng = lng, address = address,
+                    addressDetail = input(R.id.inputAddressDetail).text.toString().trim(),
+                    locationMemo = input(R.id.inputLocationMemo).text.toString().trim()))
             }
             finish()
         }
@@ -208,13 +217,13 @@ class TravelFormActivity : AppCompatActivity() {
         outState.putString("depart", departAt); outState.putString("arrive", arriveAt)
         outState.putString("in", checkIn); outState.putString("out", checkOut)
         outState.putDouble("lat", lat); outState.putDouble("lng", lng)
-        outState.putString("locLabel", locationLabel)
+        outState.putString("address", address)
     }
 
     private fun restore(b: Bundle) {
         mode = runCatching { TransportMode.valueOf(b.getString("mode") ?: "") }.getOrDefault(TransportMode.FLIGHT)
         departAt = b.getString("depart", ""); arriveAt = b.getString("arrive", "")
         checkIn = b.getString("in", ""); checkOut = b.getString("out", "")
-        lat = b.getDouble("lat"); lng = b.getDouble("lng"); locationLabel = b.getString("locLabel")
+        lat = b.getDouble("lat"); lng = b.getDouble("lng"); address = b.getString("address", "")
     }
 }

@@ -302,10 +302,92 @@
                 android:layout_marginBottom="@dimen/space_s"
                 android:text="@string/section_location" />
 
-            <com.tripplanner.ui.SelectField
-                android:id="@+id/fieldLocation"
+            <TextView
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:labelFor="@id/etAddress"
+                android:text="@string/label_address" />
+
+            <!-- 주소: 검색하면 채워지고, 직접 고칠 수도 있음 (저장할 때 좌표로 바꿈) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilAddress"
+                style="@style/Widget.TripPlanner.TextField.NoLabel"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                app:endIconContentDescription="@string/location_search"
+                app:endIconDrawable="@drawable/ic_search"
+                app:endIconMode="custom"
+                app:placeholderText="@string/placeholder_address">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPostalAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 지금 위치 상태 · 위도·경도 직접 입력 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvLocState"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_xs"
+                    android:layout_weight="1"
+                    android:accessibilityLiveRegion="polite"
+                    android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+                    android:textColor="@color/text_sub" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLatLng"
+                    style="@style/Widget.TripPlanner.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/space_s"
+                    android:text="@string/location_manual" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:layout_marginTop="@dimen/space_s"
+                android:labelFor="@id/etAddressDetail"
+                android:text="@string/label_address_detail" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.TripPlanner.TextField.NoLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:placeholderText="@string/placeholder_address_detail">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAddressDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:layout_marginTop="@dimen/space_m"
+                android:labelFor="@id/etLocationMemo"
+                android:text="@string/label_location_memo" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.TripPlanner.TextField.NoLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:placeholderText="@string/placeholder_location_memo">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etLocationMemo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 예약 필수 (화면 안에서 켜고 끄는 값 하나 → 스위치) -->
             <com.google.android.material.materialswitch.MaterialSwitch

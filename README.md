@@ -42,7 +42,7 @@
 |---|---|
 | 언어 · UI | Kotlin, XML Views, Material Components |
 | 구조 | MVVM: Activity → ViewModel(LiveData) → Repository → Room DAO |
-| DB | Room (KSP), DB 버전 3, 마이그레이션 포함 |
+| DB | Room (KSP), DB 버전 4, 마이그레이션 포함 |
 | 지도 | 카카오맵 SDK v2, Google Maps SDK, osmdroid(OpenStreetMap) |
 | 검색 | 카카오 로컬 API(국내), Google Places API (New)(해외) |
 | 공유 | Firebase Authentication(익명) + Cloud Firestore |
@@ -163,8 +163,8 @@ MAPS_API_KEY=구글_API_키
 |---|---|
 | `Trip` | 이름, 시작·끝 날짜, 메모, 출발 시각, 공유 코드, 수정 시각 |
 | `Flight` | 교통 종류(`TransportMode`), 편명·열차 번호, 출발지·도착지, 출발·도착 시각 |
-| `Lodging` | 이름, 체크인·체크아웃, 위도·경도 (경로 출발점) |
-| `Place` | 이름, 후보/확정(`PlaceStatus`), 종류(`PlaceCategory`), 운영시간·브레이크·휴무, 예약 필수, 메모, 위도·경도, 일차·순서, 머무는 시간, 사진 |
+| `Lodging` | 이름, 체크인·체크아웃, 위도·경도 (경로 출발점), 주소·상세 주소·위치 메모 |
+| `Place` | 이름, 후보/확정(`PlaceStatus`), 종류(`PlaceCategory`), 운영시간·브레이크·휴무, 예약 필수, 메모, 위도·경도, 주소·상세 주소·위치 메모, 일차·순서, 머무는 시간, 사진 |
 
 - 위도·경도가 0이면 '위치 모름'으로 보고 경로 계산에서 빠집니다.
 - DB 구조(엔티티)를 바꾸면 `AppDatabase`의 `version`을 1 올리고 `MIGRATION`을 추가하세요.
@@ -244,7 +244,7 @@ trip-planner/
 ## 다음 할 일
 
 - [ ] 디자인 시안에 맞춰 화면 다듬기 (`design/export` PDF 기준)
-- [ ] 시안의 새 입력 칸: 주소 · 상세 주소 · 위치 메모 (DB 버전 올림 + 주소 → 좌표 변환 필요)
+- [x] 주소 · 상세 주소 · 위치 메모 (DB 4, 직접 쓴 주소는 Android Geocoder 로 좌표 변환)
 - [ ] 장소·교통·숙소 첨부 파일 공유 (Firebase Storage, Blaze 요금제 필요)
 - [ ] 여행 활동 기록, 경로 구간별 이동 수단 고르기 (시안에 '새 기능'으로 표시)
 - [ ] LLM API로 경로 설명·추천 (10주차)

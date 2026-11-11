@@ -119,6 +119,9 @@ class PlaceViewActivity : AppCompatActivity() {
         p.breakTime?.let { row(R.drawable.ic_schedule, R.string.info_break, it.replace("~", "–")) }
         row(R.drawable.ic_event, R.string.info_closed, p.closedDays ?: getString(R.string.closed_none))
         row(R.drawable.ic_schedule, R.string.info_stay, getString(R.string.stay_about, p.stayMinutes))
+        val addr = listOf(p.address, p.addressDetail).filter { it.isNotBlank() }.joinToString(" ")
+        if (addr.isNotBlank()) row(R.drawable.ic_place, R.string.label_address, addr)
+        if (p.locationMemo.isNotBlank()) row(R.drawable.ic_note, R.string.label_location_memo, p.locationMemo)
         if (!p.hasLocation) row(R.drawable.ic_place, R.string.info_location, getString(R.string.no_location_info))
         if (p.memo.isNotBlank()) row(R.drawable.ic_note, R.string.memo_label, p.memo.trim())
     }

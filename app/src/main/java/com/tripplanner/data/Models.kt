@@ -75,7 +75,11 @@ data class Lodging(
     val checkIn: String,        // yyyy-MM-dd
     val checkOut: String,
     val lat: Double,            // 경로 계산의 출발점
-    val lng: Double
+    val lng: Double,
+    /** 주소 (검색 결과 또는 직접 입력) · 상세 주소 · 위치 메모 — DB 4 */
+    @ColumnInfo(defaultValue = "") val address: String = "",
+    @ColumnInfo(defaultValue = "") val addressDetail: String = "",
+    @ColumnInfo(defaultValue = "") val locationMemo: String = ""
 )
 
 @Entity(
@@ -101,7 +105,11 @@ data class Place(
     val stayMinutes: Int = 60,          // 머무는 시간(분) — 경로 시간 계산용
     @ColumnInfo(defaultValue = "SIGHT") val category: PlaceCategory = PlaceCategory.SIGHT,
     /** 장소 사진 (앱 내부 저장소의 파일 경로), 없으면 null */
-    val photoUri: String? = null
+    val photoUri: String? = null,
+    /** 주소 (검색 결과 또는 직접 입력) · 상세 주소(예: 2층) · 위치 메모(예: B6 출구 앞) — DB 4 */
+    @ColumnInfo(defaultValue = "") val address: String = "",
+    @ColumnInfo(defaultValue = "") val addressDetail: String = "",
+    @ColumnInfo(defaultValue = "") val locationMemo: String = ""
 ) {
     val hasLocation: Boolean get() = lat != 0.0 || lng != 0.0
 }

@@ -20,7 +20,8 @@ class ShareCodecTest {
         trip,
         listOf(Place(id = 3, tripId = 7, name = "오사카성", status = PlaceStatus.CONFIRMED, openingHours = "09:00 ~ 17:00",
             lat = 34.68, lng = 135.52, day = 1, orderInDay = 2, stayMinutes = 120, category = PlaceCategory.SIGHT,
-            photoUri = "/data/user/0/x/files/photos/a.jpg")),
+            photoUri = "/data/user/0/x/files/photos/a.jpg", address = "오사카시 주오구", addressDetail = "천수각",
+            locationMemo = "오사카성공원역에서 걸어서 20분")),
         listOf(Flight(id = 1, tripId = 7, flightNo = "KTX 101", fromAirport = "서울역", toAirport = "부산역",
             departAt = "2027-02-12 07:00", arriveAt = "2027-02-12 09:40", mode = TransportMode.TRAIN)),
         listOf(Lodging(id = 2, tripId = 7, name = "호텔", checkIn = "2026-12-20", checkOut = "2026-12-23", lat = 34.66, lng = 135.50))
@@ -36,6 +37,15 @@ class ShareCodecTest {
         assertNull(p.photoUri)                         // 사진 경로는 기기마다 달라서 공유 안 함
         assertEquals(TransportMode.TRAIN, back.flights.single().mode)
         assertEquals(34.66, back.lodgings.single().lat, 1e-9)
+        assertEquals("오사카시 주오구", p.address); assertEquals("천수각", p.addressDetail)
+        assertEquals("오사카성공원역에서 걸어서 20분", p.locationMemo)
+        assertEquals("", back.lodgings.single().address)
+    }
+
+    @Test fun oldServerDocument_withoutAddress_readsEmpty() {
+        val m = mapOf("title" to "x", "places" to listOf(mapOf("name" to "a")), "lodgings" to listOf(mapOf("name" to "h")))
+        val back = ShareCodec.fromMap(m, trip)
+        assertEquals("", back.places.single().address); assertEquals("", back.lodgings.single().locationMemo)
     }
 
     @Test fun serverNumbersAsLong_andUnknownEnums() {

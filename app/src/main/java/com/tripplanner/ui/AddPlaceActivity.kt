@@ -51,7 +51,8 @@ class AddPlaceActivity : AppCompatActivity() {
     private var day: Int? = null
     private var lat = 0.0
     private var lng = 0.0
-    private var locationLabel: String? = null
+    /** 지금 위도·경도가 가리키는 주소 (검색 결과·불러온 값). 주소 칸을 이것과 다르게 고치면 저장할 때 다시 찾음 */
+    private var coordsAddress: String? = null
     private var tripDomestic = true
     private var startDate: String? = null
     private var dayCounts: Map<Int, Int> = emptyMap()
@@ -60,7 +61,6 @@ class AddPlaceActivity : AppCompatActivity() {
     private lateinit var ivPhoto: ImageView
     private lateinit var toggle: MaterialButtonToggleGroup
     private lateinit var fieldDay: SelectField
-    private lateinit var fieldLocation: SelectField
     private lateinit var tilName: TextInputLayout
 
     private fun field(id: Int) = findViewById<TextInputEditText>(id)
@@ -89,7 +89,6 @@ class AddPlaceActivity : AppCompatActivity() {
         tilName = findViewById(R.id.tilName)
         toggle = findViewById(R.id.toggleStatus)
         fieldDay = findViewById(R.id.fieldDay)
-        fieldLocation = findViewById(R.id.fieldLocation)
         ivPhoto = findViewById(R.id.ivPhoto)
         val switchReservation = findViewById<MaterialSwitch>(R.id.switchReservation)
         field(R.id.etName).doAfterTextChanged { tilName.error = null }
@@ -143,12 +142,19 @@ class AddPlaceActivity : AppCompatActivity() {
         fieldDay.setOnClickListener { pickDay(it) }
         toggle.addOnButtonCheckedListener { _, _, _ -> render() }
 
-        // ---------- 위치 ----------
-        fieldLocation.label = getString(R.string.section_location)
-        fieldLocation.setIcon(R.drawable.ic_place)
-        fieldLocation.setDropdown(true)
-        fieldLocation.setPlaceholder(getString(R.string.placeholder_location))
-        fieldLocation.setOnClickListener { pickLocation(it) }
+        // ---------- 위치: 주소(검색 또는 직접) · 상세 주소 · 위치 메모 ----------
+        findViewById<TextInputLayout>(R.id.tilAddress).setEndIconOnClickListener {
+            val q = field(R.id.etAddress).text?.toString()?.takeIf { it.isNotBlank() } ?: field(R.id.etName).text?.toString().orEmpty()
+            showPlaceSearch(this, q, tripDomestic) { hit ->
+                lat = hit.lat; lng = hit.lng
+                val addr = hit.address.ifBlank { hit.name }
+                coordsAddress = addr
+                field(R.id.etAddress).setText(addr)
+                render()
+            }
+        }
+        field(R.id.etAddress).doAfterTextChanged { renderLocState() }
+        findViewById<View>(R.id.btnLatLng).setOnClickListener { manualLatLng() }
 
         findViewById<View>(R.id.btnCancel).setOnClickListener { finish() }
         findViewById<View>(R.id.btnSave).setOnClickListener { save(switchReservation.isChecked) }
@@ -157,7 +163,7 @@ class AddPlaceActivity : AppCompatActivity() {
             category = st.getString("category")?.let { runCatching { PlaceCategory.valueOf(it) }.getOrNull() } ?: category
             photoPath = st.getString("photo")
             day = st.getInt("day", 0).takeIf { it > 0 }
-            lat = st.getDouble("lat"); lng = st.getDouble("lng"); locationLabel = st.getString("locLabel")
+            lat = st.getDouble("lat"); lng = st.getDouble("lng"); coordsAddress = st.getString("coordsAddress")
         }
         selectCategory(category)
         render()
@@ -184,6 +190,10 @@ class AddPlaceActivity : AppCompatActivity() {
                     field(R.id.etMemo).setText(p.memo)
                     photoPath = p.photoUri
                     lat = p.lat; lng = p.lng
+                    field(R.id.etAddress).setText(p.address)
+                    field(R.id.etAddressDetail).setText(p.addressDetail)
+                    field(R.id.etLocationMemo).setText(p.locationMemo)
+                    coordsAddress = p.address
                     day = p.day
                     selectCategory(p.category)
                     toggle.check(if (p.status == PlaceStatus.CONFIRMED) R.id.btnConfirmed else R.id.btnCandidate)
@@ -199,7 +209,7 @@ class AddPlaceActivity : AppCompatActivity() {
         outState.putString("photo", photoPath)
         outState.putInt("day", day ?: 0)
         outState.putDouble("lat", lat); outState.putDouble("lng", lng)
-        outState.putString("locLabel", locationLabel)
+        outState.putString("coordsAddress", coordsAddress)
     }
 
     private fun refreshPhoto() {
@@ -230,8 +240,7 @@ class AddPlaceActivity : AppCompatActivity() {
         fieldDay.isEnabled = on
         fieldDay.findViewById<View>(R.id.selectBox).isEnabled = on
         fieldDay.setValue(if (!on) getString(R.string.day_none) else day?.let { dayLabel(it) } ?: getString(R.string.day_none))
-        val hasLoc = lat != 0.0 || lng != 0.0
-        fieldLocation.setValue(if (!hasLoc) null else locationLabel ?: getString(R.string.location_set, lat, lng))
+        renderLocState()
         refreshPhoto()
     }
 
@@ -245,39 +254,43 @@ class AddPlaceActivity : AppCompatActivity() {
         showSelect(anchor, rows, widthDp = 240)
     }
 
-    /** 위치: 검색해서 고르기 / 위도·경도 직접 입력 / 지우기 */
-    private fun pickLocation(anchor: View) {
-        val rows = mutableListOf(
-            SelectRow.Option(getString(R.string.location_search)) {
-                showPlaceSearch(this, field(R.id.etName).text?.toString().orEmpty(), tripDomestic) { hit ->
-                    lat = hit.lat; lng = hit.lng; locationLabel = hit.address.ifBlank { hit.name }; render()
-                }
-            },
-            SelectRow.Option(getString(R.string.location_manual)) {
-                showFormDialog(this, getString(R.string.section_location), listOf(
-                    Field(getString(R.string.hint_lat), lat.takeIf { it != 0.0 }?.toString() ?: "", DECIMAL_INPUT),
-                    Field(getString(R.string.hint_lng), lng.takeIf { it != 0.0 }?.toString() ?: "", DECIMAL_INPUT)
-                )) { (a, b) ->
-                    val la = a.toDoubleOrNull(); val ln = b.toDoubleOrNull()
-                    // 검사 조건은 이전과 같음: 위도 -90~90, 경도 -180~180
-                    when {
-                        la != null && la !in -90.0..90.0 -> { Toast.makeText(this, R.string.error_lat, Toast.LENGTH_SHORT).show(); false }
-                        ln != null && ln !in -180.0..180.0 -> { Toast.makeText(this, R.string.error_lng, Toast.LENGTH_SHORT).show(); false }
-                        else -> { lat = la ?: 0.0; lng = ln ?: 0.0; locationLabel = null; render(); true }
-                    }
+    /** 주소 칸 아래 한 줄: 위치 있음 / 위치 없음 / 저장할 때 주소로 찾음 */
+    private fun renderLocState() {
+        val addr = field(R.id.etAddress).text?.toString()?.trim().orEmpty()
+        val changed = addr.isNotEmpty() && addr != coordsAddress?.trim()
+        findViewById<android.widget.TextView>(R.id.tvLocState).setText(when {
+            changed -> R.string.loc_state_pending
+            lat != 0.0 || lng != 0.0 -> R.string.loc_state_set
+            else -> R.string.loc_state_none
+        })
+    }
+
+    /** 검색 키 · 지오코더가 없을 때를 위해 위도·경도 직접 입력 (검사 조건은 이전과 같음) */
+    private fun manualLatLng() {
+        showFormDialog(this, getString(R.string.location_manual), listOf(
+            Field(getString(R.string.hint_lat), lat.takeIf { it != 0.0 }?.toString() ?: "", DECIMAL_INPUT),
+            Field(getString(R.string.hint_lng), lng.takeIf { it != 0.0 }?.toString() ?: "", DECIMAL_INPUT)
+        )) { (a, b) ->
+            val la = a.toDoubleOrNull(); val ln = b.toDoubleOrNull()
+            when {
+                la != null && la !in -90.0..90.0 -> { Toast.makeText(this, R.string.error_lat, Toast.LENGTH_SHORT).show(); false }
+                ln != null && ln !in -180.0..180.0 -> { Toast.makeText(this, R.string.error_lng, Toast.LENGTH_SHORT).show(); false }
+                else -> {
+                    lat = la ?: 0.0; lng = ln ?: 0.0
+                    // 직접 넣은 위치는 지금 주소 칸 값과 짝으로 봄 (저장할 때 다시 찾지 않음)
+                    coordsAddress = field(R.id.etAddress).text?.toString()
+                    render(); true
                 }
             }
-        )
-        if (lat != 0.0 || lng != 0.0) rows += SelectRow.Option(getString(R.string.location_clear), danger = true) {
-            lat = 0.0; lng = 0.0; locationLabel = null; render()
         }
-        showSelect(anchor, rows, widthDp = 220)
     }
 
     /** 검색 결과로 칸 채우기: 이름·위치·종류는 덮어쓰고, 운영시간은 비어 있을 때만 */
     private fun applySearchHit(hit: SearchHit) {
         field(R.id.etName).setText(hit.name)
-        lat = hit.lat; lng = hit.lng; locationLabel = hit.address.ifBlank { hit.name }
+        lat = hit.lat; lng = hit.lng
+        coordsAddress = hit.address
+        field(R.id.etAddress).setText(hit.address)
         selectCategory(hit.category)
         val hours = field(R.id.etHours)
         val cur = hours.text?.toString()?.trim().orEmpty()
@@ -309,6 +322,9 @@ class AddPlaceActivity : AppCompatActivity() {
             memo = field(R.id.etMemo).text.toString().trim(),
             lat = lat,
             lng = lng,
+            address = field(R.id.etAddress).text.toString().trim(),
+            addressDetail = field(R.id.etAddressDetail).text.toString().trim(),
+            locationMemo = field(R.id.etLocationMemo).text.toString().trim(),
             day = if (confirmed) d else null,
             // 일차가 그대로면 기존 방문 순서 유지
             orderInDay = if (confirmed && old?.day == d) old?.orderInDay else null,
@@ -319,7 +335,13 @@ class AddPlaceActivity : AppCompatActivity() {
         // 사진을 바꾸거나 뺐으면 예전에 복사해 둔 사진 파일 정리
         if (old?.photoUri != null && old.photoUri != photoPath) Photos.delete(this, old.photoUri)
         lifecycleScope.launch {
-            repo.savePlace(place)
+            // 주소를 직접 바꿨으면 그 주소로 위치 찾기 (못 찾으면 위치 없음, 기기에 기능이 없으면 그대로)
+            val needs = place.address.isNotEmpty() && place.address != coordsAddress?.trim()
+            val result = if (needs) Geocoding.find(this@AddPlaceActivity, place.address) else null
+            val (la, ln) = Geocoding.resolve(place.address, coordsAddress, place.lat, place.lng, result)
+            if (result == Geocoding.Result.NotFound)
+                Toast.makeText(this@AddPlaceActivity, R.string.geocode_not_found, Toast.LENGTH_LONG).show()
+            repo.savePlace(place.copy(lat = la, lng = ln))
             finish()
         }
     }

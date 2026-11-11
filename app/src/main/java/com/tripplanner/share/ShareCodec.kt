@@ -45,7 +45,8 @@ object ShareCodec {
                 "breakTime" to p.breakTime, "closedDays" to p.closedDays,
                 "reservation" to p.isReservationRequired, "memo" to p.memo,
                 "lat" to p.lat, "lng" to p.lng, "day" to p.day, "order" to p.orderInDay,
-                "stay" to p.stayMinutes, "category" to p.category.name
+                "stay" to p.stayMinutes, "category" to p.category.name,
+                "address" to p.address, "addressDetail" to p.addressDetail, "locMemo" to p.locationMemo
             )
         },
         "flights" to s.flights.map { f ->
@@ -53,7 +54,8 @@ object ShareCodec {
                 "departAt" to f.departAt, "arriveAt" to f.arriveAt, "mode" to f.mode.name)
         },
         "lodgings" to s.lodgings.map { l ->
-            mapOf("name" to l.name, "checkIn" to l.checkIn, "checkOut" to l.checkOut, "lat" to l.lat, "lng" to l.lng)
+            mapOf("name" to l.name, "checkIn" to l.checkIn, "checkOut" to l.checkOut, "lat" to l.lat, "lng" to l.lng,
+                "address" to l.address, "addressDetail" to l.addressDetail, "locMemo" to l.locationMemo)
         }
     )
 
@@ -77,7 +79,9 @@ object ShareCodec {
                 lat = p.dbl("lat") ?: 0.0, lng = p.dbl("lng") ?: 0.0,
                 day = p.int("day"), orderInDay = p.int("order"),
                 stayMinutes = p.int("stay") ?: 60,
-                category = enumOr(p.str("category"), PlaceCategory.SIGHT)
+                category = enumOr(p.str("category"), PlaceCategory.SIGHT),
+                address = p.str("address") ?: "", addressDetail = p.str("addressDetail") ?: "",
+                locationMemo = p.str("locMemo") ?: ""
             )
         }
         val flights = m.list("flights").map { f ->
@@ -87,7 +91,9 @@ object ShareCodec {
         }
         val lodgings = m.list("lodgings").map { l ->
             Lodging(tripId = base.id, name = l.str("name") ?: "", checkIn = l.str("checkIn") ?: "",
-                checkOut = l.str("checkOut") ?: "", lat = l.dbl("lat") ?: 0.0, lng = l.dbl("lng") ?: 0.0)
+                checkOut = l.str("checkOut") ?: "", lat = l.dbl("lat") ?: 0.0, lng = l.dbl("lng") ?: 0.0,
+                address = l.str("address") ?: "", addressDetail = l.str("addressDetail") ?: "",
+                locationMemo = l.str("locMemo") ?: "")
         }
         return TripSnapshot(trip, places, flights, lodgings)
     }

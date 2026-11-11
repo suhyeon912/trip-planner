@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Trip::class, Flight::class, Lodging::class, Place::class],
-    version = 3,   // 구조가 바뀌면 1씩 올리고 아래 MIGRATION 추가
+    version = 4,   // 구조가 바뀌면 1씩 올리고 아래 MIGRATION 추가
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -32,6 +32,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** 3 → 4: 장소·숙소에 주소 · 상세 주소 · 위치 메모 추가 (기존 데이터는 빈 글자) */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                for (table in listOf("places", "lodgings")) {
+                    db.execSQL("ALTER TABLE $table ADD COLUMN address TEXT NOT NULL DEFAULT ''")
+                    db.execSQL("ALTER TABLE $table ADD COLUMN addressDetail TEXT NOT NULL DEFAULT ''")
+                    db.execSQL("ALTER TABLE $table ADD COLUMN locationMemo TEXT NOT NULL DEFAULT ''")
+                }
+            }
+        }
+
         @Volatile private var instance: AppDatabase? = null
 
         /** 앱 전체에서 DB 는 하나만 만들어 씁니다 (싱글톤) */
@@ -39,7 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(context.applicationContext,
                     AppDatabase::class.java, "trip_planner.db")
-                    .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                     // 그보다 오래된 개발용 버전(1)은 지우고 새로 만듦
                     .fallbackToDestructiveMigrationFrom(1)
                     .build()
