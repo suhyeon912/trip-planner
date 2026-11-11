@@ -1,107 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 선택한 경로의 시간표 한 줄: [타임라인 점] 이름 / 도착 시각·머무름 / 경고·대기·후보 -->
+<!--
+  시간표 한 줄 (시안 TimelineRow): 시각 44(도착 굵게 / 떠남 회색) · 점 32(종류 타일 또는 숙소) · 이름 15
+  문제 있는 장소는 노란 바탕 + 이유 한 줄
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/stopRow"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:layout_marginHorizontal="@dimen/space_s"
+    android:gravity="center_vertical"
+    android:minHeight="52dp"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/space_s"
+    android:paddingVertical="6dp">
 
     <LinearLayout
-        android:layout_width="32dp"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="@dimen/space_m"
-        android:gravity="center_horizontal"
-        android:importantForAccessibility="noHideDescendants"
+        android:layout_width="48dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <View
-            android:id="@+id/lineAbove"
-            android:layout_width="2dp"
-            android:layout_height="6dp"
-            android:background="@color/outline_variant" />
+        <TextView
+            android:id="@+id/tvArrive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFeatureSettings="tnum"
+            android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+            tools:text="10:10" />
 
-        <FrameLayout
-            android:id="@+id/dotFrame"
-            android:layout_width="28dp"
-            android:layout_height="28dp">
-            <TextView
-                android:id="@+id/tvDot"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
-                android:textColor="@color/on_primary" />
-            <ImageView
-                android:id="@+id/ivDotIcon"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_gravity="center"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_hotel"
-                android:visibility="gone" />
-        </FrameLayout>
-
-        <View
-            android:id="@+id/lineBelow"
-            android:layout_width="2dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@color/outline_variant" />
+        <TextView
+            android:id="@+id/tvLeave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFeatureSettings="tnum"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+            android:textColor="@color/text_sub"
+            tools:text="11:40" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ivStopIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="@dimen/space_xs"
+        android:importantForAccessibility="no" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingTop="6dp"
-        android:paddingBottom="@dimen/space_m">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvStopName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall" />
+            android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+            tools:text="도쿄 스카이트리" />
 
         <TextView
-            android:id="@+id/tvStopMeta"
+            android:id="@+id/tvStopSub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant" />
-
-        <TextView
-            android:id="@+id/tvCandidate"
-            style="@style/Widget.TripPlanner.Badge"
-            android:layout_marginTop="@dimen/space_xs"
-            android:background="@drawable/bg_chip"
-            android:text="@string/added_from_candidates"
-            android:textColor="@color/on_primary_container"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/tvWait"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xs"
-            android:drawablePadding="@dimen/space_xs"
-            android:gravity="center_vertical"
             android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/tvWarn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xs"
-            android:background="@drawable/bg_warn"
-            android:drawablePadding="@dimen/space_xs"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="@dimen/space_s"
-            android:paddingVertical="@dimen/space_xs"
-            android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
-            android:textColor="@color/warn_text"
-            android:visibility="gone" />
+            android:textColor="@color/text_sub"
+            android:visibility="gone"
+            tools:text="문 열 때까지 20분 기다려요" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ivWarn"
+        android:layout_width="@dimen/icon_small"
+        android:layout_height="@dimen/icon_small"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_warning"
+        android:visibility="gone"
+        app:tint="@color/warn_text" />
 </LinearLayout>

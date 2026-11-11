@@ -8,7 +8,6 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -19,8 +18,8 @@ import com.tripplanner.route.TimeUtil
 import android.widget.FrameLayout
 
 /**
- * 경로 제안 (4단계 구조)
- * 일차 칩 → A/B/C 요약 카드 중 하나 선택 → 그 안의 시간표 → 하단 고정 바에서 길찾기·확정
+ * 경로 제안 (시안 Route): 여행 상세에서 고른 그날의 경로.
+ * 출발 시각 칩 → 지도 → 선택지 카드(세로) → 선택한 경로 시간표 → 하단 바에서 길찾기 · 적용
  * 선택한 안은 앱 안 지도에도 그려 줍니다 (숙소 → 1 → 2 → … → 숙소).
  * 계산(RoutePlanner)과 저장(RouteViewModel.apply)은 그대로입니다.
  */
@@ -35,25 +34,24 @@ class RouteActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_route)
-        setupToolbar()
+        val toolbar = setupToolbar()
         limitScrollContentWidth(R.id.scroll)
         findViewById<View>(R.id.bottomBar).limitContentWidth()
-        findViewById<View>(R.id.rvDays).limitContentWidth()
 
-        val tvDate = findViewById<TextView>(R.id.tvDate)
         val tvNotes = findViewById<TextView>(R.id.tvNotes)
         val progress = findViewById<View>(R.id.progress)
         val selected = findViewById<View>(R.id.selected)
         val tvOptionTitle = findViewById<TextView>(R.id.tvOptionTitle)
-        val tvOptionDesc = findViewById<TextView>(R.id.tvOptionDesc)
-        val tvOptionSummary = findViewById<TextView>(R.id.tvOptionSummary)
         val emptyState = findViewById<View>(R.id.emptyState)
         val bottomBar = findViewById<View>(R.id.bottomBar)
+        val alertPanel = findViewById<View>(R.id.alertPanel)
+        val tvAlert = findViewById<TextView>(R.id.tvAlert)
         val btnMap = findViewById<Button>(R.id.btnRouteMap)
         val btnApply = findViewById<Button>(R.id.btnApply)
-        val btnStartTime = findViewById<Button>(R.id.btnStartTime)
+        val btnStartTime = findViewById<View>(R.id.btnStartTime)
+        val tvStartTime = findViewById<TextView>(R.id.tvStartTime)
+        val timeChips = findViewById<View>(R.id.timeChips)
         val mapCard = findViewById<View>(R.id.mapCard)
-        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         // 출발 시각 바꾸기 (시계 선택 창)
         btnStartTime.setOnClickListener {
             val cur = viewModel.ui.value?.startMinutes ?: RoutePlanner.DEFAULT_START
@@ -66,7 +64,7 @@ class RouteActivity : AppCompatActivity() {
             picker.show(supportFragmentManager, "start_time")
         }
 
-        // 선택한 안 지도 (점을 누르면 이름·도착 시각)
+        // 선택한 경로 지도 (점을 누르면 이름·도착 시각)
         mapLabel = findViewById(R.id.routeMapLabel)
         mapLegend = findViewById(R.id.routeMapLegend)
         mapLegend.setCompoundDrawablesRelativeWithIntrinsicBounds(GradientDrawable().apply {
@@ -74,35 +72,26 @@ class RouteActivity : AppCompatActivity() {
             setColor(ContextCompat.getColor(this@RouteActivity, R.color.tertiary))
             val s = (10 * resources.displayMetrics.density).toInt(); setSize(s, s)
         }, null, null, null)
-        // 국내면 카카오맵, 해외면 구글맵 (키가 없으면 OpenStreetMap)
+        // 국내면 카카오맵, 해외면 Google Maps (키가 없으면 OpenStreetMap)
         routeMap = MapHost(findViewById<FrameLayout>(R.id.routeMap), this) { key -> showMapLabel(key) }
 
-        // 일차 칩
-        val dayAdapter = DayChipAdapter { day -> viewModel.selectDay(day) }
-        findViewById<RecyclerView>(R.id.rvDays).apply {
-            layoutManager = LinearLayoutManager(this@RouteActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = dayAdapter
-        }
-        viewModel.dayChips.observe(this) { dayAdapter.submit(it) }
-
-        // A/B/C 요약 카드: 칸을 나눠 나란히. 한 칸이 너무 좁으면(좁은 화면·큰 글자) 고정 폭 + 가로 스크롤
+        // 선택지 카드: 세로로 하나씩
         val optionAdapter = RouteOptionAdapter { key -> viewModel.selectOption(key) }
-        val rvOptions = findViewById<RecyclerView>(R.id.rvOptions).apply {
+        findViewById<RecyclerView>(R.id.rvOptions).apply {
+            layoutManager = LinearLayoutManager(this@RouteActivity)
             adapter = optionAdapter
             itemAnimator = null
         }
+        // 좁은 화면·큰 글자에서는 하단 버튼에 짧은 라벨
         val cfg = resources.configuration
-        val density = resources.displayMetrics.density
-        // 글자 크기를 반영한 '한 칸에 필요한 최소 폭'
-        val minCardDp = 112 * cfg.fontScale
-        // 넓은 화면에서는 내용 폭이 640dp 로 제한되므로 그 폭 기준
-        val contentDp = minOf(cfg.screenWidthDp - 32, 640)
-        fun cardsFit(n: Int) = contentDp / n.coerceAtLeast(1) >= minCardDp
-        // 하단 버튼도 같은 기준으로 짧은 라벨 사용
         val compactButtons = cfg.screenWidthDp < 360 || cfg.fontScale > 1.15f
+        (findViewById<View>(R.id.btnRouteMap) as com.google.android.material.button.MaterialButton).apply {
+            setIconResource(R.drawable.ic_map); iconGravity = com.google.android.material.button.MaterialButton.ICON_GRAVITY_TEXT_START
+            iconSize = (18 * resources.displayMetrics.density).toInt()
+        }
 
-        // 선택한 안의 시간표
-        val stopAdapter = RouteStopAdapter()
+        // 선택한 경로 시간표
+        val stopAdapter = RouteStopAdapter { id -> viewModel.placeOf(id) }
         findViewById<RecyclerView>(R.id.rvStops).apply {
             layoutManager = LinearLayoutManager(this@RouteActivity)
             adapter = stopAdapter
@@ -110,8 +99,9 @@ class RouteActivity : AppCompatActivity() {
 
         fun render() {
             val s = viewModel.ui.value ?: return
-            tvDate.text = s.dateLabel + getString(R.string.list_separator) +
-                (s.anchor?.let { getString(R.string.route_anchor, it.name) } ?: getString(R.string.route_no_anchor))
+            toolbar.title = getString(R.string.route_title, s.day)
+            // 시각·거리는 직선거리로 어림한 값이라는 것을 늘 보이게
+            toolbar.subtitle = getString(R.string.route_subtitle_fmt, TimeUtil.format(s.startMinutes))
             tvNotes.visibility = if (s.notes.isEmpty()) View.GONE else View.VISIBLE
             tvNotes.text = s.notes.joinToString("\n") { getString(R.string.route_note_bullet, it) }
 
@@ -119,43 +109,38 @@ class RouteActivity : AppCompatActivity() {
             val has = s.options.isNotEmpty()
             selected.visibility = if (has) View.VISIBLE else View.GONE
             bottomBar.visibility = if (has) View.VISIBLE else View.GONE
+            timeChips.visibility = if (has) View.VISIBLE else View.GONE
+            mapCard.visibility = if (has) View.VISIBLE else View.GONE
 
             val option = viewModel.selectedOption()
-            val n = s.options.size.coerceAtLeast(1)
-            if (cardsFit(n)) {
-                if ((rvOptions.layoutManager as? GridLayoutManager)?.spanCount != n)
-                    rvOptions.layoutManager = GridLayoutManager(this, n)
-                optionAdapter.submit(s.options, option?.key)
-            } else {
-                if (rvOptions.layoutManager !is LinearLayoutManager || rvOptions.layoutManager is GridLayoutManager)
-                    rvOptions.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-                optionAdapter.submit(s.options, option?.key, fixedWidth = (minCardDp * 1.15f * density).toInt())
-            }
+            optionAdapter.submit(s.options, option?.key, hasHome = s.anchor != null)
             stopAdapter.submit(option, s.anchor, s.startMinutes)
             val startLabel = TimeUtil.format(s.startMinutes)
-            btnStartTime.text = getString(R.string.start_time_btn, startLabel)
+            tvStartTime.text = startLabel
             btnStartTime.contentDescription = getString(R.string.start_time_a11y, startLabel)
-            toolbar.subtitle = getString(R.string.route_subtitle_fmt, startLabel)
-            mapCard.visibility = if (has) View.VISIBLE else View.GONE
-            if (option != null) renderRouteMap(option)
             if (option != null) {
-                tvOptionTitle.text = getString(R.string.option_title, option.key, option.title)
-                tvOptionDesc.text = option.description
-                tvOptionSummary.text = statsLine(this, option)
+                renderRouteMap(option)
+                tvOptionTitle.text = getString(R.string.timetable_title, option.key)
+                // 확인할 것이 있는 경로: 노란 알림 (첫 이유 + 나머지 수)
+                val warnings = option.warnings
+                alertPanel.visibility = if (warnings.isEmpty()) View.GONE else View.VISIBLE
+                tvAlert.text = if (warnings.size <= 1) warnings.firstOrNull()
+                               else getString(R.string.alert_more, warnings.first(), warnings.size - 1)
                 val mapName = MapLauncher.mapName(this, MapLauncher.isDomestic(pointsOf(option)))
                 btnApply.text = getString(if (compactButtons) R.string.apply_option_short else R.string.apply_option, option.key)
                 btnApply.contentDescription = getString(R.string.apply_option, option.key)
-                btnMap.text = if (compactButtons) getString(R.string.open_directions_short) else getString(R.string.open_directions, mapName)
+                // 1:2 하단 바에서 한 줄로 보이게 '길찾기' + 지도 아이콘 (낭독은 '카카오맵 길찾기')
+                btnMap.text = getString(R.string.open_directions_short)
                 btnMap.contentDescription = getString(R.string.open_directions, mapName)
                 btnMap.setOnClickListener { MapLauncher.openRoute(this, pointsOf(option)) }
                 btnApply.setOnClickListener { viewModel.apply(option) }
-            }
+            } else alertPanel.visibility = View.GONE
         }
         viewModel.ui.observe(this) { render() }
         viewModel.selectedKey.observe(this) { render() }
         viewModel.loading.observe(this) { progress.visibility = if (it == true) View.VISIBLE else View.INVISIBLE }
 
-        // 확정 후: 스낵바 + 상세로 돌아가기
+        // 적용 후: 스낵바 + 상세로 돌아가기
         viewModel.applied.observe(this) { msg ->
             if (msg != null) {
                 Snackbar.make(findViewById(R.id.root), msg, Snackbar.LENGTH_LONG)

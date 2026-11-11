@@ -39,8 +39,6 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
     private val repo = (app as TripPlannerApp).repository
     val tripId: Long = state.get<Long>(TripDetailActivity.EXTRA_TRIP_ID) ?: -1L
 
-    /** 일차 칩 (여행 상세와 같은 모양) */
-    val dayChips = MutableLiveData<List<DayChip>>()
     val ui = MutableLiveData<RouteUiState>()
     val applied = MutableLiveData<String?>()
     /** 경로 계산 중 */
@@ -49,6 +47,7 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
     /** 비교 카드에서 고른 안 ("A"/"B"/"C") — 회전해도 유지 */
     val selectedKey: MutableLiveData<String> = state.getLiveData("option", "A")
 
+    /** 여행 상세에서 고른 일차 (화면 안에서는 바꾸지 않음) */
     var selectedDay: Int
         get() = state.get<Int>("day") ?: 1
         private set(v) { state["day"] = v }
@@ -74,14 +73,6 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         compute()
     }
 
-    fun selectDay(day: Int) {
-        if (day == selectedDay && ui.value?.day == day) return
-        selectedDay = day
-        selectedKey.value = "A"
-        updateChips()
-        viewModelScope.launch { compute() }
-    }
-
     fun selectOption(key: String) { selectedKey.value = key }
 
     /** 지금 고른 안 (없으면 첫 번째) */
@@ -90,15 +81,8 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         return options.firstOrNull { it.key == selectedKey.value } ?: options.firstOrNull()
     }
 
-    private fun updateChips() {
-        val t = trip ?: return
-        val n = TimeUtil.dayCount(t.startDate, t.endDate)
-        dayChips.value = (1..n).map { d ->
-            val count = places.count { it.status == PlaceStatus.CONFIRMED && it.day == d }
-            val date = TimeUtil.dateOfDay(t.startDate, d)
-            ctx.dayChip(d, date, count, d == selectedDay)
-        }
-    }
+    /** 시간표의 종류 아이콘·사진용 */
+    fun placeOf(id: Long): Place? = places.firstOrNull { it.id == id }
 
     private fun reload() = viewModelScope.launch {
         val t = repo.getTrip(tripId) ?: return@launch
@@ -107,7 +91,6 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         lodgings = repo.getLodgings(tripId)
         val n = TimeUtil.dayCount(t.startDate, t.endDate)
         if (selectedDay !in 1..n) selectedDay = 1
-        updateChips()
         compute()
     }
 

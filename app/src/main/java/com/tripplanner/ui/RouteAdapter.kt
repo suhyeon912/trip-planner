@@ -1,6 +1,7 @@
 package com.tripplanner.ui
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tripplanner.R
+import com.tripplanner.data.Place
 import com.tripplanner.route.Anchor
 import com.tripplanner.route.RouteOption
 import com.tripplanner.route.RoutePlanner
@@ -28,19 +30,22 @@ fun statsLine(ctx: Context, o: RouteOption, separator: String = ctx.getString(R.
     ).joinToString(separator)
 }
 
+/** 추천 = 확인할 것이 가장 적은 경로 (같으면 앞 순서 = 이동 거리 우선) */
+fun recommendedKey(options: List<RouteOption>): String? =
+    if (options.size < 2) null else options.minByOrNull { it.warnings.size }?.key
+
 // =====================================================================
-/** A/B/C 요약 카드 (하나만 선택). 카드 수만큼 한 줄에 나란히 */
+/** 경로 선택지 카드 (세로 목록, 하나만 선택) */
 class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.Adapter<RouteOptionAdapter.Holder>() {
 
     private var options: List<RouteOption> = emptyList()
     private var selectedKey: String? = null
-    /** 0 이면 칸을 나눠 꽉 채움, 0보다 크면 이 폭(px)으로 고정하고 가로 스크롤 */
-    private var fixedWidthPx = 0
+    private var hasHome = true
 
-    fun submit(list: List<RouteOption>, selected: String?, fixedWidth: Int = 0) {
+    fun submit(list: List<RouteOption>, selected: String?, hasHome: Boolean) {
         options = list
         selectedKey = selected
-        fixedWidthPx = fixedWidth
+        this.hasHome = hasHome
         notifyDataSetChanged()
     }
 
@@ -58,31 +63,42 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
         val o = options[position]
         val ctx = h.itemView.context
         val selected = o.key == selectedKey
-        h.itemView.layoutParams = h.itemView.layoutParams.apply {
-            width = if (fixedWidthPx > 0) fixedWidthPx else ViewGroup.LayoutParams.MATCH_PARENT
-        }
+        val recommended = recommendedKey(options) == o.key
         h.key.text = o.key
-        h.name.text = o.title
-        h.stats.text = statsLine(ctx, o, "\n")
+        h.key.backgroundTintList = ColorStateList.valueOf(ctx.color(if (selected) R.color.primary else R.color.surface_container))
+        h.key.setTextColor(ctx.color(if (selected) R.color.on_primary else R.color.on_surface))
+        h.name.text = ctx.getString(R.string.option_name, o.title, o.totalKm)
+        val seq = o.visits.joinToString(" → ") { it.stop.name }
+        h.stats.text = ctx.getString(if (hasHome) R.string.option_seq else R.string.option_seq_no_home, seq, TimeUtil.format(o.endTime))
         val warnCount = o.warnings.size
+        val small = (14 * ctx.resources.displayMetrics.density).toInt()
+        fun icon(res: Int, tint: Int) = ContextCompat.getDrawable(ctx, res)?.mutate()?.apply {
+            setBounds(0, 0, small, small); setTint(ctx.color(tint))
+        }
         when {
             warnCount > 0 -> {
+                h.badge.visibility = View.VISIBLE
                 h.badge.text = ctx.getString(R.string.warn_n, warnCount)
-                h.badge.setBackgroundResource(R.drawable.bg_warn_badge)
-                h.badge.setTextColor(ContextCompat.getColor(ctx, R.color.warn_text))
+                h.badge.backgroundTintList = ColorStateList.valueOf(ctx.color(R.color.warn_bg))
+                h.badge.setTextColor(ctx.color(R.color.warn_text))
+                h.badge.setCompoundDrawablesRelative(icon(R.drawable.ic_warning, R.color.warn_text), null, null, null)
             }
-            else -> {
-                h.badge.text = ctx.getString(R.string.warn_none)
-                h.badge.setBackgroundResource(R.drawable.bg_ok_badge)
-                h.badge.setTextColor(ContextCompat.getColor(ctx, R.color.success))
+            recommended -> {
+                h.badge.visibility = View.VISIBLE
+                h.badge.text = ctx.getString(R.string.recommended)
+                h.badge.backgroundTintList = ColorStateList.valueOf(ctx.color(R.color.primary))
+                h.badge.setTextColor(ctx.color(R.color.on_primary))
+                h.badge.setCompoundDrawablesRelative(icon(R.drawable.ic_check, R.color.on_primary), null, null, null)
             }
+            else -> h.badge.visibility = View.GONE
         }
-        if (o.added.isNotEmpty()) h.badge.text = h.badge.text.toString() + ctx.getString(R.string.added_n_badge, o.added.size)
+        h.badge.setBackgroundResource(R.drawable.bg_chip)
         h.itemView.setBackgroundResource(if (selected) R.drawable.bg_option_selected else R.drawable.bg_option)
         h.itemView.isSelected = selected
-        h.itemView.contentDescription = ctx.getString(R.string.option_a11y, o.key, o.title, statsLine(ctx, o, ", "),
-                if (warnCount > 0) ctx.getString(R.string.warn_n_a11y, warnCount) else ctx.getString(R.string.warn_none),
-                if (o.added.isNotEmpty()) ctx.getString(R.string.added_n_a11y, o.added.size) else "")
+        h.itemView.contentDescription = listOfNotNull(ctx.getString(R.string.option_a11y, o.key, o.title, statsLine(ctx, o, ", "),
+                if (warnCount > 0) ctx.getString(R.string.warn_n_a11y, warnCount) else "",
+                if (o.added.isNotEmpty()) ctx.getString(R.string.added_n_a11y, o.added.size) else ""),
+            if (recommended) ctx.getString(R.string.recommended) else null, h.stats.text).joinToString(", ")
         ViewCompat.setStateDescription(h.itemView, if (selected) ctx.getString(R.string.state_selected) else null)
         h.itemView.setOnClickListener { onSelect(o.key) }
     }
@@ -91,82 +107,102 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
 }
 
 // =====================================================================
-/** 선택한 안의 시간표: (숙소 출발) → 장소들 → (숙소 도착) */
-class RouteStopAdapter : RecyclerView.Adapter<RouteStopAdapter.Holder>() {
+/** 선택한 경로 시간표: 숙소 출발 → (이동) → 장소 → … → 숙소 도착 */
+class RouteStopAdapter(private val placeOf: (Long) -> Place?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private sealed class Row {
-        data class Home(val name: String, val time: Int, val start: Boolean) : Row()
-        data class Stop(val index: Int, val visit: Visit) : Row()
+        data class Home(val name: String, val time: Int) : Row()
+        data class Stop(val visit: Visit) : Row()
+        data class Leg(val minutes: Int, val km: Double) : Row()
     }
 
     private var rows: List<Row> = emptyList()
 
     fun submit(option: RouteOption?, anchor: Anchor?, startMinutes: Int = RoutePlanner.DEFAULT_START) {
         rows = if (option == null) emptyList() else buildList {
-            if (anchor != null) add(Row.Home(anchor.name, startMinutes, true))
-            option.visits.forEachIndexed { i, v -> add(Row.Stop(i + 1, v)) }
-            if (anchor != null) add(Row.Home(anchor.name, option.endTime, false))
+            var prev: Pair<Double, Double>? = anchor?.let { it.lat to it.lng }
+            fun leg(to: Pair<Double, Double>) {
+                val from = prev ?: return
+                val km = RoutePlanner.legKm(from.first, from.second, to.first, to.second)
+                add(Row.Leg(RoutePlanner.legMinutes(km), km))
+            }
+            if (anchor != null) add(Row.Home(anchor.name, startMinutes))
+            option.visits.forEach { v ->
+                leg(v.stop.lat to v.stop.lng)
+                add(Row.Stop(v))
+                prev = v.stop.lat to v.stop.lng
+            }
+            if (anchor != null) { leg(anchor.lat to anchor.lng); add(Row.Home(anchor.name, option.endTime)) }
         }
         notifyDataSetChanged()
     }
 
-    class Holder(v: View) : RecyclerView.ViewHolder(v) {
-        val lineAbove: View = v.findViewById(R.id.lineAbove)
-        val lineBelow: View = v.findViewById(R.id.lineBelow)
-        val dot: TextView = v.findViewById(R.id.tvDot)
-        val dotIcon: ImageView = v.findViewById(R.id.ivDotIcon)
+    private class StopHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val arrive: TextView = v.findViewById(R.id.tvArrive)
+        val leave: TextView = v.findViewById(R.id.tvLeave)
+        val icon: ImageView = v.findViewById(R.id.ivStopIcon)
         val name: TextView = v.findViewById(R.id.tvStopName)
-        val meta: TextView = v.findViewById(R.id.tvStopMeta)
-        val candidate: TextView = v.findViewById(R.id.tvCandidate)
-        val wait: TextView = v.findViewById(R.id.tvWait)
-        val warn: TextView = v.findViewById(R.id.tvWarn)
+        val sub: TextView = v.findViewById(R.id.tvStopSub)
+        val warn: ImageView = v.findViewById(R.id.ivWarn)
+    }
+    private class LegHolder(v: View) : RecyclerView.ViewHolder(v) { val text: TextView = v.findViewById(R.id.tvLeg) }
+
+    override fun getItemViewType(position: Int) = if (rows[position] is Row.Leg) 1 else 0
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inf = LayoutInflater.from(parent.context)
+        return if (viewType == 1) LegHolder(inf.inflate(R.layout.item_route_leg, parent, false))
+        else StopHolder(inf.inflate(R.layout.item_route_stop, parent, false))
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        Holder(LayoutInflater.from(parent.context).inflate(R.layout.item_route_stop, parent, false))
-
-    override fun onBindViewHolder(h: Holder, position: Int) {
-        h.lineAbove.visibility = if (position == 0) View.INVISIBLE else View.VISIBLE
-        h.lineBelow.visibility = if (position == rows.lastIndex) View.INVISIBLE else View.VISIBLE
-        val ctx = h.itemView.context
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val ctx = holder.itemView.context
         when (val row = rows[position]) {
-            is Row.Home -> {
-                h.dot.text = ""
-                h.dot.setBackgroundResource(R.drawable.bg_chip)
-                h.dot.backgroundTintList = ContextCompat.getColorStateList(h.itemView.context, R.color.surface_container)
-                h.dotIcon.visibility = View.VISIBLE
-                h.name.text = row.name
-                h.meta.text = ctx.getString(if (row.start) R.string.stop_depart else R.string.stop_arrive_end, TimeUtil.format(row.time))
-                h.candidate.visibility = View.GONE
-                h.wait.visibility = View.GONE
-                h.warn.visibility = View.GONE
+            is Row.Leg -> (holder as LegHolder).text.apply {
+                text = ctx.getString(R.string.leg_line, ctx.minutesLabel(row.minutes), row.km)
+                val s = (14 * ctx.resources.displayMetrics.density).toInt()
+                val d = ContextCompat.getDrawable(ctx, R.drawable.ic_route)?.mutate()?.apply { setBounds(0, 0, s, s); setTint(ctx.color(R.color.text_sub)) }
+                setCompoundDrawablesRelative(d, null, null, null)
             }
-            is Row.Stop -> {
+            is Row.Home -> (holder as StopHolder).apply {
+                arrive.text = TimeUtil.format(row.time)
+                leave.visibility = View.GONE
+                icon.setImageResource(R.drawable.ic_hotel)
+                icon.setPadding(6.dp(ctx), 6.dp(ctx), 6.dp(ctx), 6.dp(ctx))
+                icon.background = ContextCompat.getDrawable(ctx, R.drawable.bg_lodging_pin)
+                icon.imageTintList = ColorStateList.valueOf(ctx.color(R.color.card_bg))
+                name.text = row.name
+                sub.visibility = View.GONE
+                warn.visibility = View.GONE
+                itemView.background = null
+                itemView.contentDescription = "${arrive.text} ${row.name}"
+            }
+            is Row.Stop -> (holder as StopHolder).apply {
                 val v = row.visit
-                h.dot.text = row.index.toString()
-                h.dot.setBackgroundResource(R.drawable.bg_timeline_dot)
-                h.dot.backgroundTintList = null
-                h.dotIcon.visibility = View.GONE
-                h.name.text = v.stop.name
-                h.meta.text = ctx.getString(R.string.stop_meta, TimeUtil.format(v.arrive), v.stop.stayMinutes)
-                h.candidate.visibility = if (v.stop.isCandidate) View.VISIBLE else View.GONE
-                h.wait.visibility = if (v.waitMinutes >= 10) View.VISIBLE else View.GONE
-                h.wait.text = ctx.getString(R.string.stop_wait, ctx.minutesLabel(v.waitMinutes))
-                h.wait.setStartIcon(R.drawable.ic_schedule)
-                h.warn.visibility = if (v.warning != null) View.VISIBLE else View.GONE
-                h.warn.text = v.warning
-                h.warn.setStartIcon(R.drawable.ic_warning)
+                arrive.text = TimeUtil.format(v.arrive)
+                leave.visibility = View.VISIBLE
+                leave.text = TimeUtil.format(v.leave)
+                val place = placeOf(v.stop.id)
+                Thumbs.bind(icon, place?.photoUri, place?.category ?: com.tripplanner.data.PlaceCategory.ETC)
+                icon.setPadding(6.dp(ctx), 6.dp(ctx), 6.dp(ctx), 6.dp(ctx))
+                name.text = v.stop.name
+                // 이유 한 줄: 경고 > 대기 > 후보에서 추가
+                val subText = v.warning
+                    ?: if (v.waitMinutes >= 10) ctx.getString(R.string.stop_wait, ctx.minutesLabel(v.waitMinutes)) else null
+                    ?: if (v.stop.isCandidate) ctx.getString(R.string.added_from_candidates) else null
+                sub.visibility = if (subText == null) View.GONE else View.VISIBLE
+                sub.text = subText
+                sub.setTextColor(ctx.color(if (v.warning != null) R.color.warn_text else R.color.text_sub))
+                warn.visibility = if (v.warning != null) View.VISIBLE else View.GONE
+                arrive.setTextColor(ctx.color(if (v.warning != null) R.color.warn_text else R.color.on_surface))
+                itemView.background = if (v.warning != null) ContextCompat.getDrawable(ctx, R.drawable.bg_stop_warn) else null
+                itemView.contentDescription = listOfNotNull(
+                    ctx.getString(R.string.stop_meta, arrive.text, v.stop.stayMinutes), v.stop.name, subText).joinToString(", ")
             }
         }
     }
 
     override fun getItemCount() = rows.size
 
-    /** 글자 앞 작은 아이콘(16dp). 화면 밀도와 상관없이 같은 크기로 보이게 dp 로 맞춤 */
-    private fun TextView.setStartIcon(res: Int) {
-        val d = ContextCompat.getDrawable(context, res)?.mutate() ?: return
-        val size = (16 * resources.displayMetrics.density).toInt()
-        d.setBounds(0, 0, size, size)
-        setCompoundDrawablesRelative(d, null, null, null)
-    }
+    private fun Int.dp(ctx: Context) = (this * ctx.resources.displayMetrics.density).toInt()
 }

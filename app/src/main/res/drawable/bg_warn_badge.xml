@@ -1,5 +1,0 @@
-<!-- 브레이크 타임 등 주의 뱃지 -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/warn_bg" />
-    <corners android:radius="@dimen/radius_badge" />
-</shape>

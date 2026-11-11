@@ -1,233 +1,243 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  경로 제안 (4단계 구조)
-  ┌ 툴바(뒤로 · 경로 제안 · 추정 기준)
-  ├ 일차 칩 (여행 상세와 같은 컴포넌트)
-  ├ 계산 중 표시줄
-  ├ 스크롤 영역: 날짜·숙소 / 안내 / A·B·C 요약 카드(하나 선택) / 선택한 안의 설명·시간표 / 빈 상태
-  └ 하단 고정 바: [지도 길찾기] [n안으로 확정]
+  경로 제안 (시안 Route)
+  상단 바 "n일차 경로 제안" / 출발 시각 칩 / 지도 / 선택지 카드(세로) / 선택한 경로 시간표
+  아래: (확인할 것이 있으면 노란 알림) + 하단 바 [지도 앱 길찾기] [A로 적용]
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:title="@string/title_route"
-        app:subtitle="@string/route_subtitle"
-        app:subtitleTextAppearance="@style/TextAppearance.TripPlanner.LabelMedium" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvDays"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/screen_margin"
-        android:paddingBottom="@dimen/space_s" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurface" />
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="invisible" />
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <LinearLayout
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="@dimen/screen_margin"
-            android:paddingTop="@dimen/space_s"
-            android:paddingBottom="@dimen/space_l">
+            android:indeterminate="true"
+            android:visibility="invisible" />
 
-            <!-- 날짜 · 숙소 출발/도착 + 출발 시각 바꾸기 (디자인 2차) -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/screen_margin"
+                android:paddingBottom="@dimen/space_xl">
 
-                <TextView
-                    android:id="@+id/tvDate"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnStartTime"
-                    style="@style/Widget.TripPlanner.Button.Tonal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_s"
-                    android:minHeight="40dp"
-                    android:paddingHorizontal="12dp"
-                    android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
-                    app:icon="@drawable/ic_schedule"
-                    app:iconSize="18dp" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvNotes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_s"
-                android:background="@drawable/bg_warn"
-                android:padding="@dimen/space_s"
-                android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
-                android:textColor="@color/warn_text"
-                android:visibility="gone" />
-
-            <!-- 선택한 안을 지도로: 숙소 → 번호 순서 → 숙소 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/mapCard"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/route_map_height"
-                android:layout_marginTop="@dimen/space_m"
-                app:cardCornerRadius="@dimen/radius_card"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/outline_variant"
-                app:strokeWidth="@dimen/stroke_card">
-
-                <!-- 지도 칸: 국내는 카카오맵, 해외는 구글맵, 키가 없으면 OpenStreetMap (MapHost) -->
-                <FrameLayout
-                    android:id="@+id/routeMap"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
+                <!-- 출발 시각 칩 (누르면 시간 선택기) -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:id="@+id/timeChips"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="top|start"
-                    android:layout_margin="@dimen/space_s"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/routeMapLegend"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/btnStartTime"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_map_overlay"
-                        android:drawablePadding="@dimen/space_xs"
-                        android:paddingHorizontal="@dimen/space_s"
-                        android:paddingVertical="@dimen/space_xs"
-                        android:text="@string/legend_added"
-                        android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
-                        android:textColor="@color/on_surface"
-                        android:visibility="gone" />
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_card"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/touch_min"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="@dimen/space_m"
+                        android:paddingVertical="6dp">
 
-                    <TextView
-                        android:id="@+id/routeMapLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_xs"
-                        android:accessibilityLiveRegion="polite"
-                        android:background="@drawable/bg_map_overlay"
-                        android:paddingHorizontal="@dimen/space_s"
-                        android:paddingVertical="@dimen/space_xs"
-                        android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
-                        android:textColor="@color/on_surface"
-                        android:visibility="gone" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:importantForAccessibility="no"
+                            android:text="@string/label_depart"
+                            android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+                            android:textColor="@color/text_sub" />
+
+                        <TextView
+                            android:id="@+id/tvStartTime"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_m"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_code_box"
+                            android:gravity="center"
+                            android:importantForAccessibility="no"
+                            android:paddingVertical="6dp"
+                            android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+                            tools:text="10:00" />
+                    </LinearLayout>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- A/B/C 요약 카드 -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvOptions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_m"
-                android:nestedScrollingEnabled="false" />
-
-            <!-- 선택한 안 -->
-            <LinearLayout
-                android:id="@+id/selected"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_l"
-                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvOptionTitle"
+                    android:id="@+id/tvNotes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:accessibilityHeading="true"
-                    android:textAppearance="@style/TextAppearance.TripPlanner.TitleMedium" />
+                    android:layout_marginTop="@dimen/space_s"
+                    android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+                    android:textColor="@color/text_sub"
+                    android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/tvOptionDesc"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/mapCard"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:layout_height="200dp"
+                    android:layout_marginTop="@dimen/space_m"
+                    app:cardCornerRadius="@dimen/radius_day_chip"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/outline_variant"
+                    app:strokeWidth="@dimen/stroke_card">
 
-                <TextView
-                    android:id="@+id/tvOptionSummary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_xs"
-                    android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
-                    android:textColor="@color/primary" />
+                    <!-- 지도 칸: 국내는 카카오맵, 해외는 Google Maps, 키가 없으면 OpenStreetMap (MapHost) -->
+                    <FrameLayout
+                        android:id="@+id/routeMap"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|start"
+                        android:layout_margin="@dimen/space_s"
+                        android:orientation="vertical">
 
+                        <TextView
+                            android:id="@+id/routeMapLegend"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_map_pill"
+                            android:drawablePadding="@dimen/space_xs"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="@dimen/space_xs"
+                            android:text="@string/legend_added"
+                            android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
+                            android:textColor="@color/on_surface"
+                            android:visibility="gone" />
 
+                        <TextView
+                            android:id="@+id/routeMapLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_xs"
+                            android:accessibilityLiveRegion="polite"
+                            android:background="@drawable/bg_map_pill"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="@dimen/space_xs"
+                            android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
+                            android:textColor="@color/on_surface"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 선택지 카드 (세로로 하나씩) -->
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvStops"
+                    android:id="@+id/rvOptions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_m"
                     android:nestedScrollingEnabled="false" />
+
+                <!-- 선택한 경로 시간표 -->
+                <LinearLayout
+                    android:id="@+id/selected"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvOptionTitle"
+                        style="@style/Widget.TripPlanner.SectionTitle"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:layout_marginBottom="@dimen/space_s" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvStops"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card"
+                        android:nestedScrollingEnabled="false"
+                        android:paddingVertical="@dimen/space_s" />
+                </LinearLayout>
+
+                <include
+                    android:id="@+id/emptyState"
+                    layout="@layout/view_empty_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xxl"
+                    android:visibility="gone" />
             </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
-            <include
-                android:id="@+id/emptyState"
-                layout="@layout/view_empty_state"
-                android:layout_width="match_parent"
+        <!-- 확인할 것이 있는 경로를 고르면: 노란 알림 (시안 AlertPanel) -->
+        <LinearLayout
+            android:id="@+id/alertPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_margin"
+            android:layout_marginBottom="@dimen/space_s"
+            android:accessibilityLiveRegion="polite"
+            android:background="@drawable/bg_warn"
+            android:orientation="horizontal"
+            android:padding="@dimen/space_m"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="@dimen/icon_small"
+                android:layout_height="@dimen/icon_small"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_warning"
+                app:tint="@color/warn_text" />
+
+            <TextView
+                android:id="@+id/tvAlert"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_xxl"
-                android:visibility="gone" />
+                android:layout_marginStart="@dimen/space_s"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
+                android:textColor="@color/warn_text" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
 
-    <!-- 하단 고정 바 -->
-    <LinearLayout
-        android:id="@+id/bottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_bottom_bar"
-        android:elevation="3dp"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/screen_margin"
-        android:paddingVertical="@dimen/space_s">
+        <LinearLayout
+            android:id="@+id/bottomBar"
+            style="@style/Widget.TripPlanner.BottomBar">
 
-        <Button
-            android:id="@+id/btnRouteMap"
-            style="@style/Widget.TripPlanner.Button.Tonal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/space_s"
-            android:layout_weight="1"
-            app:icon="@drawable/ic_map" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRouteMap"
+                style="@style/Widget.TripPlanner.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:paddingHorizontal="@dimen/space_s" />
 
-        <Button
-            android:id="@+id/btnApply"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:icon="@drawable/ic_check"
-            app:iconTint="@color/on_primary" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnApply"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_s"
+                android:layout_weight="2" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
