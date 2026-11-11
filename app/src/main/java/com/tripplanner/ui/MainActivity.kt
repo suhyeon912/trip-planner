@@ -2,13 +2,10 @@ package com.tripplanner.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -74,9 +71,7 @@ class MainActivity : AppCompatActivity() {
     private fun showTripMenu(trip: Trip, anchor: View) {
         val popup = PopupMenu(this, anchor)
         popup.inflate(R.menu.trip_actions)
-        popup.menu.findItem(R.id.action_delete).title = SpannableString(getString(R.string.action_delete)).apply {
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, R.color.badge_red)), 0, length, 0)
-        }
+        popup.markDanger(this, R.id.action_delete)
         popup.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_edit -> showTripForm(trip)

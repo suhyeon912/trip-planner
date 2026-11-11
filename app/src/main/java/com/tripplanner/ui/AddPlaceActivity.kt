@@ -3,7 +3,6 @@ package com.tripplanner.ui
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.chip.Chip
@@ -68,7 +67,7 @@ class AddPlaceActivity : AppCompatActivity() {
         if (uri == null) return@registerForActivityResult
         lifecycleScope.launch {
             val path = withContext(Dispatchers.IO) { Photos.importPhoto(this@AddPlaceActivity, uri) }
-            if (path == null) Toast.makeText(this@AddPlaceActivity, R.string.photo_failed, Toast.LENGTH_SHORT).show()
+            if (path == null) showSnack(getString(R.string.photo_failed))
             else { photoPath = path; refreshPhoto() }
         }
     }
@@ -100,7 +99,7 @@ class AddPlaceActivity : AppCompatActivity() {
         val hours = field(R.id.etHours)
         val cur = hours.text?.toString()?.trim().orEmpty()
         if (hit.hours != null && (cur.isEmpty() || cur == getString(R.string.hours_unknown))) hours.setText(hit.hours)
-        Toast.makeText(this, getString(R.string.search_filled, hit.name), Toast.LENGTH_SHORT).show()
+        showSnack(getString(R.string.search_filled, hit.name))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

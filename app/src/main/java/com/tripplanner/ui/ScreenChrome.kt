@@ -38,3 +38,19 @@ fun android.view.View.limitContentWidth() {
 fun AppCompatActivity.limitScrollContentWidth(scrollId: Int) {
     (findViewById<android.view.ViewGroup>(scrollId)).getChildAt(0)?.limitContentWidth()
 }
+
+/** 메뉴의 위험 동작(삭제)을 빨간 글자로 (시안 Menu: 위험한 동작은 빨강, 맨 아래) */
+fun android.widget.PopupMenu.markDanger(context: android.content.Context, itemId: Int) {
+    val item = menu.findItem(itemId) ?: return
+    item.title = android.text.SpannableString(item.title).apply {
+        setSpan(android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(context, R.color.badge_red)),
+            0, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+}
+
+/** 결과 알림: 화면 아래 스낵바 (시안 Snackbar · 3초 뒤 사라짐 · 글자만) */
+fun AppCompatActivity.showSnack(message: CharSequence) {
+    com.google.android.material.snackbar.Snackbar
+        .make(findViewById(android.R.id.content), message, com.google.android.material.snackbar.Snackbar.LENGTH_SHORT)
+        .show()
+}

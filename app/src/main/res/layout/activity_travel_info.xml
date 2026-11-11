@@ -45,7 +45,7 @@
                     android:textAppearance="@style/TextAppearance.TripPlanner.TitleMedium" />
                 <Button
                     android:id="@+id/btnAddFlight"
-                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    style="@style/Widget.TripPlanner.Button.Text.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/add_flight"
@@ -55,7 +55,7 @@
             </LinearLayout>
             <Button
                 android:id="@+id/tvNoFlight"
-                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                style="@style/Widget.TripPlanner.Button.Outlined.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/add_flight_row"
@@ -82,7 +82,7 @@
                     android:textAppearance="@style/TextAppearance.TripPlanner.TitleMedium" />
                 <Button
                     android:id="@+id/btnAddLodging"
-                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    style="@style/Widget.TripPlanner.Button.Text.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/add_lodging"
@@ -99,7 +99,7 @@
                 android:textColor="?attr/colorOnSurfaceVariant" />
             <Button
                 android:id="@+id/tvNoLodging"
-                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                style="@style/Widget.TripPlanner.Button.Outlined.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/add_lodging_row"

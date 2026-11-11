@@ -234,6 +234,7 @@ class PlaceAdapter(
     private fun showMoreMenu(anchor: View, place: Place) {
         val popup = PopupMenu(anchor.context, anchor)
         popup.inflate(R.menu.place_actions)
+        popup.markDanger(anchor.context, R.id.action_delete)
         val confirmed = place.status == PlaceStatus.CONFIRMED
         popup.menu.findItem(R.id.action_day).isVisible = confirmed
         popup.menu.findItem(R.id.action_status).setTitle(if (confirmed) R.string.move_to_candidate else R.string.move_to_confirmed)

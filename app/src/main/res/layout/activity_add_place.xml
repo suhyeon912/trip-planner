@@ -38,7 +38,7 @@
                 android:text="@string/section_basic" />
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilName"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.TripPlanner.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_s"
@@ -57,7 +57,7 @@
             <!-- 장소 검색: 이름·위치·종류(·운영시간)를 자동으로 채움 -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSearchPlace"
-                style="@style/Widget.Material3.Button.TonalButton"
+                style="@style/Widget.TripPlanner.Button.Tonal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_xs"
@@ -94,7 +94,7 @@
                     android:scaleType="centerCrop" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPhoto"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.TripPlanner.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/space_s"
@@ -102,7 +102,7 @@
                     app:icon="@drawable/ic_add_photo" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRemovePhoto"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.TripPlanner.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/remove_photo"
@@ -111,6 +111,7 @@
 
             <!-- 후보 / 확정 -->
             <com.google.android.material.button.MaterialButtonToggleGroup
+                style="@style/Widget.TripPlanner.SegmentedGroup"
                 android:id="@+id/toggleStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -120,14 +121,14 @@
                 app:singleSelection="true">
                 <Button
                     android:id="@+id/btnCandidate"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.TripPlanner.SegmentedButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/status_candidate" />
                 <Button
                     android:id="@+id/btnConfirmed"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.TripPlanner.SegmentedButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -137,7 +138,7 @@
             <!-- 며칠째 (확정일 때만 고를 수 있음) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDay"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.TripPlanner.TextField.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_s"
@@ -156,7 +157,7 @@
                 android:text="@string/section_hours" />
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilHours"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.TripPlanner.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_s"
@@ -169,7 +170,7 @@
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilBreak"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.TripPlanner.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_s"
@@ -188,7 +189,7 @@
                 android:orientation="horizontal">
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilClosed"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.TripPlanner.TextField"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -203,7 +204,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilStay"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.TripPlanner.TextField"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -246,7 +247,7 @@
                 android:orientation="horizontal">
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilLat"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.TripPlanner.TextField"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -261,7 +262,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilLng"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.TripPlanner.TextField"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -281,7 +282,7 @@
                 android:text="@string/action_memo" />
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilMemo"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.TripPlanner.TextField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_s"

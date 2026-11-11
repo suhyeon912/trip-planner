@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 목록 아래 '추가' 점선 버튼: 모서리 12 · 점선 outline -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/outline_variant">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke android:width="1dp" android:color="@color/outline" android:dashWidth="4dp" android:dashGap="3dp" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</ripple>

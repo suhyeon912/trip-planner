@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 다이얼로그 입력칸 하나 (FormDialog.kt 의 showFormDialog 가 칸마다 하나씩 만듦).
-     장소 편집 화면과 같은 테두리형 스타일 — 값이 있어도 라벨이 위에 남습니다. -->
-<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+     시안 TextField: 라벨은 칸 밖 위에 항상 보이고, 칸 안에는 값만 들어갑니다. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/space_s">
+    android:layout_marginTop="@dimen/space_m"
+    android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/input"
+    <TextView
+        android:id="@+id/label"
+        style="@style/Widget.TripPlanner.FieldLabel" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout"
+        style="@style/Widget.TripPlanner.TextField.NoLabel"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-</com.google.android.material.textfield.TextInputLayout>
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

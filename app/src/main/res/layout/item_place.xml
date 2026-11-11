@@ -120,7 +120,7 @@
 
             <Button
                 android:id="@+id/btnConfirm"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.TripPlanner.Button.Outlined"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/space_s"
@@ -177,21 +177,21 @@
 
                 <Button
                     android:id="@+id/btnMap"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.TripPlanner.Button.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/ic_map" />
 
                 <Button
                     android:id="@+id/btnMemo"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.TripPlanner.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/action_memo" />
 
                 <Button
                     android:id="@+id/btnEdit"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.TripPlanner.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/action_edit" />

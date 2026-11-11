@@ -5,6 +5,8 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
+import android.view.View
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import androidx.appcompat.app.AlertDialog
@@ -58,21 +60,25 @@ fun showFormDialog(
     val inputs = ArrayList<EditText>()
     fields.forEach { f ->
         if (f.kind == FieldKind.CHOICE) {
-            val layout = inflater.inflate(R.layout.view_form_choice, box, false) as TextInputLayout
-            layout.hint = f.hint
-            val input = layout.findViewById<MaterialAutoCompleteTextView>(R.id.input)
+            val row = inflater.inflate(R.layout.view_form_choice, box, false)
+            val input = row.findViewById<MaterialAutoCompleteTextView>(R.id.input)
+            input.id = View.generateViewId()
+            row.findViewById<TextView>(R.id.label).apply { text = f.hint; labelFor = input.id }
             input.setSimpleItems(f.choices.toTypedArray())
             input.setText(f.value, false)
-            box.addView(layout); inputs += input
+            box.addView(row); inputs += input
             return@forEach
         }
-        val layout = inflater.inflate(R.layout.view_form_field, box, false) as TextInputLayout
-        layout.hint = f.hint
+        val row = inflater.inflate(R.layout.view_form_field, box, false)
+        val layout = row.findViewById<TextInputLayout>(R.id.layout)
         val input = layout.findViewById<TextInputEditText>(R.id.input).apply {
+            id = View.generateViewId()
             inputType = if (f.minLines > 1) f.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE else f.inputType
             if (f.minLines > 1) minLines = f.minLines
             setText(f.value)
         }
+        // 라벨을 입력칸에 연결 (TalkBack 이 칸 이름으로 읽음)
+        row.findViewById<TextView>(R.id.label).apply { text = f.hint; labelFor = input.id }
         if (f.kind == FieldKind.DATE || f.kind == FieldKind.DATETIME) {
             // 직접 입력 대신 달력·시계로 고르기
             input.inputType = InputType.TYPE_NULL
@@ -82,7 +88,7 @@ fun showFormDialog(
             layout.setEndIconDrawable(if (f.kind == FieldKind.DATE) R.drawable.ic_event else R.drawable.ic_schedule)
             layout.endIconContentDescription = f.hint
         }
-        box.addView(layout); inputs += input
+        box.addView(row); inputs += input
     }
     // 날짜 칸 누르면 달력 열기 (모든 칸을 만든 뒤에 연결 — 기간은 짝 칸도 채우므로)
     val activity = context as? FragmentActivity
@@ -137,8 +143,9 @@ fun showDayPicker(context: Context, startDate: String?, dayCount: Int, allowNone
         .show()
 }
 
+/** 삭제 확인: 확인 버튼이 빨강 채움 (시안 Dialog · 위험 확인) */
 fun confirmDialog(context: Context, message: String, onYes: () -> Unit) {
-    MaterialAlertDialogBuilder(context)
+    MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_TripPlanner_Dialog_Danger)
         .setMessage(message)
         .setPositiveButton(R.string.action_delete) { _, _ -> onYes() }
         .setNegativeButton(R.string.action_cancel, null)

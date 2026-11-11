@@ -72,7 +72,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCardMap"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/space_xs"
@@ -81,14 +81,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCardEdit"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.TripPlanner.Button.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/action_edit" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCardConfirm"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.TripPlanner.Button.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/action_confirm"

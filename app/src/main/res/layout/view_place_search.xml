@@ -10,7 +10,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilQuery"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.TripPlanner.TextField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/search_hint"
@@ -26,6 +26,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButtonToggleGroup
+        style="@style/Widget.TripPlanner.SegmentedGroup"
         android:id="@+id/toggleRegion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,14 +35,14 @@
         app:singleSelection="true">
         <Button
             android:id="@+id/btnDomestic"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.TripPlanner.SegmentedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/search_domestic" />
         <Button
             android:id="@+id/btnOverseas"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.TripPlanner.SegmentedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

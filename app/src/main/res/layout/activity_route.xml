@@ -69,7 +69,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnStartTime"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.TripPlanner.Button.Tonal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/space_s"
@@ -215,7 +215,7 @@
 
         <Button
             android:id="@+id/btnRouteMap"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/space_s"
