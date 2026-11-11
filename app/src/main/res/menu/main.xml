@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 여행 목록 툴바: 초대 코드로 참여 -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_join"
+        android:icon="@drawable/ic_group_add"
+        android:title="@string/join_with_code"
+        app:showAsAction="always" />
+</menu>

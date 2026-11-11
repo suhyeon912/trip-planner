@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  장소 추가 · 수정 (6단계)
+  툴바(뒤로 · 제목 · 저장) / [기본] 이름 · 후보|확정 · 며칠째 / [운영 정보] 운영시간 · 브레이크 · 휴무 · 머무는 시간 · 예약 필수
+  / [위치] 위도 · 경도 / [메모] / 저장 버튼
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:actionMenuTextColor="@color/primary"
+        app:menu="@menu/place_edit"
+        app:title="@string/add_place" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingBottom="@dimen/space_l">
+
+            <TextView
+                style="@style/Widget.TripPlanner.SectionTitle"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/section_basic" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilName"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:hint="@string/hint_place_name"
+                app:endIconContentDescription="@string/search_place"
+                app:endIconDrawable="@drawable/ic_search"
+                app:endIconMode="custom">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- 장소 검색: 이름·위치·종류(·운영시간)를 자동으로 채움 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSearchPlace"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:text="@string/search_place_button"
+                app:icon="@drawable/ic_search" />
+
+            <!-- 장소 종류 -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:scrollbars="none">
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipsCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:selectionRequired="true"
+                    app:singleLine="true"
+                    app:singleSelection="true" />
+            </HorizontalScrollView>
+
+            <!-- 사진 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/ivPhoto"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:contentDescription="@string/place_photo"
+                    android:scaleType="centerCrop" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPhoto"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_s"
+                    android:text="@string/pick_photo"
+                    app:icon="@drawable/ic_add_photo" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRemovePhoto"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/remove_photo"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 후보 / 확정 -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggleStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                app:checkedButton="@+id/btnCandidate"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+                <Button
+                    android:id="@+id/btnCandidate"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/status_candidate" />
+                <Button
+                    android:id="@+id/btnConfirmed"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/action_confirm" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- 며칠째 (확정일 때만 고를 수 있음) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDay"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:hint="@string/hint_day"
+                app:helperText="@string/helper_candidate_day">
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/actDay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.TripPlanner.SectionTitle"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/section_hours" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilHours"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:hint="@string/hint_hours">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHours"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilBreak"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:hint="@string/hint_break">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etBreak"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilClosed"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/space_s"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:hint="@string/hint_closed">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etClosed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilStay"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:hint="@string/hint_stay"
+                    app:helperText="@string/helper_stay">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etStay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchReservation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:minHeight="@dimen/touch_min"
+                android:text="@string/reservation_switch"
+                android:textAppearance="@style/TextAppearance.TripPlanner.BodyLarge" />
+
+            <TextView
+                style="@style/Widget.TripPlanner.SectionTitle"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/section_location" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/location_help"
+                android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilLat"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/space_s"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:hint="@string/hint_lat">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etLat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal|numberSigned" />
+                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilLng"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="@dimen/space_s"
+                    android:hint="@string/hint_lng">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etLng"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal|numberSigned" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <TextView
+                style="@style/Widget.TripPlanner.SectionTitle"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/action_memo" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilMemo"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:hint="@string/action_memo">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMemo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/action_save" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

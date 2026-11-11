@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>장소 정보</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--primary)}a:hover{color:var(--on_primary_container)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 867px; box-sizing: border-box; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column;">
+  <header style="display: flex; align-items: center; padding: 12px 4px 4px;">
+    <a href="Detail.dc.html" aria-label="뒤로" style="width: 48px; height: 48px; border-radius: 24px; color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-arrow_back" aria-hidden="true"></span></a>
+    <h1 style="margin: 0; flex-grow: 1; font-size: 18px; line-height: 24px; font-weight: 600;">장소 정보</h1>
+    
+    <a href="PlaceMenu.dc.html" aria-label="더보기" style="text-decoration: none; width: 48px; height: 48px; border: 0; border-radius: 24px; background: transparent; color: var(--text_sub); display: grid; place-items: center;"><span class="ic i-more_vert" aria-hidden="true"></span></a>
+  </header>
+
+  <div style="position: relative; flex-grow: 1; min-height: 0;">
+  <div style="position: relative; padding: 4px 16px 32px 16px; display: flex; flex-direction: column; gap: 12px;">
+    <div style="flex: none; display: flex; align-items: center; gap: 14px;">
+      <span style="width: 64px; height: 64px; flex: none; border-radius: 16px; background: var(--cat_food_bg); color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-food" aria-hidden="true" style="width: 32px; height: 32px;"></span></span>
+      <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+        <b style="font-size: 20px; line-height: 26px; font-weight: 700;">츠지한 니혼바시</b>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <span style="padding: 1px 8px; border-radius: 9px; background: var(--surface_container); font-size: 12px; line-height: 18px; font-weight: 600;">맛집</span>
+          <span style="display: flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 9px; background: var(--day_1); color: var(--white); font-size: 12px; line-height: 18px; font-weight: 600;">확정 · 1일차 2번째</span>
+          <span style="padding: 1px 8px; border-radius: 9px; background: var(--error_container); color: var(--on_error_container); font-size: 12px; line-height: 18px; font-weight: 500;">예약필수</span>
+        </div>
+      </div>
+    </div>
+    <div style="flex: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <button style="height: 44px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600;"><span class="map-logo" aria-hidden="true" style="width: 20px; height: 20px; flex: none; box-sizing: border-box; border-radius: 4px; border: 1px dashed var(--outline); background: var(--surface_container);"></span>구글맵에서 보기</button>
+      <a href="DetailMap.dc.html" style="height: 44px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--primary); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600;"><span class="ic i-place s18" aria-hidden="true"></span>여행 지도에서</a>
+    </div>
+
+    <h2 style="flex: none; margin: 8px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">운영 정보</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); overflow: hidden;"><div style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 16px; border-bottom: 1px solid var(--outline_variant);"><span class="ic i-schedule s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="width: 92px; font-size: 14px; font-weight: 500; color: var(--text_sub);">운영시간</span><span style="flex-grow: 1; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">11:00 – 21:00</span></div><div style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 16px; border-bottom: 1px solid var(--outline_variant);"><span class="ic i-schedule s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="width: 92px; font-size: 14px; font-weight: 500; color: var(--text_sub);">브레이크</span><span style="flex-grow: 1; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">15:00 – 17:00</span></div><div style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 16px;"><span class="ic i-event s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="width: 92px; font-size: 14px; font-weight: 500; color: var(--text_sub);">휴무일</span><span style="flex-grow: 1; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">없음</span></div></div>
+
+    <h2 style="flex: none; margin: 8px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">예약·티켓</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); overflow: hidden;">
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 4px 4px 12px; border-bottom: 1px solid var(--outline_variant);">
+        <span style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--primary_light); color: var(--on_primary_container); display: grid; place-items: center;"><span class="ic i-pdf s20" aria-hidden="true"></span></span>
+        <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;"><b style="font-size: 14px; line-height: 20px; font-weight: 600;">츠지한 예약 확인서.pdf</b><span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">결제 내역 · 지우 · 11.02 · 214KB</span></div>
+        <a href="PlaceFileMenu.dc.html" aria-label="츠지한 예약 확인서 더보기" style="text-decoration: none; width: 48px; height: 48px; border: 0; border-radius: 24px; background: transparent; color: var(--text_sub); display: grid; place-items: center;"><span class="ic i-more_vert s20" aria-hidden="true"></span></a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 4px 4px 12px; ">
+        <span style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--primary_light); color: var(--on_primary_container); display: grid; place-items: center;"><span class="ic i-image s20" aria-hidden="true"></span></span>
+        <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;"><b style="font-size: 14px; line-height: 20px; font-weight: 600;">입장권 QR 캡처.png</b><span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">티켓 · 민지 · 11.03</span></div>
+        <button aria-label="입장권 QR 캡처 더보기" style="width: 48px; height: 48px; border: 0; border-radius: 24px; background: transparent; color: var(--text_sub); display: grid; place-items: center;"><span class="ic i-more_vert s20" aria-hidden="true"></span></button>
+      </div>
+      </div><a href="PlaceUpload.dc.html" style="text-decoration: none; height: 48px; box-sizing: border-box; border-radius: 12px; border: 1.5px dashed var(--outline); background: transparent; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600;"><span class="ic i-upload_file s18" aria-hidden="true"></span>파일 · 사진 올리기</a>
+
+    <h2 style="flex: none; margin: 8px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">관련 링크</h2>
+    <div style="flex: none; display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 4px 4px 12px; border-radius: 12px; border: 1px solid var(--outline_variant); background: var(--card_bg);">
+        <span class="ic i-link s20" aria-hidden="true" style="color: var(--text_sub);"></span>
+        <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;"><b style="font-size: 14px; line-height: 20px; font-weight: 600;">공식 홈페이지</b><span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">tsujihan-jp.com/nihonbashi</span></div>
+        <a href="PlaceLinkMenu.dc.html" aria-label="공식 홈페이지 더보기" style="text-decoration: none; width: 48px; height: 48px; border: 0; border-radius: 24px; background: transparent; color: var(--text_sub); display: grid; place-items: center;"><span class="ic i-more_vert s20" aria-hidden="true"></span></a>
+      </div>
+      <a href="PlaceLinkAdd.dc.html" style="text-decoration: none; height: 48px; border-radius: 12px; border: 1.5px dashed var(--outline); background: transparent; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600;"><span class="ic i-add s18" aria-hidden="true"></span>링크 추가</a>
+    </div>
+  </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":867}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

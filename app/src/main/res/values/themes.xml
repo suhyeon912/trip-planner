@@ -1,0 +1,199 @@
+<resources>
+    <!--
+      앱 테마: 파란 primary(#2563EB)를 기준으로 Material3 색 역할을 모두 지정합니다.
+      (이전에는 colorPrimary 만 지정되어 배경·토널 버튼에 M3 기본 보라색이 나왔음)
+    -->
+    <style name="Theme.TripPlanner" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- primary -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_light</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        <!-- secondary: 토널 버튼 -->
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+        <!-- tertiary: 지금은 안 쓰지만 보라 기본값이 새지 않도록 지정 -->
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorOnTertiary">@color/white</item>
+        <item name="colorTertiaryContainer">@color/tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/on_tertiary_container</item>
+        <!-- 배경 · 표면 -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/on_surface</item>
+        <item name="colorSurface">@color/background</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_container</item>
+        <item name="colorOnSurfaceVariant">@color/text_sub</item>
+        <item name="colorSurfaceContainerLowest">@color/card_bg</item>
+        <item name="colorSurfaceContainerLow">@color/card_bg</item>
+        <item name="colorSurfaceContainer">@color/surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/card_bg</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_container_highest</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
+        <!-- 오류 -->
+        <item name="colorError">@color/badge_red</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">@color/error_container</item>
+        <item name="colorOnErrorContainer">@color/on_error_container</item>
+        <!-- 기본 글자색: 색을 따로 지정하지 않은 TextView 도 위 역할을 따르게
+             (지정하지 않으면 M3 기본 보라 기운 회색 #49454F 가 나옴) -->
+        <item name="android:textColorPrimary">@color/on_surface</item>
+        <item name="android:textColorSecondary">@color/text_sub</item>
+        <item name="android:textColorTertiary">@color/text_sub</item>
+        <item name="android:textColorHint">@color/outline</item>
+        <!-- 글꼴: Pretendard (가장 얇은 굵기 = Medium) -->
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.TripPlanner.M3.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.TripPlanner.M3.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.TripPlanner.M3.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.TripPlanner.M3.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.TripPlanner.M3.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.TripPlanner.M3.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.TripPlanner.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.TripPlanner.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.TripPlanner.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.TripPlanner.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.TripPlanner.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.TripPlanner.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.TripPlanner.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.TripPlanner.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.TripPlanner.LabelSmall</item>
+        <!-- 시스템 바 -->
+        <item name="android:windowLightStatusBar">@bool/light_system_bars</item>
+    </style>
+
+    <!--
+      글자 역할 (Material3 TextAppearance 상속, 글꼴 Pretendard, 최소 12sp).
+      굵기: 본문·보조 = Medium(가장 얇음) / 버튼·탭·작은 제목 = SemiBold / 큰 제목 = Bold
+    -->
+    <style name="TextAppearance.TripPlanner.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/pretendard_semibold</item>
+        <item name="fontFamily">@font/pretendard_semibold</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">@font/pretendard_semibold</item>
+        <item name="fontFamily">@font/pretendard_semibold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/pretendard_semibold</item>
+        <item name="fontFamily">@font/pretendard_semibold</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+    <!-- 큰 글자 역할은 크기는 M3 그대로, 글꼴만 Pretendard -->
+    <style name="TextAppearance.TripPlanner.M3.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.M3.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.M3.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.M3.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.M3.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+    </style>
+    <style name="TextAppearance.TripPlanner.M3.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/pretendard</item>
+        <item name="fontFamily">@font/pretendard</item>
+    </style>
+
+    <!-- 3단계 공통 위젯 스타일 -->
+    <style name="Widget.TripPlanner.SummaryRow" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/touch_min</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingHorizontal">@dimen/space_m</item>
+        <item name="android:paddingVertical">@dimen/space_xs</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+    <style name="Widget.TripPlanner.SummaryIcon" parent="">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_marginEnd">@dimen/space_m</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <style name="Widget.TripPlanner.SummaryChevron" parent="">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_marginStart">@dimen/space_s</item>
+        <item name="android:src">@drawable/ic_chevron_right</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+    <style name="Widget.TripPlanner.Badge" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">20dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingHorizontal">8dp</item>
+        <item name="android:paddingVertical">1dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelMedium</item>
+    </style>
+    <!-- 6단계: 편집 화면 섹션 제목 -->
+    <style name="Widget.TripPlanner.SectionTitle" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:accessibilityHeading">true</item>
+        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
+        <item name="android:textColor">@color/primary</item>
+    </style>
+    <style name="Widget.TripPlanner.SectionHeader" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/touch_min</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <!-- 디자인 2차: 장소 썸네일 모서리 -->
+    <style name="ShapeAppearance.TripPlanner.Thumb" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+</resources>

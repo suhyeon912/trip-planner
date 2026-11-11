@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  색 토큰. 레이아웃에서는 가능하면 테마 역할(?attr/colorOnSurfaceVariant 등)을 쓰고,
+  여기 이름은 themes.xml 이 역할에 연결할 때와 기존 레이아웃 호환용으로 씁니다.
+  대비(WCAG)는 흰 카드/기본 배경 기준 계산값.
+-->
+<resources>
+    <!-- 기존 이름 유지 (값만 보정한 것은 주석 표시) -->
+    <color name="primary">#2563EB</color>          <!-- 흰 글자 대비 5.17:1 -->
+    <color name="primary_light">#DBEAFE</color>    <!-- primaryContainer -->
+    <color name="badge_red">#DC2626</color>        <!-- error -->
+    <color name="text_sub">#4B5563</color>         <!-- 보정: #6B7280(4.39:1) → 7.05:1 이상 -->
+    <color name="card_bg">#FFFFFF</color>          <!-- 보정: #F3F4F6 → 흰 카드 + 테두리 -->
+    <color name="white">#FFFFFF</color>
+    <color name="warn_bg">#FEF3C7</color>
+    <color name="warn_text">#92400E</color>        <!-- 6.37:1 -->
+
+    <!-- 1단계 추가: Material3 색 역할 -->
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_primary_container">#1E40AF</color>   <!-- primary_light 위 7.15:1 -->
+    <color name="secondary">#475569</color>
+    <color name="secondary_container">#E3EBFD</color>    <!-- 토널 버튼 배경 (기존 M3 기본 라벤더 대체) -->
+    <color name="on_secondary_container">#1E3A8A</color> <!-- 8.67:1 -->
+    <color name="tertiary">#0E7490</color>
+    <color name="tertiary_container">#CFFAFE</color>
+    <color name="on_tertiary_container">#164E63</color>
+    <color name="background">#F6F7F9</color>             <!-- 화면 배경 (기존 M3 기본 #FEF7FF 대체) -->
+    <color name="surface_container">#EEF1F5</color>      <!-- 칩·입력 배경 -->
+    <color name="surface_container_highest">#E9ECF1</color>
+    <color name="on_surface">#111827</color>             <!-- 본문 16.55:1 -->
+    <color name="outline">#6B7280</color>                <!-- 입력 테두리 (비텍스트 3:1 이상) -->
+    <color name="outline_variant">#E5E7EB</color>        <!-- 카드 테두리·구분선 -->
+    <color name="error_container">#FEE2E2</color>
+    <color name="on_error_container">#991B1B</color>     <!-- 6.80:1 -->
+    <color name="success">#047857</color>
+    <color name="success_bg">#D1FAE5</color>             <!-- 4.84:1 -->
+    <color name="option_selected_bg">#F5F8FF</color>      <!-- 선택한 경로 카드 배경 (4단계) -->
+    <color name="map_overlay">#F2FFFFFF</color>          <!-- 지도 위 범례·안내 상자 -->
+    <color name="day_chip_sub_selected">#DBEAFE</color>  <!-- 선택된 일차 칩의 작은 글자 -->
+    <!-- 장소 종류 색 (디자인 2차) -->
+    <color name="cat_sight_bg">#DBEAFE</color>    <color name="cat_sight_fg">#1D4ED8</color>
+    <color name="cat_food_bg">#FFEDD5</color>     <color name="cat_food_fg">#C2410C</color>
+    <color name="cat_cafe_bg">#F5E8DD</color>     <color name="cat_cafe_fg">#8A4B1F</color>
+    <color name="cat_shopping_bg">#FCE7F3</color> <color name="cat_shopping_fg">#BE185D</color>
+    <color name="cat_activity_bg">#DCFCE7</color> <color name="cat_activity_fg">#15803D</color>
+</resources>

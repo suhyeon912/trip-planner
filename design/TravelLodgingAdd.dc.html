@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>숙소 추가</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}button{cursor:pointer}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column;">
+  <header style="display: flex; align-items: center; padding: 12px 4px 4px;">
+    <a href="TravelInfo.dc.html" aria-label="닫기" style="width: 48px; height: 48px; border-radius: 24px; color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-close" aria-hidden="true"></span></a>
+    <h1 style="margin: 0; flex-grow: 1; font-size: 18px; line-height: 24px; font-weight: 600;">숙소 추가</h1>
+  </header>
+  <div style="position: relative; flex-grow: 1; min-height: 0;">
+  <div style="position: relative; padding: 8px 16px 104px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <label for="ln" style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">숙소 이름 *</label>
+      <input id="ln" value="호텔 그레이스리 아사쿠사" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 2px solid var(--primary); background: var(--card_bg); color: var(--on_surface); font-size: 16px; font-weight: 500;">
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">위치</span>
+      <a href="LocationSearch.dc.html" aria-label="숙소 위치 검색하기" style="height: 52px; box-sizing: border-box; padding: 0 12px 0 14px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--text_sub); text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; text-align: left;"><span class="ic i-place s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1;">검색해서 위치 정하기</span><span class="ic i-search s20" aria-hidden="true" style="color: var(--text_sub);"></span></a>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+      <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;"><label for="la" style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">위도</label><input id="la" value="35.7120" inputmode="decimal" style="height: 48px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; width: 100%;"></div>
+      <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;"><label for="lo" style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">경도</label><input id="lo" value="139.7960" inputmode="decimal" style="height: 48px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; width: 100%;"></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">체크인</span>
+      <button aria-label="체크인 날짜 고르기, 지금 11월 20일" style="height: 52px; box-sizing: border-box; padding: 0 12px 0 14px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; text-align: left;"><span class="ic i-calendar s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1;">11.20 (금)</span><span class="ic i-chevron_right s20" aria-hidden="true" style="color: var(--text_sub);"></span></button>
+    </div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">체크아웃</span>
+      <button aria-label="체크아웃 날짜 고르기, 지금 11월 23일" style="height: 52px; box-sizing: border-box; padding: 0 12px 0 14px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; text-align: left;"><span class="ic i-calendar s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1;">11.23 (월)</span><span class="ic i-chevron_right s20" aria-hidden="true" style="color: var(--text_sub);"></span></button>
+    </div>
+    </div>
+  </div>
+  </div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; padding: 12px 16px 20px; background: var(--card_bg); border-top: 1px solid var(--outline_variant);"><a href="TravelInfo.dc.html" style="flex-grow: 1; height: 48px; border-radius: 999px; border: 1px solid var(--outline); color: var(--primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">취소</a><a href="TravelInfo.dc.html" style="flex-grow: 2; height: 48px; border-radius: 999px; background: var(--primary); color: var(--on_primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">저장</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

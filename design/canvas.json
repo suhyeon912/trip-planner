@@ -1,0 +1,884 @@
+{
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "AddPlace.dc.html": {
+   "h": 860,
+   "radius": 28,
+   "title": "장소 수정 (길게 누름)",
+   "w": 390,
+   "x": 0,
+   "y": 8131
+  },
+  "AddPlaceDay.dc.html": {
+   "h": 860,
+   "radius": 28,
+   "title": "장소 수정 · 일차 누름 (select)",
+   "w": 390,
+   "x": 1410,
+   "y": 8131
+  },
+  "AddPlaceInfo.dc.html": {
+   "h": 860,
+   "radius": 28,
+   "title": "장소 수정 · 종류 도움말",
+   "w": 390,
+   "x": 940,
+   "y": 8131
+  },
+  "AddPlaceSearch.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "장소 수정 · 검색 누름 (전체 화면)",
+   "w": 390,
+   "x": 470,
+   "y": 8131
+  },
+  "AppSettings.dc.html": {
+   "h": 950,
+   "radius": 28,
+   "title": "설정 (ⓘ 안 누름)",
+   "w": 390,
+   "x": 0,
+   "y": 11150
+  },
+  "AppSettingsMapInfo.dc.html": {
+   "h": 950,
+   "radius": 28,
+   "title": "설정 · 지도 서비스 도움말 (ⓘ 누름)",
+   "w": 390,
+   "x": 470,
+   "y": 11150
+  },
+  "Badges.dc.html": {
+   "h": 1740,
+   "radius": 20,
+   "title": "뱃지 종류",
+   "w": 1280,
+   "x": 5890,
+   "y": 6610
+  },
+  "Components.dc.html": {
+   "h": 3639,
+   "radius": 20,
+   "title": "컴포넌트 · 한눈에 보기",
+   "w": 1700,
+   "x": 5890,
+   "y": 8870
+  },
+  "Detail.dc.html": {
+   "h": 1080,
+   "radius": 28,
+   "title": "여행 상세 · 1일차 (요약 카드 없음, 아래 메모)",
+   "w": 390,
+   "x": 0,
+   "y": 2480
+  },
+  "DetailAll.dc.html": {
+   "h": 2250,
+   "radius": 28,
+   "title": "여행 상세 · 전체 (요약 카드 + 모든 일차)",
+   "w": 390,
+   "x": 470,
+   "y": 2480
+  },
+  "DetailCandidates.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "여행 상세 · 후보 탭 누름",
+   "w": 390,
+   "x": 4230,
+   "y": 2480
+  },
+  "DetailDark.dc.html": {
+   "h": 1080,
+   "radius": 28,
+   "title": "여행 상세 · 다크 모드",
+   "w": 390,
+   "x": 1410,
+   "y": 2480
+  },
+  "DetailMap.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "여행 상세 · 지도로 보기",
+   "w": 390,
+   "x": 0,
+   "y": 5910
+  },
+  "DetailMapAll.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "여행 상세 · 지도로 보기 (전체)",
+   "w": 390,
+   "x": 470,
+   "y": 5910
+  },
+  "DetailShare.dc.html": {
+   "h": 1080,
+   "radius": 28,
+   "title": "여행 상세 · 공유 누름 (팝업)",
+   "w": 390,
+   "x": 2350,
+   "y": 2480
+  },
+  "Icons.dc.html": {
+   "h": 2110,
+   "radius": 20,
+   "title": "아이콘 목록",
+   "w": 1280,
+   "x": 5890,
+   "y": 2300
+  },
+  "Layout.dc.html": {
+   "h": 1340,
+   "radius": 20,
+   "title": "레이아웃 기준",
+   "w": 1700,
+   "x": 5890,
+   "y": 4750
+  },
+  "LocationSearch.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "지도 · 위치 찾기 (전체 화면)",
+   "w": 390,
+   "x": 940,
+   "y": 5910
+  },
+  "Main.dc.html": {
+   "h": 1110,
+   "radius": 28,
+   "title": "메인 · 내 여행",
+   "w": 390,
+   "x": 0,
+   "y": 0
+  },
+  "MainDelete.dc.html": {
+   "h": 1110,
+   "radius": 28,
+   "title": "메인 · 삭제 확인 (팝업)",
+   "w": 390,
+   "x": 2820,
+   "y": 0
+  },
+  "MainJoin.dc.html": {
+   "h": 1110,
+   "radius": 28,
+   "title": "메인 · 코드로 참여 (팝업)",
+   "w": 390,
+   "x": 1410,
+   "y": 0
+  },
+  "MainMenu.dc.html": {
+   "h": 1110,
+   "radius": 28,
+   "title": "메인 · 카드 ⋮ 메뉴 (길게 눌러도 같음)",
+   "w": 390,
+   "x": 1880,
+   "y": 0
+  },
+  "MainOptions.dc.html": {
+   "h": 1110,
+   "radius": 28,
+   "title": "메인 · 보기 설정 누름 (메뉴)",
+   "w": 390,
+   "x": 940,
+   "y": 0
+  },
+  "NewTrip.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "새 여행 만들기 (전체 화면)",
+   "w": 390,
+   "x": 0,
+   "y": 1270
+  },
+  "NewTripDates.dc.html": {
+   "h": 860,
+   "radius": 28,
+   "title": "새 여행 · 기간 고르기",
+   "w": 390,
+   "x": 1880,
+   "y": 1270
+  },
+  "NewTripPhoto.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "새 여행 · 사진 업로드 누름 (메뉴)",
+   "w": 390,
+   "x": 470,
+   "y": 1270
+  },
+  "NewTripPhotoCrop.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "새 여행 · 표지 위치 조정 (사진 고른 뒤)",
+   "w": 390,
+   "x": 940,
+   "y": 1270
+  },
+  "NewTripPhotoDone.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "새 여행 · 사진 넣은 뒤",
+   "w": 390,
+   "x": 1410,
+   "y": 1270
+  },
+  "PlaceFileMenu.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · 자료 ⋮ 메뉴",
+   "w": 390,
+   "x": 1880,
+   "y": 7104
+  },
+  "PlaceLinkAdd.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · 링크 추가 누름 (팝업)",
+   "w": 390,
+   "x": 2820,
+   "y": 7104
+  },
+  "PlaceLinkMenu.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · 링크 ⋮ 메뉴",
+   "w": 390,
+   "x": 3290,
+   "y": 7104
+  },
+  "PlaceMenu.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · ⋮ 메뉴",
+   "w": 390,
+   "x": 470,
+   "y": 7104
+  },
+  "PlaceSaved.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 수정 · 저장 누른 뒤 (알림)",
+   "w": 390,
+   "x": 1880,
+   "y": 8131
+  },
+  "PlaceUpload.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · 파일·사진 올리기 누름 (메뉴)",
+   "w": 390,
+   "x": 1410,
+   "y": 7104
+  },
+  "PlaceView.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · 자료 (한 번 누름)",
+   "w": 390,
+   "x": 0,
+   "y": 7104
+  },
+  "Route.dc.html": {
+   "h": 1388,
+   "radius": 28,
+   "title": "경로 제안",
+   "w": 390,
+   "x": 0,
+   "y": 9348
+  },
+  "RouteApplied.dc.html": {
+   "h": 1080,
+   "radius": 28,
+   "title": "B로 적용 누른 뒤 · 여행 상세 (알림)",
+   "w": 390,
+   "x": 2820,
+   "y": 9348
+  },
+  "RouteB.dc.html": {
+   "h": 1452,
+   "radius": 28,
+   "title": "경로 제안 · 경고 있는 B 선택 (시안 B)",
+   "w": 390,
+   "x": 2350,
+   "y": 9348
+  },
+  "RouteEndTime.dc.html": {
+   "h": 1388,
+   "radius": 28,
+   "title": "경로 제안 · 도착 누름 (시간 선택기)",
+   "w": 390,
+   "x": 940,
+   "y": 9348
+  },
+  "RouteLegMode.dc.html": {
+   "h": 1388,
+   "radius": 28,
+   "title": "경로 제안 · 이동 수단 누름 (메뉴, 새 기능)",
+   "w": 390,
+   "x": 1880,
+   "y": 9348
+  },
+  "RouteStartTime.dc.html": {
+   "h": 1388,
+   "radius": 28,
+   "title": "경로 제안 · 출발 누름 (시간 선택기)",
+   "w": 390,
+   "x": 470,
+   "y": 9348
+  },
+  "RouteWarnA.dc.html": {
+   "h": 560,
+   "radius": 20,
+   "title": "경고 시안 A · 카드 안에 이유",
+   "w": 390,
+   "x": 3760,
+   "y": 9348
+  },
+  "RouteWarnB.dc.html": {
+   "h": 560,
+   "radius": 20,
+   "title": "경고 시안 B · 시간표에서 짚기 (채택)",
+   "w": 390,
+   "x": 4230,
+   "y": 9348
+  },
+  "RouteWarnC.dc.html": {
+   "h": 560,
+   "radius": 20,
+   "title": "경고 시안 C · 눌러서 자세히",
+   "w": 390,
+   "x": 4700,
+   "y": 9348
+  },
+  "Settings.dc.html": {
+   "h": 1210,
+   "radius": 28,
+   "title": "설정 · 카테고리 관리",
+   "w": 390,
+   "x": 940,
+   "y": 11150
+  },
+  "Tokens.dc.html": {
+   "h": 1960,
+   "radius": 20,
+   "title": "디자인 토큰 · 색 · 글자 · 간격",
+   "w": 1700,
+   "x": 5890,
+   "y": 0
+  },
+  "TravelInfo.dc.html": {
+   "h": 860,
+   "radius": 28,
+   "title": "여행 상세 · 교통/숙소/예약 줄 누름",
+   "w": 390,
+   "x": 0,
+   "y": 4890
+  },
+  "TripHistory.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "여행 상세 · 활동 기록 (새 기능)",
+   "w": 390,
+   "x": 3760,
+   "y": 2480
+  },
+  "CompButton.dc.html": {
+   "h": 1262,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 버튼",
+   "x": 7690,
+   "y": 8870
+  },
+  "CompInput.dc.html": {
+   "h": 1443,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 입력 칸",
+   "x": 7690,
+   "y": 10292
+  },
+  "CompSelect.dc.html": {
+   "h": 1338,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 선택 컨트롤",
+   "x": 7690,
+   "y": 11895
+  },
+  "CompMenu.dc.html": {
+   "h": 1499,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 메뉴 · select",
+   "x": 7690,
+   "y": 13393
+  },
+  "CompTime.dc.html": {
+   "h": 1540,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 시간 · 기간",
+   "x": 7690,
+   "y": 15052
+  },
+  "CompFrame.dc.html": {
+   "h": 1070,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 상단 바 · 하단 바",
+   "x": 7690,
+   "y": 16752
+  },
+  "CompCard.dc.html": {
+   "h": 1676,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 카드 · 목록 줄",
+   "x": 7690,
+   "y": 17982
+  },
+  "CompDialog.dc.html": {
+   "h": 1160,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 팝업 · 알림",
+   "x": 7690,
+   "y": 19818
+  },
+  "CompRoute.dc.html": {
+   "h": 1270,
+   "w": 3140,
+   "radius": 20,
+   "title": "컴포넌트 · 경로 제안 부품",
+   "x": 7690,
+   "y": 21138
+  },
+  "TravelFlightAdd.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "교통편 추가",
+   "w": 390,
+   "x": 1410,
+   "y": 4890
+  },
+  "TravelLodgingAdd.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "숙소 추가",
+   "w": 390,
+   "x": 2350,
+   "y": 4890
+  },
+  "TravelUpload.dc.html": {
+   "h": 860,
+   "radius": 28,
+   "title": "교통 · 숙소 · 파일 올리기 (메뉴)",
+   "w": 390,
+   "x": 2820,
+   "y": 4890
+  },
+  "TripEdit.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "메인 · 여행 수정 (전체 화면)",
+   "w": 390,
+   "x": 2350,
+   "y": 0
+  },
+  "MainEmpty.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "메인 · 여행 없음 (빈 상태)",
+   "w": 390,
+   "x": 470,
+   "y": 0
+  },
+  "DetailNote.dc.html": {
+   "h": 1080,
+   "radius": 28,
+   "title": "여행 상세 · 여행 메모 누름 (팝업)",
+   "w": 390,
+   "x": 1880,
+   "y": 2480
+  },
+  "DetailDayEmpty.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "여행 상세 · 그날 장소 없음 (빈 상태)",
+   "w": 390,
+   "x": 940,
+   "y": 2480
+  },
+  "CandidatesEmpty.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "후보 탭 · 후보 없음 (빈 상태)",
+   "w": 390,
+   "x": 4700,
+   "y": 2480
+  },
+  "CandidateDay.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "후보 탭 · 확정하기 누름 (일차 select)",
+   "w": 390,
+   "x": 5170,
+   "y": 2480
+  },
+  "ShareNew.dc.html": {
+   "h": 1080,
+   "radius": 28,
+   "title": "여행 상세 · 공유 누름 (공유 전, 팝업)",
+   "w": 390,
+   "x": 2820,
+   "y": 2480
+  },
+  "ShareStop.dc.html": {
+   "h": 1080,
+   "radius": 28,
+   "title": "공유 · 공유 중지 누름 (확인)",
+   "w": 390,
+   "x": 3290,
+   "y": 2480
+  },
+  "TravelRowMenu.dc.html": {
+   "h": 860,
+   "radius": 28,
+   "title": "교통 · 숙소 · 줄 ⋮ 메뉴",
+   "w": 390,
+   "x": 470,
+   "y": 4890
+  },
+  "TravelDelete.dc.html": {
+   "h": 860,
+   "radius": 28,
+   "title": "교통 · 숙소 · 삭제 확인",
+   "w": 390,
+   "x": 940,
+   "y": 4890
+  },
+  "TravelDateTime.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "교통편 추가 · 날짜·시각 누름 (선택기)",
+   "w": 390,
+   "x": 1880,
+   "y": 4890
+  },
+  "PlaceDelete.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · 삭제 확인",
+   "w": 390,
+   "x": 940,
+   "y": 7104
+  },
+  "PlaceFileDelete.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · 자료 삭제 확인",
+   "w": 390,
+   "x": 2350,
+   "y": 7104
+  },
+  "PlaceLinkDelete.dc.html": {
+   "h": 867,
+   "radius": 28,
+   "title": "장소 정보 · 링크 삭제 확인",
+   "w": 390,
+   "x": 3760,
+   "y": 7104
+  },
+  "RouteEmpty.dc.html": {
+   "h": 844,
+   "radius": 28,
+   "title": "경로 제안 · 만들 수 없음 (빈 상태)",
+   "w": 390,
+   "x": 3290,
+   "y": 9348
+  },
+  "RouteLeaveTime.dc.html": {
+   "h": 1388,
+   "radius": 28,
+   "title": "경로 제안 · 떠나는 시각 누름 (시간 선택기)",
+   "w": 390,
+   "x": 1410,
+   "y": 9348
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-11-09T07:45:00Z",
+  "v": 1
+ },
+ "designSystems": [
+  {
+   "artifact": "https://claude.ai/artifact/XX6tm7Xv32czbU1irBJPpE",
+   "copiedAt": "2026-11-09T07:45:00Z",
+   "namespace": "tripplanner",
+   "title": "TripPlanner",
+   "version": "1794209789-d106"
+  }
+ ],
+ "launch": {
+  "view": "canvas"
+ },
+ "noteOrder": [
+  "n_edit",
+  "n_rules",
+  "n_color",
+  "flow",
+  "row1",
+  "row2",
+  "row3",
+  "row4",
+  "row5",
+  "n_route",
+  "tok",
+  "tok1",
+  "tok2",
+  "tok3",
+  "n_photo",
+  "tok4",
+  "tok5",
+  "tok6",
+  "n_travel"
+ ],
+ "notes": {
+  "flow": {
+   "kind": "title1",
+   "maxW": 5090,
+   "text": "시안 · 화면 흐름 순서",
+   "w": 240,
+   "x": 0,
+   "y": -600
+  },
+  "n_color": {
+   "fill": "teal",
+   "size": 24,
+   "text": "바탕색 커스텀: 구현 가능해요. 다만 자유 색상 대신 미리 정한 8가지로 제안해요. 각 색마다 라이트·다크 값을 colors.xml에 짝으로 두고 DB에는 색 번호만 저장 → 다크 모드에서도 아이콘·글자 대비가 보장돼요. 아이콘이 많을 때: 검색 + 묶음 탭 + 3줄 높이의 세로 스크롤 격자.\n\n종류를 모두 끈 경우: 장소 추가·수정에서 종류 칩이 안 나오고, 저장하면 '기타'로 들어가요. 다시 켜면 원래대로 보여요.",
+   "w": 390,
+   "x": 1410,
+   "y": 11150
+  },
+  "n_edit": {
+   "fill": "blue",
+   "size": 24,
+   "text": "장소 카드 동작\n· 한 번 누르기 → 장소 정보 (읽기 전용) + 예약·티켓·관련 링크. 자료는 이 화면에서 바로 올리고 빼요.\n· 길게 누르기 → 장소 수정 (이름·종류·일차·운영 정보·위치)\n· 오른쪽 ⠿ 손잡이를 끌기 → 순서 변경 (지금 앱과 같음)\n· 지도: 점 → 아래 카드의 '자세히' / '수정'\n※ 예약·티켓·링크 자료 보관은 지금 앱에 없는 새 기능이에요.\n· 지도 버튼: 공식 로고 + 글자. 로고는 Google 지도 · 카카오맵이 배포한 파일을 그대로 쓰고 (색·비율 변경 X), 시안엔 자리만 표시\n· 자료 공유: 공유한 여행이면 올린 자료를 멤버 모두가 봐요. 줄에 올린 사람 · 날짜 표시, 활동 기록에도 남음\n  → 새로 필요: 파일 서버 저장 (Firebase Storage). 2024.10 이후 새 프로젝트는 Blaze(종량제) 요금제가 필요해요. 파일 크기 제한(예: 10MB)과 멤버만 읽게 하는 보안 규칙도 같이 정해야 해요",
+   "w": 390,
+   "x": 4230,
+   "y": 7104
+  },
+  "n_photo": {
+   "fill": "gray",
+   "size": 24,
+   "text": "표지 사진 출처 (시안용, Wikimedia Commons)\n· 도쿄: \"Tokyo Skytree at night view\" — VaneTrz20, CC0\n· 타이베이: \"Taipei Skyline 2022.06.29\" — 毛貓大少爺, CC BY-SA 2.0\n· 부산: 사진을 안 올린 여행 → 지역 기본 일러스트(광안대교, 직접 그린 그림)\n앱에서는 사용자가 올린 사진이 먼저, 없으면 지역 일러스트, 그것도 없으면 색 그라데이션.",
+   "w": 390,
+   "x": 3760,
+   "y": 0
+  },
+  "n_route": {
+   "fill": "purple",
+   "size": 24,
+   "text": "경로 제안 · 정해진 것\n· 출발·도착 장소 = 여행 상세에서 정한 그날 순서의 첫·마지막 장소. 경로 제안에서는 장소를 따로 고르지 않고 출발 시각·도착 시각만 정해요 (지금 앱은 숙소를 자동으로 잡음 → 로직 변경)\n· 도착: '시간 자유' 또는 시각 정하기. 정한 시각을 넘기면 '확인 n'\n· 이동 수단: 구간마다 꼭 고름 (도보 / 대중교통 / 택시·차), 기본값은 대중교통\n· 대중교통: Google Directions API(transit)로 실제 노선·환승·시간을 받아요 → API 키·호출 비용 관리 필요. 실패하면 지금의 직선거리 추정으로 대신\n· 뱃지: '경고 n' → '확인 n'\n· 선택지 4개: A 추천 (이동 거리 우선) · B 가까운 곳부터 · C 환승 적은 순 · D 지금 순서 그대로 (C·D 새로)\n· 머무는 시간: 처음엔 종류별 기본값 (관광 90 · 맛집 60 · 카페 60 · 쇼핑 120 · 체험 120 · 기타 60분). 시간표의 떠나는 시각(회색 상자)을 누르면 시간 선택기 → 고른 시각 − 도착 시각을 그 장소의 머무는 시간으로 저장, 뒤 시각 다시 계산 (새로)",
+   "w": 390,
+   "x": 5170,
+   "y": 9348
+  },
+  "n_rules": {
+   "fill": "orange",
+   "size": 24,
+   "text": "선택 컨트롤 규칙\n· 스위치: 화면 안에서 켜고 끄는 값 하나 (예약 필수)\n· 메뉴 항목: 메뉴 안의 켜고 끄기는 지금 상태의 반대 동작을 글자로 (지난 여행 숨기기 ↔ 보이기)\n· 세그먼트 탭: 화면 안에서 2~3개 중 하나 고르기 (전체/내 여행/초대받은, 일정/후보)\n· select: 누른 자리 아래에 뜨는 목록에서 하나 (정렬 기준, 일차, 이동 수단) → 고른 줄의 바탕색이 바뀜\n· 칩: 여러 개 중 고르기·필터 (장소 종류)\n· 시간 선택기: 시각 하나 (출발·도착 시각) → 누른 자리 아래 팝오버, 시·분 휠, 5분 단위\n· 삭제 확인: 가운데 팝업, 제목 두 줄만 — 1줄 이름 (Bold) / 2줄 '위 여행·장소·파일·링크·교통편을 삭제하시겠습니까?' (Medium), 설명 문장 없음, 빨간 삭제 버튼. 공유 중지도 같은 형식 + 더 볼 수 없게 되는 멤버 안내 한 줄 (○○님, ○○님은 더 이상 이 여행을 볼 수 없습니다.)",
+   "w": 390,
+   "x": 3290,
+   "y": 0
+  },
+  "row1": {
+   "kind": "title1",
+   "maxW": 5560,
+   "text": "1 · 메인 · 여행 만들기",
+   "w": 240,
+   "x": 0,
+   "y": -260
+  },
+  "row2": {
+   "kind": "title1",
+   "maxW": 4620,
+   "text": "2 · 여행 상세 · 지도",
+   "w": 240,
+   "x": 0,
+   "y": 2220
+  },
+  "row3": {
+   "kind": "title1",
+   "maxW": 5560,
+   "text": "3 · 장소 정보 · 추가 · 수정",
+   "w": 240,
+   "x": 0,
+   "y": 6844
+  },
+  "row4": {
+   "kind": "title1",
+   "maxW": 4620,
+   "text": "4 · 경로 제안 · 경고 알림",
+   "w": 240,
+   "x": 0,
+   "y": 9088
+  },
+  "row5": {
+   "kind": "title1",
+   "maxW": 1800,
+   "text": "5 · 설정",
+   "w": 240,
+   "x": 0,
+   "y": 10890
+  },
+  "tok": {
+   "kind": "title1",
+   "maxW": 1700,
+   "text": "디자인 토큰 · 기준",
+   "w": 240,
+   "x": 5890,
+   "y": -600
+  },
+  "tok1": {
+   "kind": "title1",
+   "maxW": 1700,
+   "text": "A · 색 · 글자 · 간격 · 모서리",
+   "w": 240,
+   "x": 5890,
+   "y": -260
+  },
+  "tok2": {
+   "kind": "title1",
+   "maxW": 1700,
+   "text": "B · 아이콘 (Material Symbols Rounded)",
+   "w": 240,
+   "x": 5890,
+   "y": 2040
+  },
+  "tok3": {
+   "kind": "title1",
+   "maxW": 1700,
+   "text": "C · 레이아웃 기준",
+   "w": 240,
+   "x": 5890,
+   "y": 4490
+  },
+  "tok4": {
+   "kind": "title1",
+   "maxW": 1700,
+   "text": "D · 뱃지 종류",
+   "w": 240,
+   "x": 5890,
+   "y": 6350
+  },
+  "tok5": {
+   "kind": "title1",
+   "maxW": 1700,
+   "text": "E · 컴포넌트",
+   "w": 240,
+   "x": 5890,
+   "y": 8610
+  },
+  "tok6": {
+   "kind": "title1",
+   "maxW": 3140,
+   "text": "E-2 · 컴포넌트 페이지 (종류 × 상태 · 쓰는 곳)",
+   "x": 7690,
+   "y": 8610
+  },
+  "n_travel": {
+   "fill": "purple",
+   "size": 24,
+   "w": 390,
+   "x": 3290,
+   "y": 4890,
+   "text": "교통 · 숙소 추가\n· 지금 앱의 입력 창(FormDialog)을 전체 화면으로\n· 교통 종류: select (비행기 · 기차·KTX · 버스 · 배 · 렌터카·차 · 기타)\n· 번호 칸: 비행기 · 기차 · 버스 · 배는 필수 (편명 · 열차 번호), 렌터카·차 · 기타는 칸을 숨김\n· 필수: 숙소 이름\n· 숙소 위치: 장소 검색으로 채우거나 위도 · 경도 직접 입력 (지금 앱과 같은 lat · lng)\n· 날짜 · 시각: 누른 칸 아래 선택기 (날짜 · 시 · 분 휠, 5분 단위)\n· 줄 ⋮ → 수정 / 삭제. 수정은 같은 화면, 삭제는 확인 팝업"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "MainEmpty.dc.html",
+  "MainOptions.dc.html",
+  "MainJoin.dc.html",
+  "MainMenu.dc.html",
+  "TripEdit.dc.html",
+  "MainDelete.dc.html",
+  "NewTrip.dc.html",
+  "NewTripPhoto.dc.html",
+  "NewTripPhotoCrop.dc.html",
+  "NewTripPhotoDone.dc.html",
+  "NewTripDates.dc.html",
+  "Detail.dc.html",
+  "DetailAll.dc.html",
+  "DetailDayEmpty.dc.html",
+  "DetailDark.dc.html",
+  "DetailNote.dc.html",
+  "DetailShare.dc.html",
+  "ShareNew.dc.html",
+  "ShareStop.dc.html",
+  "TripHistory.dc.html",
+  "DetailCandidates.dc.html",
+  "CandidatesEmpty.dc.html",
+  "CandidateDay.dc.html",
+  "TravelInfo.dc.html",
+  "TravelRowMenu.dc.html",
+  "TravelDelete.dc.html",
+  "TravelFlightAdd.dc.html",
+  "TravelDateTime.dc.html",
+  "TravelLodgingAdd.dc.html",
+  "TravelUpload.dc.html",
+  "DetailMap.dc.html",
+  "DetailMapAll.dc.html",
+  "LocationSearch.dc.html",
+  "PlaceView.dc.html",
+  "PlaceMenu.dc.html",
+  "PlaceDelete.dc.html",
+  "PlaceUpload.dc.html",
+  "PlaceFileMenu.dc.html",
+  "PlaceFileDelete.dc.html",
+  "PlaceLinkAdd.dc.html",
+  "PlaceLinkMenu.dc.html",
+  "PlaceLinkDelete.dc.html",
+  "AddPlace.dc.html",
+  "AddPlaceSearch.dc.html",
+  "AddPlaceInfo.dc.html",
+  "AddPlaceDay.dc.html",
+  "PlaceSaved.dc.html",
+  "Route.dc.html",
+  "RouteStartTime.dc.html",
+  "RouteEndTime.dc.html",
+  "RouteLeaveTime.dc.html",
+  "RouteLegMode.dc.html",
+  "RouteB.dc.html",
+  "RouteApplied.dc.html",
+  "RouteEmpty.dc.html",
+  "RouteWarnA.dc.html",
+  "RouteWarnB.dc.html",
+  "RouteWarnC.dc.html",
+  "AppSettings.dc.html",
+  "AppSettingsMapInfo.dc.html",
+  "Settings.dc.html",
+  "Tokens.dc.html",
+  "Icons.dc.html",
+  "Layout.dc.html",
+  "Badges.dc.html",
+  "Components.dc.html",
+  "CompButton.dc.html",
+  "CompInput.dc.html",
+  "CompSelect.dc.html",
+  "CompMenu.dc.html",
+  "CompTime.dc.html",
+  "CompFrame.dc.html",
+  "CompCard.dc.html",
+  "CompDialog.dc.html",
+  "CompRoute.dc.html"
+ ],
+ "pages": [],
+ "title": "TripPlanner 화면 시안"
+}

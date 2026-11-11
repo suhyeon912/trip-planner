@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>장소 정보 · 자료 올리기</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}button{cursor:pointer}
+a{color:var(--primary)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 867px; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans);">
+<dc-import name="PlaceView" hint-size="390px,867px"></dc-import><a href="PlaceView.dc.html" aria-label="닫기" style="position: absolute; inset: 0;"></a><div role="menu" aria-label="파일 · 사진 올리기" style="position: absolute; left: 16px; top: 670px; min-width: 200px; padding: 6px 0; border-radius: 14px; background: var(--card_bg); box-shadow: 0 8px 28px rgba(15,19,26,0.22); display: flex; flex-direction: column; overflow: hidden;"><button role="menuitem" style="display: flex; align-items: center; gap: 12px; min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 0; background: transparent; color: var(--on_surface); font-size: 15px; font-weight: 500; text-align: left; width: 100%; text-decoration: none;">사진 보관함</button><button role="menuitem" style="display: flex; align-items: center; gap: 12px; min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 0; background: transparent; color: var(--on_surface); font-size: 15px; font-weight: 500; text-align: left; width: 100%; text-decoration: none;">파일</button><button role="menuitem" style="display: flex; align-items: center; gap: 12px; min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 0; background: transparent; color: var(--on_surface); font-size: 15px; font-weight: 500; text-align: left; width: 100%; text-decoration: none;">카메라로 찍기</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":867}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

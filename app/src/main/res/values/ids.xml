@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 코드로 만드는 지도 뷰의 id (화면 회전 시 상태 복원·테스트용) -->
+<resources>
+    <item name="osmMap" type="id" />
+    <item name="kakaoMap" type="id" />
+    <item name="googleMap" type="id" />
+</resources>

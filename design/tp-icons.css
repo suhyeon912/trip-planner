@@ -1,0 +1,73 @@
+/* Material Symbols Rounded 아이콘 — 글자색(currentColor)을 따라 칠해짐 */
+.ic { display: inline-block; flex: none; width: 24px; height: 24px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+.ic.s20 { width: 20px; height: 20px; } .ic.s18 { width: 18px; height: 18px; } .ic.s16 { width: 16px; height: 16px; } .ic.s48 { width: 48px; height: 48px; }
+.i-activity { --m: url("/_blob/50241ab91ebd5229feab5f4396a84f1d"); }
+.i-add { --m: url("/_blob/e23b70ad78072282209d06ed709e57e2"); }
+.i-add_photo { --m: url("/_blob/39cdfe47c1dc818d52aaff3727e83540"); }
+.i-arrow_back { --m: url("/_blob/0750da2b252ee51bf97ef85761446d7d"); }
+.i-bus { --m: url("/_blob/3463de150830c74efcda875bfb964198"); }
+.i-cafe { --m: url("/_blob/d288bf9782e518a34647d25308790e5a"); }
+.i-calendar { --m: url("/_blob/3ea75e88c77b5fb3dc5d614c54a92408"); }
+.i-car { --m: url("/_blob/8730aed37e7d9517936c254cd0f244de"); }
+.i-check { --m: url("/_blob/49cbe6ea40eee713d2f837295fb481b4"); }
+.i-chevron_right { --m: url("/_blob/ba6c08d13c345cdc25643836e4253b03"); }
+.i-close { --m: url("/_blob/ae7d0e962c53dae0041286e62661e59d"); }
+.i-drag { --m: url("/_blob/b858fc03d4c7b2a8c48cb4937b4e5cb5"); }
+.i-flight { --m: url("/_blob/a181622e00fae38fdf8a73969cbc8b4a"); }
+.i-food { --m: url("/_blob/8cdcfa6a623b98756ed17abd6b09525c"); }
+.i-group_add { --m: url("/_blob/5af45f0a10d252ebb306ab6b81719788"); }
+.i-hotel { --m: url("/_blob/63bf08d99360de296398cb970a2b7e4c"); }
+.i-list { --m: url("/_blob/da286c2b02f11d6a81f2e8875f9d8794"); }
+.i-map { --m: url("/_blob/5a9ac7896de82bbe2c72e286e2abff4c"); }
+.i-more_vert { --m: url("/_blob/3a15406c6b918fd81f21b9971f641203"); }
+.i-note { --m: url("/_blob/34af7df881041622a569855a4360ce5d"); }
+.i-place { --m: url("/_blob/de50cf1e2b71be278219e82b29eb25e1"); }
+.i-route { --m: url("/_blob/0dd8e0a3322199eedca52868f74bd08d"); }
+.i-schedule { --m: url("/_blob/61bd0e6cc6a1cab3a9b8153a0344e34f"); }
+.i-search { --m: url("/_blob/172ed21c15a5bbc44f1b92d52a260afe"); }
+.i-share { --m: url("/_blob/1903cbe6a1d55361dffbde79f846b9a9"); }
+.i-ship { --m: url("/_blob/6276babc4764b7cc73b1551c3c289b1c"); }
+.i-shopping { --m: url("/_blob/ed8df13363a2a9581b237e3299940cad"); }
+.i-sight { --m: url("/_blob/90c8c6555a67e9016eb128ed02cd793d"); }
+.i-train { --m: url("/_blob/540b5d4ceedab06fd442dddd24120593"); }
+.i-warning { --m: url("/_blob/813739b630a68d4da0b4aa0a3f0c903a"); }
+.i-person_add { --m: url("/_blob/bf89d6b7ea62adba4a9dc3e5a52ac398"); }
+.i-copy { --m: url("/_blob/fc9d5361d0f2f49b042babacf6261f2a"); }
+.i-event { --m: url("/_blob/32d5a6cb82b5de06f9eaf30211b8816f"); }
+.i-attach_file { --m: url("/_blob/212821af87c1215bc98e307e5f253910"); }
+.i-category { --m: url("/_blob/dfd6268241b7a326dce6c57c4e13b225"); }
+.i-check_circle { --m: url("/_blob/df8a78e6a0703991b6a655744a8fbfe6"); }
+.i-ticket { --m: url("/_blob/86b48d885bf0a457ae3e18fe79e79849"); }
+.i-drag_handle { --m: url("/_blob/86bc323331eaa709f78f87acc8adc4f4"); }
+.i-edit { --m: url("/_blob/8df39b38d6ff88fd9567445a7f333ed7"); }
+.i-edit_fill { --m: url("/_blob/2f69d7c79a8a9c565f925de72ffbad42"); }
+.i-image { --m: url("/_blob/e3dabf762c1ef3f2d3606905f9721827"); }
+.i-arrow_down { --m: url("/_blob/00f0208d93cff03801ed267a0fb0b301"); }
+.i-link { --m: url("/_blob/387622d63f97e29ccd7c3da321dda4f6"); }
+.i-lock { --m: url("/_blob/fa4f11206b1b6aa284151bc1ec20a9fc"); }
+.i-night { --m: url("/_blob/a062bdde55991355c8379cada4c3a856"); }
+.i-person { --m: url("/_blob/622253991ba30259cfb878c53d74019a"); }
+.i-pdf { --m: url("/_blob/b0c6fb6986192c64b9bf4d1daee9306a"); }
+.i-settings { --m: url("/_blob/bd5de5643c01fbd9993c97755bc37eb9"); }
+.i-sort { --m: url("/_blob/b0b0043ac17291ea70610f020feb1558"); }
+.i-sync { --m: url("/_blob/998ab2f055e9c5d58f08080a451a7f2a"); }
+.i-tune { --m: url("/_blob/2bd80051030ed90a97256cf96a3d027b"); }
+.i-upload_file { --m: url("/_blob/f2bc3f4f3e24a6942791fc757d53bc0b"); }
+.i-expand_less { --m: url("/_blob/4b72a6d2c622fbdb4563c2c3a11fa71f"); }
+.i-info { --m: url("/_blob/f7323187733f8b32f8007729a8457e52"); }
+.i-visibility { --m: url("/_blob/d5fc79bfe41b297fcdc1bbfba2ed92f4"); }
+.ic.i-pin_undecided { background: url("/_blob/1daa2b0c48939228b98f4ae67f50b511") center / contain no-repeat; -webkit-mask: none; mask: none; } /* 원 + 핀 한 덩어리 (여러 색) */
+.i-walk { --m: url("/_blob/1ef3852feb1b0e81079fb8a0cd9331cb"); }
+.i-subway { --m: url("/_blob/25d84987da80f81a14cc030d5d3e9f89"); }
+.i-taxi { --m: url("/_blob/d289b74d705d706b5526706378b27dee"); }
+.i-visibility_off { --m: url("/_blob/ae66f47aa214da77e1863a06337651e2"); }
+
+/* 세로 스크롤 영역 (신규 컴포넌트: ScrollArea)
+   - 가로 스크롤은 없음, 세로만
+   - 막대는 늘 보이게: 4px 트랙 + 둥근 thumb (outline 색), 화면 오른쪽 끝에서 4px 안쪽
+   - 아래 끝에 배경색으로 옅어지는 그림자(fade)로 "더 있음"을 알림 */
+.tp-scroll { overflow-x: hidden; overflow-y: scroll; scrollbar-width: thin; scrollbar-color: var(--outline) var(--surface_container_highest); overscroll-behavior: contain; }
+.tp-scroll::-webkit-scrollbar { width: 4px; }
+.tp-scroll::-webkit-scrollbar-track { background: var(--surface_container_highest); border-radius: 2px; margin: 8px 0; }
+.tp-scroll::-webkit-scrollbar-thumb { background: var(--outline); border-radius: 2px; }
+.tp-fade { position: absolute; left: 0; right: 8px; height: 40px; pointer-events: none; background: linear-gradient(to bottom, transparent, var(--background)); }

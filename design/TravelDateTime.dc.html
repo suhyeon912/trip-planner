@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>교통편 추가 · 날짜·시각 누름 (선택기)</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}button{cursor:pointer}
+a{color:var(--primary)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 844px; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans);">
+<dc-import name="TravelFlightAdd" hint-size="390px,844px"></dc-import><a href="TravelFlightAdd.dc.html" aria-label="닫기" style="position: absolute; inset: 0;"></a><div role="dialog" aria-label="출발 날짜 · 시각" style="position: absolute; left: 16px; right: 16px; top: 412px; padding: 12px 16px; border-radius: 16px; background: var(--card_bg); box-shadow: 0 8px 28px rgba(15,19,26,0.22); display: flex; flex-direction: column; gap: 8px;"><h2 style="margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">출발 날짜 · 시각</h2><div style="position: relative; display: flex; justify-content: center; align-items: center; gap: 4px; padding: 4px 0;"><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 84px; height: 40px; border-radius: 12px; background: var(--secondary_container);"></span><div role="spinbutton" aria-label="날짜" aria-valuetext="11.20 (금)" tabindex="0" style="position: relative; width: 128px; display: flex; flex-direction: column;"><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">11.18 (수)</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 17px; font-weight: 500; color: var(--text_sub);">11.19 (목)</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 22px; font-weight: 700; color: var(--on_surface);">11.20 (금)</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 17px; font-weight: 500; color: var(--text_sub);">11.21 (토)</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">11.22 (일)</span></div><div role="spinbutton" aria-label="시" aria-valuetext="08" tabindex="0" style="position: relative; width: 56px; display: flex; flex-direction: column;"><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">06</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 17px; font-weight: 500; color: var(--text_sub);">07</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 22px; font-weight: 700; color: var(--on_surface);">08</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 17px; font-weight: 500; color: var(--text_sub);">09</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">10</span></div><b aria-hidden="true" style="position: relative; font-size: 22px; font-weight: 700;">:</b><div role="spinbutton" aria-label="분" aria-valuetext="30" tabindex="0" style="position: relative; width: 56px; display: flex; flex-direction: column;"><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">20</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 17px; font-weight: 500; color: var(--text_sub);">25</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 22px; font-weight: 700; color: var(--on_surface);">30</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 17px; font-weight: 500; color: var(--text_sub);">35</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">40</span></div></div><div style="display: flex; justify-content: flex-end; gap: 4px;"><a href="TravelFlightAdd.dc.html" style="height: 40px; padding: 0 14px; border-radius: 999px; color: var(--primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">취소</a><a href="TravelFlightAdd.dc.html" style="height: 40px; padding: 0 20px; border-radius: 999px; background: var(--primary); color: var(--on_primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">적용</a></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

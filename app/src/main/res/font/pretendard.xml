@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Pretendard (SIL OFL 1.1, assets/licenses/Pretendard-OFL.txt)
+  가장 얇은 굵기를 Medium 으로 고정: 일반(400)·Medium(500) 요청 모두 Medium 파일을 씁니다.
+  Light·Regular 파일은 넣지 않았습니다(화면에서 너무 흐리게 보여서).
+-->
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font android:font="@font/pretendard_medium" android:fontStyle="normal" android:fontWeight="400" />
+    <font android:font="@font/pretendard_medium" android:fontStyle="normal" android:fontWeight="500" />
+    <font android:font="@font/pretendard_semibold_face" android:fontStyle="normal" android:fontWeight="600" />
+    <font android:font="@font/pretendard_bold" android:fontStyle="normal" android:fontWeight="700" />
+</font-family>

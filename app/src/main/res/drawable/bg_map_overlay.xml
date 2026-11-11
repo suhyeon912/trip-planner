@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 지도 위에 얹는 범례·안내 상자 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/map_overlay" />
+    <corners android:radius="@dimen/radius_day_chip" />
+    <stroke android:width="@dimen/stroke_card" android:color="@color/outline_variant" />
+</shape>

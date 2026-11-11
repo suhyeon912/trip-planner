@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  여행 상세 · 넓은 화면(840dp 이상: 태블릿, 큰 폰 가로) 2단 배치 (7단계)
+  ┌ 왼쪽 360dp: 툴바 + 요약 카드(기간 · 숙소/교통 · 메모)  ← 접히지 않고 항상 보임
+  └ 오른쪽: 탭 + 일차 칩 + 타임라인 목록 + 장소 추가
+  id 는 기본 layout/activity_trip_detail.xml 과 모두 같아서 코드 수정 없이 동작합니다.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="horizontal">
+
+    <!-- 왼쪽: 요약 -->
+    <LinearLayout
+        android:id="@+id/summaryPane"
+        android:layout_width="360dp"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurface"
+            app:menu="@menu/trip_detail" />
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <!-- 요약 카드: 행을 누르면 기존 화면/다이얼로그로 -->
+            <LinearLayout
+                android:id="@+id/summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/screen_margin"
+                android:layout_marginTop="@dimen/space_s"
+                android:layout_marginBottom="@dimen/space_s"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:paddingVertical="@dimen/space_xs"
+>
+
+                <LinearLayout
+                    android:id="@+id/rowDates"
+                    style="@style/Widget.TripPlanner.SummaryRow">
+                    <ImageView style="@style/Widget.TripPlanner.SummaryIcon" android:src="@drawable/ic_calendar" />
+                    <TextView
+                        android:id="@+id/tvDates"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium" />
+                    <TextView
+                        android:id="@+id/tvDday"
+                        style="@style/Widget.TripPlanner.Badge"
+                        android:background="@drawable/bg_chip"
+                        android:textColor="@color/on_primary_container"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowTravel"
+                    style="@style/Widget.TripPlanner.SummaryRow">
+                    <ImageView style="@style/Widget.TripPlanner.SummaryIcon" android:src="@drawable/ic_hotel" />
+                    <TextView
+                        android:id="@+id/tvTravel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium" />
+                    <ImageView style="@style/Widget.TripPlanner.SummaryChevron" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowNote"
+                    style="@style/Widget.TripPlanner.SummaryRow">
+                    <ImageView style="@style/Widget.TripPlanner.SummaryIcon" android:src="@drawable/ic_note" />
+                    <TextView
+                        android:id="@+id/tvNote"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium" />
+                    <ImageView style="@style/Widget.TripPlanner.SummaryChevron" />
+                </LinearLayout>
+            </LinearLayout>
+
+            </FrameLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/outline_variant" />
+
+    <!-- 오른쪽: 일정 -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:liftOnScroll="true"
+            app:liftOnScrollTargetViewId="@id/rvPlaces">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSurface" />
+
+            <!-- 일차 칩 줄 (일정 탭에서만 보임) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDays"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSurface"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/screen_margin"
+                android:paddingVertical="@dimen/space_s" />
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPlaces"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="@dimen/space_s"
+                android:paddingBottom="96dp" />
+
+            <include
+                android:id="@+id/emptyState"
+                layout="@layout/view_empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/space_xxl"
+                android:visibility="gone" />
+
+            <!-- 지도로 보기 (목록과 번갈아 보임) -->
+            <include layout="@layout/view_trip_map" />
+        </FrameLayout>
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabAddPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/space_l"
+            android:text="@string/add_place"
+            android:textColor="@color/on_primary"
+            app:backgroundTint="@color/primary"
+            app:icon="@drawable/ic_add"
+            app:iconTint="@color/on_primary" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

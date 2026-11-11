@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>메인 · 여행 없음</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--primary)}a:hover{color:var(--on_primary_container)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column;">
+  <header style="display: flex; align-items: center; gap: 0; padding: 20px 4px 8px 16px;">
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px;">
+      <h1 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 700;">여행 플래너</h1>
+    </div>
+    <a href="MainJoin.dc.html" aria-label="공유 코드로 참여" style="text-decoration: none; width: 48px; height: 48px; border: 0; border-radius: 24px; background: transparent; color: var(--text_sub); display: grid; place-items: center;"><span class="ic i-group_add" aria-hidden="true"></span></a>
+    <a href="AppSettings.dc.html" aria-label="설정" style="width: 48px; height: 48px; border-radius: 24px; color: var(--text_sub); display: grid; place-items: center;"><span class="ic i-settings" aria-hidden="true"></span></a>
+  </header>
+
+  <div style="padding: 96px 32px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;"><span style="width: 72px; height: 72px; border-radius: 36px; background: var(--surface_container); color: var(--text_sub); display: grid; place-items: center; margin-bottom: 8px;"><span class="ic i-flight" aria-hidden="true" style="width: 32px; height: 32px;"></span></span><h2 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 600;">첫 여행을 만들어 보세요</h2><p style="margin: 0; word-break: keep-all; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text_sub);">여행 이름과 날짜만 있으면 시작할 수 있어요</p></div>
+
+  <a href="NewTrip.dc.html" style="position: absolute; right: 20px; bottom: 24px; height: 56px; padding: 0 20px 0 16px; border-radius: 16px; background: var(--primary); color: var(--on_primary); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 20px; font-weight: 600;"><span class="ic i-add" aria-hidden="true"></span>새 여행</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

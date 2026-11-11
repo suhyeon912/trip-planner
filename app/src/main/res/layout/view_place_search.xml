@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 장소 검색 창: 검색어 · 국내/해외 · 결과 목록 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_xl"
+    android:paddingTop="@dimen/space_s">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilQuery"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_hint"
+        app:endIconContentDescription="@string/search_place"
+        app:endIconDrawable="@drawable/ic_search"
+        app:endIconMode="custom">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etQuery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleRegion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+        <Button
+            android:id="@+id/btnDomestic"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/search_domestic" />
+        <Button
+            android:id="@+id/btnOverseas"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/search_overseas" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s"
+        android:indeterminate="true"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:accessibilityLiveRegion="polite"
+        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHits"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:layout_marginTop="@dimen/space_xs" />
+</LinearLayout>

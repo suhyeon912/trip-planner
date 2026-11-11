@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 넓은 화면: 경로 지도를 조금 더 크게 -->
+<resources>
+    <dimen name="route_map_height">340dp</dimen>
+</resources>

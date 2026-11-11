@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  다크 모드 색 (휴대폰 설정이 '어두운 테마'일 때 자동 적용).
+  이름은 values/colors.xml 과 같고 값만 어둡게 — 레이아웃은 그대로 둡니다.
+  대비는 어두운 배경 #0F131A / 카드 #1A1F29 기준.
+-->
+<resources>
+    <color name="primary">#8AB4FF</color>               <!-- 배경 대비 8.9:1 -->
+    <color name="primary_light">#1E3A8A</color>
+    <color name="badge_red">#F87171</color>
+    <color name="text_sub">#A3ACBA</color>              <!-- 카드 대비 7.4:1 -->
+    <color name="card_bg">#1A1F29</color>
+    <color name="warn_bg">#3A2C12</color>
+    <color name="warn_text">#FCD38D</color>
+
+    <color name="on_primary">#0A1A3F</color>            <!-- primary 위 9.0:1 -->
+    <color name="on_primary_container">#DBEAFE</color>
+    <color name="secondary">#94A3B8</color>
+    <color name="secondary_container">#233150</color>
+    <color name="on_secondary_container">#DBE6FF</color>
+    <color name="tertiary">#22D3EE</color>
+    <color name="tertiary_container">#164E63</color>
+    <color name="on_tertiary_container">#CFFAFE</color>
+    <color name="background">#0F131A</color>
+    <color name="surface_container">#232A37</color>
+    <color name="surface_container_highest">#2A3140</color>
+    <color name="on_surface">#E8ECF3</color>
+    <color name="outline">#8A93A3</color>
+    <color name="outline_variant">#2E3646</color>
+    <color name="error_container">#4C1D1D</color>
+    <color name="on_error_container">#FECACA</color>
+    <color name="success">#6EE7B7</color>
+    <color name="success_bg">#12352A</color>
+    <color name="option_selected_bg">#172238</color>
+    <color name="map_overlay">#E61A1F29</color>
+    <color name="day_chip_sub_selected">#1E3A8A</color>
+    <color name="cat_sight_bg">#1E3A8A</color>    <color name="cat_sight_fg">#BFDBFE</color>
+    <color name="cat_food_bg">#4A2512</color>     <color name="cat_food_fg">#FDBA74</color>
+    <color name="cat_cafe_bg">#3D2A1C</color>     <color name="cat_cafe_fg">#E7C3A1</color>
+    <color name="cat_shopping_bg">#4A1530</color> <color name="cat_shopping_fg">#F9A8D4</color>
+    <color name="cat_activity_bg">#14381F</color> <color name="cat_activity_fg">#86EFAC</color>
+</resources>

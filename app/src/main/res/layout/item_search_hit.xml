@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 검색 결과 한 줄: 종류 아이콘 · 이름 · 주소 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/touch_min"
+    android:orientation="horizontal"
+    android:paddingVertical="@dimen/space_s">
+
+    <ImageView
+        android:id="@+id/ivCat"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="@dimen/space_m"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tvHitName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall" />
+        <TextView
+            android:id="@+id/tvHitAddr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant" />
+    </LinearLayout>
+</LinearLayout>

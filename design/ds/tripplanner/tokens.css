@@ -1,0 +1,34 @@
+/* TripPlanner — generated from tokens.json */
+:root, [data-theme="light"] {
+  --primary:#2563eb; --on_primary:#ffffff; --primary_light:#dbeafe; --on_primary_container:#1e40af; --day_chip_sub_selected:#dbeafe;
+  --secondary:#475569; --secondary_container:#e3ebfd; --on_secondary_container:#1e3a8a;
+  --tertiary:#0e7490; --tertiary_container:#cffafe; --on_tertiary_container:#164e63;
+  --background:#f6f7f9; --card_bg:#ffffff; --white:#ffffff; --surface_container:#eef1f5; --surface_container_highest:#e9ecf1;
+  --on_surface:#111827; --text_sub:#4b5563; --outline:#6b7280; --outline_variant:#e5e7eb; --option_selected_bg:#f5f8ff; --map_overlay:#fffffff2;
+  --badge_red:#dc2626; --error_container:#fee2e2; --on_error_container:#991b1b; --warn_bg:#fef3c7; --warn_text:#92400e; --success:#047857; --success_bg:#d1fae5;
+  --cat_sight_bg:#dbeafe; --cat_sight_fg:#1d4ed8; --cat_food_bg:#ffedd5; --cat_food_fg:#c2410c; --cat_cafe_bg:#f5e8dd; --cat_cafe_fg:#8a4b1f;
+  --cat_shopping_bg:#fce7f3; --cat_shopping_fg:#be185d; --cat_activity_bg:#dcfce7; --cat_activity_fg:#15803d;
+  --day_1:#2563eb; --day_2:#c2410c; --day_3:#047857; --day_4:#7e22ce; --day_5:#be185d; --day_6:#0e7490;
+  --cover_blue_dark:#1d4ed8; --cover_blue_light:#60a5fa; --cover_teal_dark:#0e7490; --cover_teal_light:#2dd4bf; --cover_violet_dark:#6d28d9; --cover_violet_light:#a78bfa;
+  --cover_orange_dark:#c2410c; --cover_orange_light:#fb923c; --cover_green_dark:#047857; --cover_green_light:#34d399; --cover_pink_dark:#be185d; --cover_pink_light:#f472b6;
+  --cover_past_dark:#4b5563; --cover_past_light:#9ca3af; --cover_pill_bg:#ffffff33; --cover_pill_stroke:#ffffff59;
+}
+[data-theme="dark"] {
+  --primary:#8ab4ff; --on_primary:#0a1a3f; --primary_light:#1e3a8a; --on_primary_container:#dbeafe; --day_chip_sub_selected:#1e3a8a;
+  --secondary:#94a3b8; --secondary_container:#233150; --on_secondary_container:#dbe6ff;
+  --tertiary:#22d3ee; --tertiary_container:#164e63; --on_tertiary_container:#cffafe;
+  --background:#0f131a; --card_bg:#1a1f29; --surface_container:#232a37; --surface_container_highest:#2a3140;
+  --on_surface:#e8ecf3; --text_sub:#a3acba; --outline:#8a93a3; --outline_variant:#2e3646; --option_selected_bg:#172238; --map_overlay:#1a1f29e6;
+  --badge_red:#f87171; --error_container:#4c1d1d; --on_error_container:#fecaca; --warn_bg:#3a2c12; --warn_text:#fcd38d; --success:#6ee7b7; --success_bg:#12352a;
+  --cat_sight_bg:#1e3a8a; --cat_sight_fg:#bfdbfe; --cat_food_bg:#4a2512; --cat_food_fg:#fdba74; --cat_cafe_bg:#3d2a1c; --cat_cafe_fg:#e7c3a1;
+  --cat_shopping_bg:#4a1530; --cat_shopping_fg:#f9a8d4; --cat_activity_bg:#14381f; --cat_activity_fg:#86efac;
+}
+:root {
+  --space_xs:4px; --space_s:8px; --space_m:12px; --space_l:16px; --space_xl:24px; --space_xxl:32px; --screen_margin:16px;
+  --radius_badge:9px; --radius_warn:8px; --radius_day_chip:12px; --radius_input:12px; --radius_thumb:12px; --radius_card:16px; --radius_chip:16px; --radius_trip_card:20px; --radius_pill:999px;
+  --touch_min:48px; --icon_size:24px; --icon_small:20px; --thumb_size:44px; --timeline_dot:28px; --cover_height:116px; --stroke_card:1px; --route_map_height:260px; --content_max_width:640px;
+  --font-sans: Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+}
+@font-face { font-family: Pretendard; src: url("fonts/Pretendard-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; }
+@font-face { font-family: Pretendard; src: url("fonts/Pretendard-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; }
+@font-face { font-family: Pretendard; src: url("fonts/Pretendard-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; }

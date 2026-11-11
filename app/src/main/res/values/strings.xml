@@ -1,0 +1,263 @@
+<resources>
+    <string name="app_name">여행 플래너</string>
+
+    <!-- 공통 -->
+    <string name="action_save">저장</string>
+    <string name="action_cancel">취소</string>
+    <string name="action_delete">삭제</string>
+    <string name="action_edit">수정</string>
+    <string name="action_add">추가</string>
+    <string name="action_memo">메모</string>
+    <string name="action_confirm">확정</string>
+    <string name="nav_back">뒤로 가기</string>
+    <string name="state_selected">선택됨</string>
+    <string name="state_expanded">펼쳐짐</string>
+    <string name="state_collapsed">접힘</string>
+    <string name="list_separator">" · "</string>
+
+    <!-- 일차·시간 -->
+    <string name="day_n">%1$d일차</string>
+    <string name="day_n_with_date">%1$d일차 · %2$d/%3$d(%4$s)</string>
+    <string name="day_none">일차 미정</string>
+    <string name="day_all">전체</string>
+    <string name="short_date">%1$d/%2$d(%3$s)</string>
+    <string name="chip_sub_date">%1$d/%2$d %3$s · %4$d곳</string>
+    <string name="chip_sub">%1$d곳</string>
+    <string name="chip_a11y_date">%1$d일차, %2$d월 %3$d일 %4$s, 장소 %5$d곳</string>
+    <string name="chip_a11y">%1$s, 장소 %2$d곳</string>
+    <string name="places_count">%1$d곳</string>
+    <string name="minutes">%1$d분</string>
+    <string name="hours">%1$d시간</string>
+    <string name="hours_minutes">%1$d시간 %2$d분</string>
+
+    <!-- 여행 목록 -->
+    <string name="shared_badge">공유 중</string>
+    <string name="trips_summary">다가오는 여행 %1$d · 지난 여행 %2$d</string>
+    <string name="title_my_trips">내 여행</string>
+    <string name="new_trip">새 여행</string>
+    <string name="edit_trip">여행 수정</string>
+    <string name="trip_counts">확정 %1$d곳 · 후보 %2$d곳</string>
+    <string name="trip_menu_a11y">%1$s 메뉴</string>
+    <string name="trip_delete_confirm">\'%1$s\' 여행과 안의 장소·비행기·숙소를 모두 지울까요?</string>
+    <string name="empty_trips_title">첫 여행을 만들어 보세요</string>
+    <string name="empty_trips_body">여행 이름과 날짜만 있으면 시작할 수 있어요</string>
+    <string name="hint_trip_title">여행 이름 (예: 도쿄 2박 3일)</string>
+    <string name="hint_trip_start">시작일</string>
+    <string name="hint_trip_end">종료일</string>
+    <string name="error_trip_title">여행 이름을 입력하세요</string>
+    <string name="error_trip_dates">달력에서 시작일과 종료일을 골라 주세요</string>
+
+    <!-- 여행 상세 -->
+    <string name="menu_travel_info">교통 · 숙소</string>
+    <string name="menu_note">하고 싶은 거 메모</string>
+    <string name="note_placeholder">하고 싶은 거 적기</string>
+    <string name="no_lodging">숙소 없음</string>
+    <string name="no_flight">교통편 없음</string>
+    <string name="flight_count">교통편 %1$d개</string>
+    <string name="tab_schedule">일정</string>
+    <string name="tab_candidates">후보</string>
+    <string name="tab_schedule_n">일정 %1$d</string>
+    <string name="tab_candidates_n">후보 %1$d</string>
+    <string name="add_place">장소 추가</string>
+    <string name="place_memo_title">%1$s 메모</string>
+    <string name="place_delete_confirm">\'%1$s\' 을(를) 지울까요?</string>
+    <string name="pick_day_title">며칠째에 갈까요?</string>
+    <string name="start_from">%1$s에서 출발</string>
+    <string name="route_cta">%1$d일차 경로 제안 보기</string>
+    <string name="header_no_day_sub">%1$d곳 · 일차를 정하면 경로를 만들 수 있어요</string>
+    <string name="header_no_day_hint">일차를 정하면 경로를 만들 수 있어요</string>
+    <string name="empty_candidates_title">후보 장소가 없어요</string>
+    <string name="empty_candidates_body">가고 싶은 곳을 먼저 모아 두세요</string>
+    <string name="empty_confirmed_title">확정된 장소가 없어요</string>
+    <string name="empty_confirmed_body">후보 탭에서 가고 싶은 곳을 확정해 보세요</string>
+    <string name="empty_day_title">%1$d일차에 확정된 장소가 없어요</string>
+    <string name="empty_day_body">후보 탭에서 이날 갈 곳을 골라 보세요</string>
+    <string name="show_candidates">후보 보기</string>
+
+    <!-- 장소 카드 -->
+    <string name="reservation_required">예약필수</string>
+    <string name="break_badge">브레이크 %1$s</string>
+    <string name="confirm_place_a11y">%1$s 확정하기</string>
+    <string name="more_a11y">%1$s 더보기</string>
+    <string name="info_hours">운영</string>
+    <string name="info_break">브레이크</string>
+    <string name="info_closed">휴무</string>
+    <string name="info_reservation">예약</string>
+    <string name="info_stay">머무름</string>
+    <string name="info_location">위치</string>
+    <string name="reservation_yes">필수</string>
+    <string name="reservation_no">필요 없음</string>
+    <string name="stay_about">약 %1$d분</string>
+    <string name="no_location_info">없음 · 경로 계산에서 빠져요</string>
+    <string name="menu_change_day">일차 변경</string>
+    <string name="move_to_candidate">후보로 옮기기</string>
+    <string name="move_to_confirmed">확정으로</string>
+
+    <!-- 장소 편집 · 검색 · 사진 (새 기능) -->
+    <string name="search_place">장소 검색</string>
+    <string name="search_place_button">장소 검색으로 이름·위치 채우기</string>
+    <string name="search_hint">장소 이름 (예: 센소지, 해운대)</string>
+    <string name="search_domestic">국내 (카카오)</string>
+    <string name="search_overseas">해외 (구글)</string>
+    <string name="search_empty">검색 결과가 없어요</string>
+    <string name="search_no_kakao_key">카카오 REST API 키가 없어요 (local.properties 의 KAKAO_REST_API_KEY)</string>
+    <string name="search_no_google_key">구글 키가 없어요 (local.properties 의 MAPS_API_KEY, Places API (New) 사용 설정)</string>
+    <string name="search_failed">검색에 실패했어요: %1$s</string>
+    <string name="search_filled">%1$s 정보를 채웠어요</string>
+    <string name="place_photo">장소 사진</string>
+    <string name="pick_photo">사진 고르기</string>
+    <string name="change_photo">사진 바꾸기</string>
+    <string name="remove_photo">사진 빼기</string>
+    <string name="photo_failed">사진을 불러오지 못했어요</string>
+
+    <!-- 장소 편집 -->
+    <string name="edit_place">장소 수정</string>
+    <string name="section_basic">기본</string>
+    <string name="section_hours">운영 정보</string>
+    <string name="section_location">위치</string>
+    <string name="hint_place_name">장소 이름 *</string>
+    <string name="status_candidate">후보</string>
+    <string name="status_confirmed">확정</string>
+    <string name="hint_day">며칠째</string>
+    <string name="helper_candidate_day">후보는 일차 없이 저장돼요</string>
+    <string name="hint_hours">운영시간 (예: 11:00 ~ 21:00)</string>
+    <string name="hint_break">브레이크 타임 (예: 15:00 ~ 17:00)</string>
+    <string name="hint_closed">휴무일 (예: 화요일)</string>
+    <string name="hint_stay">머무는 시간(분)</string>
+    <string name="helper_stay">비우면 60분</string>
+    <string name="reservation_switch">예약 필수</string>
+    <string name="location_help">구글맵에서 장소를 길게 눌러 위도·경도를 복사할 수 있어요. 비워 두면 경로 계산에서만 빠져요.</string>
+    <string name="hint_lat">위도</string>
+    <string name="hint_lng">경도</string>
+    <string name="error_place_name">장소 이름을 입력하세요</string>
+    <string name="error_lat">-90 ~ 90 사이</string>
+    <string name="error_lng">-180 ~ 180 사이</string>
+    <!-- 저장값(데이터)으로 쓰이므로 화면 문구와 별개 -->
+    <string name="hours_unknown">정보 없음</string>
+
+    <!-- 항공·숙소 -->
+    <string name="travel_info_subtitle">항목을 누르면 수정 · 삭제</string>
+    <string name="flights">교통편</string>
+    <string name="flights_n">교통편 %1$d</string>
+    <string name="lodgings">숙소</string>
+    <string name="lodgings_n">숙소 %1$d</string>
+    <string name="add_flight">교통편 추가</string>
+    <string name="edit_flight">교통편 수정</string>
+    <string name="add_flight_row">비행기 · KTX 등 추가하기</string>
+    <string name="add_lodging">숙소 추가</string>
+    <string name="edit_lodging">숙소 수정</string>
+    <string name="add_lodging_row">숙소 추가하기</string>
+    <string name="lodging_help">숙소 위치는 경로 제안의 출발·도착점으로 쓰여요</string>
+    <string name="flight_title">%1$s  %2$s → %3$s</string>
+    <string name="flight_sub">%1$s 출발 · %2$s 도착</string>
+    <string name="lodging_has_location">" · 위치 있음"</string>
+    <string name="lodging_no_location">" · 위치 없음"</string>
+    <string name="hint_flight_no">편명·열차 번호 (예: KE721, KTX 101)</string>
+    <string name="hint_transport_mode">교통 종류</string>
+    <string name="hint_from_airport">출발지 (예: ICN, 서울역)</string>
+    <string name="hint_to_airport">도착지 (예: HND, 부산역)</string>
+    <string name="hint_depart_at">출발 날짜·시각</string>
+    <string name="hint_arrive_at">도착 날짜·시각</string>
+    <string name="error_flight_no">편명을 입력하세요</string>
+    <string name="hint_lodging_name">숙소 이름</string>
+    <string name="hint_check_in">체크인</string>
+    <string name="hint_check_out">체크아웃</string>
+    <string name="hint_lodging_lat">위도 (경로 출발점, 선택)</string>
+    <string name="hint_lodging_lng">경도 (경로 출발점, 선택)</string>
+    <string name="error_lodging_name">숙소 이름을 입력하세요</string>
+
+    <!-- 경로 제안 -->
+    <string name="title_route">경로 제안</string>
+    <string name="route_subtitle">직선거리 기반 추정치 · 10:00 출발 기준</string>
+    <string name="route_subtitle_fmt">직선거리 기반 추정치 · %1$s 출발 기준</string>
+    <string name="start_time_btn">%1$s 출발</string>
+    <string name="start_time_a11y">출발 시각 %1$s, 바꾸기</string>
+    <string name="pick_start_time">숙소에서 출발하는 시각</string>
+    <string name="route_anchor">%1$s 출발·도착</string>
+    <string name="route_no_anchor">숙소 위치 없음</string>
+    <string name="route_note_bullet">· %1$s</string>
+    <string name="option_title">%1$s안 · %2$s</string>
+    <string name="apply_option">%1$s안으로 확정</string>
+    <string name="apply_option_short">%1$s안 확정</string>
+    <string name="open_directions">%1$s 길찾기</string>
+    <string name="open_directions_short">길찾기</string>
+    <string name="go_to_detail">상세로</string>
+    <string name="stat_move">이동 %1$s</string>
+    <string name="stat_wait">대기 %1$s</string>
+    <string name="warn_n">경고 %1$d</string>
+    <string name="warn_none">경고 없음</string>
+    <string name="added_n_badge">" · 후보 +%1$d"</string>
+    <string name="option_a11y">%1$s안 %2$s, %3$s, %4$s%5$s</string>
+    <string name="warn_n_a11y">경고 %1$d개</string>
+    <string name="added_n_a11y">", 후보 %1$d곳 추가"</string>
+    <string name="stop_depart">%1$s 출발</string>
+    <string name="stop_arrive_end">%1$s 도착</string>
+    <string name="stop_meta">%1$s 도착 · %2$d분 머무름</string>
+    <string name="stop_wait">문 열 때까지 %1$s 기다려요</string>
+    <string name="added_from_candidates">후보에서 추가</string>
+    <string name="note_no_location">%1$s: 위치(위도·경도)가 없어 제외</string>
+    <string name="note_no_anchor">숙소 위치가 없어 첫 장소에서 출발하는 것으로 계산</string>
+    <string name="empty_route_day_title">%1$d일차에 확정된 장소가 없어요</string>
+    <string name="empty_route_day_body">여행 상세에서 장소를 확정하고 일차를 정해 주세요</string>
+    <string name="empty_route_day_action">장소 확정하러 가기</string>
+    <string name="empty_route_loc_title">위치가 있는 장소가 없어요</string>
+    <string name="empty_route_loc_body">장소 수정에서 위도·경도를 넣어 주세요</string>
+    <string name="back_to_detail">여행 상세로 돌아가기</string>
+    <string name="applied_order">%1$s안 순서로 저장했어요</string>
+    <string name="applied_with_added">%1$s안으로 저장하고 후보 %2$d곳을 확정했어요</string>
+
+    <!-- 공유 · 초대 (Firebase) -->
+    <string name="share_invite">공유·초대</string>
+    <string name="join_with_code">코드로 참여</string>
+    <string name="share_not_configured_title">공유 설정이 필요해요</string>
+    <string name="share_not_configured">Firebase 설정 파일(app/google-services.json)을 넣고 다시 빌드하면 친구와 여행을 함께 편집할 수 있어요. 자세한 방법은 README 의 \'공유·초대\'를 참고하세요.</string>
+    <string name="share_intro">초대 코드를 만들면 이 여행이 서버에 올라가고, 코드를 받은 친구가 같은 여행을 함께 보고 고칠 수 있어요. 사진은 기기에만 남아요.</string>
+    <string name="share_create">초대 코드 만들기</string>
+    <string name="share_code_title">초대 코드</string>
+    <string name="share_code_help">친구가 앱 첫 화면의 \'코드로 참여\'에 이 코드를 넣으면 돼요. 바꾼 내용은 서로 바로 반영돼요.</string>
+    <string name="share_members">%1$d명이 함께 보는 중</string>
+    <string name="share_send">코드 보내기</string>
+    <string name="share_copy">복사</string>
+    <string name="share_copied">초대 코드를 복사했어요</string>
+    <string name="share_stop">공유 그만두기</string>
+    <string name="share_stop_confirm">공유를 그만둘까요? 내 기기의 여행은 그대로 남고, 이후 바뀐 내용은 서로 반영되지 않아요.</string>
+    <string name="share_message">[여행 플래너] \'%1$s\' 여행에 초대했어요. 앱 첫 화면 \'코드로 참여\'에 %2$s 를 입력하세요.</string>
+    <string name="share_failed">공유하지 못했어요: %1$s</string>
+    <string name="join_title">초대 코드로 참여</string>
+    <string name="join_hint">6자리 초대 코드</string>
+    <string name="join_button">참여</string>
+    <string name="join_invalid">코드 6자리를 확인해 주세요</string>
+    <string name="join_not_found">이 코드의 여행을 찾을 수 없어요</string>
+    <string name="join_failed">참여하지 못했어요: %1$s</string>
+    <string name="working">잠시만요…</string>
+    <string name="shared_subtitle">공유 중 · 코드 %1$s</string>
+
+    <!-- 앱 안 지도 -->
+    <string name="show_map">지도로 보기</string>
+    <string name="show_list">목록으로 보기</string>
+    <string name="map_a11y">장소 지도</string>
+    <string name="action_close">닫기</string>
+    <string name="map_no_location">위치 없는 %1$d곳은 지도에 없어요</string>
+    <string name="map_nothing">위치(위도·경도)가 있는 장소가 없어요</string>
+    <string name="map_pin_a11y">%1$s, %2$s</string>
+    <string name="map_lodging">숙소</string>
+    <string name="route_map_hint">숙소에서 출발해 번호 순서대로 돌아요</string>
+    <string name="route_map_added">%1$d 후보에서 추가</string>
+    <string name="legend_added">후보에서 추가</string>
+    <string name="kakao_auth_failed">카카오맵 인증 실패로 기본 지도를 보여 줘요 · 키 해시 %1$s 를 카카오 콘솔에 등록하세요</string>
+    <string name="kakao_timeout">카카오맵이 응답하지 않아 기본 지도를 보여 줘요 (Logcat: KakaoMapEngine)</string>
+    <string name="kakao_failed">카카오맵을 열 수 없어 기본 지도를 보여 줘요</string>
+
+    <!-- 지도 열기 -->
+    <string name="map_kakao">카카오맵</string>
+    <string name="map_google">구글맵</string>
+    <string name="kakao_mode_title">카카오맵 이동수단</string>
+    <string name="mode_car">자동차 (전체 경로)</string>
+    <string name="mode_walk">도보 (전체 경로)</string>
+    <string name="mode_transit_legs">대중교통 (구간 하나씩)</string>
+    <string name="mode_transit">대중교통</string>
+    <string name="pick_leg_title">어느 구간을 볼까요?</string>
+    <string name="leg_item">%1$d. %2$s → %3$s</string>
+    <string name="kakao_waypoint_limit">카카오맵은 경유지를 %1$d곳까지만 지원해서 앞쪽 %1$d곳만 넘겨요</string>
+    <string name="no_map_app">지도를 열 수 있는 앱이 없어요</string>
+</resources>

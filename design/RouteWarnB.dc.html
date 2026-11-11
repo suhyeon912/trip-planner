@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>경고 시안 B · 시간표에서 표시</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+<div data-theme="light" style="width: 390px; height: 560px; box-sizing: border-box; padding: 20px 16px; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 8px;">
+  <p style="margin: 0 0 4px; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--text_sub);">B · 시간표에서 문제가 되는 장소를 짚어 주기</p>
+  <div style="padding: 11px; border-radius: 16px; border: 2px solid var(--primary); background: var(--option_selected_bg); display: flex; flex-direction: column; gap: 6px;">
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; font-weight: 600;"><span style="width: 24px; height: 24px; border-radius: 12px; background: var(--primary); color: var(--on_primary); display: grid; place-items: center; font-size: 12px; font-weight: 700;">B</span><span style="flex-grow: 1;">가까운 곳부터 · 11.2km</span><span style="display: flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 9px; background: var(--warn_bg); color: var(--warn_text); font-size: 12px; line-height: 18px; font-weight: 500;"><span class="ic i-warning s16" aria-hidden="true"></span>츠지한 브레이크</span></div>
+    <p style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">긴자 식스 → 스카이트리 → 츠지한 · 15:45 숙소 도착</p>
+  </div>
+  <h2 style="margin: 8px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">B 경로 시간표</h2>
+  <div style="border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); padding: 4px 12px;">
+    <div style="display: flex; align-items: center; gap: 10px; min-height: 48px; font-size: 14px; font-weight: 500;"><span style="width: 92px; font-variant-numeric: tabular-nums;"><b>10:05</b><span style="color: var(--text_sub);"> – 12:05</span></span><span style="width: 28px; height: 28px; border-radius: 9px; background: var(--cat_shopping_bg); display: grid; place-items: center;"><span class="ic i-shopping s16" aria-hidden="true"></span></span><span style="flex-grow: 1;">긴자 식스</span></div>
+    <div style="display: flex; align-items: center; gap: 10px; min-height: 48px; font-size: 14px; font-weight: 500;"><span style="width: 92px; font-variant-numeric: tabular-nums;"><b>12:20</b><span style="color: var(--text_sub);"> – 13:50</span></span><span style="width: 28px; height: 28px; border-radius: 9px; background: var(--cat_sight_bg); display: grid; place-items: center;"><span class="ic i-sight s16" aria-hidden="true"></span></span><span style="flex-grow: 1;">도쿄 스카이트리</span></div>
+    <div style="margin: 2px -8px 4px; padding: 6px 8px; border-radius: 12px; background: var(--warn_bg); border-left: 0;">
+      <div style="display: flex; align-items: center; gap: 10px; min-height: 40px; font-size: 14px; font-weight: 500;"><span style="width: 92px; font-variant-numeric: tabular-nums; color: var(--warn_text);"><b>14:10</b> – 15:10</span><span style="width: 28px; height: 28px; border-radius: 9px; background: var(--cat_food_bg); display: grid; place-items: center;"><span class="ic i-food s16" aria-hidden="true"></span></span><span style="flex-grow: 1; font-weight: 600;">츠지한 니혼바시</span><span class="ic i-warning s18" aria-hidden="true" style="color: var(--warn_text);"></span></div>
+      <p style="margin: 0 0 2px 102px; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--warn_text);">15:00부터 브레이크 타임 · 10분 겹쳐요</p>
+    </div>
+  </div>
+  <p style="margin: 8px 0 0; font-size: 12px; line-height: 18px; font-weight: 500; color: var(--text_sub);">좋은 점: 어느 시간에 무엇이 문제인지 정확히 보여요. 카드 뱃지에는 장소 이름을 짧게. 아쉬운 점: 경로를 고른 뒤에야 자세히 보여요.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":560}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

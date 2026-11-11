@@ -1,0 +1,5 @@
+<!-- 일차 칩 (선택됨) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/primary" />
+    <corners android:radius="@dimen/radius_day_chip" />
+</shape>

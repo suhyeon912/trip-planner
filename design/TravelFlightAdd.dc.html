@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>교통편 추가</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}button{cursor:pointer}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column;">
+  <header style="display: flex; align-items: center; padding: 12px 4px 4px;">
+    <a href="TravelInfo.dc.html" aria-label="닫기" style="width: 48px; height: 48px; border-radius: 24px; color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-close" aria-hidden="true"></span></a>
+    <h1 style="margin: 0; flex-grow: 1; font-size: 18px; line-height: 24px; font-weight: 600;">교통편 추가</h1>
+  </header>
+  <div style="position: relative; flex-grow: 1; min-height: 0;">
+  <div style="position: relative; padding: 8px 16px 104px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">교통 종류</span>
+      <button aria-label="교통 종류 고르기, 지금 비행기" style="height: 52px; box-sizing: border-box; padding: 0 12px 0 14px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; text-align: left;"><span class="ic i-flight s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1;">비행기</span><span class="ic i-arrow_down s20" aria-hidden="true" style="color: var(--text_sub);"></span></button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <label for="fn" style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">편명 · 열차 번호 *</label>
+      <input id="fn" value="KE2707" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 2px solid var(--primary); background: var(--card_bg); color: var(--on_surface); font-size: 16px; font-weight: 500;">
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+      <label for="fa" style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">출발지</label>
+      <input id="fa" value="김포 (GMP)" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); font-size: 16px; font-weight: 500;">
+    </div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+      <label for="ta" style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">도착지</label>
+      <input id="ta" value="하네다 (HND)" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); font-size: 16px; font-weight: 500;">
+    </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">출발 날짜 · 시각</span>
+      <button aria-label="출발 날짜와 시각 고르기, 지금 11월 20일 8시 30분" style="height: 52px; box-sizing: border-box; padding: 0 12px 0 14px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; text-align: left;"><span class="ic i-calendar s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1;">11.20 (금) 08:30</span><span class="ic i-chevron_right s20" aria-hidden="true" style="color: var(--text_sub);"></span></button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">도착 날짜 · 시각</span>
+      <button aria-label="도착 날짜와 시각 고르기, 지금 11월 20일 10시 50분" style="height: 52px; box-sizing: border-box; padding: 0 12px 0 14px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; text-align: left;"><span class="ic i-calendar s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1;">11.20 (금) 10:50</span><span class="ic i-chevron_right s20" aria-hidden="true" style="color: var(--text_sub);"></span></button>
+    </div>
+  </div>
+  </div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; padding: 12px 16px 20px; background: var(--card_bg); border-top: 1px solid var(--outline_variant);"><a href="TravelInfo.dc.html" style="flex-grow: 1; height: 48px; border-radius: 999px; border: 1px solid var(--outline); color: var(--primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">취소</a><a href="TravelInfo.dc.html" style="flex-grow: 2; height: 48px; border-radius: 999px; background: var(--primary); color: var(--on_primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">저장</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

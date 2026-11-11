@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>떠나는 시각 · 경로 제안 · 출발 시각</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}button{cursor:pointer}
+a{color:var(--primary)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 1388px; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans);">
+<dc-import name="Route" hint-size="390px,1388px"></dc-import><a href="Route.dc.html" aria-label="닫기" style="position: absolute; inset: 0;"></a><div role="dialog" aria-label="도쿄 스카이트리 떠나는 시각" style="position: absolute; left: 16px; right: 16px; top: 860px; padding: 12px 16px; border-radius: 16px; background: var(--card_bg); box-shadow: 0 8px 28px rgba(15,19,26,0.22); display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; align-items: baseline; gap: 8px;"><h2 style="margin: 0; flex-grow: 1; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">도쿄 스카이트리 · 떠나는 시각</h2><span style="font-size: 13px; line-height: 18px; font-weight: 500; color: var(--text_sub); font-variant-numeric: tabular-nums;">도착 10:10</span></div><div style="position: relative; display: flex; justify-content: center; align-items: center; gap: 8px; padding: 4px 0;"><span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 84px; height: 40px; border-radius: 12px; background: var(--secondary_container);"></span><div role="spinbutton" aria-label="시" aria-valuenow="11" aria-valuemin="0" aria-valuemax="23" tabindex="0" style="position: relative; width: 72px; display: flex; flex-direction: column;"><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">09</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 500; color: var(--text_sub);">10</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 700; color: var(--on_surface);">11</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 500; color: var(--text_sub);">12</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">13</span></div><b aria-hidden="true" style="position: relative; font-size: 22px; font-weight: 700;">:</b><div role="spinbutton" aria-label="분" aria-valuenow="40" aria-valuemin="0" aria-valuemax="55" tabindex="0" style="position: relative; width: 72px; display: flex; flex-direction: column;"><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">30</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 500; color: var(--text_sub);">35</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 700; color: var(--on_surface);">40</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 500; color: var(--text_sub);">45</span><span style="height: 40px; display: grid; place-items: center; font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 500; color: var(--text_sub); opacity: 0.5;">50</span></div></div><div style="display: flex; justify-content: flex-end; gap: 4px;"><a href="Route.dc.html" style="height: 40px; padding: 0 14px; border-radius: 999px; color: var(--primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">취소</a><a href="Route.dc.html" style="height: 40px; padding: 0 20px; border-radius: 999px; background: var(--primary); color: var(--on_primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">적용</a></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1388}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

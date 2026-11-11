@@ -1,0 +1,5 @@
+<!-- 타임라인 점: 순서 미정 (속이 빈 원) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@color/card_bg" />
+    <stroke android:width="2dp" android:color="@color/outline" />
+</shape>

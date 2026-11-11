@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>설정 · 장소 종류</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}
+button{cursor:pointer}
+a{color:var(--primary)}a:hover{color:var(--on_primary_container)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 1210px; box-sizing: border-box; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column;">
+  <header style="display: flex; align-items: center; padding: 12px 4px 4px;">
+    <a href="AddPlace.dc.html" aria-label="뒤로" style="width: 48px; height: 48px; border-radius: 24px; color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-arrow_back" aria-hidden="true"></span></a>
+    <div style="flex-grow: 1; display: flex; flex-direction: column;">
+      <h1 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 600;">장소 종류</h1>
+      <p style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">설정 · 모든 여행에 함께 쓰여요</p>
+    </div>
+  </header>
+
+  <div style="position: relative; flex-grow: 1; min-height: 0;">
+  <div style="position: relative; padding: 8px 16px 32px 16px; display: flex; flex-direction: column; gap: 12px;">
+    <div style="flex: none; display: flex; align-items: baseline; gap: 8px;">
+      <h2 style="margin: 0; flex-grow: 1; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">기본 종류</h2>
+    </div>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); overflow: hidden;">
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 16px 4px 12px; border-bottom: 1px solid var(--outline_variant);"><span style="width: 36px; height: 36px; border-radius: 10px; background: var(--cat_sight_bg); display: grid; place-items: center;"><span class="ic i-sight s20" aria-hidden="true"></span></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">관광</span><span role="switch" aria-checked="true" aria-label="관광 사용" style="width: 52px; height: 32px; box-sizing: border-box; border-radius: 16px; background: var(--primary); display: flex; align-items: center; justify-content: flex-end; padding: 0 4px;"><span style="width: 24px; height: 24px; border-radius: 12px; background: var(--on_primary);"></span></span></div>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 16px 4px 12px; border-bottom: 1px solid var(--outline_variant);"><span style="width: 36px; height: 36px; border-radius: 10px; background: var(--cat_food_bg); display: grid; place-items: center;"><span class="ic i-food s20" aria-hidden="true"></span></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">맛집</span><span role="switch" aria-checked="true" aria-label="맛집 사용" style="width: 52px; height: 32px; box-sizing: border-box; border-radius: 16px; background: var(--primary); display: flex; align-items: center; justify-content: flex-end; padding: 0 4px;"><span style="width: 24px; height: 24px; border-radius: 12px; background: var(--on_primary);"></span></span></div>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 16px 4px 12px; border-bottom: 1px solid var(--outline_variant);"><span style="width: 36px; height: 36px; border-radius: 10px; background: var(--cat_cafe_bg); display: grid; place-items: center;"><span class="ic i-cafe s20" aria-hidden="true"></span></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">카페</span><span role="switch" aria-checked="true" aria-label="카페 사용" style="width: 52px; height: 32px; box-sizing: border-box; border-radius: 16px; background: var(--primary); display: flex; align-items: center; justify-content: flex-end; padding: 0 4px;"><span style="width: 24px; height: 24px; border-radius: 12px; background: var(--on_primary);"></span></span></div>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 16px 4px 12px; border-bottom: 1px solid var(--outline_variant);"><span style="width: 36px; height: 36px; border-radius: 10px; background: var(--cat_shopping_bg); display: grid; place-items: center; opacity: 0.45;"><span class="ic i-shopping s20" aria-hidden="true"></span></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500; color: var(--text_sub);">쇼핑</span><span role="switch" aria-checked="false" aria-label="쇼핑 사용" style="width: 52px; height: 32px; box-sizing: border-box; border-radius: 16px; border: 2px solid var(--outline); background: var(--surface_container_highest); display: flex; align-items: center; padding: 0 6px;"><span style="width: 16px; height: 16px; border-radius: 8px; background: var(--outline);"></span></span></div>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 16px 4px 12px; border-bottom: 1px solid var(--outline_variant);"><span style="width: 36px; height: 36px; border-radius: 10px; background: var(--cat_activity_bg); display: grid; place-items: center;"><span class="ic i-activity s20" aria-hidden="true"></span></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">체험</span><span role="switch" aria-checked="true" aria-label="체험 사용" style="width: 52px; height: 32px; box-sizing: border-box; border-radius: 16px; background: var(--primary); display: flex; align-items: center; justify-content: flex-end; padding: 0 4px;"><span style="width: 24px; height: 24px; border-radius: 12px; background: var(--on_primary);"></span></span></div>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 16px 4px 12px;"><span style="width: 36px; height: 36px; border-radius: 10px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-place s20" aria-hidden="true"></span></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">기타</span><span role="switch" aria-checked="true" aria-label="기타 사용" style="width: 52px; height: 32px; box-sizing: border-box; border-radius: 16px; background: var(--primary); display: flex; align-items: center; justify-content: flex-end; padding: 0 4px;"><span style="width: 24px; height: 24px; border-radius: 12px; background: var(--on_primary);"></span></span></div>
+    </div>
+
+    <h2 style="flex: none; margin: 8px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">내가 만든 종류</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); overflow: hidden;">
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 4px 4px 12px;"><span style="width: 36px; height: 36px; border-radius: 10px; background: var(--tertiary_container); display: grid; place-items: center;"><span class="ic i-night s20" aria-hidden="true"></span></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">야경</span><button aria-label="야경 수정" style="width: 48px; height: 48px; border: 0; border-radius: 24px; background: var(--secondary_container); color: var(--on_secondary_container); display: grid; place-items: center;"><span class="ic i-edit s20" aria-hidden="true"></span></button></div>
+    </div>
+
+    <section aria-label="종류 수정" style="flex: none; border-radius: 16px; border: 2px solid var(--primary); background: var(--card_bg); padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="width: 52px; height: 52px; border-radius: 14px; background: var(--tertiary_container); display: grid; place-items: center;"><span class="ic i-night" aria-hidden="true"></span></span>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px;"><label for="cn" style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">이름</label><input id="cn" value="야경" style="height: 44px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; border: 1px solid var(--outline); background: var(--card_bg); color: var(--on_surface); font-size: 16px; font-weight: 500;"></div>
+      </div>
+
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">아이콘 · 120개</span>
+      <div style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 12px; background: var(--surface_container); color: var(--text_sub); font-size: 14px; font-weight: 500;"><span class="ic i-search s18" aria-hidden="true"></span>아이콘 검색 (예: 산, 온천)</div>
+      <div role="tablist" aria-label="아이콘 묶음" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px;">
+        <button role="tab" aria-selected="true" style="height: 32px; border: 0; border-radius: 8px; background: var(--secondary_container); color: var(--on_secondary_container); font-size: 13px; font-weight: 700;">최근</button>
+        <button role="tab" aria-selected="false" style="height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--text_sub); font-size: 13px; font-weight: 600;">장소</button>
+        <button role="tab" aria-selected="false" style="height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--text_sub); font-size: 13px; font-weight: 600;">음식</button>
+        <button role="tab" aria-selected="false" style="height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--text_sub); font-size: 13px; font-weight: 600;">활동</button>
+        <button role="tab" aria-selected="false" style="height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--text_sub); font-size: 13px; font-weight: 600;">교통</button>
+      </div>
+      <div class="tp-scroll" role="radiogroup" aria-label="아이콘" style="height: 150px; padding-right: 6px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: 44px; gap: 6px;">
+        <span role="radio" aria-checked="true" aria-label="밤" style="border-radius: 12px; border: 2px solid var(--primary); background: var(--primary_light); display: grid; place-items: center;"><span class="ic i-night" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="관광" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-sight" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="티켓" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-ticket" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="사진" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-image" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="숙소" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-hotel" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="분류" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-category" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="맛집" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-food" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="카페" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-cafe" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="쇼핑" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-shopping" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="체험" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-activity" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="기차" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-train" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="배" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-ship" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="버스" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-bus" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="자동차" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-car" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="비행기" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-flight" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="위치" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-place" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="일정" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-event" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="경로" style="border-radius: 12px; background: var(--surface_container); display: grid; place-items: center;"><span class="ic i-route" aria-hidden="true"></span></span>
+      </div>
+
+      <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">바탕색 · 다크 모드에서도 잘 보이는 8가지</span>
+      <div role="radiogroup" aria-label="바탕색" style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px;">
+        <span role="radio" aria-checked="false" aria-label="파랑" style="height: 34px; border-radius: 17px; background: var(--cat_sight_bg); border: 1px solid var(--outline_variant);"></span>
+        <span role="radio" aria-checked="false" aria-label="주황" style="height: 34px; border-radius: 17px; background: var(--cat_food_bg); border: 1px solid var(--outline_variant);"></span>
+        <span role="radio" aria-checked="false" aria-label="갈색" style="height: 34px; border-radius: 17px; background: var(--cat_cafe_bg); border: 1px solid var(--outline_variant);"></span>
+        <span role="radio" aria-checked="false" aria-label="분홍" style="height: 34px; border-radius: 17px; background: var(--cat_shopping_bg); border: 1px solid var(--outline_variant);"></span>
+        <span role="radio" aria-checked="false" aria-label="초록" style="height: 34px; border-radius: 17px; background: var(--cat_activity_bg); border: 1px solid var(--outline_variant);"></span>
+        <span role="radio" aria-checked="true" aria-label="청록, 선택됨" style="height: 34px; box-sizing: border-box; border-radius: 17px; background: var(--tertiary_container); border: 2px solid var(--on_surface); display: grid; place-items: center;"><span class="ic i-check s16" aria-hidden="true"></span></span>
+        <span role="radio" aria-checked="false" aria-label="노랑" style="height: 34px; border-radius: 17px; background: var(--warn_bg); border: 1px solid var(--outline_variant);"></span>
+        <span role="radio" aria-checked="false" aria-label="회색" style="height: 34px; border-radius: 17px; background: var(--surface_container); border: 1px solid var(--outline_variant);"></span>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 4px;">
+        <button style="flex-grow: 1; height: 44px; border-radius: 999px; border: 1px solid var(--outline); background: transparent; color: var(--badge_red); font-size: 14px; font-weight: 600;">삭제</button>
+        <button style="flex-grow: 2; height: 44px; border: 0; border-radius: 999px; background: var(--primary); color: var(--on_primary); font-size: 14px; font-weight: 600;">저장</button>
+      </div>
+    </section>
+
+    <button style="flex: none; height: 48px; border-radius: 12px; border: 1px dashed var(--outline); background: transparent; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600;"><span class="ic i-add s18" aria-hidden="true"></span>새 종류 만들기</button>
+  </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1210}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

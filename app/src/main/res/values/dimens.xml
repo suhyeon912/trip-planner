@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 간격·모서리 토큰 (4dp 단위). 2단계부터 레이아웃의 숫자 값을 이 이름으로 바꿔 갑니다. -->
+<resources>
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_s">8dp</dimen>
+    <dimen name="space_m">12dp</dimen>
+    <dimen name="space_l">16dp</dimen>
+    <dimen name="space_xl">24dp</dimen>
+    <dimen name="space_xxl">32dp</dimen>
+
+    <dimen name="screen_margin">16dp</dimen>
+    <dimen name="content_max_width">640dp</dimen>
+
+    <dimen name="radius_card">16dp</dimen>
+    <dimen name="radius_chip">16dp</dimen>
+    <dimen name="radius_day_chip">12dp</dimen>
+    <dimen name="radius_badge">9dp</dimen>
+    <dimen name="radius_input">12dp</dimen>
+
+    <dimen name="stroke_card">1dp</dimen>
+    <dimen name="touch_min">48dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
+    <dimen name="route_map_height">260dp</dimen>
+</resources>

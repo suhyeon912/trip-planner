@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  항공 · 숙소 (6단계)
+  툴바 / [비행기 n] + 추가 · 목록 · (없으면 추가 행) / [숙소 n] + 추가 · 목록 · (없으면 추가 행)
+  항목을 누르면 수정 · 삭제 다이얼로그
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:subtitle="@string/travel_info_subtitle"
+        app:subtitleTextAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
+        app:title="@string/menu_travel_info" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingBottom="@dimen/space_l">
+
+            <!-- 비행기 -->
+            <LinearLayout style="@style/Widget.TripPlanner.SectionHeader">
+                <ImageView style="@style/Widget.TripPlanner.SummaryIcon" android:src="@drawable/ic_route" />
+                <TextView
+                    android:id="@+id/tvFlightTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:accessibilityHeading="true"
+                    android:text="@string/flights"
+                    android:textAppearance="@style/TextAppearance.TripPlanner.TitleMedium" />
+                <Button
+                    android:id="@+id/btnAddFlight"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/add_flight"
+                    android:text="@string/action_add"
+                    app:icon="@drawable/ic_add"
+                    app:iconTint="@color/primary" />
+            </LinearLayout>
+            <Button
+                android:id="@+id/tvNoFlight"
+                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_flight_row"
+                android:visibility="gone"
+                app:icon="@drawable/ic_add" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFlights"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+
+            <!-- 숙소 -->
+            <LinearLayout
+                style="@style/Widget.TripPlanner.SectionHeader"
+                android:layout_marginTop="@dimen/space_l">
+                <ImageView style="@style/Widget.TripPlanner.SummaryIcon" android:src="@drawable/ic_hotel" />
+                <TextView
+                    android:id="@+id/tvLodgingTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:accessibilityHeading="true"
+                    android:text="@string/lodgings"
+                    android:textAppearance="@style/TextAppearance.TripPlanner.TitleMedium" />
+                <Button
+                    android:id="@+id/btnAddLodging"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/add_lodging"
+                    android:text="@string/action_add"
+                    app:icon="@drawable/ic_add"
+                    app:iconTint="@color/primary" />
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_xs"
+                android:text="@string/lodging_help"
+                android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+            <Button
+                android:id="@+id/tvNoLodging"
+                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_lodging_row"
+                android:visibility="gone"
+                app:icon="@drawable/ic_add" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvLodgings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

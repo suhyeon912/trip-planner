@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>링크 삭제 확인</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}button{cursor:pointer}
+a{color:var(--primary)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 867px; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans);">
+<dc-import name="PlaceView" hint-size="390px,867px"></dc-import><a href="PlaceView.dc.html" aria-label="닫기" style="position: absolute; inset: 0; background: rgba(15, 19, 26, 0.45);"></a><div role="dialog" aria-modal="true" aria-label="공식 홈페이지, 위 링크를 삭제하시겠습니까?" style="position: absolute; left: 24px; right: 24px; top: 50%; transform: translateY(-50%); padding: 22px 20px 14px; border-radius: 24px; background: var(--card_bg); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 30px rgba(15,19,26,0.2);"><h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 700;"><span style="display: block; word-break: break-all;">공식 홈페이지</span><span style="font-weight: 500;">위 링크를 삭제하시겠습니까?</span></h2><div style="display: flex; justify-content: flex-end; gap: 4px; margin-top: 4px;"><a href="PlaceView.dc.html" style="height: 40px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 600; display: grid; place-items: center; text-decoration: none; color: var(--primary);">취소</a><a href="PlaceView.dc.html" style="height: 40px; padding: 0 20px; border-radius: 999px; background: var(--badge_red); color: var(--white); font-size: 14px; font-weight: 600; display: grid; place-items: center; text-decoration: none;">삭제</a></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":867}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

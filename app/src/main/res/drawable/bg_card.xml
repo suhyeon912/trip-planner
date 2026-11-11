@@ -1,0 +1,6 @@
+<!-- 카드: 흰 배경 + 1dp 테두리 (배경 #F6F7F9 와 구분) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/card_bg" />
+    <stroke android:width="@dimen/stroke_card" android:color="@color/outline_variant" />
+    <corners android:radius="@dimen/radius_card" />
+</shape>

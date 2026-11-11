@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>설정 · 지도 서비스 도움말</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--primary)}a:hover{color:var(--on_primary_container)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 950px; box-sizing: border-box; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column;">
+  <header style="display: flex; align-items: center; padding: 12px 4px 4px;">
+    <a href="Main.dc.html" aria-label="뒤로" style="width: 48px; height: 48px; border-radius: 24px; color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-arrow_back" aria-hidden="true"></span></a>
+    <h1 style="margin: 0; flex-grow: 1; font-size: 18px; line-height: 24px; font-weight: 600;">설정</h1>
+  </header>
+
+  <div style="position: relative; flex-grow: 1; min-height: 0;">
+  <div style="position: relative; padding: 8px 16px 32px 16px; display: flex; flex-direction: column; gap: 8px;">
+    <h2 style="flex: none; margin: 4px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">여행 보기</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); overflow: hidden;">
+      <a href="MainOptions.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 12px 4px 16px; border-bottom: 1px solid var(--outline_variant); color: var(--on_surface); text-decoration: none;"><span class="ic i-sort s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">기본 정렬</span><span style="font-size: 14px; font-weight: 500; color: var(--text_sub);">일정 가까운 순</span><span class="ic i-chevron_right s20" aria-hidden="true" style="color: var(--text_sub);"></span></a>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 16px;"><span class="ic i-visibility_off s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">지난 여행 숨기기</span><span role="switch" aria-checked="false" aria-label="지난 여행 숨기기" style="width: 52px; height: 32px; box-sizing: border-box; border-radius: 16px; border: 2px solid var(--outline); background: var(--surface_container_highest); display: flex; align-items: center; padding: 0 6px;"><span style="width: 16px; height: 16px; border-radius: 8px; background: var(--outline);"></span></span></div>
+    </div>
+
+    <h2 style="flex: none; margin: 12px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">장소</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); overflow: hidden;">
+      <a href="Settings.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 12px 4px 16px; color: var(--on_surface); text-decoration: none;"><span class="ic i-category s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">장소 종류</span><span class="ic i-chevron_right s20" aria-hidden="true" style="color: var(--text_sub);"></span></a>
+    </div>
+
+    <h2 style="flex: none; margin: 12px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">화면</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;">
+      <span style="font-size: 16px; font-weight: 500;">테마</span>
+      <div role="radiogroup" aria-label="테마" style="padding: 4px; border-radius: 12px; background: var(--surface_container); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;">
+        <button role="radio" aria-checked="true" style="height: 40px; border: 0; border-radius: 9px; background: var(--card_bg); color: var(--on_surface); font-size: 14px; font-weight: 600;">기기 설정</button>
+        <button role="radio" aria-checked="false" style="height: 40px; border: 0; border-radius: 9px; background: transparent; color: var(--text_sub); font-size: 14px; font-weight: 600;">밝게</button>
+        <button role="radio" aria-checked="false" style="height: 40px; border: 0; border-radius: 9px; background: transparent; color: var(--text_sub); font-size: 14px; font-weight: 600;">어둡게</button>
+      </div>
+    </div>
+
+    <h2 style="flex: none; margin: 12px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">공유</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); overflow: hidden;">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 12px 4px 16px; color: var(--on_surface); text-decoration: none;"><span class="ic i-group_add s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">공유 코드로 참여</span><span class="ic i-chevron_right s20" aria-hidden="true" style="color: var(--text_sub);"></span></a>
+    </div>
+
+    <h2 style="flex: none; margin: 12px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">지도</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); position: relative; z-index: 2;">
+      <div style="position: relative; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 4px 16px;"><span class="ic i-map s20" aria-hidden="true" style="color: var(--text_sub);"></span><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">지도 서비스</span><a href="AppSettings.dc.html" aria-label="지도 서비스 도움말 닫기" aria-expanded="true" style="width: 40px; height: 40px; margin-right: -10px; border-radius: 20px; background: var(--primary_light); color: var(--primary); display: grid; place-items: center;"><span class="ic i-info s18" aria-hidden="true"></span></a><div role="tooltip" style="position: absolute; right: 8px; top: calc(100% - 4px); z-index: 2; width: 264px; padding: 12px 14px; border-radius: 12px; background: var(--on_surface); color: var(--background); display: flex; flex-direction: column; gap: 6px; box-shadow: 0 6px 20px rgba(15, 19, 26, 0.18);"><b style="font-size: 14px; line-height: 20px; font-weight: 700;">지도는 여행 장소에 따라 자동으로 골라요</b><span style="font-size: 12px; line-height: 18px; font-weight: 500;">· 장소가 모두 국내면 카카오맵<br>· 해외 장소가 하나라도 있으면 구글맵<br>· 지도를 불러오지 못하면 오픈스트리트맵으로 보여요</span></div></div>
+    </div>
+
+    <h2 style="flex: none; margin: 12px 0 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--text_sub);">앱 정보</h2>
+    <div style="flex: none; border-radius: 16px; border: 1px solid var(--outline_variant); background: var(--card_bg); overflow: hidden;">
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 16px; border-bottom: 1px solid var(--outline_variant);"><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">버전</span><span style="font-size: 14px; font-weight: 500; color: var(--text_sub);">1.0</span></div>
+      <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 4px 12px 4px 16px; color: var(--on_surface); text-decoration: none;"><span style="flex-grow: 1; font-size: 16px; font-weight: 500;">오픈소스 라이선스</span><span class="ic i-chevron_right s20" aria-hidden="true" style="color: var(--text_sub);"></span></a>
+    </div>
+  </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":950}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

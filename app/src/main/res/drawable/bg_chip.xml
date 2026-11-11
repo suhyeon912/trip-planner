@@ -1,0 +1,5 @@
+<!-- 일차 칩: 연한 파랑 배경 (글자는 on_primary_container) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/primary_light" />
+    <corners android:radius="@dimen/radius_chip" />
+</shape>

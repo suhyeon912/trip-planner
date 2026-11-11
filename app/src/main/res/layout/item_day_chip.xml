@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 일차 칩: "1일차" / "2/12 금 · 3곳" 두 줄. 경로 제안 화면에서도 재사용 예정 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="@dimen/space_s"
+    android:background="@drawable/bg_day_chip"
+    android:foreground="?attr/selectableItemBackground"
+    android:gravity="center"
+    android:minWidth="72dp"
+    android:minHeight="@dimen/touch_min"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_m"
+    android:paddingVertical="6dp">
+
+    <TextView
+        android:id="@+id/tvChipTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:importantForAccessibility="no"
+        android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge" />
+
+    <TextView
+        android:id="@+id/tvChipSub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:importantForAccessibility="no"
+        android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium" />
+</LinearLayout>

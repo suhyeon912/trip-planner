@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>위치 찾기</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}
+button{cursor:pointer}
+a{color:var(--primary)}a:hover{color:var(--on_primary_container)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column;">
+  <header style="display: flex; align-items: center; padding: 12px 4px 4px;">
+    <a href="DetailMap.dc.html" aria-label="닫기" style="width: 48px; height: 48px; border-radius: 24px; color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-close" aria-hidden="true"></span></a>
+    <h1 style="margin: 0; flex-grow: 1; font-size: 18px; line-height: 24px; font-weight: 600;">위치 찾기</h1>
+  </header>
+  <div style="position: relative; flex-grow: 1; min-height: 0;">
+  <div style="position: relative; padding: 8px 16px 104px; display: flex; flex-direction: column; gap: 12px;">
+    <div style="position: relative;">
+      <label for="q" style="position: absolute; left: 1px; top: 1px; width: 1px; height: 1px; overflow: hidden;">장소 이름</label>
+      <input id="q" value="쓰키지 장외시장" style="width: 100%; height: 48px; box-sizing: border-box; padding: 0 48px 0 44px; border-radius: 12px; border: 2px solid var(--primary); background: var(--card_bg); color: var(--on_surface); font-size: 16px; font-weight: 500;">
+      <span class="ic i-search s20" aria-hidden="true" style="position: absolute; left: 14px; top: 14px; color: var(--text_sub);"></span>
+      <button aria-label="검색어 지우기" style="position: absolute; right: 2px; top: 2px; width: 44px; height: 44px; border: 0; border-radius: 22px; background: transparent; color: var(--text_sub); display: grid; place-items: center;"><span class="ic i-close s18" aria-hidden="true"></span></button>
+    </div>
+
+    <div role="radiogroup" aria-label="검색할 곳" style="padding: 4px; border-radius: 12px; background: var(--surface_container); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px;">
+      <button role="radio" aria-checked="false" style="height: 36px; border: 0; border-radius: 9px; background: transparent; color: var(--text_sub); font-size: 14px; font-weight: 600;">국내 (카카오)</button>
+      <button role="radio" aria-checked="true" style="height: 36px; border: 0; border-radius: 9px; background: var(--card_bg); color: var(--on_surface); font-size: 14px; font-weight: 600;">해외 (구글)</button>
+    </div>
+
+    <span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub); padding-left: 4px;">검색 결과 3</span>
+    <div role="radiogroup" aria-label="검색 결과" style="display: flex; flex-direction: column; border-radius: 16px; border: 1px solid var(--outline_variant); overflow: hidden;">
+      <div role="radio" aria-checked="true" style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 8px 16px 8px 12px; border-bottom: 1px solid var(--outline_variant); background: var(--secondary_container); color: var(--on_secondary_container);">
+        <span style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--cat_shopping_bg); color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-shopping s20" aria-hidden="true"></span></span>
+        <span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;"><b style="font-size: 16px; line-height: 20px; font-weight: 700;">쓰키지 장외시장</b><small style="font-size: 12px; line-height: 16px; font-weight: 500;">4 Chome-16-2 Tsukiji, Chuo City, Tokyo</small><small style="font-size: 12px; line-height: 16px; font-weight: 500;">영업 09:00–18:00 · 숙소에서 1.2km</small></span>
+      </div>
+      <div role="radio" aria-checked="false" style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 8px 16px 8px 12px; border-bottom: 1px solid var(--outline_variant);">
+        <span style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--cat_food_bg); color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-food s20" aria-hidden="true"></span></span>
+        <span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;"><b style="font-size: 16px; line-height: 20px; font-weight: 600;">쓰키지 스시 거리</b><small style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">4 Chome-13 Tsukiji, Chuo City, Tokyo</small></span>
+      </div>
+      <div role="radio" aria-checked="false" style="display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 8px 16px 8px 12px;">
+        <span style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--surface_container); color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-place s20" aria-hidden="true"></span></span>
+        <span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;"><b style="font-size: 16px; line-height: 20px; font-weight: 600;">쓰키지역 (장외시장 방면)</b><small style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">Tsukiji Station, Chuo City, Tokyo</small></span>
+      </div>
+    </div>
+
+    
+  </div>
+  </div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; padding: 12px 16px 20px; background: var(--card_bg); border-top: 1px solid var(--outline_variant);"><a href="DetailMap.dc.html" style="flex-grow: 2; height: 48px; border-radius: 999px; background: var(--primary); color: var(--on_primary); display: grid; place-items: center; font-size: 14px; font-weight: 600; text-decoration: none;">이 위치로 정하기</a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

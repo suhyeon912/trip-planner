@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>지도로 보기 · 전체</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--primary)}a:hover{color:var(--on_primary_container)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column;">
+  <header style="display: flex; align-items: center; padding: 12px 4px 4px; background: var(--background);">
+    <a href="Detail.dc.html" aria-label="뒤로" style="width: 48px; height: 48px; border-radius: 24px; color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-arrow_back" aria-hidden="true"></span></a>
+    <div style="flex-grow: 1; display: flex; flex-direction: column;">
+      <h1 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 600;">도쿄 3박 4일</h1>
+      <p style="margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">구글맵 · 전체 12곳 (일차 미정 3)</p>
+    </div>
+    <a href="Detail.dc.html" aria-label="목록으로 보기" style="width: 48px; height: 48px; border-radius: 24px; background: var(--secondary_container); color: var(--on_secondary_container); display: grid; place-items: center; margin-right: 4px;"><span class="ic i-list" aria-hidden="true"></span></a>
+  </header>
+
+  <div role="tablist" aria-label="경로를 볼 날" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; padding: 8px 16px;">
+    <button role="tab" aria-selected="true" style="height: 40px; border-radius: 12px; border: 0; background: var(--on_surface); color: var(--background); font-size: 14px; font-weight: 700;">전체</button>
+    <a href="DetailMap.dc.html" role="tab" aria-selected="false" style="height: 40px; box-sizing: border-box; border-radius: 12px; border: 1px solid var(--outline_variant); background: var(--card_bg); color: var(--on_surface); text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600;"><span style="width: 8px; height: 8px; flex: none; border-radius: 4px; background: var(--day_1);"></span>1일차</a>
+    <button role="tab" aria-selected="false" style="height: 40px; padding: 0; border-radius: 12px; border: 1px solid var(--outline_variant); background: var(--card_bg); color: var(--on_surface); display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600;"><span style="width: 8px; height: 8px; flex: none; border-radius: 4px; background: var(--day_2);"></span>2일차</button>
+    <button role="tab" aria-selected="false" style="height: 40px; padding: 0; border-radius: 12px; border: 1px solid var(--outline_variant); background: var(--card_bg); color: var(--on_surface); display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600;"><span style="width: 8px; height: 8px; flex: none; border-radius: 4px; background: var(--day_3);"></span>3일차</button>
+    <button role="tab" aria-selected="false" style="height: 40px; padding: 0; border-radius: 12px; border: 1px solid var(--outline_variant); background: var(--card_bg); color: var(--on_surface); display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 600;"><span style="width: 8px; height: 8px; flex: none; border-radius: 4px; background: var(--day_4);"></span>4일차</button>
+  </div>
+
+  <div style="position: relative; flex-grow: 1; background: var(--surface_container); overflow: hidden;">
+    <svg aria-hidden="true" width="390" height="724" viewBox="0 0 390 724" style="position: absolute; left: 0; top: 0;">
+    <rect x="0" y="0" width="390" height="724" fill="var(--surface_container)"/>
+    <path d="M197.9 473.9 L180.5 481.0 L180.5 623.4 L758.6 623.4 L758.6 481.0 L411.8 473.9 L325.1 473.9 L267.3 470.3 L238.4 466.8 Z" fill="var(--cat_sight_bg)"/>
+    <path d="M174.8 296.0 L197.9 292.4 L210.9 320.9 L200.8 349.3 L179.1 345.8 L169.0 317.3 Z" fill="var(--cat_activity_bg)" stroke-linejoin="round"/>
+    <path d="M235.5 198.1 L255.7 199.9 L255.7 228.3 L238.4 228.3 Z" fill="var(--cat_activity_bg)" stroke-linejoin="round"/>
+    <path d="M53.4 306.6 L82.3 310.2 L79.4 331.5 L53.4 333.3 Z" fill="var(--cat_activity_bg)" stroke-linejoin="round"/>
+    <path d="M18.7 324.4 L41.8 328.0 L44.7 388.5 L12.9 384.9 Z" fill="var(--cat_activity_bg)" stroke-linejoin="round"/>
+    <path d="M209.5 399.2 L226.8 402.7 L223.9 420.5 L206.6 417.0 Z" fill="var(--cat_activity_bg)" stroke-linejoin="round"/>
+    <path d="M355.4 150.1 L339.5 185.6 L326.5 214.1 L320.7 229.8 L314.1 246.1 L305.7 263.2 L291.8 285.3 L297.6 303.1 L297.6 328.0 L286.9 349.3 L277.4 374.3 L258.6 395.6 L244.1 413.4 L232.6 438.3" fill="none" stroke="var(--cat_sight_bg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M230.0 334.4 L241.0 296.7 L247.3 273.2 L251.4 240.8 L259.5 218.4 L261.8 191.0 L241.0 167.5 L211.8 131.9 L171.9 137.6 L149.6 148.6 L118.7 154.3 L67.5 162.5 L55.1 192.0 L47.0 221.9 L36.0 263.2 L37.8 304.5 L41.8 328.0 L43.8 373.5 L40.6 417.0 L65.2 457.2 L81.4 505.9 L147.9 521.9 L173.6 460.7 L200.8 425.9 L204.5 387.4 L218.4 356.5 L230.0 334.4" fill="none" stroke="var(--card_bg)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M230.0 334.4 L241.0 296.7 L223.9 269.3 L166.1 260.0 L122.7 317.3 L37.8 304.5 L-79.6 271.0" fill="none" stroke="var(--card_bg)" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M247.3 273.2 L304.8 282.4 L365.5 279.2 L469.6 271.0" fill="none" stroke="var(--card_bg)" stroke-width="5" stroke-linejoin="round"/>
+    <text x="305" y="196" text-anchor="middle" font-size="11" font-weight="600" fill="var(--outline)" font-family="var(--font-sans)">아사쿠사</text>
+    <text x="244" y="191" text-anchor="middle" font-size="11" font-weight="600" fill="var(--outline)" font-family="var(--font-sans)">우에노</text>
+    <text x="32" y="285" text-anchor="middle" font-size="11" font-weight="600" fill="var(--outline)" font-family="var(--font-sans)">신주쿠</text>
+    <text x="217" y="323" text-anchor="middle" font-size="11" font-weight="600" fill="var(--outline)" font-family="var(--font-sans)">도쿄역</text>
+    <text x="123" y="399" text-anchor="middle" font-size="11" font-weight="600" fill="var(--outline)" font-family="var(--font-sans)">롯폰기</text>
+    <text x="308" y="271" font-size="10" font-weight="500" fill="var(--tertiary)" font-family="var(--font-sans)">스미다강</text>
+    <polyline points="356.0,231.5 249.9,333.7 221.0,375.7 327.4,339.7" fill="none" stroke="var(--day_1)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <polyline points="34.0,351.5 65.2,320.2" fill="none" stroke="var(--day_2)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+    <span aria-label="숙소: 호텔 그레이스리 아사쿠사" style="position: absolute; left: 287px; top: 214px; width: 32px; height: 32px; border-radius: 10px; background: var(--on_surface); color: var(--background); display: grid; place-items: center;"><span class="ic i-hotel s18" aria-hidden="true"></span></span>
+    <span style="position: absolute; left: 342px; top: 218px; width: 28px; height: 28px; border-radius: 14px; background: var(--day_1); color: var(--white); border: 2px solid var(--white); font-size: 13px; box-sizing: border-box; display: grid; place-items: center; font-weight: 700;">1</span>
+    <span style="position: absolute; left: 236px; top: 320px; width: 28px; height: 28px; border-radius: 14px; background: var(--day_1); color: var(--white); border: 2px solid var(--white); font-size: 13px; box-sizing: border-box; display: grid; place-items: center; font-weight: 700;">2</span>
+    <span style="position: absolute; left: 207px; top: 362px; width: 28px; height: 28px; border-radius: 14px; background: var(--day_1); color: var(--white); border: 2px solid var(--white); font-size: 13px; box-sizing: border-box; display: grid; place-items: center; font-weight: 700;">3</span>
+    <span style="position: absolute; left: 313px; top: 326px; width: 28px; height: 28px; border-radius: 14px; background: var(--day_1); color: var(--white); border: 2px solid var(--white); font-size: 13px; box-sizing: border-box; display: grid; place-items: center; font-weight: 700;">4</span>
+    <span style="position: absolute; left: 20px; top: 337px; width: 28px; height: 28px; border-radius: 14px; background: var(--day_2); color: var(--white); border: 2px solid var(--white); font-size: 13px; box-sizing: border-box; display: grid; place-items: center; font-weight: 700;">1</span>
+    <span style="position: absolute; left: 51px; top: 306px; width: 28px; height: 28px; border-radius: 14px; background: var(--day_2); color: var(--white); border: 2px solid var(--white); font-size: 13px; box-sizing: border-box; display: grid; place-items: center; font-weight: 700;">2</span>
+    <span style="position: absolute; left: 153px; top: 401px; width: 28px; height: 28px; border-radius: 14px; background: var(--day_3); color: var(--white); border: 2px solid var(--white); font-size: 13px; box-sizing: border-box; display: grid; place-items: center; font-weight: 700;">1</span>
+    <span style="position: absolute; left: 234px; top: 202px; width: 28px; height: 28px; border-radius: 14px; background: var(--day_4); color: var(--white); border: 2px solid var(--white); font-size: 13px; box-sizing: border-box; display: grid; place-items: center; font-weight: 700;">1</span>
+    <svg role="img" aria-label="일차 미정: 센소지" width="26" height="26" viewBox="0 0 24 24" style="flex: none; display: block; position: absolute; left: 303px; top: 202px;"><circle cx="12" cy="12" r="11" fill="var(--card_bg)" stroke="var(--outline)" stroke-width="2" stroke-dasharray="3.2 2.2"/><svg x="5.5" y="5.5" width="13" height="13" viewBox="80 -893.5 800 800"><path fill="var(--text_sub)" d="M452-112q-14-5-25-15-65-60-115-117t-83.5-110.5q-33.5-53.5-51-103T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 45-17.5 94.5t-51 103Q698-301 648-244T533-127q-11 10-25 15t-28 5q-14 0-28-5Zm84.5-391.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5Z"/></svg></svg><span aria-hidden="true" style="position: absolute; left: 332px; top: 205px; padding: 2px 8px; border-radius: 8px; background: var(--card_bg); border: 1px solid var(--outline_variant); font-size: 11px; line-height: 16px; font-weight: 600; color: var(--text_sub); white-space: nowrap;">센소지</span>
+    <svg role="img" aria-label="일차 미정: 시부야 스카이" width="26" height="26" viewBox="0 0 24 24" style="flex: none; display: block; position: absolute; left: 29px; top: 402px;"><circle cx="12" cy="12" r="11" fill="var(--card_bg)" stroke="var(--outline)" stroke-width="2" stroke-dasharray="3.2 2.2"/><svg x="5.5" y="5.5" width="13" height="13" viewBox="80 -893.5 800 800"><path fill="var(--text_sub)" d="M452-112q-14-5-25-15-65-60-115-117t-83.5-110.5q-33.5-53.5-51-103T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 45-17.5 94.5t-51 103Q698-301 648-244T533-127q-11 10-25 15t-28 5q-14 0-28-5Zm84.5-391.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5Z"/></svg></svg><span aria-hidden="true" style="position: absolute; left: 58px; top: 405px; padding: 2px 8px; border-radius: 8px; background: var(--card_bg); border: 1px solid var(--outline_variant); font-size: 11px; line-height: 16px; font-weight: 600; color: var(--text_sub); white-space: nowrap;">시부야 스카이</span>
+    <span aria-label="일차 미정: 도쿄 디즈니랜드, 화면 밖 오른쪽 아래" style="position: absolute; right: 8px; top: 506px; display: flex; align-items: center; gap: 6px; padding: 3px 8px 3px 4px; border-radius: 999px; background: var(--card_bg); border: 1px solid var(--outline_variant); font-size: 11px; line-height: 16px; font-weight: 600; color: var(--text_sub); white-space: nowrap;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" style="flex: none; display: block;"><circle cx="12" cy="12" r="11" fill="var(--card_bg)" stroke="var(--outline)" stroke-width="2" stroke-dasharray="3.2 2.2"/><svg x="5.5" y="5.5" width="13" height="13" viewBox="80 -893.5 800 800"><path fill="var(--text_sub)" d="M452-112q-14-5-25-15-65-60-115-117t-83.5-110.5q-33.5-53.5-51-103T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 45-17.5 94.5t-51 103Q698-301 648-244T533-127q-11 10-25 15t-28 5q-14 0-28-5Zm84.5-391.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5Z"/></svg></svg>도쿄 디즈니랜드<span class="ic i-chevron_right s16" aria-hidden="true" style="transform: rotate(45deg);"></span></span>
+    <span aria-hidden="true" style="position: absolute; left: 12px; top: 12px; display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 6px; border-radius: 999px; background: var(--card_bg); border: 1px solid var(--outline_variant); font-size: 12px; line-height: 16px; font-weight: 600; color: var(--text_sub);"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" style="flex: none; display: block;"><circle cx="12" cy="12" r="11" fill="var(--card_bg)" stroke="var(--outline)" stroke-width="2" stroke-dasharray="3.2 2.2"/><svg x="5.5" y="5.5" width="13" height="13" viewBox="80 -893.5 800 800"><path fill="var(--text_sub)" d="M452-112q-14-5-25-15-65-60-115-117t-83.5-110.5q-33.5-53.5-51-103T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 45-17.5 94.5t-51 103Q698-301 648-244T533-127q-11 10-25 15t-28 5q-14 0-28-5Zm84.5-391.5Q560-527 560-560t-23.5-56.5Q513-640 480-640t-56.5 23.5Q400-593 400-560t23.5 56.5Q447-480 480-480t56.5-23.5Z"/></svg></svg>일차 미정 3</span>
+
+    <section aria-label="위치 없는 장소" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 6px 16px 20px; border-radius: 20px 20px 0 0; background: var(--card_bg); border-top: 1px solid var(--outline_variant); display: flex; flex-direction: column; gap: 6px;">
+      <span aria-hidden="true" style="align-self: center; width: 32px; height: 4px; border-radius: 2px; background: var(--outline);"></span>
+      <div style="display: flex; align-items: center; gap: 8px; min-height: 32px;">
+        <h2 style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; font-weight: 600;">지도에 없는 장소<span aria-hidden="true" style="width: 1px; height: 12px; background: var(--outline);"></span><span style="color: var(--on_surface);">2곳</span></h2>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; min-height: 52px;">
+        <span style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--cat_shopping_bg); color: var(--on_surface); display: grid; place-items: center;"><span class="ic i-shopping s20" aria-hidden="true"></span></span>
+        <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;"><b style="font-size: 16px; line-height: 20px; font-weight: 600;">쓰키지 장외시장</b><span style="font-size: 12px; line-height: 16px; font-weight: 500; color: var(--text_sub);">1일차</span></div>
+        <button style="height: 36px; padding: 0 12px 0 8px; border-radius: 999px; border: 0; background: var(--secondary_container); color: var(--on_secondary_container); display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600;"><span class="ic i-search s18" aria-hidden="true"></span>위치 찾기</button>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

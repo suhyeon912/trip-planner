@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  여행 상세의 '지도로 보기' 영역 (목록 대신 보임)
+  지도 + 왼쪽 위 범례(일차 색)·안내 + 점을 누르면 아래 장소 카드
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mapContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone">
+
+    <!-- 지도 칸: 국내는 카카오맵, 해외는 구글맵, 키가 없으면 OpenStreetMap (MapHost) -->
+    <FrameLayout
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/map_a11y" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_margin="@dimen/space_m"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/mapLegend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_map_overlay"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/space_s"
+            android:paddingVertical="@dimen/space_xs"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/mapNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:background="@drawable/bg_map_overlay"
+            android:paddingHorizontal="@dimen/space_s"
+            android:paddingVertical="@dimen/space_xs"
+            android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
+            android:textColor="@color/text_sub"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <include
+        android:id="@+id/mapCard"
+        layout="@layout/view_map_place_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="@dimen/space_m"
+        android:visibility="gone" />
+</FrameLayout>

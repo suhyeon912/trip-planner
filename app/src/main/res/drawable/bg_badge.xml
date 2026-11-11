@@ -1,0 +1,5 @@
+<!-- 예약필수 뱃지: 연한 빨강 배경 (글자는 on_error_container) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/error_container" />
+    <corners android:radius="@dimen/radius_badge" />
+</shape>

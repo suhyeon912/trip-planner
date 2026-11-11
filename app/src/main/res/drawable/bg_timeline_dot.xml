@@ -1,0 +1,4 @@
+<!-- 타임라인 점: 방문 순서가 정해진 장소 (파란 원 + 흰 숫자) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@color/primary" />
+</shape>

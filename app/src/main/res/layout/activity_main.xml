@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  여행 목록 (5단계)
+  툴바 "내 여행" / 여행 카드 목록(넓은 화면 2열) / 빈 상태 / 새 여행(Extended FAB)
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:liftOnScroll="true"
+        app:liftOnScrollTargetViewId="@id/rvTrips">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurface"
+            app:subtitleTextAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+            app:subtitleTextColor="@color/text_sub"
+            app:title="@string/title_my_trips"
+            app:titleTextAppearance="@style/TextAppearance.TripPlanner.TitleLarge" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTrips"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
+            android:paddingTop="@dimen/space_xs"
+            android:paddingBottom="96dp" />
+
+        <include
+            android:id="@+id/emptyState"
+            layout="@layout/view_empty_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="96dp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabNewTrip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/space_l"
+        android:text="@string/new_trip"
+        android:textColor="@color/on_primary"
+        app:backgroundTint="@color/primary"
+        app:icon="@drawable/ic_add"
+        app:iconTint="@color/on_primary" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

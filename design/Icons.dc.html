@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>아이콘 목록</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden}
+code{font-family:var(--font-sans)}
+</style>
+</helmet>
+<div data-theme="light" style="width: 1280px; min-height: 2110px; box-sizing: border-box; padding: 40px 48px; background: var(--background); color: var(--on_surface); font-family: var(--font-sans); display: flex; flex-direction: column; gap: 28px;">
+  <header style="display: flex; flex-direction: column; gap: 12px;">
+    <h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 700;">아이콘 · Material Symbols Rounded</h1>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span style="padding: 6px 12px; border-radius: 10px; background: var(--card_bg); border: 1px solid var(--outline_variant); font-size: 14px; font-weight: 600;">굵기 400 · Grade 0 · 24dp</span>
+      <span style="padding: 6px 12px; border-radius: 10px; background: var(--card_bg); border: 1px solid var(--outline_variant); font-size: 14px; font-weight: 600;">사물 = 채움 (FILL 1) · 동작 = 선 (FILL 0)</span>
+      <span style="padding: 6px 12px; border-radius: 10px; background: var(--card_bg); border: 1px solid var(--outline_variant); font-size: 14px; font-weight: 600;">기본 색 text_sub · 강조 primary · 종류 타일 위는 on_surface</span>
+      <span style="padding: 6px 12px; border-radius: 10px; background: var(--card_bg); border: 1px solid var(--outline_variant); font-size: 14px; font-weight: 600;">파일 이름 ic_* 는 앱 drawable 이름 그대로</span>
+      <span style="padding: 6px 12px; border-radius: 10px; background: var(--primary_light); color: var(--on_primary_container); font-size: 14px; font-weight: 600;">새로 = 시안에서 추가, 앱에는 아직 없음</span>
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: 24px; margin-top: 4px; color: var(--text_sub); font-size: 12px; font-weight: 500;">
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 4px;"><span class="ic i-sight s16" aria-hidden="true"></span>16 · 줄 안</span>
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 4px;"><span class="ic i-sight s18" aria-hidden="true"></span>18 · 버튼·칩</span>
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 4px;"><span class="ic i-sight s20" aria-hidden="true"></span>20 · 요약 줄</span>
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 4px;"><span class="ic i-sight" aria-hidden="true"></span>24 · 기본</span>
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 4px;"><span class="ic i-sight s48" aria-hidden="true"></span>48 · 빈 화면</span>
+    </div>
+  </header>
+
+  <sc-for list="{{groups}}" as="g" hint-placeholder-count="5">
+    <section style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-size: 18px; line-height: 24px; font-weight: 700;">{{g.title}}</h2>
+        <span style="font-size: 13px; line-height: 18px; font-weight: 500; color: var(--text_sub);">{{g.note}}</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px;">
+        <sc-for list="{{g.items}}" as="it" hint-placeholder-count="8">
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 14px; border: 1px solid var(--outline_variant); background: var(--card_bg); min-width: 0;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+              <span style="width: 44px; height: 44px; border-radius: 12px; background: {{it.bg}}; color: {{it.fg}}; display: grid; place-items: center;"><span class="ic {{it.cls}}" aria-hidden="true"></span></span>
+              <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                <sc-if value="{{it.fill}}" hint-placeholder-val="{{false}}"><span style="padding: 0 6px; border-radius: 6px; background: var(--surface_container); font-size: 11px; line-height: 16px; font-weight: 600; color: var(--text_sub);">채움</span></sc-if>
+                <sc-if value="{{it.isNew}}" hint-placeholder-val="{{false}}"><span style="padding: 0 6px; border-radius: 6px; background: var(--primary_light); font-size: 11px; line-height: 16px; font-weight: 700; color: var(--on_primary_container);">새로</span></sc-if>
+              </span>
+            </div>
+            <b style="font-size: 14px; line-height: 20px; font-weight: 600;">{{it.ko}}</b>
+            <code style="font-size: 11px; line-height: 15px; color: var(--on_surface); overflow-wrap: anywhere;">{{it.file}}</code>
+            <code style="font-size: 11px; line-height: 15px; color: var(--text_sub); overflow-wrap: anywhere;">{{it.sym}}</code>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2110}}'>
+class Component extends DCLogic {
+renderVals() {
+  const N = 'var(--surface_container)', T = 'var(--text_sub)', O = 'var(--on_surface)';
+  const i = (cls, ko, file, sym, o) => Object.assign({ cls: 'i-' + cls, ko, file, sym, fill: false, isNew: false, bg: N, fg: T }, o || {});
+  const F = { fill: true }, NEW = { isNew: true };
+  const cat = (bg) => ({ fill: true, bg, fg: O });
+  return { groups: [
+    { title: '장소 종류', note: '바탕색으로 구분, 아이콘은 on_surface 한 가지 색', items: [
+      i('sight', '관광', 'ic_sight', 'attractions', cat('var(--cat_sight_bg)')),
+      i('food', '맛집', 'ic_food', 'restaurant', cat('var(--cat_food_bg)')),
+      i('cafe', '카페', 'ic_cafe', 'local_cafe', cat('var(--cat_cafe_bg)')),
+      i('shopping', '쇼핑', 'ic_shopping', 'shopping_bag', cat('var(--cat_shopping_bg)')),
+      i('activity', '체험', 'ic_activity', 'local_activity', cat('var(--cat_activity_bg)')),
+      i('place', '기타 · 위치', 'ic_place', 'location_on', cat(N)),
+      i('night', '사용자 종류 예시', 'ic_night', 'nights_stay', Object.assign(cat('var(--tertiary_container)'), NEW))
+    ]},
+    { title: '교통 · 숙소', note: '여행 카드 이름 앞, 교통·숙소 줄, 지도 숙소 핀, 경로 구간 이동 수단', items: [
+      i('flight', '비행기', 'ic_flight', 'flight', F),
+      i('train', '기차', 'ic_train', 'train', F),
+      i('bus', '버스', 'ic_bus', 'directions_bus', F),
+      i('ship', '배', 'ic_ship', 'directions_boat', F),
+      i('car', '자동차', 'ic_car', 'directions_car', F),
+      i('route', '교통 기타 · 경로', 'ic_route', 'route', F),
+      i('hotel', '숙소', 'ic_hotel', 'hotel', F),
+      i('walk', '이동 · 도보', 'ic_walk', 'directions_walk', { fill: true, isNew: true }),
+      i('subway', '이동 · 대중교통', 'ic_subway', 'directions_subway', { fill: true, isNew: true }),
+      i('taxi', '이동 · 택시·차', 'ic_taxi', 'local_taxi', { fill: true, isNew: true })
+    ]},
+    { title: '화면 동작', note: '버튼·툴바·목록 끝 — 선 모양', items: [
+      i('add', '추가', 'ic_add', 'add'),
+      i('arrow_back', '뒤로', 'ic_arrow_back', 'arrow_back'),
+      i('close', '닫기', 'ic_close', 'close'),
+      i('search', '검색', 'ic_search', 'search'),
+      i('share', '공유', 'ic_share', 'share'),
+      i('copy', '복사', 'ic_copy', 'content_copy'),
+      i('more_vert', '더보기', 'ic_more_vert', 'more_vert'),
+      i('chevron_right', '다음 화면', 'ic_chevron_right', 'chevron_right'),
+      i('arrow_down', '펼치기 · 고르기', 'ic_expand_more', 'keyboard_arrow_down'),
+      i('expand_less', '접기', 'ic_expand_less', 'keyboard_arrow_up'),
+      i('drag', '순서 바꾸기', 'ic_drag', 'drag_indicator'),
+      i('map', '지도로 보기', 'ic_map', 'map'),
+      i('list', '목록으로 보기', 'ic_list', 'list'),
+      i('add_photo', '사진 추가', 'ic_add_photo', 'add_a_photo'),
+      i('group_add', '공유 코드로 참여', 'ic_group_add', 'group_add'),
+      i('person_add', '초대', 'ic_person_add', 'person_add'),
+      i('edit', '수정', 'ic_edit', 'edit', NEW),
+      i('tune', '보기 설정', 'ic_tune', 'tune', NEW),
+      i('sort', '정렬', 'ic_sort', 'sort', NEW),
+      i('settings', '설정', 'ic_settings', 'settings', NEW),
+      i('sync', '다시 가져오기', 'ic_sync', 'sync', NEW),
+      i('upload_file', '파일 올리기', 'ic_upload_file', 'upload_file', NEW)
+    ]},
+    { title: '정보 · 상태', note: '날짜·시간·메모 줄, 뱃지, 도움말', items: [
+      i('calendar', '날짜', 'ic_calendar', 'calendar_today'),
+      i('event', '일차', 'ic_event', 'event'),
+      i('schedule', '시간 · 출발', 'ic_schedule', 'schedule'),
+      i('note', '메모', 'ic_note', 'sticky_note_2'),
+      i('check', '선택됨 · 확정', 'ic_check', 'check'),
+      i('warning', '확인 필요', 'ic_warning', 'warning', { fill: true, bg: 'var(--warn_bg)', fg: 'var(--warn_text)' }),
+      i('check_circle', '완료', 'ic_check_circle', 'check_circle', NEW),
+      i('info', '도움말', 'ic_info', 'info', NEW),
+      i('lock', '잠금', 'ic_lock', 'lock', NEW),
+      i('visibility', '보임', 'ic_visibility', 'visibility', NEW),
+      i('visibility_off', '숨김', 'ic_visibility_off', 'visibility_off', NEW),
+      i('person', '내가 만든 여행', 'ic_person', 'person', NEW),
+      i('pin_undecided', '일차 미정 핀 (원 포함)', 'ic_pin_undecided', 'location_on + 점선 원', { fill: true, isNew: true, bg: 'var(--surface_container)' })
+    ]},
+    { title: '첨부 · 링크 · 종류 관리', note: '예약·티켓 보관, 관련 링크, 설정의 장소 종류', items: [
+      i('ticket', '예약 · 티켓', 'ic_ticket', 'confirmation_number', NEW),
+      i('pdf', 'PDF 파일', 'ic_pdf', 'picture_as_pdf', NEW),
+      i('image', '사진 파일', 'ic_image', 'image', NEW),
+      i('link', '관련 링크', 'ic_link', 'link', NEW),
+      i('attach_file', '첨부 (후보)', 'ic_attach_file', 'attach_file', NEW),
+      i('category', '장소 종류 관리', 'ic_category', 'category', NEW)
+    ]}
+  ]};
+}
+}
+</script>
+</body>
+</html>

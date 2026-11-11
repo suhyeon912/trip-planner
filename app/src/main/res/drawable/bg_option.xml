@@ -1,0 +1,6 @@
+<!-- 경로 요약 카드 (선택 안 됨) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/card_bg" />
+    <stroke android:width="1dp" android:color="@color/outline_variant" />
+    <corners android:radius="@dimen/radius_card" />
+</shape>

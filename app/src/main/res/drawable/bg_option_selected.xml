@@ -1,0 +1,6 @@
+<!-- 경로 요약 카드 (선택됨): 파란 2dp 테두리 + 아주 연한 파랑 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/option_selected_bg" />
+    <stroke android:width="2dp" android:color="@color/primary" />
+    <corners android:radius="@dimen/radius_card" />
+</shape>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>후보 · 확정하기 누름 (일차 select)</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/tripplanner/tokens.css">
+<link rel="stylesheet" href="tp-icons.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*{font-family:var(--font-sans)}[data-theme]{font-weight:500}code{font-weight:500}
+html,body{margin:0;overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+button,input{font-family:inherit}button{cursor:pointer}
+a{color:var(--primary)}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 390px; height: 844px; overflow: hidden; background: var(--background); color: var(--on_surface); font-family: var(--font-sans);">
+<dc-import name="DetailCandidates" hint-size="390px,844px"></dc-import><a href="DetailCandidates.dc.html" aria-label="닫기" style="position: absolute; inset: 0;"></a><div role="listbox" aria-label="센소지를 확정할 일차" style="position: absolute; right: 16px; top: 197px; width: 248px; padding: 6px 0; border-radius: 14px; background: var(--card_bg); box-shadow: 0 8px 28px rgba(15,19,26,0.22); display: flex; flex-direction: column; overflow: hidden;"><a href="Detail.dc.html" role="option" aria-checked="false" style="display: flex; align-items: center; gap: 12px; min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 0; background: transparent; color: var(--on_surface); font-size: 15px; font-weight: 500; text-align: left; width: 100%; text-decoration: none;"><span aria-hidden="true" style="width: 10px; height: 10px; flex: none; border-radius: 5px; background: var(--day_1);"></span><span style="flex-grow: 1;">1일차</span><span style="font-size: 13px; font-weight: 500; color: var(--text_sub);">11.20 (금) · 5곳</span></a><a href="Detail.dc.html" role="option" aria-checked="false" style="display: flex; align-items: center; gap: 12px; min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 0; background: transparent; color: var(--on_surface); font-size: 15px; font-weight: 500; text-align: left; width: 100%; text-decoration: none;"><span aria-hidden="true" style="width: 10px; height: 10px; flex: none; border-radius: 5px; background: var(--day_2);"></span><span style="flex-grow: 1;">2일차</span><span style="font-size: 13px; font-weight: 500; color: var(--text_sub);">11.21 (토) · 2곳</span></a><a href="Detail.dc.html" role="option" aria-checked="false" style="display: flex; align-items: center; gap: 12px; min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 0; background: transparent; color: var(--on_surface); font-size: 15px; font-weight: 500; text-align: left; width: 100%; text-decoration: none;"><span aria-hidden="true" style="width: 10px; height: 10px; flex: none; border-radius: 5px; background: var(--day_3);"></span><span style="flex-grow: 1;">3일차</span><span style="font-size: 13px; font-weight: 500; color: var(--text_sub);">11.22 (일) · 1곳</span></a><a href="Detail.dc.html" role="option" aria-checked="false" style="display: flex; align-items: center; gap: 12px; min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 0; background: transparent; color: var(--on_surface); font-size: 15px; font-weight: 500; text-align: left; width: 100%; text-decoration: none;"><span aria-hidden="true" style="width: 10px; height: 10px; flex: none; border-radius: 5px; background: var(--day_4);"></span><span style="flex-grow: 1;">4일차</span><span style="font-size: 13px; font-weight: 500; color: var(--text_sub);">11.23 (월) · 1곳</span></a><a href="Detail.dc.html" role="option" aria-checked="false" style="display: flex; align-items: center; gap: 12px; min-height: 48px; box-sizing: border-box; padding: 0 16px; border: 0; background: transparent; color: var(--on_surface); font-size: 15px; font-weight: 500; text-align: left; width: 100%; text-decoration: none;"><span aria-hidden="true" style="width: 10px; height: 10px; flex: none; box-sizing: border-box; border-radius: 5px; border: 2px solid var(--outline);"></span><span style="flex-grow: 1;">일차 미정</span></a></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
