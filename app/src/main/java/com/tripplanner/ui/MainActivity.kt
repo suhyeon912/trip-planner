@@ -20,6 +20,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: TripViewPrefs
     private lateinit var adapter: TripAdapter
     private lateinit var tabs: TabLayout
+    /** 설정에서 '공유 코드로 참여'를 하면 그 여행을 바로 엶 */
+    private val settings = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { r ->
+        val id = r.data?.getLongExtra(SettingsActivity.RESULT_JOINED, -1L) ?: -1L
+        if (id > 0) openTrip(id)
+    }
+
+    private fun openTrip(id: Long) =
+        startActivity(Intent(this, TripDetailActivity::class.java).putExtra(TripDetailActivity.EXTRA_TRIP_ID, id))
+
+    /** 설정에서 정렬 · 지난 여행을 바꿨을 수 있으니 돌아오면 다시 그림 */
+    override fun onResume() {
+        super.onResume()
+        if (viewModel.trips.value != null) showRows()
+    }
+
     /** 탭: 전체 / 내 여행 / 초대받은 (회전해도 유지) */
     private var filter = TripFilter.ALL
 
@@ -29,8 +44,9 @@ class MainActivity : AppCompatActivity() {
         val toolbar = setupToolbar(showBack = false)
         toolbar.inflateMenu(R.menu.main)
         toolbar.setOnMenuItemClickListener {
-            if (it.itemId == R.id.action_join) openJoinDialog { id ->
-                startActivity(Intent(this, TripDetailActivity::class.java).putExtra(TripDetailActivity.EXTRA_TRIP_ID, id))
+            when (it.itemId) {
+                R.id.action_join -> openJoinDialog { id -> openTrip(id) }
+                R.id.action_settings -> settings.launch(Intent(this, SettingsActivity::class.java))
             }
             true
         }

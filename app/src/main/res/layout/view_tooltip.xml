@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 어두운 안내 상자 (설정 · 지도 서비스 ⓘ) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_tooltip"
+    android:orientation="vertical"
+    android:padding="@dimen/space_l">
+
+    <TextView
+        android:id="@+id/tvTipTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+        android:textColor="@color/snackbar_text" />
+
+    <TextView
+        android:id="@+id/tvTipBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+        android:textColor="@color/snackbar_text" />
+</LinearLayout>

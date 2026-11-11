@@ -7,4 +7,9 @@
         android:icon="@drawable/ic_group_add"
         android:title="@string/join_with_code"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/settings_title"
+        app:showAsAction="always" />
 </menu>

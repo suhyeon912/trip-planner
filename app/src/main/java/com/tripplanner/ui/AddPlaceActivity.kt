@@ -95,29 +95,11 @@ class AddPlaceActivity : AppCompatActivity() {
 
         // ---------- 종류 칩: 바탕색 = 종류, 고르면 테두리 2 + ✓ ----------
         chips = findViewById(R.id.chipsCategory)
-        PlaceCategory.entries.forEach { c ->
-            chips.addView(Chip(this, null, com.google.android.material.R.attr.chipStyle).apply {
-                id = 1000 + c.ordinal
-                text = c.label
-                isCheckable = true
-                setChipIconResource(c.icon)
-                isChipIconVisible = true
-                chipIconTint = ColorStateList.valueOf(color(c.fgColor))
-                chipBackgroundColor = ColorStateList.valueOf(color(c.bgColor))
-                setCheckedIconResource(R.drawable.ic_check)
-                checkedIconTint = ColorStateList.valueOf(color(R.color.on_surface))
-                setTextAppearanceResource(R.style.TextAppearance_TripPlanner_LabelLarge)
-                setTextColor(color(R.color.on_surface))
-                chipStrokeColor = ColorStateList.valueOf(color(R.color.on_surface))
-                chipStrokeWidth = 0f
-                shapeAppearanceModel = shapeAppearanceModel.withCornerSize(12 * resources.displayMetrics.density)
-                setEnsureMinTouchTargetSize(true)
-                setOnCheckedChangeListener { v, checked -> (v as Chip).chipStrokeWidth = if (checked) 2 * resources.displayMetrics.density else 0f }
-            })
-        }
+        buildCategoryChips(null)
         chips.setOnCheckedStateChangeListener { _, ids ->
             ids.firstOrNull()?.let { id -> PlaceCategory.entries.getOrNull(id - 1000)?.let { category = it; refreshPhoto() } }
         }
+
 
         // ---------- 사진: 비었으면 고르기, 있으면 바꾸기 / 빼기 ----------
         findViewById<View>(R.id.photoBox).setOnClickListener { v ->
@@ -212,6 +194,40 @@ class AddPlaceActivity : AppCompatActivity() {
         outState.putString("coordsAddress", coordsAddress)
     }
 
+    /**
+     * 종류 칩 만들기: 설정에서 숨긴 종류는 빼고 (수정 중인 장소의 종류는 보임).
+     * 모두 숨기면 칩 줄을 숨기고 '기타'로 저장.
+     */
+    private fun buildCategoryChips(current: PlaceCategory?) {
+        chips.removeAllViews()
+        val visible = AppPrefs.visibleCategories(AppPrefs(this).hiddenCategories, current)
+        val label = (chips.parent as android.view.ViewGroup).getChildAt((chips.parent as android.view.ViewGroup).indexOfChild(chips) - 1)
+        chips.visibility = if (visible.isEmpty()) View.GONE else View.VISIBLE
+        label.visibility = chips.visibility
+        if (visible.isEmpty()) { category = PlaceCategory.ETC; return }
+        if (category !in visible) category = visible.first()
+        visible.forEach { c ->
+            chips.addView(Chip(this, null, com.google.android.material.R.attr.chipStyle).apply {
+                id = 1000 + c.ordinal
+                text = c.label
+                isCheckable = true
+                setChipIconResource(c.icon)
+                isChipIconVisible = true
+                chipIconTint = ColorStateList.valueOf(color(c.fgColor))
+                chipBackgroundColor = ColorStateList.valueOf(color(c.bgColor))
+                setCheckedIconResource(R.drawable.ic_check)
+                checkedIconTint = ColorStateList.valueOf(color(R.color.on_surface))
+                setTextAppearanceResource(R.style.TextAppearance_TripPlanner_LabelLarge)
+                setTextColor(color(R.color.on_surface))
+                chipStrokeColor = ColorStateList.valueOf(color(R.color.on_surface))
+                chipStrokeWidth = 0f
+                shapeAppearanceModel = shapeAppearanceModel.withCornerSize(12 * resources.displayMetrics.density)
+                setEnsureMinTouchTargetSize(true)
+                setOnCheckedChangeListener { v, checked -> (v as Chip).chipStrokeWidth = if (checked) 2 * resources.displayMetrics.density else 0f }
+            })
+        }
+    }
+
     private fun refreshPhoto() {
         val has = photoPath != null
         ivPhoto.visibility = if (has) View.VISIBLE else View.GONE
@@ -221,6 +237,8 @@ class AddPlaceActivity : AppCompatActivity() {
     }
 
     private fun selectCategory(c: PlaceCategory) {
+        // 숨긴 종류여도 이 장소의 종류면 칩을 보여 줌
+        if (chips.findViewById<View>(1000 + c.ordinal) == null && chips.visibility == View.VISIBLE) buildCategoryChips(c)
         category = c
         chips.check(1000 + c.ordinal)
         refreshPhoto()

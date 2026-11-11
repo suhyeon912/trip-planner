@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 설정 한 줄: 아이콘(또는 종류 타일) · 이름 · 값 · › 또는 스위치 (사이 1px 선) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/outline_variant" />
+
+    <LinearLayout
+        android:id="@+id/row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_l"
+        android:paddingEnd="@dimen/space_m">
+
+        <ImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="@dimen/icon_small"
+            android:layout_height="@dimen/icon_small"
+            android:layout_marginEnd="@dimen/space_m"
+            android:importantForAccessibility="no"
+            app:tint="@color/text_sub" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodyLarge"
+            tools:text="기본 정렬" />
+
+        <TextView
+            android:id="@+id/tvValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+            android:textColor="@color/text_sub"
+            tools:text="일정 가까운 순" />
+
+        <ImageView
+            android:id="@+id/ivEnd"
+            android:layout_width="@dimen/icon_small"
+            android:layout_height="@dimen/icon_small"
+            android:layout_marginStart="@dimen/space_xs"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="@color/text_sub" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>
