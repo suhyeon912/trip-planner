@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 표지 위치 조정 (시안 NewTripPhotoCrop): 어두운 바탕 · 틀을 끌어 옮기기 · 확대 막대 · 미리보기 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/crop_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_xs">
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="@dimen/touch_min"
+            android:layout_height="@dimen/touch_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_close"
+            android:src="@drawable/ic_close"
+            app:tint="@color/white" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:layout_weight="1"
+            android:accessibilityHeading="true"
+            android:text="@string/cover_adjust_title"
+            android:textAppearance="@style/TextAppearance.TripPlanner.TitleMedium"
+            android:textColor="@color/white"
+            tools:targetApi="28" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDone"
+            style="@style/Widget.TripPlanner.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_m"
+            android:minHeight="40dp"
+            android:text="@string/action_done" />
+    </LinearLayout>
+
+    <com.tripplanner.ui.CoverCropView
+        android:id="@+id/cropView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:contentDescription="@string/cover_adjust_a11y" />
+
+    <!-- 확대 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/screen_margin">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_image"
+            app:tint="@color/white" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderScale"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/cover_zoom"
+            android:valueFrom="1"
+            android:valueTo="3"
+            app:labelBehavior="gone"
+            app:thumbColor="@color/white"
+            app:trackColorActive="@color/white"
+            app:trackColorInactive="#66FFFFFF" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_image"
+            app:tint="@color/white" />
+    </LinearLayout>
+
+    <!-- 미리보기 (여행 카드 표지와 같은 칸) -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/cover_height"
+        android:layout_margin="@dimen/screen_margin"
+        android:background="@drawable/bg_cover_preview"
+        android:clipToOutline="true">
+
+        <ImageView
+            android:id="@+id/ivPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_cover_scrim" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/space_m"
+            android:background="@drawable/bg_cover_pill"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="2dp"
+            android:text="@string/preview"
+            android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/tvPreviewTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="@dimen/space_m"
+            android:textAppearance="@style/TextAppearance.TripPlanner.TitleLarge"
+            android:textColor="@color/white" />
+    </FrameLayout>
+</LinearLayout>

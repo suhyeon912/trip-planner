@@ -42,7 +42,7 @@
 |---|---|
 | 언어 · UI | Kotlin, XML Views, Material Components |
 | 구조 | MVVM: Activity → ViewModel(LiveData) → Repository → Room DAO |
-| DB | Room (KSP), DB 버전 5, 마이그레이션 포함 |
+| DB | Room (KSP), DB 버전 6, 마이그레이션 포함 |
 | 지도 | 카카오맵 SDK v2, Google Maps SDK, osmdroid(OpenStreetMap) |
 | 검색 | 카카오 로컬 API(국내), Google Places API (New)(해외) |
 | 공유 | Firebase Authentication(익명) + Cloud Firestore |
@@ -163,7 +163,7 @@ MAPS_API_KEY=구글_API_키
 
 | 엔티티 | 주요 칸 |
 |---|---|
-| `Trip` | 이름, 시작·끝 날짜, 메모, 출발 시각, 공유 코드, 수정 시각, 내가 만든 여행인지·만든 사람·함께 보는 사람 닉네임 |
+| `Trip` | 이름, 시작·끝 날짜, 메모, 출발 시각, 공유 코드, 수정 시각, 내가 만든 여행인지·만든 사람·함께 보는 사람 닉네임, 표지 사진(기기에만)·위치·확대 |
 | `Flight` | 교통 종류(`TransportMode`), 편명·열차 번호, 출발지·도착지, 출발·도착 시각 |
 | `Lodging` | 이름, 체크인·체크아웃, 위도·경도 (경로 출발점), 주소·상세 주소·위치 메모 |
 | `Place` | 이름, 후보/확정(`PlaceStatus`), 종류(`PlaceCategory`), 운영시간·브레이크·휴무, 예약 필수, 메모, 위도·경도, 주소·상세 주소·위치 메모, 일차·순서, 머무는 시간, 사진 |

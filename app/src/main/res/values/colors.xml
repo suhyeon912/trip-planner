@@ -60,6 +60,8 @@
     <color name="cover_past_dark">#4B5563</color>   <color name="cover_past_light">#9CA3AF</color>
     <color name="cover_pill_bg">#33FFFFFF</color>
     <color name="cover_pill_stroke">#59FFFFFF</color>
+    <!-- 표지 위치 조정 화면 바탕 (테마와 상관없이 어두움) -->
+    <color name="crop_bg">#0B0D12</color>
     <!-- 2단계 컴포넌트 -->
     <color name="scrollbar_thumb">#52111827</color>
     <color name="snackbar_bg">#111827</color>

@@ -19,5 +19,8 @@ class TripListViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch { repo.seedIfEmpty() }
     }
 
-    fun deleteTrip(trip: Trip) = viewModelScope.launch { repo.deleteTrip(trip) }
+    fun deleteTrip(trip: Trip) = viewModelScope.launch {
+        repo.deleteTrip(trip)
+        Photos.delete(getApplication(), trip.coverPhoto)   // 표지 사진 파일도 정리
+    }
 }

@@ -98,6 +98,85 @@
                     tools:text="3박 4일"
                     tools:visibility="visible" />
             </FrameLayout>
+
+            <!-- 표지 사진 (선택): 없으면 점선 '사진 업로드', 있으면 표지 미리보기 + 위치 조정 · 바꾸기 · 빼기 -->
+            <TextView
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/label_cover" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCoverUpload"
+                style="@style/Widget.TripPlanner.Button.DashedAdd"
+                android:layout_height="72dp"
+                android:text="@string/cover_upload"
+                android:textColor="@color/on_surface"
+                app:icon="@drawable/ic_add_photo"
+                app:iconTint="@color/text_sub" />
+
+            <FrameLayout
+                android:id="@+id/coverBox"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/cover_height"
+                android:background="@drawable/bg_cover_preview"
+                android:clipToOutline="true"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/ivCover"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_cover_scrim" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="@dimen/space_xs"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCoverAdjust"
+                        style="@style/Widget.TripPlanner.Button.Text.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="@dimen/space_s"
+                        android:text="@string/cover_adjust"
+                        android:textColor="@color/white"
+                        app:icon="@drawable/ic_tune"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/white" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCoverChange"
+                        style="@style/Widget.TripPlanner.Button.Text.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="@dimen/space_s"
+                        android:text="@string/cover_change"
+                        android:textColor="@color/white"
+                        app:icon="@drawable/ic_sync"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/white" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCoverRemove"
+                        style="@style/Widget.TripPlanner.Button.Text.Icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="@dimen/space_s"
+                        android:text="@string/cover_remove"
+                        android:textColor="@color/white"
+                        app:icon="@drawable/ic_close"
+                        app:iconSize="16dp"
+                        app:iconTint="@color/white" />
+                </LinearLayout>
+            </FrameLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

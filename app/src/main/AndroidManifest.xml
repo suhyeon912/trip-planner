@@ -34,6 +34,17 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.AddPlaceActivity" />
         <activity android:name=".ui.PlaceViewActivity" />
+        <activity android:name=".ui.CoverCropActivity" />
+        <!-- 카메라로 표지 찍기: 찍은 사진을 받을 임시 파일을 카메라 앱에 넘김 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         <activity android:name=".ui.TravelInfoActivity" />
         <activity
             android:name=".ui.TravelFormActivity"

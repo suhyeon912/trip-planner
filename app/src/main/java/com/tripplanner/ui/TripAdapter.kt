@@ -31,6 +31,8 @@ class TripAdapter(
 
     private class CardHolder(view: View) : RecyclerView.ViewHolder(view) {
         val cover: View = view.findViewById(R.id.cover)
+        val coverPhoto: ImageView = view.findViewById(R.id.ivCoverPhoto)
+        val coverScrim: View = view.findViewById(R.id.coverScrim)
         val coverIcon: ImageView = view.findViewById(R.id.ivCoverIcon)
         val tvTitle: TextView = view.findViewById(R.id.tvTripTitle)
         val tvDday: TextView = view.findViewById(R.id.tvDday)
@@ -75,6 +77,12 @@ class TripAdapter(
         val dday = TripFormat.dday(item.trip)
         // 표지: 여행마다 다른 색, 첫 교통편 아이콘
         holder.cover.background = Covers.gradient(ctx, item.trip.id, past = false)
+        holder.cover.clipToOutline = true
+        // 표지 사진이 있으면 그라데이션 위에 사진 (사진 파일이 없어졌으면 그라데이션만)
+        val photo = item.trip.coverPhoto?.takeIf { java.io.File(it).exists() }
+        holder.coverPhoto.visibility = if (photo != null) View.VISIBLE else View.GONE
+        holder.coverScrim.visibility = holder.coverPhoto.visibility
+        if (photo != null) CoverPhoto.bind(holder.coverPhoto, photo, item.trip.coverY, item.trip.coverScale)
         holder.coverIcon.setImageResource(item.firstMode?.icon ?: R.drawable.ic_place)
         holder.tvTitle.text = item.trip.title
         holder.tvDday.visibility = if (dday == null) View.GONE else View.VISIBLE

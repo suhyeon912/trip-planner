@@ -47,7 +47,11 @@ data class Trip(
     /** 초대받은 여행: 만든 사람 닉네임 (모르면 빈 글자) */
     @ColumnInfo(defaultValue = "") val inviterName: String = "",
     /** 함께 보는 다른 사람들 닉네임 (", " 로 이음, 나 제외) */
-    @ColumnInfo(defaultValue = "") val memberNames: String = ""
+    @ColumnInfo(defaultValue = "") val memberNames: String = "",
+    /** 표지 사진 (앱 내부 저장소 경로, 기기에만 · 공유 안 함) · 보이는 위치(사진 높이 중 0~1) · 확대(1~3) — DB 6 */
+    val coverPhoto: String? = null,
+    @ColumnInfo(defaultValue = "0.5") val coverY: Float = 0.5f,
+    @ColumnInfo(defaultValue = "1.0") val coverScale: Float = 1f
 ) {
     /** 함께 보는 다른 사람 목록 */
     val members: List<String> get() = memberNames.split(", ").filter { it.isNotBlank() }
