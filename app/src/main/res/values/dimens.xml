@@ -16,9 +16,17 @@
     <dimen name="radius_day_chip">12dp</dimen>
     <dimen name="radius_badge">9dp</dimen>
     <dimen name="radius_input">12dp</dimen>
+    <dimen name="radius_warn">8dp</dimen>
+    <dimen name="radius_thumb">12dp</dimen>
+    <dimen name="radius_trip_card">20dp</dimen>
+    <dimen name="radius_pill">999dp</dimen>
 
     <dimen name="stroke_card">1dp</dimen>
     <dimen name="touch_min">48dp</dimen>
     <dimen name="icon_size">24dp</dimen>
+    <dimen name="icon_small">20dp</dimen>
+    <dimen name="thumb_size">44dp</dimen>
+    <dimen name="timeline_dot">28dp</dimen>
+    <dimen name="cover_height">116dp</dimen>
     <dimen name="route_map_height">260dp</dimen>
 </resources>
