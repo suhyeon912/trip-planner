@@ -49,6 +49,13 @@ class TripRepository(private val db: AppDatabase) {
     /** 공유 정보만 바꿈 (서버에 다시 올리지 않음) */
     suspend fun setShareCode(trip: Trip, code: String?) = dao.updateTrip(trip.copy(shareCode = code))
 
+    /** 멤버 정보만 바꿈 (서버에 다시 올리지 않음) */
+    suspend fun setMembers(tripId: Long, inviterName: String, memberNames: String) {
+        val t = dao.getTrip(tripId) ?: return
+        if (t.inviterName != inviterName || t.memberNames != memberNames)
+            dao.updateTrip(t.copy(inviterName = inviterName, memberNames = memberNames))
+    }
+
     /** 서버에서 받은 여행으로 통째로 바꿈 (내 기기의 같은 여행 id 유지). 서버로 다시 올리지 않음 */
     suspend fun replaceTripContents(trip: Trip, places: List<Place>, flights: List<Flight>, lodgings: List<Lodging>) {
         db.withTransaction {

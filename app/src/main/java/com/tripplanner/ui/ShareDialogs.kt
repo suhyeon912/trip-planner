@@ -41,16 +41,45 @@ private fun AppCompatActivity.notConfigured() {
 private fun AppCompatActivity.progressDialog(): AlertDialog =
     MaterialAlertDialogBuilder(this).setMessage(R.string.working).setCancelable(false).show()
 
+/** 팝업 안 입력 칸 하나 (라벨은 칸 위) → (칸 묶음, 입력칸, 오류 표시용 칸) */
+private fun AppCompatActivity.labeledField(label: String, value: String): Triple<View, TextInputEditText, TextInputLayout> {
+    val row = LayoutInflater.from(this).inflate(R.layout.view_form_field, null)
+    val layout = row.findViewById<TextInputLayout>(R.id.layout)
+    val input = layout.findViewById<TextInputEditText>(R.id.input).apply {
+        id = View.generateViewId(); setText(value)
+    }
+    row.findViewById<TextView>(R.id.label).apply { text = label; labelFor = input.id }
+    return Triple(row, input, layout)
+}
+
+private fun AppCompatActivity.dialogBox(vararg rows: View) = android.widget.LinearLayout(this).apply {
+    orientation = android.widget.LinearLayout.VERTICAL
+    val side = resources.getDimensionPixelSize(R.dimen.space_xl)
+    setPadding(side, 0, side, 0)
+    rows.forEach { addView(it) }
+}
+
 fun AppCompatActivity.openShareDialog(tripId: Long) {
     if (!share.isConfigured) { notConfigured(); return }
     lifecycleScope.launch {
         val trip = repo.getTrip(tripId) ?: return@launch
         val code = trip.shareCode
         if (code == null) {
-            MaterialAlertDialogBuilder(this@openShareDialog)
+            // 여행 공유: 내 닉네임 (함께 보는 사람에게 보이는 이름) → 공유 시작
+            val (row, input, layout) = labeledField(getString(R.string.label_nickname), share.nickname)
+            val dialog = MaterialAlertDialogBuilder(this@openShareDialog)
                 .setTitle(R.string.share_new_title)
                 .setMessage(R.string.share_intro)
-                .setPositiveButton(R.string.share_start) { _, _ ->
+                .setView(dialogBox(row))
+                .setPositiveButton(R.string.share_start, null)
+                .setNegativeButton(R.string.action_cancel, null)
+                .create()
+            dialog.setOnShowListener {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    val name = input.text?.toString()?.trim().orEmpty()
+                    if (name.isEmpty()) { layout.error = getString(R.string.error_nickname); return@setOnClickListener }
+                    share.nickname = name
+                    dialog.dismiss()
                     val wait = progressDialog()
                     lifecycleScope.launch {
                         runCatching { share.share(tripId) }
@@ -58,8 +87,8 @@ fun AppCompatActivity.openShareDialog(tripId: Long) {
                             .onFailure { wait.dismiss(); toast(getString(R.string.share_failed, it.message ?: it.javaClass.simpleName)) }
                     }
                 }
-                .setNegativeButton(R.string.action_cancel, null)
-                .show()
+            }
+            dialog.show()
         } else showCode(trip.title, code, tripId)
     }
 }
@@ -70,9 +99,15 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
         text = code
         contentDescription = code.toCharArray().joinToString(" ")   // 낭독 시 한 글자씩
     }
+    // 함께 보는 사람: "지우 (나) · 민지 · 하준" (이름을 모르면 사람 수)
     val members = view.findViewById<TextView>(R.id.tvMembers)
-    members.text = getString(R.string.share_members, 1)
-    lifecycleScope.launch { members.text = getString(R.string.share_members, share.memberCount(code)) }
+    lifecycleScope.launch {
+        val t = repo.getTrip(tripId)
+        val me = share.nickname.takeIf { it.isNotBlank() }?.let { getString(R.string.me_suffix, it) }
+        val names = listOfNotNull(me) + t?.members.orEmpty()
+        members.text = if (t != null && t.members.isNotEmpty()) names.joinToString(" · ")
+                       else getString(R.string.share_members, share.memberCount(code))
+    }
     view.findViewById<View>(R.id.btnCopy).setOnClickListener {
         (getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("code", code))
         toast(getString(R.string.share_copied))
@@ -97,17 +132,11 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
 
 fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
     if (!share.isConfigured) { notConfigured(); return }
-    val row = LayoutInflater.from(this).inflate(R.layout.view_form_field, null)
-    val layout = row.findViewById<TextInputLayout>(R.id.layout)
-    val input = layout.findViewById<TextInputEditText>(R.id.input).apply {
-        inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-        filters = arrayOf(InputFilter.AllCaps(), InputFilter.LengthFilter(8))
-    }
-    row.findViewById<TextView>(R.id.label).apply { text = getString(R.string.join_label); labelFor = R.id.input }
-    val box = android.widget.FrameLayout(this).apply {
-        val side = resources.getDimensionPixelSize(R.dimen.space_xl)
-        setPadding(side, 0, side, 0); addView(row)
-    }
+    val (row, input, layout) = labeledField(getString(R.string.join_label), "")
+    input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+    input.filters = arrayOf(InputFilter.AllCaps(), InputFilter.LengthFilter(8))
+    val (nameRow, nameInput, nameLayout) = labeledField(getString(R.string.label_nickname), share.nickname)
+    val box = dialogBox(row, nameRow)
     val dialog = MaterialAlertDialogBuilder(this)
         .setTitle(R.string.join_title)
         .setView(box)
@@ -119,6 +148,10 @@ fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
             val code = ShareCodec.normalize(input.text?.toString().orEmpty())
             if (!ShareCodec.isValidCode(code)) { layout.error = getString(R.string.join_invalid); return@setOnClickListener }
             layout.error = null
+            val name = nameInput.text?.toString()?.trim().orEmpty()
+            if (name.isEmpty()) { nameLayout.error = getString(R.string.error_nickname); return@setOnClickListener }
+            nameLayout.error = null
+            share.nickname = name
             val wait = progressDialog()
             lifecycleScope.launch {
                 runCatching { share.join(code) }

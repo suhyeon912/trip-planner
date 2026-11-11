@@ -41,8 +41,17 @@ data class Trip(
     /** 공유 중이면 초대 코드 (= 서버 문서 id), 아니면 null */
     val shareCode: String? = null,
     /** 마지막으로 바뀐 시각 (공유 동기화용, 밀리초) */
-    @ColumnInfo(defaultValue = "0") val updatedAt: Long = 0
-)
+    @ColumnInfo(defaultValue = "0") val updatedAt: Long = 0,
+    /** 내가 만든 여행이면 true, 초대 코드로 참여한 여행이면 false — DB 5 */
+    @ColumnInfo(defaultValue = "1") val ownedByMe: Boolean = true,
+    /** 초대받은 여행: 만든 사람 닉네임 (모르면 빈 글자) */
+    @ColumnInfo(defaultValue = "") val inviterName: String = "",
+    /** 함께 보는 다른 사람들 닉네임 (", " 로 이음, 나 제외) */
+    @ColumnInfo(defaultValue = "") val memberNames: String = ""
+) {
+    /** 함께 보는 다른 사람 목록 */
+    val members: List<String> get() = memberNames.split(", ").filter { it.isNotBlank() }
+}
 
 @Entity(
     tableName = "flights",

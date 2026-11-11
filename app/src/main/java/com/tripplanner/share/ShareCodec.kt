@@ -98,6 +98,17 @@ object ShareCodec {
         return TripSnapshot(trip, places, flights, lodgings)
     }
 
+    /** 서버 문서의 멤버 이름 정보 → (만든 사람 닉네임: 내가 만들었으면 "", 나를 뺀 멤버 닉네임들) */
+    fun memberInfo(m: Map<String, Any?>, me: String): Pair<String, List<String>> {
+        @Suppress("UNCHECKED_CAST")
+        val names = (m["names"] as? Map<String, Any?>).orEmpty().mapValues { it.value as? String ?: "" }
+        val owner = m.str("ownerUid")
+        val members = (m["members"] as? List<*>)?.mapNotNull { it as? String }.orEmpty()
+        val inviter = if (owner == null || owner == me) "" else names[owner].orEmpty()
+        val others = members.filter { it != me }.map { names[it].orEmpty() }.filter { it.isNotBlank() }
+        return inviter to others
+    }
+
     // ---- 서버 값 읽기 (숫자는 Long/Double 어느 쪽으로든 올 수 있음) ----
     private fun Map<String, Any?>.str(k: String) = this[k] as? String
     private fun Map<String, Any?>.int(k: String) = (this[k] as? Number)?.toInt()

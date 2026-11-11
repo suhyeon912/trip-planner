@@ -6,6 +6,9 @@ import java.text.Collator
 import java.time.LocalDate
 import java.util.Locale
 
+/** 메인 탭: 전체 / 내 여행(내가 만든) / 초대받은 */
+enum class TripFilter { ALL, MINE, INVITED }
+
 /** 메인 정렬 기준 (보기 설정) */
 enum class TripSort { NAME, RECENT, DATE }
 
@@ -23,8 +26,10 @@ sealed class TripRow {
 object TripArrange {
     private val collator: Collator = Collator.getInstance(Locale.KOREAN)
 
-    fun rows(list: List<TripWithCounts>, sort: TripSort, showPast: Boolean, today: LocalDate = LocalDate.now()): List<TripRow> {
-        val (past, active) = list.partition { TripFormat.dday(it.trip, today)?.phase == TripFormat.Phase.PAST }
+    fun rows(list: List<TripWithCounts>, sort: TripSort, showPast: Boolean, today: LocalDate = LocalDate.now(),
+             filter: TripFilter = TripFilter.ALL): List<TripRow> {
+        val shown = list.filter { matches(it, filter) }
+        val (past, active) = shown.partition { TripFormat.dday(it.trip, today)?.phase == TripFormat.Phase.PAST }
         val sorted = when (sort) {
             TripSort.NAME -> active.sortedWith { a, b -> collator.compare(a.trip.title, b.trip.title) }
             TripSort.RECENT -> active.sortedByDescending { it.trip.id }
@@ -36,6 +41,12 @@ object TripArrange {
             rows += past.sortedByDescending { it.trip.startDate }.map { TripRow.Past(it) }
         }
         return rows
+    }
+
+    fun matches(item: TripWithCounts, filter: TripFilter) = when (filter) {
+        TripFilter.ALL -> true
+        TripFilter.MINE -> item.trip.ownedByMe
+        TripFilter.INVITED -> !item.trip.ownedByMe
     }
 }
 

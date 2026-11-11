@@ -26,6 +26,13 @@
             app:title="@string/title_my_trips"
             app:titleTextAppearance="@style/TextAppearance.TripPlanner.TitleLarge" />
 
+        <!-- 전체 / 내 여행 / 초대받은 -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_margin" />
+
         <!-- 보기 설정: 지금 정렬 · 지난 여행 상태 + 버튼 -->
         <LinearLayout
             android:id="@+id/viewRow"

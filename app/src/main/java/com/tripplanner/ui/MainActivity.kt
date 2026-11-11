@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.tabs.TabLayout
 import com.tripplanner.R
 import com.tripplanner.data.Trip
 
@@ -18,6 +19,9 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: TripListViewModel by viewModels()
     private lateinit var prefs: TripViewPrefs
     private lateinit var adapter: TripAdapter
+    private lateinit var tabs: TabLayout
+    /** 탭: 전체 / 내 여행 / 초대받은 (회전해도 유지) */
+    private var filter = TripFilter.ALL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,17 +54,25 @@ class MainActivity : AppCompatActivity() {
         }
         rvTrips.adapter = adapter
         if (resources.configuration.screenWidthDp < 840) rvTrips.limitContentWidth()
-        val emptyState = findViewById<View>(R.id.emptyState)
 
         // DB 목록을 관찰 → 바뀔 때마다 화면 갱신
+        // ---------- 탭: 전체 / 내 여행 / 초대받은 ----------
+        filter = savedInstanceState?.getString("filter")?.let { runCatching { TripFilter.valueOf(it) }.getOrNull() } ?: TripFilter.ALL
+        tabs = findViewById(R.id.tabs)
+        TripFilter.entries.forEach { tabs.addTab(tabs.newTab()) }
+        tabs.getTabAt(filter.ordinal)?.select()
+        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) { filter = TripFilter.entries[tab.position]; showRows() }
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
+
         val viewRow = findViewById<View>(R.id.viewRow)
         viewModel.trips.observe(this) { list ->
             showRows()
-            viewRow.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
-            bindEmptyState(emptyState,
-                if (list.isEmpty()) EmptyState(getString(R.string.empty_trips_title), getString(R.string.empty_trips_body),
-                    icon = R.drawable.ic_flight) else null
-            ) { showTripForm(null) }
+            val noTrips = list.isEmpty()
+            viewRow.visibility = if (noTrips) View.GONE else View.VISIBLE
+            tabs.visibility = if (noTrips) View.GONE else View.VISIBLE
         }
         findViewById<View>(R.id.btnViewSettings).setOnClickListener { showViewSettings(it) }
 
@@ -75,10 +87,29 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    /** 정렬·지난 여행 설정을 반영해 목록 다시 그리기 */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("filter", filter.name)
+    }
+
+    /** 탭·정렬·지난 여행 설정을 반영해 목록 다시 그리기 */
     private fun showRows() {
         val list = viewModel.trips.value ?: emptyList()
-        adapter.submit(TripArrange.rows(list, prefs.sort, prefs.showPast))
+        val rows = TripArrange.rows(list, prefs.sort, prefs.showPast, filter = filter)
+        adapter.submit(rows)
+        tabs.getTabAt(0)?.text = getString(R.string.tab_all_n, list.size)
+        tabs.getTabAt(1)?.text = getString(R.string.tab_mine_n, list.count { TripArrange.matches(it, TripFilter.MINE) })
+        tabs.getTabAt(2)?.text = getString(R.string.tab_invited_n, list.count { TripArrange.matches(it, TripFilter.INVITED) })
+        // 빈 상태: 여행이 하나도 없을 때 / 고른 탭에 없을 때
+        val empty = when {
+            list.isEmpty() -> EmptyState(getString(R.string.empty_trips_title), getString(R.string.empty_trips_body), icon = R.drawable.ic_flight)
+            rows.isEmpty() && filter == TripFilter.INVITED ->
+                EmptyState(getString(R.string.empty_invited_title), getString(R.string.empty_invited_body), icon = R.drawable.ic_group_add)
+            rows.isEmpty() && filter == TripFilter.MINE ->
+                EmptyState(getString(R.string.empty_mine_title), getString(R.string.empty_trips_body), icon = R.drawable.ic_flight)
+            else -> null
+        }
+        bindEmptyState(findViewById(R.id.emptyState), empty) { showTripForm(null) }
         val sortLabel = getString(sortLabel(prefs.sort))
         findViewById<android.widget.TextView>(R.id.tvViewSummary).text =
             getString(R.string.view_summary, sortLabel, getString(if (prefs.showPast) R.string.past_shown else R.string.past_hidden))

@@ -61,4 +61,13 @@ class ShareCodecTest {
         assertEquals("ABC234", ShareCodec.normalize(" abc-234 "))
         assertFalse(ShareCodec.isValidCode("ABC10O"))
     }
+
+    @Test fun memberInfo_namesWithoutMe() {
+        val doc = mapOf("ownerUid" to "u1", "members" to listOf("u1", "u2", "u3"),
+            "names" to mapOf("u1" to "민지", "u2" to "지우", "u3" to "하준"))
+        assertEquals("민지" to listOf("민지", "하준"), ShareCodec.memberInfo(doc, me = "u2"))
+        assertEquals("" to listOf("지우", "하준"), ShareCodec.memberInfo(doc, me = "u1"))
+        // 옛 문서(이름 없음)
+        assertEquals("" to emptyList<String>(), ShareCodec.memberInfo(mapOf("ownerUid" to "u1", "members" to listOf("u1", "u2")), me = "u2"))
+    }
 }

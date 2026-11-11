@@ -42,7 +42,7 @@
 |---|---|
 | 언어 · UI | Kotlin, XML Views, Material Components |
 | 구조 | MVVM: Activity → ViewModel(LiveData) → Repository → Room DAO |
-| DB | Room (KSP), DB 버전 4, 마이그레이션 포함 |
+| DB | Room (KSP), DB 버전 5, 마이그레이션 포함 |
 | 지도 | 카카오맵 SDK v2, Google Maps SDK, osmdroid(OpenStreetMap) |
 | 검색 | 카카오 로컬 API(국내), Google Places API (New)(해외) |
 | 공유 | Firebase Authentication(익명) + Cloud Firestore |
@@ -154,6 +154,8 @@ MAPS_API_KEY=구글_API_키
 - 여행 목록 툴바의 참여 버튼 → 코드 입력 → 같은 여행을 실시간으로 함께 편집
 - 여행 하나를 Firestore 문서 하나로 저장하고, 여행 단위로 **마지막 저장 우선**으로 동기화
 - 장소 사진은 기기에만 저장되고 공유되지 않습니다.
+- 공유를 시작하거나 참여할 때 **내 닉네임**을 받아 문서의 `names`에 올립니다. 메인의 '내 여행 / 초대받은' 탭과 'n명과 공유 중', '○○님이 초대함' 뱃지가 이 정보를 씁니다.
+- `firestore.rules`가 `names`를 허용하도록 바뀌었으니 Firebase 콘솔 규칙 탭에 **다시 붙여 넣고 게시**하세요. 예전 규칙이면 닉네임 없이 참여만 됩니다.
 
 ## 데이터 구조
 
@@ -161,7 +163,7 @@ MAPS_API_KEY=구글_API_키
 
 | 엔티티 | 주요 칸 |
 |---|---|
-| `Trip` | 이름, 시작·끝 날짜, 메모, 출발 시각, 공유 코드, 수정 시각 |
+| `Trip` | 이름, 시작·끝 날짜, 메모, 출발 시각, 공유 코드, 수정 시각, 내가 만든 여행인지·만든 사람·함께 보는 사람 닉네임 |
 | `Flight` | 교통 종류(`TransportMode`), 편명·열차 번호, 출발지·도착지, 출발·도착 시각 |
 | `Lodging` | 이름, 체크인·체크아웃, 위도·경도 (경로 출발점), 주소·상세 주소·위치 메모 |
 | `Place` | 이름, 후보/확정(`PlaceStatus`), 종류(`PlaceCategory`), 운영시간·브레이크·휴무, 예약 필수, 메모, 위도·경도, 주소·상세 주소·위치 메모, 일차·순서, 머무는 시간, 사진 |

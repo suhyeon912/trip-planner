@@ -71,6 +71,11 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         }
     }
 
+    /** 내 닉네임 (기기에 저장, 공유·참여할 때 서버 문서 names 에 함께 올림) */
+    var nickname: String
+        get() = context.getSharedPreferences("profile", Context.MODE_PRIVATE).getString("nickname", "") ?: ""
+        set(v) = context.getSharedPreferences("profile", Context.MODE_PRIVATE).edit().putString("nickname", v.trim()).apply()
+
     /** 여행을 공유 → 초대 코드 */
     suspend fun share(tripId: Long): String {
         val me = uid()
@@ -80,7 +85,7 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         var code: String
         do { code = ShareCodec.newCode() } while (db.collection(COLLECTION).document(code).get().await().exists())
         val data = ShareCodec.toMap(snapshot(trip)) + mapOf(
-            "ownerUid" to me, "members" to listOf(me),
+            "ownerUid" to me, "members" to listOf(me), "names" to mapOf(me to nickname),
             "updatedBy" to me, "updatedAt" to FieldValue.serverTimestamp()
         )
         db.collection(COLLECTION).document(code).set(data).await()
@@ -97,9 +102,14 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         val ref = db.collection(COLLECTION).document(code)
         val doc = ref.get().await()
         if (!doc.exists()) throw NotFoundException()
-        ref.update("members", FieldValue.arrayUnion(me)).await()
-        val base = Trip(title = "", startDate = "", endDate = "", shareCode = code)
-        val s = ShareCodec.fromMap(doc.data ?: emptyMap(), base)
+        // 멤버에 나 + 닉네임 추가. 예전 보안 규칙(names 를 못 바꿈)이면 멤버만 추가
+        runCatching { ref.update(mapOf("members" to FieldValue.arrayUnion(me), "names.$me" to nickname)).await() }
+            .onFailure { ref.update("members", FieldValue.arrayUnion(me)).await() }
+        val data = doc.data ?: emptyMap()
+        val (inviter, others) = ShareCodec.memberInfo(data, me)
+        val base = Trip(title = "", startDate = "", endDate = "", shareCode = code,
+            ownedByMe = false, inviterName = inviter, memberNames = others.joinToString(", "))
+        val s = ShareCodec.fromMap(data, base)
         val id = repo.insertSharedTrip(s.trip, s.places, s.flights, s.lodgings)
         repo.getTrip(id)?.let { listen(it) }
         return id
@@ -112,7 +122,9 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         listeners.remove(tripId)?.remove()
         runCatching {
             val me = uid()
-            db.collection(COLLECTION).document(code).update("members", FieldValue.arrayRemove(me)).await()
+            val ref = db.collection(COLLECTION).document(code)
+            runCatching { ref.update(mapOf("members" to FieldValue.arrayRemove(me), "names.$me" to FieldValue.delete())).await() }
+                .onFailure { ref.update("members", FieldValue.arrayRemove(me)).await() }
         }
         repo.setShareCode(trip, null)
     }
@@ -135,15 +147,18 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
             listeners[trip.id] = db.collection(COLLECTION).document(code).addSnapshotListener { snap, err ->
                 if (err != null) { Log.w(TAG, "동기화 오류", err); return@addSnapshotListener }
                 if (snap == null || !snap.exists() || snap.metadata.hasPendingWrites()) return@addSnapshotListener
+                // 함께 보는 사람 이름은 매번 맞춤 (참여·나가기는 updatedBy 가 바뀌지 않음)
+                val (inviter, others) = ShareCodec.memberInfo(snap.data ?: emptyMap(), me)
+                scope.launch { repo.setMembers(trip.id, inviter, others.joinToString(", ")) }
                 if (snap.getString("updatedBy") == me) return@addSnapshotListener   // 내가 올린 것
-                scope.launch { applyRemote(trip.id, snap.data ?: return@launch) }
+                scope.launch { applyRemote(trip.id, snap.data ?: return@launch, inviter, others) }
             }
         }
     }
 
-    private suspend fun applyRemote(tripId: Long, data: Map<String, Any?>) {
+    private suspend fun applyRemote(tripId: Long, data: Map<String, Any?>, inviter: String, others: List<String>) {
         val local = repo.getTrip(tripId) ?: return
-        val s = ShareCodec.fromMap(data, local)
+        val s = ShareCodec.fromMap(data, local.copy(inviterName = inviter, memberNames = others.joinToString(", ")))
         // 사진은 기기에만 있으므로 같은 이름 장소의 내 사진을 그대로 유지
         val photos = repo.getPlaces(tripId).filter { it.photoUri != null }.associate { it.name to it.photoUri }
         applying += tripId

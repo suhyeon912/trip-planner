@@ -108,15 +108,13 @@
                 app:drawableStartCompat="@drawable/ic_place_small"
                 tools:text="확정 9곳 · 후보 3곳" />
 
-            <TextView
-                android:id="@+id/tvShared"
-                style="@style/Widget.TripPlanner.Badge"
+            <!-- 뱃지: 내가 만든 여행 · n명과 공유 중 / ○○님이 초대함 -->
+            <LinearLayout
+                android:id="@+id/badges"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_s"
-                android:background="@drawable/bg_chip"
-                android:backgroundTint="@color/tertiary_container"
-                android:text="@string/shared_badge"
-                android:textColor="@color/on_tertiary_container"
-                android:visibility="gone" />
+                android:orientation="horizontal" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

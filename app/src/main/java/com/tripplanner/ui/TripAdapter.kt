@@ -36,7 +36,7 @@ class TripAdapter(
         val tvDday: TextView = view.findViewById(R.id.tvDday)
         val tvDates: TextView = view.findViewById(R.id.tvTripDates)
         val tvCount: TextView = view.findViewById(R.id.tvTripCount)
-        val tvShared: TextView = view.findViewById(R.id.tvShared)
+        val badges: android.widget.LinearLayout = view.findViewById(R.id.badges)
         val btnMore: ImageButton = view.findViewById(R.id.btnTripMore)
     }
 
@@ -82,12 +82,27 @@ class TripAdapter(
 
         holder.tvDates.text = TripFormat.fullRangeWithDays(item.trip)
         holder.tvCount.text = ctx.getString(R.string.trip_counts, item.confirmedCount, item.candidateCount)
-        holder.tvShared.visibility = if (item.trip.shareCode != null) View.VISIBLE else View.GONE
+        val badges = tripBadges(ctx, item.trip)
+        holder.badges.removeAllViews()
+        badges.forEach { (icon, text, tertiary) ->
+            val tv = LayoutInflater.from(ctx).inflate(R.layout.view_badge, holder.badges, false) as TextView
+            tv.text = text
+            tv.backgroundTintList = android.content.res.ColorStateList.valueOf(ctx.color(if (tertiary) R.color.tertiary_container else R.color.surface_container))
+            tv.setTextColor(ctx.color(if (tertiary) R.color.on_tertiary_container else R.color.text_sub))
+            val s = (14 * ctx.resources.displayMetrics.density).toInt()
+            val d = androidx.core.content.ContextCompat.getDrawable(ctx, icon)?.mutate()?.apply {
+                setBounds(0, 0, s, s); setTint(ctx.color(if (tertiary) R.color.on_tertiary_container else R.color.text_sub))
+            }
+            tv.setCompoundDrawablesRelative(d, null, null, null)
+            tv.compoundDrawablePadding = (4 * ctx.resources.displayMetrics.density).toInt()
+            holder.badges.addView(tv)
+        }
+        holder.badges.visibility = if (badges.isEmpty()) View.GONE else View.VISIBLE
 
         holder.btnMore.contentDescription = ctx.getString(R.string.trip_menu_a11y, item.trip.title)
         holder.btnMore.setOnClickListener { onMenu(item.trip, it) }
-        holder.itemView.contentDescription = listOfNotNull(item.trip.title, dday?.text, holder.tvDates.text, holder.tvCount.text,
-            if (item.trip.shareCode != null) ctx.getString(R.string.shared_badge) else null).joinToString(", ")
+        holder.itemView.contentDescription = (listOfNotNull(item.trip.title, dday?.text, holder.tvDates.text, holder.tvCount.text) +
+            badges.map { it.second }).joinToString(", ")
         holder.itemView.setOnClickListener { onClick(item.trip) }
         holder.itemView.setOnLongClickListener { onMenu(item.trip, holder.btnMore); true }
     }
@@ -105,4 +120,16 @@ class TripAdapter(
     }
 
     override fun getItemCount() = rows.size
+
+    /** (아이콘, 글자, 청록 여부): 내가 만든 여행 + n명과 공유 중 / ○○님이 초대함 */
+    private fun tripBadges(ctx: android.content.Context, t: Trip): List<Triple<Int, String, Boolean>> = buildList {
+        if (t.ownedByMe) {
+            add(Triple(R.drawable.ic_person, ctx.getString(R.string.badge_mine), false))
+            if (t.shareCode != null) add(Triple(R.drawable.ic_group_add,
+                if (t.members.isEmpty()) ctx.getString(R.string.shared_badge) else ctx.getString(R.string.badge_shared_n, t.members.size), true))
+        } else {
+            add(Triple(R.drawable.ic_group_add,
+                if (t.inviterName.isBlank()) ctx.getString(R.string.badge_invited) else ctx.getString(R.string.badge_invited_by, t.inviterName), true))
+        }
+    }
 }

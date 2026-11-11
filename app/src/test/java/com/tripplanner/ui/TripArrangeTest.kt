@@ -30,4 +30,10 @@ class TripArrangeTest {
         assertEquals(listOf("도쿄", "부산", "타이베이"), titles(TripArrange.rows(list, TripSort.NAME, false, today)))
         assertEquals(listOf("부산", "도쿄", "타이베이"), titles(TripArrange.rows(list, TripSort.RECENT, false, today)))
     }
+
+    @Test fun filterMineAndInvited() {
+        val mixed = list.mapIndexed { i, t -> if (i == 0) t.copy(trip = t.trip.copy(ownedByMe = false, inviterName = "민지")) else t }
+        assertEquals(listOf("타이베이"), titles(TripArrange.rows(mixed, TripSort.DATE, true, today, TripFilter.INVITED)))
+        assertEquals(listOf("도쿄", "부산", "#2", "~오사카", "~제주"), titles(TripArrange.rows(mixed, TripSort.DATE, true, today, TripFilter.MINE)))
+    }
 }
