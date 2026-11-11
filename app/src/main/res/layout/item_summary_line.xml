@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/outline_variant" />
+
+    <LinearLayout style="@style/Widget.TripPlanner.SummaryRow">
+
+        <ImageView
+            android:id="@+id/ivSummaryIcon"
+            style="@style/Widget.TripPlanner.SummaryIcon" />
+
+        <TextView
+            android:id="@+id/tvSummaryLine"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+            tools:text="교통 · 김포 → 하네다 08:30" />
+
+        <ImageView style="@style/Widget.TripPlanner.SummaryChevron" />
+    </LinearLayout>
+</LinearLayout>

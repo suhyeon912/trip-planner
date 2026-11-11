@@ -1,0 +1,162 @@
+package com.tripplanner.ui
+
+import android.content.Intent
+import android.content.res.ColorStateList
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.ChipGroup
+import com.tripplanner.R
+import com.tripplanner.TripPlannerApp
+import com.tripplanner.data.Place
+import com.tripplanner.data.PlaceStatus
+import com.tripplanner.route.Region
+import kotlinx.coroutines.launch
+
+/**
+ * 장소 정보 (시안 PlaceView, 읽기 전용) — 여행 상세에서 장소 카드를 한 번 누르면 열림.
+ * ⋮ → 수정(장소 수정 화면) / 삭제(확인 팝업). 지도 앱에서 보기 · 여행 지도에서.
+ * 예약·티켓 · 관련 링크 자료는 새 기능(4단계)이라 아직 없음.
+ */
+class PlaceViewActivity : AppCompatActivity() {
+
+    companion object {
+        /** '여행 지도에서'를 누르면 여행 상세로 돌려주는 장소 id */
+        const val RESULT_SHOW_ON_MAP = "show_on_map"
+    }
+
+    private val repo by lazy { (application as TripPlannerApp).repository }
+    private val tripId by lazy { intent.getLongExtra(TripDetailActivity.EXTRA_TRIP_ID, -1L) }
+    private val placeId by lazy { intent.getLongExtra(AddPlaceActivity.EXTRA_PLACE_ID, -1L) }
+    private var place: Place? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_place_view)
+        val toolbar = setupToolbar()
+        toolbar.menu.add(0, R.id.action_more, 0, R.string.more).apply {
+            setIcon(R.drawable.ic_more_vert)
+            setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS)
+        }
+        toolbar.setOnMenuItemClickListener {
+            if (it.itemId == R.id.action_more) showMenu(toolbar.findViewById(R.id.action_more) ?: toolbar)
+            true
+        }
+        limitScrollContentWidth(R.id.scroll)
+    }
+
+    /** 수정하고 돌아오면 바뀐 내용으로 다시 그림 */
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            val p = repo.getPlace(placeId) ?: run { finish(); return@launch }
+            val all = repo.getPlaces(tripId)
+            val lodgings = repo.getLodgings(tripId)
+            place = p
+            bind(p, all, lodgings.filter { it.lat != 0.0 || it.lng != 0.0 }.map { it.lat to it.lng })
+        }
+    }
+
+    private fun bind(p: Place, all: List<Place>, lodgingCoords: List<Pair<Double, Double>>) {
+        Thumbs.bind(findViewById(R.id.ivThumb), p.photoUri, p.category)
+        (findViewById<ImageView>(R.id.ivThumb).background as? android.graphics.drawable.GradientDrawable)
+            ?.cornerRadius = 16 * resources.displayMetrics.density
+        findViewById<TextView>(R.id.tvName).text = p.name
+
+        // 종류 · 상태(확정 · n일차 n번째 / 후보) · 예약필수
+        val chips = findViewById<ChipGroup>(R.id.chips)
+        chips.removeAllViews()
+        fun badge(text: String, bg: Int?, fg: Int) {
+            val tv = LayoutInflater.from(this).inflate(R.layout.view_badge, chips, false) as TextView
+            tv.text = text
+            if (bg == null) { tv.background = null; tv.setPadding(0, tv.paddingTop, 0, tv.paddingBottom) }
+            else tv.backgroundTintList = ColorStateList.valueOf(color(bg))
+            tv.setTextColor(color(fg))
+            chips.addView(tv)
+        }
+        badge(p.category.label, null, R.color.text_sub)
+        badge(statusText(p, all), if (p.status == PlaceStatus.CONFIRMED) R.color.primary else R.color.surface_container,
+            if (p.status == PlaceStatus.CONFIRMED) R.color.on_primary else R.color.text_sub)
+        if (p.isReservationRequired) badge(getString(R.string.reservation_required), R.color.error_container, R.color.on_error_container)
+
+        // 지도 버튼: 국내 = 카카오맵 공식 아이콘 + 글자, 해외 = 글자만
+        val domestic = isDomestic(p, all, lodgingCoords)
+        findViewById<MaterialButton>(R.id.btnOpenMap).apply {
+            text = getString(R.string.open_in_map, MapLauncher.mapName(this@PlaceViewActivity, domestic))
+            icon = if (domestic) ContextCompat.getDrawable(this@PlaceViewActivity, R.drawable.ic_kakaomap) else null
+            setOnClickListener {
+                val point = if (p.hasLocation) MapPoint(p.name, p.lat, p.lng) else null
+                MapLauncher.openPlace(this@PlaceViewActivity, p.name, point, domestic)
+            }
+        }
+        findViewById<View>(R.id.btnTripMap).apply {
+            visibility = if (p.hasLocation) View.VISIBLE else View.GONE
+            setOnClickListener {
+                setResult(RESULT_OK, Intent().putExtra(RESULT_SHOW_ON_MAP, p.id))
+                finish()
+            }
+        }
+
+        // 운영 정보
+        val rows = findViewById<LinearLayout>(R.id.infoRows)
+        rows.removeAllViews()
+        fun row(icon: Int, label: Int, value: String) {
+            val v = LayoutInflater.from(this).inflate(R.layout.item_info_row, rows, false)
+            v.findViewById<View>(R.id.divider).visibility = if (rows.childCount == 0) View.GONE else View.VISIBLE
+            v.findViewById<ImageView>(R.id.ivIcon).setImageResource(icon)
+            v.findViewById<TextView>(R.id.tvLabel).setText(label)
+            v.findViewById<TextView>(R.id.tvValue).text = value
+            rows.addView(v)
+        }
+        row(R.drawable.ic_schedule, R.string.info_hours, p.openingHours.replace("~", "–"))
+        p.breakTime?.let { row(R.drawable.ic_schedule, R.string.info_break, it.replace("~", "–")) }
+        row(R.drawable.ic_event, R.string.info_closed, p.closedDays ?: getString(R.string.closed_none))
+        row(R.drawable.ic_schedule, R.string.info_stay, getString(R.string.stay_about, p.stayMinutes))
+        if (!p.hasLocation) row(R.drawable.ic_place, R.string.info_location, getString(R.string.no_location_info))
+        if (p.memo.isNotBlank()) row(R.drawable.ic_note, R.string.memo_label, p.memo.trim())
+    }
+
+    /** "확정 · 1일차 2번째" / "확정 · 일차 미정" / "후보" */
+    private fun statusText(p: Place, all: List<Place>): String {
+        if (p.status != PlaceStatus.CONFIRMED) return getString(R.string.place_status_candidate)
+        val day = p.day ?: return getString(R.string.place_status_undated)
+        // 여행 상세 타임라인과 같은 번호: 저장된 순서, 없으면 같은 정렬의 몇 번째
+        val sameDay = all.filter { it.status == PlaceStatus.CONFIRMED && it.day == day }
+            .sortedWith(compareBy<Place>({ it.orderInDay == null }, { it.orderInDay }, { it.id }))
+        val order = p.orderInDay ?: (sameDay.indexOfFirst { it.id == p.id } + 1)
+        return getString(R.string.place_status_confirmed_order, dayLabel(day), order)
+    }
+
+    /** 여행 상세와 같은 기준: 위치가 없으면 같은 여행의 다른 장소로 짐작 */
+    private fun isDomestic(p: Place, all: List<Place>, lodgingCoords: List<Pair<Double, Double>>): Boolean {
+        if (p.hasLocation) return Region.isKorea(p.lat, p.lng)
+        val coords = all.filter { it.hasLocation }.map { it.lat to it.lng } + lodgingCoords
+        if (coords.isEmpty()) return true
+        return coords.count { (lat, lng) -> Region.isKorea(lat, lng) } * 2 >= coords.size
+    }
+
+    /** ⋮ → 수정 / 삭제(빨강) */
+    private fun showMenu(anchor: View) {
+        val p = place ?: return
+        showSelect(anchor, listOf(
+            SelectRow.Option(getString(R.string.action_edit)) {
+                startActivity(Intent(this, AddPlaceActivity::class.java)
+                    .putExtra(TripDetailActivity.EXTRA_TRIP_ID, tripId)
+                    .putExtra(AddPlaceActivity.EXTRA_PLACE_ID, p.id)
+                    .putExtra(AddPlaceActivity.EXTRA_DAY_COUNT, intent.getIntExtra(AddPlaceActivity.EXTRA_DAY_COUNT, 7)))
+            },
+            SelectRow.Option(getString(R.string.action_delete), danger = true) {
+                confirmDelete(this, p.name, getString(R.string.place_delete_confirm)) {
+                    lifecycleScope.launch { repo.deletePlace(p); finish() }
+                }
+            }
+        ), widthDp = 168)
+    }
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 맨 아래 여행 메모 카드 (누르면 메모 팝업) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/screen_margin"
+    android:layout_marginTop="@dimen/space_m"
+    android:layout_marginBottom="@dimen/space_s"
+    android:background="@drawable/bg_card"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/space_m">
+
+    <LinearLayout style="@style/Widget.TripPlanner.SummaryRow">
+
+        <ImageView
+            style="@style/Widget.TripPlanner.SummaryIcon"
+            android:src="@drawable/ic_note" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/menu_note"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+            android:textColor="@color/text_sub" />
+
+        <ImageView style="@style/Widget.TripPlanner.SummaryChevron" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvMemoText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-6dp"
+        android:paddingStart="44dp"
+        android:paddingEnd="@dimen/space_m"
+        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+        tools:text="· 스카이트리 야경 보기\n· 하코네 당일치기 할지 고민" />
+</LinearLayout>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  장소 정보 (시안 PlaceView, 읽기 전용)
+  상단 바(뒤로 · 장소 정보 · ⋮ 수정/삭제) / 종류 타일 + 이름 + 뱃지 / 지도 버튼 / 운영 정보
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        app:liftOnScroll="true"
+        app:liftOnScrollTargetViewId="@id/scroll">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurface"
+            app:title="@string/place_info_title" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingTop="@dimen/space_s"
+            android:paddingBottom="@dimen/space_xxl">
+
+            <!-- 머리: 종류 타일(또는 사진) + 이름 + 종류 · 상태 · 예약필수 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/ivThumb"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:importantForAccessibility="no"
+                    android:scaleType="centerCrop" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_l"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:textAppearance="@style/TextAppearance.TripPlanner.TitleLarge"
+                        tools:targetApi="28"
+                        tools:text="츠지한 니혼바시" />
+
+                    <!-- 줄이 넘치면 다음 줄로 (ChipGroup 은 줄바꿈 배치만 씀) -->
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        app:chipSpacingHorizontal="6dp"
+                        app:chipSpacingVertical="4dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 지도 버튼: 지도 앱에서 보기 · 여행 지도에서 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenMap"
+                    style="@style/Widget.TripPlanner.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingHorizontal="@dimen/space_m"
+                    app:iconGravity="textStart"
+                    app:iconSize="24dp"
+                    app:iconTint="@null"
+                    tools:text="Google Maps에서 보기" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTripMap"
+                    style="@style/Widget.TripPlanner.Button.Outlined.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_s"
+                    android:layout_weight="1"
+                    android:text="@string/show_on_trip_map"
+                    app:icon="@drawable/ic_place"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/Widget.TripPlanner.SectionTitle"
+                android:layout_marginTop="@dimen/space_xl"
+                android:layout_marginBottom="@dimen/space_s"
+                android:text="@string/section_hours" />
+
+            <LinearLayout
+                android:id="@+id/infoRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

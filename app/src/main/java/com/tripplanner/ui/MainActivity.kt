@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         popup.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_edit -> showTripForm(trip)
-                R.id.action_delete -> confirmDialog(this, getString(R.string.trip_delete_confirm, trip.title)) {
+                R.id.action_delete -> confirmDelete(this, trip.title, getString(R.string.trip_delete_confirm)) {
                     viewModel.deleteTrip(trip)
                 }
             }

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 타임라인 맨 위·아래 숙소 줄: [숙소 점] + 카드(숙소 타일 · 이름 · 숙소 · 출발/도착). 누르면 교통·숙소 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingHorizontal="@dimen/screen_margin">
+
+    <LinearLayout
+        android:layout_width="@dimen/timeline_dot"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/space_m"
+        android:gravity="center_horizontal"
+        android:importantForAccessibility="noHideDescendants"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/lineAbove"
+            android:layout_width="2dp"
+            android:layout_height="24dp"
+            android:background="@color/outline_variant" />
+
+        <ImageView
+            android:layout_width="@dimen/timeline_dot"
+            android:layout_height="@dimen/timeline_dot"
+            android:background="@drawable/bg_lodging_pin"
+            android:padding="6dp"
+            android:src="@drawable/ic_hotel"
+            app:tint="@color/card_bg" />
+
+        <View
+            android:id="@+id/lineBelow"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/outline_variant" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_s"
+        android:layout_weight="1"
+        android:background="@drawable/bg_card"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:minHeight="64dp"
+        android:orientation="horizontal"
+        android:padding="@dimen/space_m">
+
+        <ImageView
+            android:layout_width="@dimen/thumb_size"
+            android:layout_height="@dimen/thumb_size"
+            android:background="@drawable/bg_thumb_neutral"
+            android:importantForAccessibility="no"
+            android:padding="11dp"
+            android:src="@drawable/ic_hotel"
+            app:tint="@color/on_surface" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvLodgingName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+                tools:text="호텔 그레이스리 아사쿠사" />
+
+            <TextView
+                android:id="@+id/tvLodgingSub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+                android:textColor="@color/text_sub"
+                tools:text="숙소 · 출발" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

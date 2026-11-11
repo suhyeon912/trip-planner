@@ -6,6 +6,7 @@ import android.content.Intent
 import android.text.InputFilter
 import android.text.InputType
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -47,9 +48,9 @@ fun AppCompatActivity.openShareDialog(tripId: Long) {
         val code = trip.shareCode
         if (code == null) {
             MaterialAlertDialogBuilder(this@openShareDialog)
-                .setTitle(R.string.share_invite)
+                .setTitle(R.string.share_new_title)
                 .setMessage(R.string.share_intro)
-                .setPositiveButton(R.string.share_create) { _, _ ->
+                .setPositiveButton(R.string.share_start) { _, _ ->
                     val wait = progressDialog()
                     lifecycleScope.launch {
                         runCatching { share.share(tripId) }
@@ -72,7 +73,12 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
     val members = view.findViewById<TextView>(R.id.tvMembers)
     members.text = getString(R.string.share_members, 1)
     lifecycleScope.launch { members.text = getString(R.string.share_members, share.memberCount(code)) }
+    view.findViewById<View>(R.id.btnCopy).setOnClickListener {
+        (getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("code", code))
+        toast(getString(R.string.share_copied))
+    }
 
+    // 버튼: 왼쪽 '공유 중지'(빨간 글자) · 오른쪽 '코드 보내기'(채움)
     MaterialAlertDialogBuilder(this)
         .setTitle(R.string.share_code_title)
         .setView(view)
@@ -83,30 +89,24 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
             }, getString(R.string.share_send)))
         }
         .setNeutralButton(R.string.share_stop) { _, _ ->
-            MaterialAlertDialogBuilder(this)
-                .setMessage(R.string.share_stop_confirm)
-                .setPositiveButton(R.string.share_stop) { _, _ -> lifecycleScope.launch { share.stop(tripId) } }
-                .setNegativeButton(R.string.action_cancel, null)
-                .show()
-        }
-        .setNegativeButton(R.string.share_copy) { _, _ ->
-            (getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("code", code))
-            toast(getString(R.string.share_copied))
+            confirmDelete(this, title, getString(R.string.share_stop_question), getString(R.string.share_stop_confirm),
+                positive = R.string.share_stop) { lifecycleScope.launch { share.stop(tripId) } }
         }
         .show()
 }
 
 fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
     if (!share.isConfigured) { notConfigured(); return }
-    val layout = LayoutInflater.from(this).inflate(R.layout.view_form_field, null) as TextInputLayout
-    layout.hint = getString(R.string.join_hint)
+    val row = LayoutInflater.from(this).inflate(R.layout.view_form_field, null)
+    val layout = row.findViewById<TextInputLayout>(R.id.layout)
     val input = layout.findViewById<TextInputEditText>(R.id.input).apply {
         inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         filters = arrayOf(InputFilter.AllCaps(), InputFilter.LengthFilter(8))
     }
+    row.findViewById<TextView>(R.id.label).apply { text = getString(R.string.join_label); labelFor = R.id.input }
     val box = android.widget.FrameLayout(this).apply {
         val side = resources.getDimensionPixelSize(R.dimen.space_xl)
-        setPadding(side, 0, side, 0); addView(layout)
+        setPadding(side, 0, side, 0); addView(row)
     }
     val dialog = MaterialAlertDialogBuilder(this)
         .setTitle(R.string.join_title)

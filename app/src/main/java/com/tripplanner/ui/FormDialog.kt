@@ -140,6 +140,35 @@ fun showDayPicker(context: Context, startDate: String?, dayCount: Int, allowNone
         .show()
 }
 
+/**
+ * 삭제 확인 (시안 규칙): 가운데 팝업, 제목 두 줄만 — 1줄 이름(Bold) / 2줄 '위 …을 삭제하시겠습니까?'(Medium).
+ * 설명 문장은 없고(note 는 공유 중지처럼 꼭 알려야 할 때만), 빨간 확인 버튼.
+ */
+fun confirmDelete(context: Context, name: String, question: String, note: String? = null,
+                  positive: Int = R.string.action_delete, onYes: () -> Unit) {
+    val bold = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.pretendard_bold)
+    val medium = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.pretendard_medium)
+    val title = android.text.SpannableStringBuilder().apply {
+        append(name, FontSpan(bold), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        append("\n")
+        append(question, FontSpan(medium), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        // 두 줄 같은 크기 18 (굵기만 다름)
+        setSpan(android.text.style.AbsoluteSizeSpan(18, true), 0, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+    val b = MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_TripPlanner_Dialog_Danger)
+        .setTitle(title)
+        .setPositiveButton(positive) { _, _ -> onYes() }
+        .setNegativeButton(R.string.action_cancel, null)
+    if (note != null) b.setMessage(note)
+    b.show()
+}
+
+/** 글꼴 하나를 글자 일부에만 (API 26 에서도 동작) */
+private class FontSpan(private val font: android.graphics.Typeface?) : android.text.style.MetricAffectingSpan() {
+    override fun updateDrawState(tp: android.text.TextPaint) { font?.let { tp.typeface = it } }
+    override fun updateMeasureState(tp: android.text.TextPaint) { font?.let { tp.typeface = it } }
+}
+
 /** 삭제 확인: 확인 버튼이 빨강 채움 (시안 Dialog · 위험 확인) */
 fun confirmDialog(context: Context, message: String, onYes: () -> Unit) {
     MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_TripPlanner_Dialog_Danger)

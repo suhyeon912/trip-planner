@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 여행 상세 툴바 ⋮ 메뉴 -->
+<!-- 여행 상세 상단 바: 지도로 보기 · 공유 (시안 TopBar · 부제) -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
@@ -9,10 +9,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/action_share"
-        android:icon="@drawable/ic_person_add"
+        android:icon="@drawable/ic_share"
         android:title="@string/share_invite"
         app:showAsAction="always" />
-    <item android:id="@+id/action_edit_trip" android:title="@string/edit_trip" app:showAsAction="never" />
-    <item android:id="@+id/action_travel_info" android:title="@string/menu_travel_info" app:showAsAction="never" />
-    <item android:id="@+id/action_note" android:title="@string/menu_note" app:showAsAction="never" />
 </menu>

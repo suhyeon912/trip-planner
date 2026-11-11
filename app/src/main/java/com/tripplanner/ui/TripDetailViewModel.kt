@@ -67,6 +67,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         addSource(selectedDay) { update() }
         addSource(trip) { update() }
         addSource(lodgings) { update() }
+        addSource(flights) { update() }
     }
 
     fun setTab(status: PlaceStatus) { currentTab.value = status }
@@ -88,6 +89,8 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     fun tripCoords(): List<Pair<Double, Double>> =
         places.value.orEmpty().filter { it.hasLocation }.map { it.lat to it.lng } +
         lodgings.value.orEmpty().filter { it.lat != 0.0 || it.lng != 0.0 }.map { it.lat to it.lng }
+
+    fun placeById(id: Long): Place? = places.value.orEmpty().firstOrNull { it.id == id }
 
     fun dayCount(): Int = trip.value?.let { TimeUtil.dayCount(it.startDate, it.endDate) } ?: 7
 
@@ -138,25 +141,28 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
             val items = candidates.map { DetailItem.PlaceRow(it, order = null, isFirst = false, isLast = false, timeline = false) }
             val empty = if (candidates.isEmpty())
                 EmptyState(ctx.getString(R.string.empty_candidates_title), ctx.getString(R.string.empty_candidates_body),
-                    ctx.getString(R.string.add_place), EmptyState.Action.ADD_PLACE) else null
-            return DetailUi(items, empty, chips, confirmed.size, candidates.size)
+                    icon = R.drawable.ic_place) else null
+            return DetailUi(items + listOfNotNull(empty?.let { DetailItem.Empty(it) }), empty, chips, confirmed.size, candidates.size)
         }
 
         val items = mutableListOf<DetailItem>()
         var empty: EmptyState? = null
         when (sel) {
             DAY_ALL -> {
+                // 맨 위: 교통 · 숙소 요약 (누르면 교통·숙소 화면)
+                items += DetailItem.Summary(summaryLines())
                 if (confirmed.isEmpty()) {
                     empty = EmptyState(ctx.getString(R.string.empty_confirmed_title), ctx.getString(R.string.empty_confirmed_body),
-                        ctx.getString(R.string.show_candidates), EmptyState.Action.SHOW_CANDIDATES)
+                        ctx.getString(R.string.show_candidates), EmptyState.Action.SHOW_CANDIDATES, R.drawable.ic_event)
                 } else {
                     confirmed.groupBy { it.day }.forEach { (day, group) ->
-                        if (day == null) items += DetailItem.Header(ctx.getString(R.string.day_none), ctx.getString(R.string.header_no_day_sub, group.size))
-                        else items += DetailItem.Header(ctx.dayLabel(day), day = day, sub =
-                            listOfNotNull(shortDate(day), ctx.getString(R.string.places_count, group.size))
-                                .joinToString(ctx.getString(R.string.list_separator)))
-                        items += rows(group, timeline = day != null)
-                        if (day != null) items += DetailItem.RouteCta(day)
+                        if (day == null) {
+                            items += DetailItem.Header(ctx.getString(R.string.day_none), ctx.getString(R.string.header_no_day_hint))
+                            items += rows(group, timeline = false)
+                        } else {
+                            items += DetailItem.Header(ctx.dayLabel(day), headerDate(day), day = day, routeLink = true)
+                            items += dayTimeline(day, group)
+                        }
                     }
                 }
             }
@@ -168,26 +174,61 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
                 val today = confirmed.filter { it.day == sel }
                 if (today.isEmpty()) {
                     empty = EmptyState(ctx.getString(R.string.empty_day_title, sel), ctx.getString(R.string.empty_day_body),
-                        ctx.getString(R.string.show_candidates), EmptyState.Action.SHOW_CANDIDATES)
+                        ctx.getString(R.string.show_candidates), EmptyState.Action.SHOW_CANDIDATES, R.drawable.ic_event)
                 } else {
-                    lodgingFor(sel)?.let { items += DetailItem.Start(ctx.getString(R.string.start_from, it.name)) }
-                    items += rows(today, timeline = true)
-                    items += DetailItem.RouteCta(sel)
+                    items += DetailItem.Header(ctx.dayLabel(sel), headerDate(sel), day = sel)
+                    items += dayTimeline(sel, today)
                 }
             }
         }
+        // 빈 상태도 목록 안에 (위 요약 · 아래 메모와 함께 보이게)
+        empty?.let { items += DetailItem.Empty(it) }
+        // 맨 아래: 여행 메모
+        items += DetailItem.Memo(trip.value?.note.orEmpty())
         return DetailUi(items, empty, chips, confirmed.size, candidates.size)
     }
 
-    private fun rows(list: List<Place>, timeline: Boolean) = list.mapIndexed { i, p ->
+    /** 그날 타임라인: 숙소 출발 → 장소들 → 숙소 도착 (숙소가 없으면 장소만) */
+    private fun dayTimeline(day: Int, list: List<Place>): List<DetailItem> {
+        val lodging = lodgingFor(day)
+        val out = mutableListOf<DetailItem>()
+        if (lodging != null) out += DetailItem.LodgingRow(lodging.name, start = true)
+        out += rows(list, timeline = true, edgesOpen = lodging != null)
+        if (lodging != null) out += DetailItem.LodgingRow(lodging.name, start = false)
+        return out
+    }
+
+    /** "11월 20일 (금)" — 날짜를 못 읽으면 빈 글자 */
+    private fun headerDate(day: Int): String {
+        val start = trip.value?.startDate ?: return ""
+        val d = TimeUtil.dateOfDay(start, day) ?: return ""
+        return ctx.getString(R.string.day_header_date, d.monthValue, d.dayOfMonth, TimeUtil.koreanDayName(d).first().toString())
+    }
+
+    /** '전체' 맨 위 요약: 첫 교통편 · 숙소 */
+    private fun summaryLines(): List<Pair<Int, String>> {
+        val out = mutableListOf<Pair<Int, String>>()
+        flights.value.orEmpty().firstOrNull()?.let { f ->
+            val time = f.departAt.trim().substringAfter(' ', "").take(5)
+            out += f.mode.icon to ctx.getString(R.string.summary_transport,
+                "${f.fromAirport} → ${f.toAirport}" + if (time.isNotEmpty()) " $time" else "")
+        }
+        lodgings.value.orEmpty().takeIf { it.isNotEmpty() }?.let { list ->
+            out += R.drawable.ic_hotel to ctx.getString(R.string.summary_lodging, list.joinToString(", ") { it.name })
+        }
+        if (out.isEmpty()) out += R.drawable.ic_route to ctx.getString(R.string.summary_travel_empty)
+        return out
+    }
+
+    private fun rows(list: List<Place>, timeline: Boolean, edgesOpen: Boolean = false) = list.mapIndexed { i, p ->
         // 방문 순서가 아직 없으면 목록 순서로 번호 (경로 확정·끌어서 바꾸면 저장된 순서)
         DetailItem.PlaceRow(p, order = if (timeline && p.day != null) (p.orderInDay ?: (i + 1)).toString() else null,
-            isFirst = i == 0, isLast = i == list.lastIndex, timeline = timeline)
+            isFirst = i == 0 && !edgesOpen, isLast = i == list.lastIndex && !edgesOpen, timeline = timeline)
     }
 
     private fun buildChips(confirmed: List<Place>, days: Int, hasUndated: Boolean, sel: Int): List<DayChip> {
         val all = ctx.getString(R.string.day_all)
-        val chips = mutableListOf(DayChip(DAY_ALL, all, ctx.getString(R.string.chip_sub, confirmed.size),
+        val chips = mutableListOf(DayChip(DAY_ALL, all, "",
             ctx.getString(R.string.chip_a11y, all, confirmed.size), sel == DAY_ALL))
         val start = trip.value?.startDate
         for (d in 1..days) {
@@ -201,6 +242,17 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
             chips += DayChip(DAY_NONE, none, ctx.getString(R.string.chip_sub, n), ctx.getString(R.string.chip_a11y, none, n), sel == DAY_NONE)
         }
         return chips
+    }
+
+    /** '확정하기' select 의 일차 목록: (일차, "11.20 (금)", 그날 확정 수) */
+    fun dayOptions(): List<Triple<Int, String, Int>> {
+        val confirmed = places.value.orEmpty().filter { it.status == PlaceStatus.CONFIRMED }
+        val start = trip.value?.startDate
+        return (1..dayCount()).map { d ->
+            val date = start?.let { TimeUtil.dateOfDay(it, d) }
+            val label = date?.let { "${it.monthValue}.${it.dayOfMonth} (${TimeUtil.koreanDayName(it).first()})" } ?: ""
+            Triple(d, label, confirmed.count { it.day == d })
+        }
     }
 
     /** 그날 묵는 숙소(경로 화면과 같은 기준), 없으면 첫 숙소 */

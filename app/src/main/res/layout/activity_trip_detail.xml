@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  여행 상세 (3단계 구조)
-  ┌ 툴바(뒤로 · 여행 이름 · ⋮)            ← 항상 고정
-  ├ 요약 카드(기간 · 숙소/교통 · 메모)     ← 목록을 올리면 위로 접혀 사라짐
-  ├ 탭(일정 n / 후보 n) + 일차 칩 줄       ← 항상 고정
-  └ 타임라인 목록 + 빈 상태 + 장소 추가(Extended FAB)
+  여행 상세 (시안 Detail · DetailAll)
+  ┌ 상단 바(뒤로 · 여행 이름 / 공유 중 · 코드 · 지도 · 공유)   ← 고정
+  ├ 세그먼트 탭(일정 n / 후보 n) + 일차 칩 (가로 스크롤)        ← 고정
+  ├ 목록: 일차 제목 · 숙소 출발 · 장소 · 숙소 도착 · 여행 메모
+  └ 아래: [n일차 경로 제안 보기] [+]
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -16,102 +16,35 @@
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
         app:liftOnScroll="true"
         app:liftOnScrollTargetViewId="@id/rvPlaces">
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleEnabled="false">
-
-            <!-- 요약 카드: 행을 누르면 기존 화면/다이얼로그로 -->
-            <LinearLayout
-                android:id="@+id/summary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/screen_margin"
-                android:layout_marginTop="?attr/actionBarSize"
-                android:layout_marginBottom="@dimen/space_s"
-                android:background="@drawable/bg_card"
-                android:orientation="vertical"
-                android:paddingVertical="@dimen/space_xs"
-                app:layout_collapseMode="parallax">
-
-                <LinearLayout
-                    android:id="@+id/rowDates"
-                    style="@style/Widget.TripPlanner.SummaryRow">
-                    <ImageView style="@style/Widget.TripPlanner.SummaryIcon" android:src="@drawable/ic_calendar" />
-                    <TextView
-                        android:id="@+id/tvDates"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium" />
-                    <TextView
-                        android:id="@+id/tvDday"
-                        style="@style/Widget.TripPlanner.Badge"
-                        android:background="@drawable/bg_chip"
-                        android:textColor="@color/on_primary_container"
-                        android:visibility="gone" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/rowTravel"
-                    style="@style/Widget.TripPlanner.SummaryRow">
-                    <ImageView style="@style/Widget.TripPlanner.SummaryIcon" android:src="@drawable/ic_hotel" />
-                    <TextView
-                        android:id="@+id/tvTravel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="2"
-                        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium" />
-                    <ImageView style="@style/Widget.TripPlanner.SummaryChevron" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/rowNote"
-                    style="@style/Widget.TripPlanner.SummaryRow">
-                    <ImageView style="@style/Widget.TripPlanner.SummaryIcon" android:src="@drawable/ic_note" />
-                    <TextView
-                        android:id="@+id/tvNote"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="2"
-                        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium" />
-                    <ImageView style="@style/Widget.TripPlanner.SummaryChevron" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorSurface"
-                app:layout_collapseMode="pin"
-                app:menu="@menu/trip_detail" />
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurface"
+            app:menu="@menu/trip_detail" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurface" />
+            android:layout_marginHorizontal="@dimen/screen_margin" />
 
-        <!-- 일차 칩 줄 (일정 탭에서만 보임) -->
+        <!-- 일차 칩 줄 (일정 탭에서만 보임, 넘치면 가로 스크롤) -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvDays"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
             android:clipToPadding="false"
             android:orientation="horizontal"
             android:paddingHorizontal="@dimen/screen_margin"
-            android:paddingVertical="@dimen/space_s" />
+            android:paddingTop="@dimen/space_m"
+            android:paddingBottom="@dimen/space_xs"
+            android:requiresFadingEdge="horizontal"
+            android:fadingEdgeLength="32dp" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
@@ -124,31 +57,46 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingTop="@dimen/space_s"
-            android:paddingBottom="96dp" />
-
-        <include
-            android:id="@+id/emptyState"
-            layout="@layout/view_empty_state"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/space_xxl"
-            android:visibility="gone" />
+            android:paddingTop="@dimen/space_xs"
+            android:paddingBottom="96dp"
+            android:scrollbars="vertical" />
 
         <!-- 지도로 보기 (목록과 번갈아 보임) -->
         <include layout="@layout/view_trip_map" />
     </FrameLayout>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fabAddPlace"
-        android:layout_width="wrap_content"
+    <!-- 아래: 경로 제안(그날을 고른 경우) + 장소 추가 -->
+    <LinearLayout
+        android:id="@+id/bottomActions"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/space_l"
-        android:text="@string/add_place"
-        android:textColor="@color/on_primary"
-        app:backgroundTint="@color/primary"
-        app:icon="@drawable/ic_add"
-        app:iconTint="@color/on_primary" />
+        android:layout_gravity="bottom"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal"
+        android:padding="@dimen/space_l">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRouteCta"
+            style="@style/Widget.TripPlanner.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="@dimen/space_s"
+            android:layout_weight="1"
+            android:visibility="gone"
+            app:icon="@drawable/ic_route"
+            app:iconGravity="textStart"
+            app:iconTint="@color/on_secondary_container" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAddPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/add_place"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/primary"
+            app:elevation="2dp"
+            app:fabSize="normal"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.TripPlanner.Round"
+            app:tint="@color/on_primary" />
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -33,6 +33,7 @@
             android:name=".ui.TripFormActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.AddPlaceActivity" />
+        <activity android:name=".ui.PlaceViewActivity" />
         <activity android:name=".ui.TravelInfoActivity" />
         <activity android:name=".ui.RouteActivity" />
     </application>

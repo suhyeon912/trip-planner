@@ -1,18 +1,13 @@
 package com.tripplanner.ui
 
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.PopupMenu
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tripplanner.R
 import com.tripplanner.data.Place
@@ -20,20 +15,24 @@ import com.tripplanner.data.PlaceStatus
 
 /** 상세 화면 목록의 한 줄 종류 */
 sealed class DetailItem {
-    /** '전체' 보기의 일차 제목 */
-    data class Header(val title: String, val sub: String, val day: Int? = null) : DetailItem()
-    /** 타임라인 맨 위 "OO 호텔에서 출발" */
-    data class Start(val text: String) : DetailItem()
+    /** 일차 제목 "● 1일차 11월 20일 (금)" (+ '전체'에서는 오른쪽 '경로 제안') */
+    data class Header(val title: String, val sub: String, val day: Int? = null, val routeLink: Boolean = false) : DetailItem()
+    /** 타임라인 맨 위·아래 숙소 (출발 / 도착) */
+    data class LodgingRow(val name: String, val start: Boolean) : DetailItem()
     /** 장소 카드. order = 방문 순서(경로 확정 전이면 null), timeline = 왼쪽 타임라인 열 표시 */
     data class PlaceRow(val place: Place, val order: String?, val isFirst: Boolean, val isLast: Boolean, val timeline: Boolean) : DetailItem()
-    /** "n일차 경로 제안 보기" */
-    data class RouteCta(val day: Int) : DetailItem()
+    /** '전체' 맨 위 교통 · 숙소 요약 */
+    data class Summary(val lines: List<Pair<Int, String>>) : DetailItem()   // (아이콘, 글자)
+    /** 맨 아래 여행 메모 */
+    data class Memo(val note: String) : DetailItem()
+    /** 빈 상태 (목록 안에 표시) */
+    data class Empty(val state: EmptyState) : DetailItem()
 }
 
 /**
- * 여행 상세 목록 어댑터 (3단계).
- * 장소 카드 머리줄을 누르면 펼쳐졌다 접혔다 합니다(기존 동작).
- * 펼친 카드: [지도] [메모] [수정] … [⋮ 일차 변경 / 후보로·확정으로 / 삭제]
+ * 여행 상세 목록 어댑터 (시안 PlaceCard).
+ * 장소 카드: 한 번 누르면 장소 정보, 길게 누르면 장소 수정, 오른쪽 ⠿ 손잡이를 끌면 순서 변경.
+ * 후보 카드: '확정하기' → 일차 select.
  */
 class PlaceAdapter(
     private val listener: Listener,
@@ -41,20 +40,23 @@ class PlaceAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     interface Listener {
-        fun mapLabel(place: Place): String      // "카카오맵" 또는 "구글맵"
-        fun onOpenMap(place: Place)
-        fun onEditMemo(place: Place)
+        fun onOpen(place: Place)
         fun onEdit(place: Place)
-        fun onSetDay(place: Place)
-        fun onToggleStatus(place: Place)
-        fun onDelete(place: Place)
+        fun onConfirmPick(place: Place, anchor: View)
+        fun onOpenTravel()
+        fun onOpenNote()
+        fun onEmptyAction(action: EmptyState.Action)
     }
 
     companion object {
         private const val TYPE_HEADER = 0
-        private const val TYPE_START = 1
+        private const val TYPE_LODGING = 1
         private const val TYPE_PLACE = 2
-        private const val TYPE_CTA = 3
+        private const val TYPE_SUMMARY = 3
+        private const val TYPE_MEMO = 4
+        private const val TYPE_EMPTY = 5
+        /** 카드에 보이는 뱃지는 최대 2개, 넘치면 +n */
+        private const val MAX_BADGES = 2
     }
 
     private var items: List<DetailItem> = emptyList()
@@ -75,7 +77,6 @@ class PlaceAdapter(
         notifyItemMoved(from, to)
         return true
     }
-    private val expandedIds = mutableSetOf<Long>()   // 펼쳐진 카드의 id 모음
 
     fun submit(newList: List<DetailItem>) {
         items = newList
@@ -84,53 +85,60 @@ class PlaceAdapter(
 
     override fun getItemViewType(position: Int) = when (items[position]) {
         is DetailItem.Header -> TYPE_HEADER
-        is DetailItem.Start -> TYPE_START
+        is DetailItem.LodgingRow -> TYPE_LODGING
         is DetailItem.PlaceRow -> TYPE_PLACE
-        is DetailItem.RouteCta -> TYPE_CTA
+        is DetailItem.Summary -> TYPE_SUMMARY
+        is DetailItem.Memo -> TYPE_MEMO
+        is DetailItem.Empty -> TYPE_EMPTY
     }
 
     override fun getItemCount() = items.size
 
     // ---------------- ViewHolders ----------------
     class HeaderHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val dot: View = v.findViewById(R.id.vHeaderDot)
         val title: TextView = v.findViewById(R.id.tvHeaderTitle)
         val sub: TextView = v.findViewById(R.id.tvHeaderSub)
+        val route: Button = v.findViewById(R.id.btnHeaderRoute)
     }
-    class StartHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val text: TextView = v.findViewById(R.id.tvStart)
-    }
-    class CtaHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val button: Button = v.findViewById(R.id.btnRouteCta)
+    class LodgingHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val lineAbove: View = v.findViewById(R.id.lineAbove)
+        val lineBelow: View = v.findViewById(R.id.lineBelow)
+        val name: TextView = v.findViewById(R.id.tvLodgingName)
+        val sub: TextView = v.findViewById(R.id.tvLodgingSub)
     }
     class PlaceHolder(v: View) : RecyclerView.ViewHolder(v) {
         val timeline: View = v.findViewById(R.id.timeline)
         val lineAbove: View = v.findViewById(R.id.lineAbove)
         val lineBelow: View = v.findViewById(R.id.lineBelow)
         val dot: TextView = v.findViewById(R.id.tvDot)
-        val header: View = v.findViewById(R.id.header)
+        val card: View = v.findViewById(R.id.card)
         val name: TextView = v.findViewById(R.id.tvPlaceName)
         val summary: TextView = v.findViewById(R.id.tvSummary)
-        val badges: View = v.findViewById(R.id.badges)
-        val reservation: TextView = v.findViewById(R.id.tvReservationBadge)
-        val breakBadge: TextView = v.findViewById(R.id.tvBreakBadge)
+        val badges: LinearLayout = v.findViewById(R.id.badges)
         val confirm: Button = v.findViewById(R.id.btnConfirm)
-        val expand: ImageView = v.findViewById(R.id.ivExpand)
         val thumb: ImageView = v.findViewById(R.id.ivThumb)
         val drag: ImageView = v.findViewById(R.id.ivDrag)
-        val detail: View = v.findViewById(R.id.detail)
-        val infoRows: LinearLayout = v.findViewById(R.id.infoRows)
-        val map: Button = v.findViewById(R.id.btnMap)
-        val memo: Button = v.findViewById(R.id.btnMemo)
-        val edit: Button = v.findViewById(R.id.btnEdit)
-        val more: ImageButton = v.findViewById(R.id.btnMore)
     }
+    class SummaryHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val rows: LinearLayout = v.findViewById(R.id.summaryRows)
+    }
+    class MemoHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val note: TextView = v.findViewById(R.id.tvMemoText)
+    }
+    class EmptyHolder(v: View) : RecyclerView.ViewHolder(v)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inf = LayoutInflater.from(parent.context)
         return when (viewType) {
             TYPE_HEADER -> HeaderHolder(inf.inflate(R.layout.item_day_header, parent, false))
-            TYPE_START -> StartHolder(inf.inflate(R.layout.item_timeline_start, parent, false))
-            TYPE_CTA -> CtaHolder(inf.inflate(R.layout.item_route_cta, parent, false))
+            TYPE_LODGING -> LodgingHolder(inf.inflate(R.layout.item_timeline_lodging, parent, false))
+            TYPE_SUMMARY -> SummaryHolder(inf.inflate(R.layout.item_detail_summary, parent, false))
+            TYPE_MEMO -> MemoHolder(inf.inflate(R.layout.item_detail_memo, parent, false))
+            TYPE_EMPTY -> EmptyHolder(inf.inflate(R.layout.view_empty_state, parent, false).apply {
+                setPadding(paddingLeft, (40 * resources.displayMetrics.density).toInt(), paddingRight,
+                    (24 * resources.displayMetrics.density).toInt())
+            })
             else -> PlaceHolder(inf.inflate(R.layout.item_place, parent, false))
         }
     }
@@ -140,15 +148,40 @@ class PlaceAdapter(
             is DetailItem.Header -> (holder as HeaderHolder).apply {
                 title.text = item.title
                 sub.text = item.sub
-                // 일차 제목은 지도와 같은 일차 색
-                val c = item.day?.let { PinIcons.dayColor(it) } ?: title.context.color(R.color.on_surface)
-                title.setTextColor(c)
+                // 일차 점은 지도·타임라인과 같은 일차 색
+                dot.visibility = if (item.day != null) View.VISIBLE else View.GONE
+                item.day?.let { dot.backgroundTintList = ColorStateList.valueOf(PinIcons.dayColor(it)) }
+                route.visibility = if (item.routeLink && item.day != null) View.VISIBLE else View.GONE
+                if (item.day != null) {
+                    route.contentDescription = route.context.getString(R.string.route_link_a11y, item.day)
+                    route.setOnClickListener { onRouteCta(item.day) }
+                }
             }
-            is DetailItem.Start -> (holder as StartHolder).text.text = item.text
-            is DetailItem.RouteCta -> (holder as CtaHolder).button.apply {
-                text = context.getString(R.string.route_cta, item.day)
-                setOnClickListener { onRouteCta(item.day) }
+            is DetailItem.LodgingRow -> (holder as LodgingHolder).apply {
+                name.text = item.name
+                sub.setText(if (item.start) R.string.lodging_start else R.string.lodging_end)
+                lineAbove.visibility = if (item.start) View.INVISIBLE else View.VISIBLE
+                lineBelow.visibility = if (item.start) View.VISIBLE else View.INVISIBLE
+                itemView.setOnClickListener { listener.onOpenTravel() }
             }
+            is DetailItem.Summary -> (holder as SummaryHolder).apply {
+                rows.removeAllViews()
+                val inf = LayoutInflater.from(itemView.context)
+                item.lines.forEachIndexed { i, (icon, line) ->
+                    val row = inf.inflate(R.layout.item_summary_line, rows, false)
+                    row.findViewById<TextView>(R.id.tvSummaryLine).text = line
+                    row.findViewById<ImageView>(R.id.ivSummaryIcon).setImageResource(icon)
+                    row.findViewById<View>(R.id.divider).visibility = if (i == 0) View.GONE else View.VISIBLE
+                    row.setOnClickListener { listener.onOpenTravel() }
+                    rows.addView(row)
+                }
+            }
+            is DetailItem.Memo -> (holder as MemoHolder).apply {
+                note.text = item.note.trim()
+                note.visibility = if (item.note.isBlank()) View.GONE else View.VISIBLE
+                itemView.setOnClickListener { listener.onOpenNote() }
+            }
+            is DetailItem.Empty -> bindEmptyState(holder.itemView, item.state) { listener.onEmptyAction(it) }
             is DetailItem.PlaceRow -> bindPlace(holder as PlaceHolder, item)
         }
     }
@@ -156,7 +189,6 @@ class PlaceAdapter(
     private fun bindPlace(h: PlaceHolder, row: DetailItem.PlaceRow) {
         val place = row.place
         val ctx = h.itemView.context
-        val expanded = place.id in expandedIds
         val confirmed = place.status == PlaceStatus.CONFIRMED
 
         // 타임라인 열
@@ -166,92 +198,66 @@ class PlaceAdapter(
         if (row.order != null) {
             h.dot.text = row.order
             h.dot.setBackgroundResource(R.drawable.bg_timeline_dot)
-            // 지도·일차 제목과 같은 일차 색
-            h.dot.backgroundTintList = android.content.res.ColorStateList.valueOf(
-                place.day?.let { PinIcons.dayColor(it) } ?: ctx.color(R.color.primary))
+            h.dot.backgroundTintList = ColorStateList.valueOf(place.day?.let { PinIcons.dayColor(it) } ?: ctx.color(R.color.primary))
         } else {
             h.dot.backgroundTintList = null
             h.dot.text = ""
             h.dot.setBackgroundResource(R.drawable.bg_timeline_dot_hollow)
         }
 
-        // 머리줄
         h.name.text = place.name
-        h.name.maxLines = if (expanded) 3 else 1
-        h.summary.text = listOf(place.category.label, place.openingHours.replace(" ~ ", "–"),
-            ctx.getString(R.string.minutes, place.stayMinutes))
-            .joinToString(ctx.getString(R.string.list_separator))
-        bindThumb(h.thumb, place)
+        val hours = place.openingHours.trim().replace(" ~ ", "–")
+        h.summary.text = if (hours.isEmpty()) "" else ctx.getString(R.string.opening_hours_line, hours)
+        h.summary.visibility = if (hours.isEmpty()) View.GONE else View.VISIBLE
+        Thumbs.bind(h.thumb, place.photoUri, place.category)
+        bindBadges(h.badges, place)
+
         // 순서 바꾸기: 손잡이를 누르면 바로 끌기 시작
         h.drag.visibility = if (dragEnabled && row.timeline && confirmed) View.VISIBLE else View.GONE
         h.drag.setOnTouchListener { _, e ->
             if (e.actionMasked == android.view.MotionEvent.ACTION_DOWN) onStartDrag?.invoke(h)
             false
         }
-        h.reservation.visibility = if (place.isReservationRequired) View.VISIBLE else View.GONE
-        h.breakBadge.visibility = if (place.breakTime != null) View.VISIBLE else View.GONE
-        h.breakBadge.text = ctx.getString(R.string.break_badge, place.breakTime?.replace(" ~ ", "–").orEmpty())
-        h.badges.visibility = if (place.isReservationRequired || place.breakTime != null) View.VISIBLE else View.GONE
         h.confirm.visibility = if (confirmed) View.GONE else View.VISIBLE
         h.confirm.contentDescription = ctx.getString(R.string.confirm_place_a11y, place.name)
-        h.confirm.setOnClickListener { listener.onToggleStatus(place) }
-        h.expand.setImageResource(if (expanded) R.drawable.ic_expand_less else R.drawable.ic_expand_more)
-        ViewCompat.setStateDescription(h.header, ctx.getString(if (expanded) R.string.state_expanded else R.string.state_collapsed))
-        h.header.setOnClickListener {
-            if (expanded) expandedIds.remove(place.id) else expandedIds.add(place.id)
-            notifyItemChanged(h.bindingAdapterPosition)
-        }
+        h.confirm.setOnClickListener { listener.onConfirmPick(place, it) }
 
-        // 펼친 영역
-        h.detail.visibility = if (expanded) View.VISIBLE else View.GONE
-        if (expanded) {
-            h.infoRows.removeAllViews()
-            fun info(label: String, value: String) {
-                val v = LayoutInflater.from(ctx).inflate(R.layout.item_info_row, h.infoRows, false)
-                v.findViewById<TextView>(R.id.tvLabel).text = label
-                v.findViewById<TextView>(R.id.tvValue).text = value
-                h.infoRows.addView(v)
-            }
-            fun s(id: Int) = ctx.getString(id)
-            info(s(R.string.info_hours), place.openingHours)
-            place.breakTime?.let { info(s(R.string.info_break), it) }
-            place.closedDays?.let { info(s(R.string.info_closed), it) }
-            info(s(R.string.info_reservation), s(if (place.isReservationRequired) R.string.reservation_yes else R.string.reservation_no))
-            info(s(R.string.info_stay), ctx.getString(R.string.stay_about, place.stayMinutes))
-            if (!place.hasLocation) info(s(R.string.info_location), s(R.string.no_location_info))
-            if (place.memo.isNotBlank()) info(s(R.string.action_memo), place.memo)
-
-            h.map.text = listener.mapLabel(place)
-            h.map.setOnClickListener { listener.onOpenMap(place) }
-            h.memo.setOnClickListener { listener.onEditMemo(place) }
-            h.edit.setOnClickListener { listener.onEdit(place) }
-            h.more.contentDescription = ctx.getString(R.string.more_a11y, place.name)
-            h.more.setOnClickListener { showMoreMenu(it, place) }
-        }
+        h.card.contentDescription = listOfNotNull(row.order?.let { "$it." }, place.name, h.summary.text.takeIf { it.isNotEmpty() },
+            badges(ctx, place).joinToString(", ") { it.text }.takeIf { it.isNotEmpty() }).joinToString(" ")
+        h.card.setOnClickListener { listener.onOpen(place) }
+        h.card.setOnLongClickListener { listener.onEdit(place); true }
     }
 
-    /** ⋮ 메뉴: 일차 변경(확정만) / 후보로 옮기기·확정으로 / 삭제(빨간 글자) */
-    private fun showMoreMenu(anchor: View, place: Place) {
-        val popup = PopupMenu(anchor.context, anchor)
-        popup.inflate(R.menu.place_actions)
-        popup.markDanger(anchor.context, R.id.action_delete)
-        val confirmed = place.status == PlaceStatus.CONFIRMED
-        popup.menu.findItem(R.id.action_day).isVisible = confirmed
-        popup.menu.findItem(R.id.action_status).setTitle(if (confirmed) R.string.move_to_candidate else R.string.move_to_confirmed)
-        popup.menu.findItem(R.id.action_delete).title = SpannableString(anchor.context.getString(R.string.action_delete)).apply {
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(anchor.context, R.color.badge_red)), 0, length, 0)
-        }
-        popup.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.action_day -> listener.onSetDay(place)
-                R.id.action_status -> listener.onToggleStatus(place)
-                R.id.action_delete -> listener.onDelete(place)
-            }
-            true
-        }
-        popup.show()
-    }
+    private data class B(val text: String, val bg: Int, val fg: Int)
 
-    /** 사진이 있으면 사진, 없으면 장소 종류 아이콘(색 배경). 모서리 12dp 로 둥글게 자름 */
-    private fun bindThumb(v: ImageView, place: com.tripplanner.data.Place) = Thumbs.bind(v, place.photoUri, place.category)
+    /** 예약필수(빨강) · 브레이크(회색) · 위치 없음(노랑) */
+    private fun badges(ctx: android.content.Context, place: Place) = listOfNotNull(
+        if (place.isReservationRequired) B(ctx.getString(R.string.reservation_required), R.color.error_container, R.color.on_error_container) else null,
+        place.breakTime?.let { B(ctx.getString(R.string.break_badge, it.replace(" ~ ", "–")), R.color.surface_container, R.color.text_sub) },
+        if (!place.hasLocation) B(ctx.getString(R.string.badge_no_location), R.color.warn_bg, R.color.warn_text) else null
+    )
+
+    /** 카드 뱃지: 최대 2개, 넘치면 +n */
+    private fun bindBadges(box: LinearLayout, place: Place) {
+        val ctx = box.context
+        box.removeAllViews()
+        val all = badges(ctx, place)
+        val shown = all.take(MAX_BADGES)
+        val inf = LayoutInflater.from(ctx)
+        shown.forEach { b ->
+            val tv = inf.inflate(R.layout.view_badge, box, false) as TextView
+            tv.text = b.text
+            tv.backgroundTintList = ColorStateList.valueOf(ctx.color(b.bg))
+            tv.setTextColor(ctx.color(b.fg))
+            box.addView(tv)
+        }
+        if (all.size > MAX_BADGES) {
+            val tv = inf.inflate(R.layout.view_badge, box, false) as TextView
+            tv.text = ctx.getString(R.string.badge_more, all.size - MAX_BADGES)
+            tv.backgroundTintList = ColorStateList.valueOf(ctx.color(R.color.surface_container))
+            tv.setTextColor(ctx.color(R.color.text_sub))
+            box.addView(tv)
+        }
+        box.visibility = if (all.isEmpty()) View.GONE else View.VISIBLE
+    }
 }

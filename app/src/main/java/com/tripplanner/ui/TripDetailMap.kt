@@ -25,9 +25,17 @@ import androidx.lifecycle.LifecycleOwner
 class TripDetailMap(
     root: View,
     owner: LifecycleOwner,
-    private val listener: PlaceAdapter.Listener,
+    private val listener: Listener,
     private val onCardShown: (Boolean) -> Unit
 ) {
+
+    /** 지도 아래 카드의 버튼들 */
+    interface Listener {
+        fun mapLabel(place: Place): String      // "카카오맵" 또는 "Google Maps"
+        fun onOpenMap(place: Place)
+        fun onEdit(place: Place)
+        fun onConfirmPick(place: Place, anchor: View)
+    }
 
     private val ctx = root.context
     val container: View = root.findViewById(R.id.mapContainer)
@@ -137,6 +145,12 @@ class TripDetailMap(
     }
 
     /** 점 선택 → 아래 카드. null 이면 닫기 */
+    /** 장소 정보의 '여행 지도에서': 이 장소를 골라 아래 카드 열기 (지도가 아직이면 그린 뒤에) */
+    fun focus(id: Long) {
+        selectedId = id
+        if (shown.any { it.id == id }) select(id)
+    }
+
     private fun select(id: Long?) {
         val place = shown.firstOrNull { it.id == id }
         selectedId = place?.id
@@ -166,7 +180,7 @@ class TripDetailMap(
         cardEdit.setOnClickListener { listener.onEdit(place) }
         cardConfirm.visibility = if (confirmed) View.GONE else View.VISIBLE
         cardConfirm.contentDescription = ctx.getString(R.string.confirm_place_a11y, place.name)
-        cardConfirm.setOnClickListener { listener.onToggleStatus(place) }
+        cardConfirm.setOnClickListener { listener.onConfirmPick(place, it) }
         card.contentDescription = null
     }
 

@@ -1,43 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 공유 중: 초대 코드를 크게 · 함께 보는 사람 수 · 안내 -->
+<!-- 공유 중 (시안 DetailShare): 초대 코드 상자(코드 + 복사) · 함께 보는 사람 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingHorizontal="@dimen/space_xl"
     android:paddingTop="@dimen/space_s">
 
-    <TextView
-        android:id="@+id/tvCode"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_chip"
-        android:backgroundTint="@color/primary_light"
-        android:gravity="center"
-        android:letterSpacing="0.25"
-        android:paddingVertical="@dimen/space_l"
-        android:textAppearance="@style/TextAppearance.TripPlanner.M3.DisplaySmall"
-        android:textColor="@color/on_primary_container"
-        android:textIsSelectable="true"
-        tools:text="ABC234" />
+        android:background="@drawable/bg_code_box"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="@dimen/space_m"
+        android:paddingStart="@dimen/space_l"
+        android:paddingEnd="@dimen/space_xs">
+
+        <TextView
+            android:id="@+id/tvCode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/pretendard_bold"
+            android:letterSpacing="0.2"
+            android:textColor="@color/on_surface"
+            android:textIsSelectable="true"
+            android:textSize="28sp"
+            tools:text="3CEQEP" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCopy"
+            style="@style/Widget.TripPlanner.Button.Text.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/space_m"
+            android:text="@string/share_copy"
+            app:icon="@drawable/ic_copy" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvMembers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_m"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
-        tools:text="2명이 함께 보는 중" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_s"
-        android:gravity="center"
-        android:text="@string/share_code_help"
         android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant" />
+        android:textColor="@color/text_sub"
+        tools:text="2명이 함께 보는 중" />
 </LinearLayout>

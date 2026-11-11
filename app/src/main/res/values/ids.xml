@@ -4,4 +4,5 @@
     <item name="osmMap" type="id" />
     <item name="kakaoMap" type="id" />
     <item name="googleMap" type="id" />
+    <item name="action_more" type="id" />
 </resources>

@@ -28,7 +28,7 @@ fun Context.minutesLabel(m: Int): String = when {
 /** 일차 칩 (상세·경로 화면 공용). date 가 없으면 장소 수만 표시 */
 fun Context.dayChip(day: Int, date: LocalDate?, count: Int, selected: Boolean): DayChip {
     val sub = if (date != null)
-        getString(R.string.chip_sub_date, date.monthValue, date.dayOfMonth, TimeUtil.koreanDayName(date).first().toString(), count)
+        getString(R.string.chip_sub_date, date.monthValue, date.dayOfMonth, TimeUtil.koreanDayName(date).first().toString())
     else getString(R.string.chip_sub, count)
     val a11y = if (date != null)
         getString(R.string.chip_a11y_date, day, date.monthValue, date.dayOfMonth, TimeUtil.koreanDayName(date), count)
