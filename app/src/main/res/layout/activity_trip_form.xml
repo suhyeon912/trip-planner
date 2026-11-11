@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  새 여행 · 여행 수정 (시안 NewTrip · TripEdit, 전체 화면 입력)
+  상단 바(닫기 ×) / 여행 이름 * / 기간 * (누르면 달력, 오른쪽 n박 n일) / 하단 바 취소 : 추가(저장) = 1 : 2
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorSurface"
+        tools:title="@string/new_trip" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingTop="@dimen/space_s"
+            android:paddingBottom="@dimen/space_xl">
+
+            <TextView
+                android:id="@+id/labelName"
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:labelFor="@id/inputName"
+                android:text="@string/label_trip_name" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutName"
+                style="@style/Widget.TripPlanner.TextField.NoLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:placeholderText="@string/hint_trip_title">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:layout_marginTop="@dimen/space_l"
+                android:labelFor="@id/inputPeriod"
+                android:text="@string/label_trip_period" />
+
+            <!-- 기간: 누르면 달력 (직접 입력 없음) · 오른쪽에 n박 n일 -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutPeriod"
+                    style="@style/Widget.TripPlanner.TextField.NoLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:placeholderText="@string/placeholder_trip_period"
+                    app:startIconDrawable="@drawable/ic_calendar"
+                    app:startIconTint="@color/text_sub">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputPeriod"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:inputType="none"
+                        android:paddingEnd="88dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/tvNights"
+                    style="@style/Widget.TripPlanner.Badge"
+                    android:layout_gravity="end|top"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="@dimen/space_m"
+                    android:background="@drawable/bg_chip"
+                    android:backgroundTint="@color/primary_light"
+                    android:importantForAccessibility="no"
+                    android:textColor="@color/on_primary_container"
+                    android:visibility="gone"
+                    tools:text="3박 4일"
+                    tools:visibility="visible" />
+            </FrameLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- 하단 바: 취소 : 확인 = 1 : 2 -->
+    <LinearLayout style="@style/Widget.TripPlanner.BottomBar">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.TripPlanner.Button.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/action_cancel" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:layout_weight="2"
+            tools:text="@string/action_add" />
+    </LinearLayout>
+</LinearLayout>

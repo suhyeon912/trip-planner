@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 메뉴 · select 한 줄: 높이 48 · 고른 줄은 secondary_container 바탕 -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_select_option"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/touch_min"
+    android:paddingHorizontal="@dimen/space_l"
+    android:paddingVertical="@dimen/space_s"
+    android:textAppearance="@style/TextAppearance.TripPlanner.BodyLarge" />

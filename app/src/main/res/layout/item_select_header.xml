@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 메뉴 · select 안의 작은 제목 -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:accessibilityHeading="true"
+    android:paddingHorizontal="@dimen/space_l"
+    android:paddingTop="@dimen/space_s"
+    android:paddingBottom="2dp"
+    android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
+    android:textColor="@color/text_sub"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:targetApi="28" />

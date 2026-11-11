@@ -9,9 +9,11 @@
 
     <ImageView
         android:id="@+id/emptyIcon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_empty_icon"
         android:importantForAccessibility="no"
+        android:padding="18dp"
         android:src="@drawable/ic_place" />
 
     <TextView

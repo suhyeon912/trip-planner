@@ -32,14 +32,13 @@
 
     <!-- 여행 목록 -->
     <string name="shared_badge">공유 중</string>
-    <string name="trips_summary">다가오는 여행 %1$d · 지난 여행 %2$d</string>
-    <string name="title_my_trips">내 여행</string>
+    <string name="title_my_trips">여행 플래너</string>
     <string name="new_trip">새 여행</string>
     <string name="edit_trip">여행 수정</string>
     <string name="trip_counts">확정 %1$d곳 · 후보 %2$d곳</string>
     <string name="trip_menu_a11y">%1$s 메뉴</string>
     <string name="trip_delete_confirm">\'%1$s\' 여행과 안의 장소·비행기·숙소를 모두 지울까요?</string>
-    <string name="empty_trips_title">첫 여행을 만들어 보세요</string>
+    <string name="empty_trips_title">첫 여행을 추가해 보세요</string>
     <string name="empty_trips_body">여행 이름과 날짜만 있으면 시작할 수 있어요</string>
     <string name="hint_trip_title">여행 이름 (예: 도쿄 2박 3일)</string>
     <string name="hint_trip_start">시작일</string>
@@ -260,4 +259,23 @@
     <string name="leg_item">%1$d. %2$s → %3$s</string>
     <string name="kakao_waypoint_limit">카카오맵은 경유지를 %1$d곳까지만 지원해서 앞쪽 %1$d곳만 넘겨요</string>
     <string name="no_map_app">지도를 열 수 있는 앱이 없어요</string>
+    <!-- 3단계: 메인 · 보기 설정 -->
+    <string name="view_settings">보기 설정</string>
+    <string name="sort_header">정렬 기준</string>
+    <string name="sort_name">이름 순</string>
+    <string name="sort_recent">최근 만든 순</string>
+    <string name="sort_date">일정 가까운 순</string>
+    <string name="past_hide">지난 여행 숨기기</string>
+    <string name="past_show">지난 여행 보이기</string>
+    <string name="past_shown">지난 여행 보임</string>
+    <string name="past_hidden">지난 여행 숨김</string>
+    <string name="view_summary">%1$s · %2$s</string>
+    <string name="past_trips_header">지난 여행 %1$d</string>
+    <string name="past_trip">지난 여행</string>
+    <!-- 3단계: 새 여행 · 여행 수정 (전체 화면) -->
+    <string name="label_trip_name">여행 이름 *</string>
+    <string name="label_trip_period">기간 *</string>
+    <string name="placeholder_trip_period">시작일 – 종료일</string>
+    <string name="pick_period_title">기간 고르기</string>
+    <string name="error_trip_period">기간을 골라 주세요</string>
 </resources>

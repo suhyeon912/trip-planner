@@ -219,7 +219,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener {
 
     private fun editTrip() {
         val trip = viewModel.trip.value ?: return
-        showTripFormDialog(this, trip) { viewModel.updateTrip(it) }
+        startActivity(Intent(this, TripFormActivity::class.java).putExtra(EXTRA_TRIP_ID, trip.id))
     }
 
     // ---------- PlaceAdapter.Listener (기존과 동일) ----------

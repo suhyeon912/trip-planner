@@ -23,6 +23,33 @@ object TripFormat {
         return "${f(s)} – ${f(e)} · ${days}일"
     }
 
+    /**
+     * 시안 형식: "2026.11.20 (금) – 11.23 (월)". 끝 날짜는 해가 같으면 연도를 뺌.
+     * 날짜를 못 읽으면 원문 그대로.
+     */
+    fun fullRange(trip: Trip): String {
+        val s = parse(trip.startDate) ?: return "${trip.startDate} ~ ${trip.endDate}"
+        val e = parse(trip.endDate) ?: return "${trip.startDate} ~ ${trip.endDate}"
+        fun day(d: LocalDate) = TimeUtil.koreanDayName(d).first()
+        val end = if (e.year == s.year) "${e.monthValue}.${e.dayOfMonth}" else "${e.year}.${e.monthValue}.${e.dayOfMonth}"
+        return "${s.year}.${s.monthValue}.${s.dayOfMonth} (${day(s)}) – $end (${day(e)})"
+    }
+
+    /** "2026.11.20 (금) – 11.23 (월) · 4일" (여행 카드) */
+    fun fullRangeWithDays(trip: Trip): String {
+        val ok = nightsDays(trip.startDate, trip.endDate) != null
+        return fullRange(trip) + if (ok) " · ${TimeUtil.dayCount(trip.startDate, trip.endDate)}일" else ""
+    }
+
+    /** "3박 4일" (하루짜리는 "1일", 날짜를 못 읽으면 null) */
+    fun nightsDays(start: String, end: String): String? {
+        val s = parse(start) ?: return null
+        val e = parse(end) ?: return null
+        if (e.isBefore(s)) return null
+        val nights = ChronoUnit.DAYS.between(s, e).toInt()
+        return if (nights == 0) "1일" else "${nights}박 ${nights + 1}일"
+    }
+
     /** D-n / D-day / 여행 중 / 지난 여행 (날짜를 못 읽으면 null) */
     fun dday(trip: Trip, today: LocalDate = LocalDate.now()): Dday? {
         val s = parse(trip.startDate) ?: return null

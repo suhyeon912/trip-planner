@@ -9,8 +9,10 @@ import com.tripplanner.R
 data class EmptyState(
     val title: String,
     val body: String,
-    val actionLabel: String,
-    val action: Action
+    val actionLabel: String? = null,
+    val action: Action? = null,
+    /** 가운데 동그라미 안 아이콘 */
+    val icon: Int = R.drawable.ic_place
 ) {
     enum class Action { SHOW_CANDIDATES, ADD_PLACE, GO_BACK, NEW_TRIP }
 }
@@ -21,8 +23,11 @@ fun bindEmptyState(root: View, state: EmptyState?, onAction: (EmptyState.Action)
     if (state == null) return
     root.findViewById<TextView>(R.id.emptyTitle).text = state.title
     root.findViewById<TextView>(R.id.emptyBody).text = state.body
+    root.findViewById<android.widget.ImageView>(R.id.emptyIcon).setImageResource(state.icon)
     root.findViewById<Button>(R.id.emptyAction).apply {
+        // 버튼이 없는 빈 상태도 있음 (예: 메인 — 새 여행은 FAB)
+        visibility = if (state.actionLabel == null) View.GONE else View.VISIBLE
         text = state.actionLabel
-        setOnClickListener { onAction(state.action) }
+        setOnClickListener { state.action?.let(onAction) }
     }
 }

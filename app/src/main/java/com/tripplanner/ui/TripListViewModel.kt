@@ -19,9 +19,5 @@ class TripListViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch { repo.seedIfEmpty() }
     }
 
-    fun saveTrip(trip: Trip) = viewModelScope.launch {
-        if (trip.id == 0L) repo.addTrip(trip) else repo.updateTrip(trip)
-    }
-
     fun deleteTrip(trip: Trip) = viewModelScope.launch { repo.deleteTrip(trip) }
 }

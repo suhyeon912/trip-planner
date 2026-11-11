@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 여행 카드 커버 위 ⋮ 버튼 동그라미 (28, 터치는 48) -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android" android:inset="10dp">
+    <shape android:shape="oval">
+        <solid android:color="@color/cover_pill_bg" />
+        <stroke android:width="1dp" android:color="@color/cover_pill_stroke" />
+    </shape>
+</inset>

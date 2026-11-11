@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  여행 카드 (디자인 2차)
-  ┌ 커버: 여행마다 다른 색 그라데이션 · D-day 칩 · ⋮ · 여행 이름(크게) · 국내/해외 아이콘
-  └ 본문: 날짜·요일·일수 / 확정 n곳 · 후보 n곳 / 확정 비율 막대
+  여행 카드 (시안 TripCard: 표지 116 + 정보 줄 · 모서리 20)
+  ┌ 표지: 그라데이션 · D-day · ⋮ · 교통 아이콘 + 여행 이름
+  └ 정보: 기간 · 확정/후보 · 뱃지(공유 중)
 -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
+    android:layout_marginBottom="@dimen/space_m"
     app:cardBackgroundColor="@color/card_bg"
-    app:cardCornerRadius="20dp"
+    app:cardCornerRadius="@dimen/radius_trip_card"
     app:cardElevation="0dp"
     app:strokeColor="@color/outline_variant"
     app:strokeWidth="@dimen/stroke_card">
@@ -21,37 +21,24 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- 커버 -->
         <FrameLayout
             android:id="@+id/cover"
             android:layout_width="match_parent"
-            android:layout_height="116dp">
-
-            <ImageView
-                android:id="@+id/ivCoverIcon"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:layout_gravity="end|bottom"
-                android:layout_marginEnd="-8dp"
-                android:layout_marginBottom="-14dp"
-                android:alpha="0.22"
-                android:importantForAccessibility="no"
-                android:src="@drawable/ic_flight"
-                app:tint="@color/white" />
+            android:layout_height="@dimen/cover_height">
 
             <TextView
                 android:id="@+id/tvDday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
-                android:layout_marginStart="@dimen/space_l"
-                android:layout_marginTop="14dp"
+                android:layout_marginStart="@dimen/space_m"
+                android:layout_marginTop="@dimen/space_m"
                 android:background="@drawable/bg_cover_pill"
                 android:paddingHorizontal="10dp"
-                android:paddingVertical="3dp"
-                android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
+                android:paddingVertical="2dp"
+                android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
                 android:textColor="@color/white"
-                tools:text="D-41" />
+                tools:text="D-10" />
 
             <ImageButton
                 android:id="@+id/btnTripMore"
@@ -59,89 +46,77 @@
                 android:layout_height="@dimen/touch_min"
                 android:layout_gravity="top|end"
                 android:layout_marginTop="2dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/bg_cover_more"
+                android:padding="14dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_more_vert"
                 app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/tvTripTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start"
-                android:layout_marginHorizontal="@dimen/space_l"
-                android:layout_marginBottom="12dp"
-                android:ellipsize="end"
-                android:maxLines="2"
-                android:shadowColor="#40000000"
-                android:shadowDy="1"
-                android:shadowRadius="4"
-                android:textAppearance="@style/TextAppearance.TripPlanner.TitleLarge"
-                android:textColor="@color/white"
-                tools:text="도쿄 3박 4일" />
-        </FrameLayout>
-
-        <!-- 본문 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="@dimen/space_l"
-            android:paddingTop="@dimen/space_m"
-            android:paddingBottom="14dp">
-
-            <TextView
-                android:id="@+id/tvTripDates"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawablePadding="@dimen/space_s"
-                android:gravity="center_vertical"
-                android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-                android:textColor="@color/on_surface"
-                app:drawableStartCompat="@drawable/ic_calendar_small"
-                tools:text="12/20(일) – 12/23(수) · 4일" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_gravity="bottom|start"
+                android:layout_marginHorizontal="@dimen/space_m"
+                android:layout_marginBottom="@dimen/space_m"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
+                <ImageView
+                    android:id="@+id/ivCoverIcon"
+                    android:layout_width="@dimen/icon_small"
+                    android:layout_height="@dimen/icon_small"
+                    android:layout_marginEnd="6dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_flight"
+                    app:tint="@color/white" />
+
                 <TextView
-                    android:id="@+id/tvTripCount"
+                    android:id="@+id/tvTripTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:drawablePadding="@dimen/space_s"
-                    android:gravity="center_vertical"
-                    android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    app:drawableStartCompat="@drawable/ic_place_small"
-                    tools:text="확정 5곳 · 후보 3곳" />
-
-                <TextView
-                    android:id="@+id/tvShared"
-                    style="@style/Widget.TripPlanner.Badge"
-                    android:background="@drawable/bg_chip"
-                    android:backgroundTint="@color/tertiary_container"
-                    android:text="@string/shared_badge"
-                    android:textColor="@color/on_tertiary_container"
-                    android:visibility="gone" />
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:shadowColor="#40000000"
+                    android:shadowDy="1"
+                    android:shadowRadius="4"
+                    android:textAppearance="@style/TextAppearance.TripPlanner.TitleLarge"
+                    android:textColor="@color/white"
+                    tools:text="도쿄 3박 4일" />
             </LinearLayout>
+        </FrameLayout>
 
-            <!-- 확정 비율: 계획이 얼마나 진행됐는지 -->
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/progressPlan"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:importantForAccessibility="no"
-                app:indicatorColor="@color/primary"
-                app:trackColor="@color/surface_container"
-                app:trackCornerRadius="4dp"
-                app:indicatorTrackGapSize="0dp"
-                app:trackStopIndicatorSize="0dp"
-                app:trackThickness="6dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/space_m"
+            android:paddingTop="@dimen/space_m"
+            android:paddingBottom="@dimen/space_m">
+
+            <TextView
+                android:id="@+id/tvTripDates"
+                style="@style/Widget.TripPlanner.TripInfoLine"
+                app:drawableStartCompat="@drawable/ic_calendar_small"
+                tools:text="2026.11.20 (금) – 11.23 (월) · 4일" />
+
+            <TextView
+                android:id="@+id/tvTripCount"
+                style="@style/Widget.TripPlanner.TripInfoLine"
+                android:layout_marginTop="@dimen/space_xs"
+                app:drawableStartCompat="@drawable/ic_place_small"
+                tools:text="확정 9곳 · 후보 3곳" />
+
+            <TextView
+                android:id="@+id/tvShared"
+                style="@style/Widget.TripPlanner.Badge"
+                android:layout_marginTop="@dimen/space_s"
+                android:background="@drawable/bg_chip"
+                android:backgroundTint="@color/tertiary_container"
+                android:text="@string/shared_badge"
+                android:textColor="@color/on_tertiary_container"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -12,7 +12,6 @@ import com.tripplanner.TripPlannerApp
 import com.tripplanner.data.Lodging
 import com.tripplanner.data.Place
 import com.tripplanner.data.PlaceStatus
-import com.tripplanner.data.Trip
 import com.tripplanner.route.Region
 import com.tripplanner.route.TimeUtil
 import kotlinx.coroutines.launch
@@ -118,7 +117,6 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     }
 
     /** 여행 이름·날짜 수정 (목록 화면의 '여행 수정'과 같은 저장) */
-    fun updateTrip(edited: Trip) = viewModelScope.launch { repo.updateTrip(edited) }
 
     private fun save(place: Place) = viewModelScope.launch { repo.savePlace(place) }
 

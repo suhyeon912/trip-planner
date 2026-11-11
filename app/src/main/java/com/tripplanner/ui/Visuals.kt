@@ -69,6 +69,12 @@ object Covers {
             cornerRadii = floatArrayOf(r, r, r, r, 0f, 0f, 0f, 0f)
         }
     }
+
+    /** 지난 여행 작은 줄의 회색 타일 (모서리 12) */
+    fun tile(context: Context): GradientDrawable =
+        GradientDrawable(GradientDrawable.Orientation.BL_TR, intArrayOf(PAST.first, PAST.second)).apply {
+            cornerRadius = 12 * context.resources.displayMetrics.density
+        }
 }
 
 /** 장소 썸네일: 사진 또는 종류 아이콘 (상세 목록·지도 카드·편집 화면 공용) */

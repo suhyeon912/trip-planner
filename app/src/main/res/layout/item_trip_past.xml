@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 지난 여행 작은 줄 (시안 TripCard · 지난 여행): 회색 타일 + 이름 + 기간 + > -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space_s"
+    app:cardBackgroundColor="@color/card_bg"
+    app:cardCornerRadius="@dimen/radius_card"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/outline_variant"
+    app:strokeWidth="@dimen/stroke_card">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="72dp"
+        android:orientation="horizontal"
+        android:paddingVertical="@dimen/space_m"
+        android:paddingStart="@dimen/space_m"
+        android:paddingEnd="@dimen/space_s">
+
+        <ImageView
+            android:id="@+id/ivPastIcon"
+            android:layout_width="@dimen/thumb_size"
+            android:layout_height="@dimen/thumb_size"
+            android:importantForAccessibility="no"
+            android:padding="11dp"
+            android:src="@drawable/ic_flight"
+            app:tint="@color/white" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_m"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvPastTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+                android:textColor="@color/on_surface"
+                tools:text="오사카 3박 4일" />
+
+            <TextView
+                android:id="@+id/tvPastDates"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+                android:textColor="@color/text_sub"
+                tools:text="2026.8.14 (금) – 8.17 (월)" />
+        </LinearLayout>
+
+        <ImageView style="@style/Widget.TripPlanner.SummaryChevron" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

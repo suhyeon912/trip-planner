@@ -13,10 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import android.widget.Toast
 import com.tripplanner.R
-import com.tripplanner.data.Trip
-import java.time.LocalDate
 import com.tripplanner.route.TimeUtil
 
 /** 입력칸 종류: 글자 / 날짜(달력) / 날짜+시각 / 고르기(목록) */
@@ -153,30 +150,3 @@ fun confirmDialog(context: Context, message: String, onYes: () -> Unit) {
 }
 
 val DECIMAL_INPUT = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
-
-/**
- * 여행 추가·수정 다이얼로그 (여행 목록과 여행 상세에서 함께 사용).
- * 검사: 이름 필수, 날짜는 yyyy-MM-dd 이고 종료일이 시작일보다 빠르면 안 됨.
- */
-fun showTripFormDialog(context: Context, trip: Trip?, onSave: (Trip) -> Unit) {
-    showFormDialog(
-        context, context.getString(if (trip == null) R.string.new_trip else R.string.edit_trip),
-        listOf(
-            Field(context.getString(R.string.hint_trip_title), trip?.title ?: ""),
-            Field(context.getString(R.string.hint_trip_start), trip?.startDate ?: "", kind = FieldKind.DATE, range = 1 to 2),
-            Field(context.getString(R.string.hint_trip_end), trip?.endDate ?: "", kind = FieldKind.DATE, range = 1 to 2)
-        )
-    ) { (title, start, end) ->
-        val datesOk = runCatching { !LocalDate.parse(end).isBefore(LocalDate.parse(start)) }.getOrDefault(false)
-        when {
-            title.isBlank() -> Toast.makeText(context, R.string.error_trip_title, Toast.LENGTH_SHORT).show()
-            !datesOk -> Toast.makeText(context, R.string.error_trip_dates, Toast.LENGTH_SHORT).show()
-            else -> {
-                onSave(trip?.copy(title = title, startDate = start, endDate = end)
-                    ?: Trip(title = title, startDate = start, endDate = end))
-                return@showFormDialog true
-            }
-        }
-        false
-    }
-}
