@@ -51,6 +51,8 @@ class RouteActivity : AppCompatActivity() {
         val btnStartTime = findViewById<View>(R.id.btnStartTime)
         val tvStartTime = findViewById<TextView>(R.id.tvStartTime)
         val timeChips = findViewById<View>(R.id.timeChips)
+        val btnEndTime = findViewById<View>(R.id.btnEndTime)
+        val tvEndTime = findViewById<TextView>(R.id.tvEndTime)
         val mapCard = findViewById<View>(R.id.mapCard)
         // 출발 시각 바꾸기 (시계 선택 창)
         btnStartTime.setOnClickListener {
@@ -62,6 +64,23 @@ class RouteActivity : AppCompatActivity() {
                 .build()
             picker.addOnPositiveButtonClickListener { viewModel.setStartTime(picker.hour * 60 + picker.minute) }
             picker.show(supportFragmentManager, "start_time")
+        }
+        // 숙소 도착 목표: 자유 / 시각 정하기 (늦으면 경로에 알림)
+        btnEndTime.setOnClickListener { anchorView ->
+            val cur = viewModel.ui.value?.endMinutes
+            showSelect(anchorView, listOf(
+                SelectRow.Option(getString(R.string.end_free_option), selected = cur == null) { viewModel.setEndTime(null) },
+                SelectRow.Option(getString(R.string.end_set_option), selected = cur != null) {
+                    val base = cur ?: 19 * 60
+                    val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
+                        .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_24H)
+                        .setHour(base / 60).setMinute(base % 60)
+                        .setTitleText(R.string.pick_end_time)
+                        .build()
+                    picker.addOnPositiveButtonClickListener { viewModel.setEndTime(picker.hour * 60 + picker.minute) }
+                    picker.show(supportFragmentManager, "end_time")
+                }
+            ))
         }
 
         // 선택한 경로 지도 (점을 누르면 이름·도착 시각)
@@ -91,7 +110,20 @@ class RouteActivity : AppCompatActivity() {
         }
 
         // 선택한 경로 시간표
-        val stopAdapter = RouteStopAdapter { id -> viewModel.placeOf(id) }
+        // 떠나는 시각을 고르면 머무는 시간으로 저장
+        val stopAdapter = RouteStopAdapter({ id -> viewModel.placeOf(id) }) { visit ->
+            val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
+                .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_24H)
+                .setHour((visit.leave / 60) % 24).setMinute(visit.leave % 60)
+                .setTitleText(getString(R.string.pick_leave_time, visit.stop.name))
+                .build()
+            picker.addOnPositiveButtonClickListener {
+                var leave = visit.arrive / (24 * 60) * (24 * 60) + picker.hour * 60 + picker.minute
+                if (leave < visit.arrive) leave += 24 * 60
+                viewModel.setLeaveTime(visit.stop.id, visit.arrive, leave)
+            }
+            picker.show(supportFragmentManager, "leave_time")
+        }
         findViewById<RecyclerView>(R.id.rvStops).apply {
             layoutManager = LinearLayoutManager(this@RouteActivity)
             adapter = stopAdapter
@@ -118,6 +150,9 @@ class RouteActivity : AppCompatActivity() {
             val startLabel = TimeUtil.format(s.startMinutes)
             tvStartTime.text = startLabel
             btnStartTime.contentDescription = getString(R.string.start_time_a11y, startLabel)
+            val endLabel = s.endMinutes?.let { TimeUtil.format(it) } ?: getString(R.string.end_free)
+            tvEndTime.text = endLabel
+            btnEndTime.contentDescription = getString(R.string.end_time_a11y, endLabel)
             if (option != null) {
                 renderRouteMap(option)
                 tvOptionTitle.text = getString(R.string.timetable_title, option.key)

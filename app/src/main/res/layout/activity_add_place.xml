@@ -281,6 +281,7 @@
                     <TextView style="@style/Widget.TripPlanner.FieldLabel" android:labelFor="@id/etStay" android:text="@string/label_stay" />
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilStay"
                         style="@style/Widget.TripPlanner.TextField.NoLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

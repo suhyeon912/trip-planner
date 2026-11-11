@@ -96,8 +96,9 @@ class AddPlaceActivity : AppCompatActivity() {
         // ---------- 종류 칩: 바탕색 = 종류, 고르면 테두리 2 + ✓ ----------
         chips = findViewById(R.id.chipsCategory)
         buildCategoryChips(null)
+        refreshStayHint()
         chips.setOnCheckedStateChangeListener { _, ids ->
-            ids.firstOrNull()?.let { id -> PlaceCategory.entries.getOrNull(id - 1000)?.let { category = it; refreshPhoto() } }
+            ids.firstOrNull()?.let { id -> PlaceCategory.entries.getOrNull(id - 1000)?.let { category = it; refreshPhoto(); refreshStayHint() } }
         }
 
 
@@ -242,6 +243,12 @@ class AddPlaceActivity : AppCompatActivity() {
         category = c
         chips.check(1000 + c.ordinal)
         refreshPhoto()
+        refreshStayHint()
+    }
+
+    /** 머무는 시간을 비워 두면 종류별 기본값 (관광 90 · 맛집 60 · 카페 60 · 쇼핑 120 · 체험 120 · 기타 60) */
+    private fun refreshStayHint() {
+        findViewById<TextInputLayout>(R.id.tilStay).placeholderText = category.defaultStay.toString()
     }
 
     private fun confirmed() = toggle.checkedButtonId == R.id.btnConfirmed
@@ -346,7 +353,7 @@ class AddPlaceActivity : AppCompatActivity() {
             day = if (confirmed) d else null,
             // 일차가 그대로면 기존 방문 순서 유지
             orderInDay = if (confirmed && old?.day == d) old?.orderInDay else null,
-            stayMinutes = field(R.id.etStay).text.toString().toIntOrNull()?.coerceIn(10, 720) ?: 60,
+            stayMinutes = field(R.id.etStay).text.toString().toIntOrNull()?.coerceIn(10, 720) ?: category.defaultStay,
             category = category,
             photoUri = photoPath
         )

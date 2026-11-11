@@ -44,7 +44,7 @@
                 android:paddingHorizontal="@dimen/screen_margin"
                 android:paddingBottom="@dimen/space_xl">
 
-                <!-- 출발 시각 칩 (누르면 시간 선택기) -->
+                <!-- 출발 · 도착 목표 시각 칩 (누르면 시간 선택기) -->
                 <LinearLayout
                     android:id="@+id/timeChips"
                     android:layout_width="match_parent"
@@ -86,6 +86,44 @@
                             android:paddingVertical="6dp"
                             android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
                             tools:text="10:00" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/btnEndTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:background="@drawable/bg_card"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/touch_min"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="@dimen/space_m"
+                        android:paddingVertical="6dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:importantForAccessibility="no"
+                            android:text="@string/label_arrive_home"
+                            android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
+                            android:textColor="@color/text_sub" />
+
+                        <TextView
+                            android:id="@+id/tvEndTime"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_m"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_code_box"
+                            android:gravity="center"
+                            android:importantForAccessibility="no"
+                            android:paddingVertical="6dp"
+                            android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+                            tools:text="자유" />
                     </LinearLayout>
                 </LinearLayout>
 

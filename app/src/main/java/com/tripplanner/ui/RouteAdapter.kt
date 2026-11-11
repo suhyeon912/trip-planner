@@ -108,7 +108,10 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
 
 // =====================================================================
 /** 선택한 경로 시간표: 숙소 출발 → (이동) → 장소 → … → 숙소 도착 */
-class RouteStopAdapter(private val placeOf: (Long) -> Place?) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class RouteStopAdapter(
+    private val placeOf: (Long) -> Place?,
+    private val onLeave: (Visit) -> Unit = {}
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private sealed class Row {
         data class Home(val name: String, val time: Int) : Row()
@@ -167,6 +170,7 @@ class RouteStopAdapter(private val placeOf: (Long) -> Place?) : RecyclerView.Ada
             is Row.Home -> (holder as StopHolder).apply {
                 arrive.text = TimeUtil.format(row.time)
                 leave.visibility = View.GONE
+                leave.setOnClickListener(null)
                 icon.setImageResource(R.drawable.ic_hotel)
                 icon.setPadding(6.dp(ctx), 6.dp(ctx), 6.dp(ctx), 6.dp(ctx))
                 icon.background = ContextCompat.getDrawable(ctx, R.drawable.bg_lodging_pin)
@@ -182,6 +186,8 @@ class RouteStopAdapter(private val placeOf: (Long) -> Place?) : RecyclerView.Ada
                 arrive.text = TimeUtil.format(v.arrive)
                 leave.visibility = View.VISIBLE
                 leave.text = TimeUtil.format(v.leave)
+                leave.contentDescription = ctx.getString(R.string.leave_a11y, leave.text)
+                leave.setOnClickListener { onLeave(v) }
                 val place = placeOf(v.stop.id)
                 Thumbs.bind(icon, place?.photoUri, place?.category ?: com.tripplanner.data.PlaceCategory.ETC)
                 icon.setPadding(6.dp(ctx), 6.dp(ctx), 6.dp(ctx), 6.dp(ctx))

@@ -20,8 +20,9 @@ enum class PlaceStatus(val label: String) {
 }
 
 /** 장소 종류 (아이콘·색 구분용) */
-enum class PlaceCategory(val label: String) {
-    SIGHT("관광"), FOOD("맛집"), CAFE("카페"), SHOPPING("쇼핑"), ACTIVITY("체험"), ETC("기타")
+/** 장소 종류 · 새 장소의 기본 머무는 시간(분) */
+enum class PlaceCategory(val label: String, val defaultStay: Int) {
+    SIGHT("관광", 90), FOOD("맛집", 60), CAFE("카페", 60), SHOPPING("쇼핑", 120), ACTIVITY("체험", 120), ETC("기타", 60)
 }
 
 /** 교통편 종류 — 비행기 외에 KTX·버스 같은 국내 교통도 같은 표에 저장 */
@@ -51,7 +52,9 @@ data class Trip(
     /** 표지 사진 (앱 내부 저장소 경로, 기기에만 · 공유 안 함) · 보이는 위치(사진 높이 중 0~1) · 확대(1~3) — DB 6 */
     val coverPhoto: String? = null,
     @ColumnInfo(defaultValue = "0.5") val coverY: Float = 0.5f,
-    @ColumnInfo(defaultValue = "1.0") val coverScale: Float = 1f
+    @ColumnInfo(defaultValue = "1.0") val coverScale: Float = 1f,
+    /** 경로 제안의 숙소 도착 목표 시각 (분, null = 자유) — DB 7 */
+    val endMinutes: Int? = null
 ) {
     /** 함께 보는 다른 사람 목록 */
     val members: List<String> get() = memberNames.split(", ").filter { it.isNotBlank() }

@@ -28,7 +28,8 @@ data class RouteUiState(
     val options: List<RouteOption>,
     val empty: EmptyState?,        // 경로를 못 만들 때 빈 상태
     val notes: List<String>,       // 위치 없음으로 빠진 장소 등
-    val startMinutes: Int = 600    // 그날 숙소 출발 시각
+    val startMinutes: Int = 600,   // 그날 숙소 출발 시각
+    val endMinutes: Int? = null    // 숙소 도착 목표 시각 (null = 자유)
 )
 
 class RouteViewModel(app: Application, private val state: SavedStateHandle) : AndroidViewModel(app) {
@@ -73,6 +74,27 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         compute()
     }
 
+    /** 도착 목표 시각 바꾸기 (null = 자유) → 여행에 저장하고 다시 계산 */
+    fun setEndTime(minutes: Int?) = viewModelScope.launch {
+        val t = trip ?: return@launch
+        if (t.endMinutes == minutes) return@launch
+        val updated = t.copy(endMinutes = minutes)
+        repo.updateTrip(updated)
+        trip = updated
+        compute()
+    }
+
+    /** 시간표에서 떠나는 시각을 고르면 머무는 시간(떠남 − 도착, 최소 10분)으로 장소에 저장 */
+    fun setLeaveTime(placeId: Long, arrive: Int, leave: Int) = viewModelScope.launch {
+        val p = places.firstOrNull { it.id == placeId } ?: return@launch
+        val stay = (leave - arrive).coerceIn(10, 720)
+        if (stay == p.stayMinutes) return@launch
+        repo.savePlace(p.copy(stayMinutes = stay))
+        places = repo.getPlaces(tripId)
+            .sortedWith(compareBy<Place>({ it.orderInDay == null }, { it.orderInDay }, { it.id }))
+        compute()
+    }
+
     fun selectOption(key: String) { selectedKey.value = key }
 
     /** 지금 고른 안 (없으면 첫 번째) */
@@ -88,6 +110,7 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         val t = repo.getTrip(tripId) ?: return@launch
         trip = t
         places = repo.getPlaces(tripId)
+            .sortedWith(compareBy<Place>({ it.orderInDay == null }, { it.orderInDay }, { it.id }))
         lodgings = repo.getLodgings(tripId)
         val n = TimeUtil.dayCount(t.startDate, t.endDate)
         if (selectedDay !in 1..n) selectedDay = 1
@@ -117,7 +140,7 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
                     ctx.getString(R.string.empty_route_day_action), EmptyState.Action.GO_BACK)
             else EmptyState(ctx.getString(R.string.empty_route_loc_title), ctx.getString(R.string.empty_route_loc_body),
                     ctx.getString(R.string.back_to_detail), EmptyState.Action.GO_BACK)
-            ui.value = RouteUiState(day, dateLabel, anchor, emptyList(), empty, notes, t.startMinutes)
+            ui.value = RouteUiState(day, dateLabel, anchor, emptyList(), empty, notes, t.startMinutes, t.endMinutes)
             return
         }
 
@@ -127,10 +150,10 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
 
         // 순서 비교는 계산이 많으니 백그라운드에서
         loading.value = true
-        val options = withContext(Dispatchers.Default) { RoutePlanner.plan(anchor, stops, candidates, t.startMinutes) }
+        val options = withContext(Dispatchers.Default) { RoutePlanner.plan(anchor, stops, candidates, t.startMinutes, t.endMinutes) }
         loading.value = false
         ui.value = RouteUiState(day, dateLabel, anchor, options, null,
-            notes + if (anchor == null) listOf(ctx.getString(R.string.note_no_anchor)) else emptyList(), t.startMinutes)
+            notes + if (anchor == null) listOf(ctx.getString(R.string.note_no_anchor)) else emptyList(), t.startMinutes, t.endMinutes)
     }
 
     /** 선택한 경로의 순서를 저장. C안이면 추가된 후보도 그날 확정으로 옮김 */

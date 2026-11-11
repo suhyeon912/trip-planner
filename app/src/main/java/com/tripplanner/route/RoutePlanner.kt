@@ -26,9 +26,13 @@ data class RouteOption(
     val totalKm: Double,
     val moveMinutes: Int,
     val endTime: Int,                // 숙소 도착(또는 마지막 장소 출발) 시각
-    val added: List<Stop> = emptyList()  // C안에서 새로 넣은 후보
+    val added: List<Stop> = emptyList(),  // C안에서 새로 넣은 후보
+    val endLimit: Int? = null        // 숙소 도착 목표 시각 (null = 자유)
 ) {
-    val warnings: List<String> get() = visits.mapNotNull { it.warning?.let { w -> "${it.stop.name}: $w" } }
+    /** 목표보다 늦게 도착하는 분 (늦지 않으면 0) */
+    val lateMinutes: Int get() = endLimit?.let { maxOf(0, endTime - it) } ?: 0
+    val warnings: List<String> get() = visits.mapNotNull { it.warning?.let { w -> "${it.stop.name}: $w" } } +
+        if (lateMinutes > 0) listOf("숙소 도착 ${TimeUtil.format(endTime)} · 목표 ${TimeUtil.format(endLimit!!)}보다 ${lateMinutes}분 늦음") else emptyList()
 }
 
 /**
@@ -49,20 +53,21 @@ object RoutePlanner {
         anchor: Anchor?,
         stops: List<Stop>,
         candidates: List<Stop>,
-        startTime: Int = DEFAULT_START
+        startTime: Int = DEFAULT_START,
+        endLimit: Int? = null
     ): List<RouteOption> {
         if (stops.isEmpty()) return emptyList()
 
         // A. 최단
         val orderA = shortestOrder(anchor, stops)
-        val a = build("A", "최단 경로", "이동거리가 가장 짧은 순서", anchor, orderA, startTime)
+        val a = build("A", "최단 경로", "이동거리가 가장 짧은 순서", anchor, orderA, startTime, endLimit = endLimit)
 
         // B. 운영시간 맞춤
         val orderB = timeAwareOrder(anchor, stops, startTime)
         val b = if (orderB.map { it.id } == orderA.map { it.id })
-            build("B", "시간 맞춤", "최단 경로가 이미 운영시간과 잘 맞아요", anchor, orderB, startTime)
+            build("B", "시간 맞춤", "최단 경로가 이미 운영시간과 잘 맞아요", anchor, orderB, startTime, endLimit = endLimit)
         else
-            build("B", "시간 맞춤", "브레이크 타임·운영시간을 피하는 순서", anchor, orderB, startTime)
+            build("B", "시간 맞춤", "브레이크 타임·운영시간을 피하는 순서", anchor, orderB, startTime, endLimit = endLimit)
 
         val result = mutableListOf(a, b)
 
@@ -70,7 +75,12 @@ object RoutePlanner {
         val (orderC, added) = insertCandidates(anchor, orderA, candidates)
         if (added.isNotEmpty()) {
             result += build("C", "후보 포함", "가는 길에 들를 수 있는 후보 ${added.size}곳 추가",
-                anchor, orderC, startTime, added)
+                anchor, orderC, startTime, added, endLimit)
+        }
+
+        // D. 지금 순서 그대로 (여행 상세에서 정한 순서, A 와 같으면 빼기)
+        if (stops.size >= 2 && stops.map { it.id } != orderA.map { it.id }) {
+            result += build("D", "지금 순서 그대로", "여행 상세에서 정한 순서 그대로", anchor, stops, startTime, endLimit = endLimit)
         }
         return result
     }
@@ -181,9 +191,9 @@ object RoutePlanner {
     }
 
     private fun build(key: String, title: String, desc: String, anchor: Anchor?, order: List<Stop>,
-                      startTime: Int, added: List<Stop> = emptyList()): RouteOption {
+                      startTime: Int, added: List<Stop> = emptyList(), endLimit: Int? = null): RouteOption {
         val sim = simulate(anchor, order, startTime)
-        return RouteOption(key, title, desc, sim.visits, totalKm(anchor, order), sim.moveMinutes, sim.endTime, added)
+        return RouteOption(key, title, desc, sim.visits, totalKm(anchor, order), sim.moveMinutes, sim.endTime, added, endLimit)
     }
 
     // ---------- 순서 만들기 ----------

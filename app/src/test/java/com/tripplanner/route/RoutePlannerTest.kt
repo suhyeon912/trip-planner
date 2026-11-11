@@ -78,4 +78,30 @@ class RoutePlannerTest {
         val order = RoutePlanner.shortestOrder(hotel, stops)
         assertEquals(10, order.toSet().size)
     }
+
+    @Test fun optionDKeepsGivenOrder_onlyWhenDifferent() {
+        // 숙소와 세 곳이 네모 꼭짓점 → 둘레를 도는 순서가 최단, 대각선으로 오가는 순서는 더 김
+        val home = Anchor("숙소", 35.0, 135.0)
+        val a = Stop(1, "a", 35.01, 135.0)
+        val b = Stop(2, "b", 35.01, 135.02)
+        val c = Stop(3, "c", 35.0, 135.02)
+        val given = listOf(b, a, c)
+        val d = RoutePlanner.plan(home, given, emptyList()).single { it.key == "D" }
+        assertEquals(listOf(2L, 1L, 3L), d.visits.map { it.stop.id })
+        // 이미 최단(A) 순서면 D 는 없음
+        val orderA = RoutePlanner.plan(home, given, emptyList()).first { it.key == "A" }.visits.map { it.stop }
+        assertTrue(RoutePlanner.plan(home, orderA, emptyList()).none { it.key == "D" })
+    }
+
+    @Test
+    fun endLimit_warnsWhenLate() {
+        val home = Anchor("숙소", 35.0, 135.0)
+        val far = Stop(1, "먼 곳", 35.2, 135.0, stayMinutes = 600)
+        val late = RoutePlanner.plan(home, listOf(far), emptyList(), startTime = 600, endLimit = 18 * 60).first()
+        assertTrue(late.lateMinutes > 0)
+        assertTrue(late.warnings.any { it.startsWith("숙소 도착") })
+        val free = RoutePlanner.plan(home, listOf(far), emptyList(), startTime = 600).first()
+        assertEquals(0, free.lateMinutes)
+        assertTrue(free.warnings.isEmpty())
+    }
 }
