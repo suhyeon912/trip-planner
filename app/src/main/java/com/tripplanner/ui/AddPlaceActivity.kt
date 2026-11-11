@@ -1,37 +1,37 @@
 package com.tripplanner.ui
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
-import com.tripplanner.data.PlaceCategory
-import com.tripplanner.route.Region
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import android.widget.ArrayAdapter
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.materialswitch.MaterialSwitch
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.tripplanner.R
 import com.tripplanner.TripPlannerApp
 import com.tripplanner.data.Place
+import com.tripplanner.data.PlaceCategory
 import com.tripplanner.data.PlaceStatus
+import com.tripplanner.route.Region
 import com.tripplanner.route.TimeUtil
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
- * 장소 추가 / 수정 화면 (6단계). EXTRA_PLACE_ID 가 있으면 수정 모드.
- * 저장되는 값과 검사 조건은 이전과 같고, 오류는 해당 입력칸 아래에 표시합니다.
+ * 장소 추가 / 수정 (시안 AddPlace, 전체 화면). EXTRA_PLACE_ID 가 있으면 수정 모드.
+ * 저장되는 값과 검사 조건은 이전과 같습니다 (이름 필수, 위도 -90~90, 경도 -180~180).
+ * 위치는 위도·경도 칸 대신 '검색해서 고르기', 키가 없을 때를 위해 직접 입력도 남겨 둠.
  */
 class AddPlaceActivity : AppCompatActivity() {
 
@@ -41,26 +41,29 @@ class AddPlaceActivity : AppCompatActivity() {
     }
 
     private val repo by lazy { (application as TripPlannerApp).repository }
+    private val tripId by lazy { intent.getLongExtra(TripDetailActivity.EXTRA_TRIP_ID, -1) }
+    private val dayCount by lazy { intent.getIntExtra(EXTRA_DAY_COUNT, 7) }
     private var editing: Place? = null
-    private val noDay by lazy { getString(R.string.day_none) }
 
-    private lateinit var tilName: TextInputLayout
-    private lateinit var tilLat: TextInputLayout
-    private lateinit var tilLng: TextInputLayout
-    private lateinit var tilDay: TextInputLayout
-    private lateinit var actDay: MaterialAutoCompleteTextView
-    private lateinit var toggle: MaterialButtonToggleGroup
-
-    private fun field(id: Int) = findViewById<TextInputEditText>(id)
-
-    // 새 기능: 장소 종류 · 사진 · 검색
+    // 화면 상태 (회전해도 유지)
     private var category = PlaceCategory.SIGHT
     private var photoPath: String? = null
+    private var day: Int? = null
+    private var lat = 0.0
+    private var lng = 0.0
+    private var locationLabel: String? = null
     private var tripDomestic = true
+    private var startDate: String? = null
+    private var dayCounts: Map<Int, Int> = emptyMap()
+
     private lateinit var chips: ChipGroup
     private lateinit var ivPhoto: ImageView
-    private lateinit var btnPhoto: Button
-    private lateinit var btnRemovePhoto: Button
+    private lateinit var toggle: MaterialButtonToggleGroup
+    private lateinit var fieldDay: SelectField
+    private lateinit var fieldLocation: SelectField
+    private lateinit var tilName: TextInputLayout
+
+    private fun field(id: Int) = findViewById<TextInputEditText>(id)
 
     /** 사진 고르기 (Android 사진 선택기 — 저장소 권한 필요 없음) */
     private val pickPhoto = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -72,48 +75,26 @@ class AddPlaceActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("category", category.name)
-        outState.putString("photo", photoPath)
-    }
-
-    private fun refreshPhoto() {
-        Thumbs.bind(ivPhoto, photoPath, category)
-        btnPhoto.setText(if (photoPath != null) R.string.change_photo else R.string.pick_photo)
-        btnRemovePhoto.visibility = if (photoPath != null) View.VISIBLE else View.GONE
-    }
-
-    private fun selectCategory(c: PlaceCategory) {
-        category = c
-        chips.check(1000 + c.ordinal)
-        refreshPhoto()
-    }
-
-    /** 검색 결과로 칸 채우기: 이름·위치·종류는 덮어쓰고, 운영시간은 비어 있을 때만 */
-    private fun applySearchHit(hit: SearchHit) {
-        field(R.id.etName).setText(hit.name)
-        field(R.id.etLat).setText(hit.lat.toString())
-        field(R.id.etLng).setText(hit.lng.toString())
-        selectCategory(hit.category)
-        val hours = field(R.id.etHours)
-        val cur = hours.text?.toString()?.trim().orEmpty()
-        if (hit.hours != null && (cur.isEmpty() || cur == getString(R.string.hours_unknown))) hours.setText(hit.hours)
-        showSnack(getString(R.string.search_filled, hit.name))
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_place)
-
-        val tripId = intent.getLongExtra(TripDetailActivity.EXTRA_TRIP_ID, -1)
         val placeId = intent.getLongExtra(EXTRA_PLACE_ID, -1)
-        val dayCount = intent.getIntExtra(EXTRA_DAY_COUNT, 7)
 
-        val toolbar = setupToolbar()
+        val toolbar = setupToolbar(getString(if (placeId == -1L) R.string.add_place else R.string.edit_place), showBack = false)
+        toolbar.setNavigationIcon(R.drawable.ic_close)
+        toolbar.setNavigationContentDescription(R.string.action_close)
+        toolbar.setNavigationOnClickListener { finish() }
         limitScrollContentWidth(R.id.scroll)
 
-        // ---------- 장소 종류 칩 ----------
+        tilName = findViewById(R.id.tilName)
+        toggle = findViewById(R.id.toggleStatus)
+        fieldDay = findViewById(R.id.fieldDay)
+        fieldLocation = findViewById(R.id.fieldLocation)
+        ivPhoto = findViewById(R.id.ivPhoto)
+        val switchReservation = findViewById<MaterialSwitch>(R.id.switchReservation)
+        field(R.id.etName).doAfterTextChanged { tilName.error = null }
+
+        // ---------- 종류 칩: 바탕색 = 종류, 고르면 테두리 2 + ✓ ----------
         chips = findViewById(R.id.chipsCategory)
         PlaceCategory.entries.forEach { c ->
             chips.addView(Chip(this, null, com.google.android.material.R.attr.chipStyle).apply {
@@ -122,130 +103,199 @@ class AddPlaceActivity : AppCompatActivity() {
                 isCheckable = true
                 setChipIconResource(c.icon)
                 isChipIconVisible = true
-                chipIconTint = android.content.res.ColorStateList.valueOf(color(c.fgColor))
+                chipIconTint = ColorStateList.valueOf(color(c.fgColor))
+                chipBackgroundColor = ColorStateList.valueOf(color(c.bgColor))
+                setCheckedIconResource(R.drawable.ic_check)
+                checkedIconTint = ColorStateList.valueOf(color(R.color.on_surface))
+                setTextAppearanceResource(R.style.TextAppearance_TripPlanner_LabelLarge)
+                setTextColor(color(R.color.on_surface))
+                chipStrokeColor = ColorStateList.valueOf(color(R.color.on_surface))
+                chipStrokeWidth = 0f
+                shapeAppearanceModel = shapeAppearanceModel.withCornerSize(12 * resources.displayMetrics.density)
                 setEnsureMinTouchTargetSize(true)
+                setOnCheckedChangeListener { v, checked -> (v as Chip).chipStrokeWidth = if (checked) 2 * resources.displayMetrics.density else 0f }
             })
         }
         chips.setOnCheckedStateChangeListener { _, ids ->
             ids.firstOrNull()?.let { id -> PlaceCategory.entries.getOrNull(id - 1000)?.let { category = it; refreshPhoto() } }
         }
-        // ---------- 사진 ----------
-        ivPhoto = findViewById(R.id.ivPhoto)
-        btnPhoto = findViewById(R.id.btnPhoto)
-        btnRemovePhoto = findViewById(R.id.btnRemovePhoto)
-        btnPhoto.setOnClickListener {
-            pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+
+        // ---------- 사진: 비었으면 고르기, 있으면 바꾸기 / 빼기 ----------
+        findViewById<View>(R.id.photoBox).setOnClickListener { v ->
+            if (photoPath == null) pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            else showSelect(v, listOf(
+                SelectRow.Option(getString(R.string.change_photo)) {
+                    pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
+                SelectRow.Option(getString(R.string.remove_photo), danger = true) { photoPath = null; refreshPhoto() }
+            ), widthDp = 168)
         }
-        btnRemovePhoto.setOnClickListener { photoPath = null; refreshPhoto() }
+
+        // ---------- 검색 (여행 장소·숙소가 모두 국내면 카카오 먼저) ----------
+        findViewById<View>(R.id.btnSearchPlace).setOnClickListener {
+            showPlaceSearch(this, field(R.id.etName).text?.toString().orEmpty(), tripDomestic) { applySearchHit(it) }
+        }
+
+        // ---------- 일차 select · 후보면 일차 칸 끔 ----------
+        fieldDay.label = getString(R.string.label_day)
+        fieldDay.setIcon(R.drawable.ic_event)
+        fieldDay.setDropdown(true)
+        fieldDay.setOnClickListener { pickDay(it) }
+        toggle.addOnButtonCheckedListener { _, _, _ -> render() }
+
+        // ---------- 위치 ----------
+        fieldLocation.label = getString(R.string.section_location)
+        fieldLocation.setIcon(R.drawable.ic_place)
+        fieldLocation.setDropdown(true)
+        fieldLocation.setPlaceholder(getString(R.string.placeholder_location))
+        fieldLocation.setOnClickListener { pickLocation(it) }
+
+        findViewById<View>(R.id.btnCancel).setOnClickListener { finish() }
+        findViewById<View>(R.id.btnSave).setOnClickListener { save(switchReservation.isChecked) }
+
         savedInstanceState?.let { st ->
             category = st.getString("category")?.let { runCatching { PlaceCategory.valueOf(it) }.getOrNull() } ?: category
             photoPath = st.getString("photo")
+            day = st.getInt("day", 0).takeIf { it > 0 }
+            lat = st.getDouble("lat"); lng = st.getDouble("lng"); locationLabel = st.getString("locLabel")
         }
         selectCategory(category)
-        // ---------- 장소 검색 (여행 장소·숙소가 모두 국내면 카카오 먼저) ----------
+        render()
+
         lifecycleScope.launch {
-            val coords = repo.getPlaces(tripId).filter { it.hasLocation }.map { it.lat to it.lng } +
+            val places = repo.getPlaces(tripId)
+            val coords = places.filter { it.hasLocation }.map { it.lat to it.lng } +
                 repo.getLodgings(tripId).filter { it.lat != 0.0 || it.lng != 0.0 }.map { it.lat to it.lng }
             tripDomestic = coords.isEmpty() || coords.all { (la, ln) -> Region.isKorea(la, ln) }
-        }
-        val openSearch = { showPlaceSearch(this, field(R.id.etName).text?.toString().orEmpty(), tripDomestic) { applySearchHit(it) } }
-        findViewById<Button>(R.id.btnSearchPlace).setOnClickListener { openSearch() }
-        findViewById<TextInputLayout>(R.id.tilName).setEndIconOnClickListener { openSearch() }
-        tilName = findViewById(R.id.tilName)
-        tilLat = findViewById(R.id.tilLat)
-        tilLng = findViewById(R.id.tilLng)
-        tilDay = findViewById(R.id.tilDay)
-        actDay = findViewById(R.id.actDay)
-        toggle = findViewById(R.id.toggleStatus)
-        val switchReservation = findViewById<MaterialSwitch>(R.id.switchReservation)
-
-        // 오류 표시는 다시 입력하면 지움
-        listOf(tilName to R.id.etName, tilLat to R.id.etLat, tilLng to R.id.etLng).forEach { (til, id) ->
-            field(id).doAfterTextChanged { til.error = null }
-        }
-
-        // 며칠째 드롭다운: "일차 미정", "1일차 · 2/12(금)" … (날짜는 여행 시작일로 계산)
-        setDayOptions((1..dayCount).map { dayLabel(it) })
-        lifecycleScope.launch {
-            val start = repo.getTrip(tripId)?.startDate ?: return@launch
-            setDayOptions((1..dayCount).map { d -> dayWithDate(d, TimeUtil.dateOfDay(start, d)) })
-            // 수정 모드에서 미리 고른 일차 라벨을 날짜 포함 라벨로 맞춤
-            editing?.day?.let { if (savedInstanceState == null) selectDay(it) }
-        }
-
-        // 후보면 며칠째 비활성
-        fun updateDayEnabled() {
-            val confirmed = toggle.checkedButtonId == R.id.btnConfirmed
-            tilDay.isEnabled = confirmed
-            tilDay.helperText = if (confirmed) null else getString(R.string.helper_candidate_day)
-        }
-        toggle.addOnButtonCheckedListener { _, _, _ -> updateDayEnabled() }
-        updateDayEnabled()
-
-        // 수정 모드면 기존 값 채우기 (회전 후 재생성 때는 입력칸이 스스로 값을 복원하므로 건너뜀)
-        if (placeId != -1L) {
-            toolbar.setTitle(R.string.edit_place)
-            lifecycleScope.launch {
+            startDate = repo.getTrip(tripId)?.startDate
+            dayCounts = places.filter { it.status == PlaceStatus.CONFIRMED && it.id != placeId }
+                .mapNotNull { it.day }.groupingBy { it }.eachCount()
+            // 수정 모드면 기존 값 채우기 (회전 후 재생성 때는 입력칸이 스스로 값을 복원하므로 건너뜀)
+            if (placeId != -1L) {
                 val p = repo.getPlace(placeId) ?: return@launch
                 editing = p
-                if (savedInstanceState != null) return@launch
-                field(R.id.etName).setText(p.name)
-                field(R.id.etHours).setText(p.openingHours)
-                field(R.id.etBreak).setText(p.breakTime ?: "")
-                field(R.id.etClosed).setText(p.closedDays ?: "")
-                switchReservation.isChecked = p.isReservationRequired
-                field(R.id.etStay).setText(p.stayMinutes.toString())
-                field(R.id.etMemo).setText(p.memo)
-                photoPath = p.photoUri
-                selectCategory(p.category)
-                if (p.hasLocation) { field(R.id.etLat).setText(p.lat.toString()); field(R.id.etLng).setText(p.lng.toString()) }
-                toggle.check(if (p.status == PlaceStatus.CONFIRMED) R.id.btnConfirmed else R.id.btnCandidate)
-                if (p.day != null) selectDay(p.day) else actDay.setText(noDay, false)
+                if (savedInstanceState == null) {
+                    field(R.id.etName).setText(p.name)
+                    field(R.id.etHours).setText(p.openingHours)
+                    field(R.id.etBreak).setText(p.breakTime ?: "")
+                    field(R.id.etClosed).setText(p.closedDays ?: "")
+                    switchReservation.isChecked = p.isReservationRequired
+                    field(R.id.etStay).setText(p.stayMinutes.toString())
+                    field(R.id.etMemo).setText(p.memo)
+                    photoPath = p.photoUri
+                    lat = p.lat; lng = p.lng
+                    day = p.day
+                    selectCategory(p.category)
+                    toggle.check(if (p.status == PlaceStatus.CONFIRMED) R.id.btnConfirmed else R.id.btnCandidate)
+                }
             }
+            render()
         }
-
-        val save = { save(tripId, dayCount, switchReservation.isChecked) }
-        findViewById<Button>(R.id.btnSave).setOnClickListener { save() }
-        toolbar.setOnMenuItemClickListener { if (it.itemId == R.id.action_save) save(); true }
     }
 
-    private var dayLabels: List<String> = emptyList()
-
-    private fun setDayOptions(labels: List<String>) {
-        dayLabels = labels
-        val current = currentDay()
-        actDay.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, listOf(noDay) + labels))
-        if (current != null) selectDay(current) else if (actDay.text.isNullOrEmpty()) actDay.setText(noDay, false)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("category", category.name)
+        outState.putString("photo", photoPath)
+        outState.putInt("day", day ?: 0)
+        outState.putDouble("lat", lat); outState.putDouble("lng", lng)
+        outState.putString("locLabel", locationLabel)
     }
 
-    private fun selectDay(day: Int) {
-        dayLabels.getOrNull(day - 1)?.let { actDay.setText(it, false) }
+    private fun refreshPhoto() {
+        val has = photoPath != null
+        ivPhoto.visibility = if (has) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.photoEmpty).visibility = if (has) View.GONE else View.VISIBLE
+        if (has) Thumbs.bind(ivPhoto, photoPath, category)
+        findViewById<View>(R.id.photoBox).contentDescription = getString(if (has) R.string.change_photo else R.string.pick_photo)
     }
 
-    /** 드롭다운 글자 "3일차 · …" → 3, "일차 미정" → null (회전 후에도 글자로 복원 가능). 앞쪽 숫자만 읽음 */
-    private fun currentDay(): Int? = actDay.text?.toString()?.trim()?.takeWhile { it.isDigit() }?.toIntOrNull()
+    private fun selectCategory(c: PlaceCategory) {
+        category = c
+        chips.check(1000 + c.ordinal)
+        refreshPhoto()
+    }
 
-    private fun save(tripId: Long, dayCount: Int, reservation: Boolean) {
+    private fun confirmed() = toggle.checkedButtonId == R.id.btnConfirmed
+
+    private fun dayText(d: Int): String {
+        val date = startDate?.let { TimeUtil.dateOfDay(it, d) }
+        return dayLabel(d) + (date?.let { " · ${it.monthValue}.${it.dayOfMonth} (${TimeUtil.koreanDayName(it).first()})" } ?: "")
+    }
+
+    private fun render() {
+        // 후보는 일차 없이 저장 → 일차 칸 흐리게, 누를 수 없음
+        val on = confirmed()
+        fieldDay.alpha = if (on) 1f else 0.38f
+        fieldDay.isEnabled = on
+        fieldDay.findViewById<View>(R.id.selectBox).isEnabled = on
+        fieldDay.setValue(if (!on) getString(R.string.day_none) else day?.let { dayLabel(it) } ?: getString(R.string.day_none))
+        val hasLoc = lat != 0.0 || lng != 0.0
+        fieldLocation.setValue(if (!hasLoc) null else locationLabel ?: getString(R.string.location_set, lat, lng))
+        refreshPhoto()
+    }
+
+    /** 일차 select: ● n일차 · 11.20 (금) · n곳 … / ○ 일차 미정 */
+    private fun pickDay(anchor: View) {
+        if (!confirmed()) return
+        val rows = (1..dayCount).map { d ->
+            SelectRow.Option(dayText(d) + getString(R.string.list_separator) + getString(R.string.places_count, dayCounts[d] ?: 0),
+                selected = day == d, dotColor = PinIcons.dayColor(d)) { day = d; render() }
+        } + SelectRow.Option(getString(R.string.day_none), selected = day == null, hollowDot = true) { day = null; render() }
+        showSelect(anchor, rows, widthDp = 240)
+    }
+
+    /** 위치: 검색해서 고르기 / 위도·경도 직접 입력 / 지우기 */
+    private fun pickLocation(anchor: View) {
+        val rows = mutableListOf(
+            SelectRow.Option(getString(R.string.location_search)) {
+                showPlaceSearch(this, field(R.id.etName).text?.toString().orEmpty(), tripDomestic) { hit ->
+                    lat = hit.lat; lng = hit.lng; locationLabel = hit.address.ifBlank { hit.name }; render()
+                }
+            },
+            SelectRow.Option(getString(R.string.location_manual)) {
+                showFormDialog(this, getString(R.string.section_location), listOf(
+                    Field(getString(R.string.hint_lat), lat.takeIf { it != 0.0 }?.toString() ?: "", DECIMAL_INPUT),
+                    Field(getString(R.string.hint_lng), lng.takeIf { it != 0.0 }?.toString() ?: "", DECIMAL_INPUT)
+                )) { (a, b) ->
+                    val la = a.toDoubleOrNull(); val ln = b.toDoubleOrNull()
+                    // 검사 조건은 이전과 같음: 위도 -90~90, 경도 -180~180
+                    when {
+                        la != null && la !in -90.0..90.0 -> { Toast.makeText(this, R.string.error_lat, Toast.LENGTH_SHORT).show(); false }
+                        ln != null && ln !in -180.0..180.0 -> { Toast.makeText(this, R.string.error_lng, Toast.LENGTH_SHORT).show(); false }
+                        else -> { lat = la ?: 0.0; lng = ln ?: 0.0; locationLabel = null; render(); true }
+                    }
+                }
+            }
+        )
+        if (lat != 0.0 || lng != 0.0) rows += SelectRow.Option(getString(R.string.location_clear), danger = true) {
+            lat = 0.0; lng = 0.0; locationLabel = null; render()
+        }
+        showSelect(anchor, rows, widthDp = 220)
+    }
+
+    /** 검색 결과로 칸 채우기: 이름·위치·종류는 덮어쓰고, 운영시간은 비어 있을 때만 */
+    private fun applySearchHit(hit: SearchHit) {
+        field(R.id.etName).setText(hit.name)
+        lat = hit.lat; lng = hit.lng; locationLabel = hit.address.ifBlank { hit.name }
+        selectCategory(hit.category)
+        val hours = field(R.id.etHours)
+        val cur = hours.text?.toString()?.trim().orEmpty()
+        if (hit.hours != null && (cur.isEmpty() || cur == getString(R.string.hours_unknown))) hours.setText(hit.hours)
+        render()
+        showSnack(getString(R.string.search_filled, hit.name))
+    }
+
+    private fun save(reservation: Boolean) {
         val name = field(R.id.etName).text.toString().trim()
-        val latText = field(R.id.etLat).text.toString()
-        val lngText = field(R.id.etLng).text.toString()
-        val lat = latText.toDoubleOrNull()
-        val lng = lngText.toDoubleOrNull()
-        val day = currentDay()?.takeIf { it in 1..dayCount }
-
-        // 검사 (조건은 이전과 같음) → 해당 칸에 오류 표시, 첫 오류 칸으로 이동
-        val errors = mutableListOf<TextInputLayout>()
-        if (name.isBlank()) { tilName.error = getString(R.string.error_place_name); errors += tilName }
-        if (lat != null && lat !in -90.0..90.0) { tilLat.error = getString(R.string.error_lat); errors += tilLat }
-        if (lng != null && lng !in -180.0..180.0) { tilLng.error = getString(R.string.error_lng); errors += tilLng }
-        if (errors.isNotEmpty()) {
-            val first = errors.first()
-            findViewById<NestedScrollView>(R.id.scroll).smoothScrollTo(0, first.top)
-            first.editText?.requestFocus()
+        if (name.isBlank()) {
+            tilName.error = getString(R.string.error_place_name)
+            findViewById<NestedScrollView>(R.id.scroll).smoothScrollTo(0, 0)
+            field(R.id.etName).requestFocus()
             return
         }
-
-        val confirmed = toggle.checkedButtonId == R.id.btnConfirmed
+        val confirmed = confirmed()
+        val d = day?.takeIf { it in 1..dayCount }
         val old = editing
         val place = Place(
             id = old?.id ?: 0,
@@ -257,11 +307,11 @@ class AddPlaceActivity : AppCompatActivity() {
             closedDays = field(R.id.etClosed).text.toString().trim().ifBlank { null },
             isReservationRequired = reservation,
             memo = field(R.id.etMemo).text.toString().trim(),
-            lat = lat ?: 0.0,
-            lng = lng ?: 0.0,
-            day = if (confirmed) day else null,
+            lat = lat,
+            lng = lng,
+            day = if (confirmed) d else null,
             // 일차가 그대로면 기존 방문 순서 유지
-            orderInDay = if (confirmed && old?.day == day) old?.orderInDay else null,
+            orderInDay = if (confirmed && old?.day == d) old?.orderInDay else null,
             stayMinutes = field(R.id.etStay).text.toString().toIntOrNull()?.coerceIn(10, 720) ?: 60,
             category = category,
             photoUri = photoPath

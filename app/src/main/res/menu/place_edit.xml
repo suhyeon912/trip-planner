@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- 장소 추가·수정 툴바: 저장 (화면 맨 아래 저장 버튼과 같은 동작) -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_save" android:title="@string/action_save" app:showAsAction="always|withText" />
-</menu>

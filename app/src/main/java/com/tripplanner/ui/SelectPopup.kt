@@ -18,6 +18,9 @@ sealed class SelectRow {
         val text: String,
         val selected: Boolean = false,
         val danger: Boolean = false,
+        /** 앞에 붙는 색 점 (일차 색). hollow = 속 빈 점(일차 미정) */
+        val dotColor: Int? = null,
+        val hollowDot: Boolean = false,
         val onClick: () -> Unit
     ) : SelectRow()
     object Divider : SelectRow()
@@ -48,6 +51,18 @@ fun showSelect(anchor: View, rows: List<SelectRow>, widthDp: Int = 200) {
             is SelectRow.Option -> (convertView ?: inflater.inflate(R.layout.item_select_option, parent, false)).apply {
                 (this as TextView).text = row.text
                 isSelected = row.selected
+                val d = ctx.resources.displayMetrics.density
+                val dot = when {
+                    row.dotColor != null || row.hollowDot -> android.graphics.drawable.GradientDrawable().apply {
+                        shape = android.graphics.drawable.GradientDrawable.OVAL
+                        setSize((8 * d).toInt(), (8 * d).toInt())
+                        if (row.hollowDot) { setColor(0); setStroke((1.5f * d).toInt(), ContextCompat.getColor(ctx, R.color.text_sub)) }
+                        else setColor(row.dotColor!!)
+                    }
+                    else -> null
+                }
+                setCompoundDrawablesRelativeWithIntrinsicBounds(dot, null, null, null)
+                compoundDrawablePadding = (10 * d).toInt()
                 setTextColor(ContextCompat.getColor(ctx, when {
                     row.danger -> R.color.badge_red
                     row.selected -> R.color.on_secondary_container

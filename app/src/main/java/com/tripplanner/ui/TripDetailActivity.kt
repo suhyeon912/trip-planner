@@ -226,8 +226,9 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
     override fun onConfirmPick(place: Place, anchor: View) {
         val rows = viewModel.dayOptions().map { (day, date, count) ->
             SelectRow.Option(listOf(dayLabel(day), date, getString(R.string.places_count, count))
-                .filter { it.isNotEmpty() }.joinToString(getString(R.string.list_separator))) { viewModel.confirm(place, day) }
-        } + SelectRow.Option(getString(R.string.day_none)) { viewModel.confirm(place, null) }
+                .filter { it.isNotEmpty() }.joinToString(getString(R.string.list_separator)),
+                dotColor = PinIcons.dayColor(day)) { viewModel.confirm(place, day) }
+        } + SelectRow.Option(getString(R.string.day_none), hollowDot = true) { viewModel.confirm(place, null) }
         showSelect(anchor, rows, widthDp = 220)
     }
 
