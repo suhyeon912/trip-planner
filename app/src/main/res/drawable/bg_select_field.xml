@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SelectField 칸: 테두리 outline 1 · 누름 primary 2 · 오류 빨강 2 · 모서리 12 -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/outline_variant">
+    <item>
+        <selector>
+            <item android:state_activated="true">
+                <shape><solid android:color="@color/card_bg" /><stroke android:width="2dp" android:color="@color/badge_red" /><corners android:radius="@dimen/radius_input" /></shape>
+            </item>
+            <item android:state_focused="true">
+                <shape><solid android:color="@color/card_bg" /><stroke android:width="2dp" android:color="@color/primary" /><corners android:radius="@dimen/radius_input" /></shape>
+            </item>
+            <item>
+                <shape><solid android:color="@color/card_bg" /><stroke android:width="1dp" android:color="@color/outline" /><corners android:radius="@dimen/radius_input" /></shape>
+            </item>
+        </selector>
+    </item>
+</ripple>

@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  교통편 추가·수정 / 숙소 추가·수정 (시안 TravelFlightAdd · TravelLodgingAdd, 전체 화면)
+  교통편: 교통 종류(select) · 편명·열차 번호* · 출발지 | 도착지 · 출발 날짜·시각 · 도착 날짜·시각
+  숙소: 숙소 이름* · 위치 · 체크인 | 체크아웃
+  하단 바 취소 : 저장 = 1 : 2
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorSurface" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingTop="@dimen/space_s"
+            android:paddingBottom="@dimen/space_xl">
+
+            <!-- ===== 교통편 ===== -->
+            <LinearLayout
+                android:id="@+id/flightGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:text="@string/hint_transport_mode" />
+
+                <com.tripplanner.ui.SelectField
+                    android:id="@+id/fieldMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:id="@+id/groupNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/Widget.TripPlanner.FieldLabel"
+                        android:layout_marginTop="@dimen/space_l"
+                        android:labelFor="@id/inputNumber"
+                        android:text="@string/hint_flight_no" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutNumber"
+                        style="@style/Widget.TripPlanner.TextField.NoLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:placeholderText="@string/placeholder_flight_no">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputNumber"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapCharacters|textNoSuggestions" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Widget.TripPlanner.FieldLabel"
+                            android:labelFor="@id/inputFrom"
+                            android:text="@string/hint_from_airport" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.TripPlanner.TextField.NoLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:placeholderText="@string/placeholder_from">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/inputFrom"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Widget.TripPlanner.FieldLabel"
+                            android:labelFor="@id/inputTo"
+                            android:text="@string/hint_to_airport" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.TripPlanner.TextField.NoLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:placeholderText="@string/placeholder_to">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/inputTo"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:text="@string/hint_depart_at" />
+
+                <com.tripplanner.ui.SelectField
+                    android:id="@+id/fieldDepart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:text="@string/hint_arrive_at" />
+
+                <com.tripplanner.ui.SelectField
+                    android:id="@+id/fieldArrive"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- ===== 숙소 ===== -->
+            <LinearLayout
+                android:id="@+id/lodgingGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:labelFor="@id/inputLodgingName"
+                    android:text="@string/hint_lodging_name" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutLodgingName"
+                    style="@style/Widget.TripPlanner.TextField.NoLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputLodgingName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:text="@string/label_location" />
+
+                <com.tripplanner.ui.SelectField
+                    android:id="@+id/fieldLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Widget.TripPlanner.FieldLabel"
+                            android:text="@string/hint_check_in" />
+
+                        <com.tripplanner.ui.SelectField
+                            android:id="@+id/fieldCheckIn"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/Widget.TripPlanner.FieldLabel"
+                            android:text="@string/hint_check_out" />
+
+                        <com.tripplanner.ui.SelectField
+                            android:id="@+id/fieldCheckOut"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout style="@style/Widget.TripPlanner.BottomBar">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.TripPlanner.Button.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/action_cancel" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:layout_weight="2"
+            android:text="@string/action_save" />
+    </LinearLayout>
+</LinearLayout>

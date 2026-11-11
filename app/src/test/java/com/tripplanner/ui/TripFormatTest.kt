@@ -35,4 +35,14 @@ class TripFormatTest {
         assertNull(TripFormat.nightsDays("2027-02-14", "2027-02-12"))
         assertNull(TripFormat.nightsDays("", ""))
     }
+
+    @Test fun travelFormats() {
+        assertEquals("11.20 08:30", TripFormat.shortDateTime("2026-11-20 08:30"))
+        assertEquals("11.20 (금) 08:30", TripFormat.dateTimeWithDay("2026-11-20 08:30"))
+        assertEquals("11.23 (월)", TripFormat.dateWithDay("2026-11-23"))
+        assertEquals("11.20", TripFormat.shortDate("2026-11-20"))
+        assertEquals("2/12 09:00", TripFormat.shortDateTime("2/12 09:00"))
+        assertEquals("10:50", TripFormat.arriveShort("2026-11-20 08:30", "2026-11-20 10:50"))
+        assertEquals("11.21 01:10", TripFormat.arriveShort("2026-11-20 22:30", "2026-11-21 01:10"))
+    }
 }

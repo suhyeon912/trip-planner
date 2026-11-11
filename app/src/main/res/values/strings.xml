@@ -116,34 +116,28 @@
     <string name="hours_unknown">정보 없음</string>
 
     <!-- 항공·숙소 -->
-    <string name="travel_info_subtitle">항목을 누르면 수정 · 삭제</string>
     <string name="flights">교통편</string>
     <string name="flights_n">교통편 %1$d</string>
     <string name="lodgings">숙소</string>
     <string name="lodgings_n">숙소 %1$d</string>
     <string name="add_flight">교통편 추가</string>
     <string name="edit_flight">교통편 수정</string>
-    <string name="add_flight_row">비행기 · KTX 등 추가하기</string>
     <string name="add_lodging">숙소 추가</string>
     <string name="edit_lodging">숙소 수정</string>
-    <string name="add_lodging_row">숙소 추가하기</string>
-    <string name="lodging_help">숙소 위치는 경로 제안의 출발·도착점으로 쓰여요</string>
-    <string name="flight_title">%1$s  %2$s → %3$s</string>
+    <string name="flight_title">%1$s %2$s → %3$s</string>
     <string name="flight_sub">%1$s 출발 · %2$s 도착</string>
     <string name="lodging_has_location">" · 위치 있음"</string>
     <string name="lodging_no_location">" · 위치 없음"</string>
-    <string name="hint_flight_no">편명·열차 번호 (예: KE721, KTX 101)</string>
+    <string name="hint_flight_no">편명 · 열차 번호 *</string>
     <string name="hint_transport_mode">교통 종류</string>
-    <string name="hint_from_airport">출발지 (예: ICN, 서울역)</string>
-    <string name="hint_to_airport">도착지 (예: HND, 부산역)</string>
-    <string name="hint_depart_at">출발 날짜·시각</string>
-    <string name="hint_arrive_at">도착 날짜·시각</string>
-    <string name="error_flight_no">편명을 입력하세요</string>
-    <string name="hint_lodging_name">숙소 이름</string>
+    <string name="hint_from_airport">출발지</string>
+    <string name="hint_to_airport">도착지</string>
+    <string name="hint_depart_at">출발 날짜 · 시각</string>
+    <string name="hint_arrive_at">도착 날짜 · 시각</string>
+    <string name="error_flight_no">편명이나 열차 번호를 입력하세요</string>
+    <string name="hint_lodging_name">숙소 이름 *</string>
     <string name="hint_check_in">체크인</string>
     <string name="hint_check_out">체크아웃</string>
-    <string name="hint_lodging_lat">위도 (경로 출발점, 선택)</string>
-    <string name="hint_lodging_lng">경도 (경로 출발점, 선택)</string>
     <string name="error_lodging_name">숙소 이름을 입력하세요</string>
 
     <!-- 경로 제안 -->
@@ -279,6 +273,20 @@
     <string name="place_saved">장소를 저장했어요</string>
     <string name="memo_label">메모</string>
     <string name="more">더보기</string>
+    <string name="item_menu_a11y">%1$s 메뉴</string>
+    <string name="flight_delete_confirm">위 교통편을 삭제하시겠습니까?</string>
+    <string name="lodging_delete_confirm">위 숙소를 삭제하시겠습니까?</string>
+    <string name="placeholder_from">예: 김포 (GMP)</string>
+    <string name="placeholder_to">예: 하네다 (HND)</string>
+    <string name="placeholder_flight_no">예: KE2707, KTX 101</string>
+    <string name="placeholder_pick_datetime">날짜 · 시각 고르기</string>
+    <string name="placeholder_pick_date">날짜 고르기</string>
+    <string name="label_location">위치</string>
+    <string name="placeholder_location">검색해서 고르기</string>
+    <string name="location_search">검색해서 고르기</string>
+    <string name="location_manual">위도 · 경도 직접 입력</string>
+    <string name="location_clear">위치 지우기</string>
+    <string name="location_set">위치 있음 (%1$.5f, %2$.5f)</string>
     <string name="share_new_title">여행 공유</string>
     <string name="share_start">공유 시작</string>
     <string name="share_stop_question">위 여행의 공유를 중지하시겠습니까?</string>
