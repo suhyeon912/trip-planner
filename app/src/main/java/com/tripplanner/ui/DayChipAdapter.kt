@@ -21,6 +21,10 @@ data class DayChip(
 /** 가로로 늘어선 일차 칩 목록 (하나만 선택) */
 class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter<DayChipAdapter.Holder>() {
 
+    /** 지도 보기: 한 줄 칩 + 일차 색 점 (시안 DetailMap). 고른 '전체'는 진한 바탕 */
+    var compact = false
+        set(v) { if (field != v) { field = v; notifyDataSetChanged() } }
+
     private var chips: List<DayChip> = emptyList()
 
     fun submit(list: List<DayChip>) {
@@ -41,9 +45,18 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
         val ctx = holder.itemView.context
         holder.title.text = chip.title
         holder.sub.text = chip.sub
-        holder.sub.visibility = if (chip.sub.isEmpty()) View.GONE else View.VISIBLE
+        holder.sub.visibility = if (chip.sub.isEmpty() || compact) View.GONE else View.VISIBLE
         holder.itemView.setBackgroundResource(if (chip.selected) R.drawable.bg_day_chip_selected else R.drawable.bg_day_chip)
-        val titleColor = if (chip.selected) R.color.on_primary else R.color.on_surface
+        // 지도 보기: '전체'를 고르면 진한 바탕, 일차 칩 앞에 일차 색 점
+        val darkAll = compact && chip.selected && chip.key == 0
+        holder.itemView.backgroundTintList = if (darkAll) android.content.res.ColorStateList.valueOf(ctx.color(R.color.on_surface)) else null
+        val dot = if (compact && chip.key > 0 && !chip.selected) android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(PinIcons.dayColor(chip.key))
+            val px = (8 * ctx.resources.displayMetrics.density).toInt(); setSize(px, px)
+        } else null
+        holder.title.setCompoundDrawablesRelativeWithIntrinsicBounds(dot, null, null, null)
+        holder.title.compoundDrawablePadding = (6 * ctx.resources.displayMetrics.density).toInt()
+        val titleColor = if (darkAll) R.color.card_bg else if (chip.selected) R.color.on_primary else R.color.on_surface
         val subColor = if (chip.selected) R.color.day_chip_sub_selected else R.color.text_sub
         holder.title.setTextColor(ContextCompat.getColor(ctx, titleColor))
         holder.sub.setTextColor(ContextCompat.getColor(ctx, subColor))

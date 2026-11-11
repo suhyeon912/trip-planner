@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 지도 아래 판: 위쪽만 둥근 카드 + 위 경계선 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape><solid android:color="@color/outline_variant" /><corners android:topLeftRadius="20dp" android:topRightRadius="20dp" /></shape></item>
+    <item android:top="1dp"><shape><solid android:color="@color/card_bg" /><corners android:topLeftRadius="20dp" android:topRightRadius="20dp" /></shape></item>
+</layer-list>

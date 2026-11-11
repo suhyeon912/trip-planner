@@ -90,6 +90,20 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         places.value.orEmpty().filter { it.hasLocation }.map { it.lat to it.lng } +
         lodgings.value.orEmpty().filter { it.lat != 0.0 || it.lng != 0.0 }.map { it.lat to it.lng }
 
+    /** 지도 보기: (고른 일차 또는 전체의 확정 장소, '전체'일 때 후보) */
+    fun mapPlaces(): Pair<List<Place>, List<Place>> {
+        val all = places.value.orEmpty()
+        val confirmed = all.filter { it.status == PlaceStatus.CONFIRMED }
+        return when (val sel = selectedDay.value ?: DAY_ALL) {
+            DAY_ALL -> confirmed to all.filter { it.status == PlaceStatus.CANDIDATE }
+            DAY_NONE -> confirmed.filter { it.day == null } to emptyList()
+            else -> confirmed.filter { it.day == sel } to emptyList()
+        }
+    }
+
+    /** 지도에 없는 장소의 '위치 찾기' 결과 저장 (장소 수정의 위치와 같은 칸) */
+    fun setLocation(place: Place, lat: Double, lng: Double) = save(place.copy(lat = lat, lng = lng))
+
     fun placeById(id: Long): Place? = places.value.orEmpty().firstOrNull { it.id == id }
 
     fun dayCount(): Int = trip.value?.let { TimeUtil.dayCount(it.startDate, it.endDate) } ?: 7

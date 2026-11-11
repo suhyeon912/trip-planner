@@ -208,8 +208,6 @@
     <string name="show_list">목록으로 보기</string>
     <string name="map_a11y">장소 지도</string>
     <string name="action_close">닫기</string>
-    <string name="map_no_location">위치 없는 %1$d곳은 지도에 없어요</string>
-    <string name="map_nothing">위치(위도·경도)가 있는 장소가 없어요</string>
     <string name="map_pin_a11y">%1$s, %2$s</string>
     <string name="map_lodging">숙소</string>
     <string name="route_map_hint">숙소에서 출발해 번호 순서대로 돌아요</string>
@@ -273,6 +271,14 @@
     <string name="place_saved">장소를 저장했어요</string>
     <string name="memo_label">메모</string>
     <string name="more">더보기</string>
+    <string name="action_view">자세히</string>
+    <string name="find_location">위치 찾기</string>
+    <string name="find_location_a11y">%1$s 위치 찾기</string>
+    <string name="missing_title">지도에 없는 장소 · %1$d곳</string>
+    <string name="map_undated">일차 미정 %1$d</string>
+    <string name="map_sub_day">%1$s · %2$s 경로</string>
+    <string name="map_sub_all">%1$s · 전체 %2$d곳</string>
+    <string name="map_osm">OpenStreetMap</string>
     <string name="item_menu_a11y">%1$s 메뉴</string>
     <string name="flight_delete_confirm">위 교통편을 삭제하시겠습니까?</string>
     <string name="lodging_delete_confirm">위 숙소를 삭제하시겠습니까?</string>

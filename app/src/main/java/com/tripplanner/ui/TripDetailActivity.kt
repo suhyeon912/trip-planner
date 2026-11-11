@@ -66,7 +66,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
         viewModel.trip.observe(this) { trip ->
             if (trip == null) return@observe
             toolbar.title = trip.title
-            toolbar.subtitle = trip.shareCode?.let { getString(R.string.shared_subtitle, it) }
+            if (viewModel.mapMode.value != true) toolbar.subtitle = trip.shareCode?.let { getString(R.string.shared_subtitle, it) }
         }
 
         // ---------- 탭 ----------
@@ -127,20 +127,38 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
 
         // ---------- 지도로 보기 ----------
         detailMap = TripDetailMap(findViewById(android.R.id.content), this, this) { cardShown ->
-            bottom.visibility = if (cardShown) View.GONE else View.VISIBLE
+            if (viewModel.mapMode.value != true) bottom.visibility = View.VISIBLE
+        }
+        fun mapSubtitle(): String? {
+            val name = when (detailMap.provider) {
+                MapProvider.KAKAO -> getString(R.string.map_kakao)
+                MapProvider.GOOGLE -> getString(R.string.map_google)
+                MapProvider.OSM -> getString(R.string.map_osm)
+                null -> return null
+            }
+            val day = viewModel.selectedDay.value ?: TripDetailViewModel.DAY_ALL
+            return if (day > 0) getString(R.string.map_sub_day, name, dayLabel(day))
+            else getString(R.string.map_sub_all, name, viewModel.mapPlaces().let { it.first.size + it.second.size })
         }
         fun renderMap() {
-            val ui = viewModel.ui.value ?: return
             val mapOn = viewModel.mapMode.value == true
             rvPlaces.visibility = if (mapOn) View.GONE else View.VISIBLE
-            detailMap.container.visibility = if (mapOn && ui.empty == null) View.VISIBLE else View.GONE
-            if (!mapOn || ui.empty != null) return
-            val candidatesTab = viewModel.currentTab.value == PlaceStatus.CANDIDATE
+            detailMap.container.visibility = if (mapOn) View.VISIBLE else View.GONE
+            // 지도 보기: 탭 없이 일차 칩(한 줄 + 색 점)만, 아래 버튼 없음
+            tabs.visibility = if (mapOn) View.GONE else View.VISIBLE
+            chipAdapter.compact = mapOn
+            if (mapOn) rvDays.visibility = View.VISIBLE
+            bottom.visibility = if (mapOn) View.GONE else View.VISIBLE
+            val trip = viewModel.trip.value
+            if (!mapOn) {
+                toolbar.subtitle = trip?.shareCode?.let { getString(R.string.shared_subtitle, it) }
+                return
+            }
             val day = viewModel.selectedDay.value ?: TripDetailViewModel.DAY_ALL
-            val lodgings = if (!candidatesTab && day > 0) listOfNotNull(viewModel.lodgingFor(day))
-                           else viewModel.lodgings.value.orEmpty()
-            val places = ui.items.filterIsInstance<DetailItem.PlaceRow>().map { it.place }
-            detailMap.render(places, candidatesTab, day, lodgings, viewModel.tripCoords())
+            val lodgings = if (day > 0) listOfNotNull(viewModel.lodgingFor(day)) else viewModel.lodgings.value.orEmpty()
+            val (places, candidates) = viewModel.mapPlaces()
+            detailMap.render(places, candidates, day, lodgings, viewModel.tripCoords())
+            toolbar.subtitle = mapSubtitle()
         }
         fun updateBottom() {
             val ui = viewModel.ui.value
@@ -159,7 +177,6 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
                 setIcon(if (mapOn) R.drawable.ic_list else R.drawable.ic_map)
                 setTitle(if (mapOn) R.string.show_list else R.string.show_map)
             }
-            if (!mapOn) bottom.visibility = View.VISIBLE
             renderMap(); updateBottom()
         }
 
@@ -167,7 +184,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             tabs.getTabAt(0)?.text = getString(R.string.tab_schedule_n, ui.confirmedCount)
             tabs.getTabAt(1)?.text = getString(R.string.tab_candidates_n, ui.candidateCount)
             val onSchedule = viewModel.currentTab.value != PlaceStatus.CANDIDATE
-            rvDays.visibility = if (onSchedule) View.VISIBLE else View.GONE
+            rvDays.visibility = if (onSchedule || viewModel.mapMode.value == true) View.VISIBLE else View.GONE
             chipAdapter.submit(ui.chips)
             adapter.dragEnabled = onSchedule && (viewModel.selectedDay.value ?: 0) > 0
             adapter.submit(ui.items)
@@ -227,6 +244,14 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
 
     // ---------- TripDetailMap.Listener ----------
     override fun mapLabel(place: Place) = MapLauncher.mapName(this, viewModel.isDomestic(place))
+    override fun isDomestic(place: Place) = viewModel.isDomestic(place)
+
+    /** 지도에 없는 장소 → 검색해서 위치 정하기 */
+    override fun onFindLocation(place: Place) {
+        showPlaceSearch(this, place.name, viewModel.isDomestic(place)) { hit ->
+            viewModel.setLocation(place, hit.lat, hit.lng)
+        }
+    }
 
     /** 국내면 카카오맵, 해외면 Google Maps (API 키 필요 없음) */
     override fun onOpenMap(place: Place) {

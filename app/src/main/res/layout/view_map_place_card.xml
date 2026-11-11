@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 지도에서 장소 점을 누르면 아래에 뜨는 카드 (이름 · 일차/운영시간 · 지도앱 · 수정 · 확정) -->
+<!-- 지도에서 장소 점을 누르면 아래에 뜨는 카드 (시안 DetailMap): 타일 + 순서 · 이름 · 일차/운영 · ×
+     버튼: 지도 앱 (테두리) · 자세히 · 수정 (토널), 후보는 확정하기 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -11,7 +12,7 @@
     android:paddingStart="@dimen/space_l"
     android:paddingTop="@dimen/space_m"
     android:paddingEnd="@dimen/space_xs"
-    android:paddingBottom="@dimen/space_s">
+    android:paddingBottom="@dimen/space_m">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,17 +20,31 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvCardOrder"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginEnd="@dimen/space_s"
-            android:background="@drawable/bg_timeline_dot"
-            android:gravity="center"
-            android:importantForAccessibility="no"
-            android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
-            android:textColor="@color/white"
-            tools:text="1" />
+        <FrameLayout
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="@dimen/space_m"
+            android:importantForAccessibility="noHideDescendants">
+
+            <ImageView
+                android:id="@+id/ivCardThumb"
+                android:layout_width="@dimen/thumb_size"
+                android:layout_height="@dimen/thumb_size"
+                android:layout_gravity="bottom|start"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/tvCardOrder"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="top|end"
+                android:background="@drawable/bg_timeline_dot"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:fontFamily="@font/pretendard_bold"
+                tools:text="2" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -44,15 +59,16 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:textAppearance="@style/TextAppearance.TripPlanner.TitleMedium"
-                tools:text="센소지" />
+                tools:text="츠지한 니혼바시" />
 
             <TextView
                 android:id="@+id/tvCardSub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                tools:text="1일차 · 09:00–17:00 · 120분" />
+                android:textColor="@color/text_sub"
+                tools:text="1일차 · 영업 11:00–21:00" />
         </LinearLayout>
 
         <ImageButton
@@ -67,31 +83,45 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_xs"
+        android:layout_marginTop="@dimen/space_m"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCardMap"
+            style="@style/Widget.TripPlanner.Button.Outlined"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_s"
+            android:paddingHorizontal="@dimen/space_l"
+            app:iconPadding="6dp"
+            app:iconSize="20dp"
+            app:iconTint="@null"
+            tools:text="Google Maps" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCardView"
             style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/space_xs"
-            app:icon="@drawable/ic_map"
-            tools:text="구글맵" />
+            android:layout_marginEnd="@dimen/space_s"
+            android:paddingHorizontal="@dimen/space_l"
+            android:text="@string/action_view" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCardEdit"
-            style="@style/Widget.TripPlanner.Button.Text"
+            style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_s"
+            android:paddingHorizontal="@dimen/space_l"
             android:text="@string/action_edit" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCardConfirm"
-            style="@style/Widget.TripPlanner.Button.Text"
+            style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/action_confirm"
-            app:icon="@drawable/ic_check" />
+            android:paddingHorizontal="@dimen/space_l"
+            android:text="@string/confirm_pick" />
     </LinearLayout>
 </LinearLayout>
