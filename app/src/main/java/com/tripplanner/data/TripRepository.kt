@@ -78,10 +78,11 @@ class TripRepository(private val db: AppDatabase) {
         }
 
     /** 처음 실행했을 때만 예시 여행(부산·도쿄·타이베이)을 넣어 둡니다 */
-    suspend fun seedIfEmpty() {
+    /** 처음 실행이면 예시 여행 넣기. cover: 예시 표지 그림을 앱 사진 폴더로 복사 → 경로 */
+    suspend fun seedIfEmpty(cover: (String) -> String? = { null }) {
         if (dao.countTrips() > 0) return
         db.withTransaction {
-            SampleData.insertAll(dao)
+            SampleData.insertAll(dao, cover)
         }
     }
 }

@@ -30,6 +30,14 @@ object Photos {
         file.absolutePath
     }.getOrNull()
 
+    /** 앱에 들어 있는 그림(assets)을 사진 폴더로 복사 — 예시 여행 표지용. 실패하면 null */
+    fun importAsset(context: Context, assetPath: String): String? = runCatching {
+        val dir = File(context.filesDir, "photos").apply { mkdirs() }
+        val file = File(dir, UUID.randomUUID().toString() + ".jpg")
+        context.assets.open(assetPath).use { input -> file.outputStream().use { input.copyTo(it) } }
+        file.absolutePath
+    }.getOrNull()
+
     /** 앱이 복사해 둔 사진만 지움 (다른 경로는 건드리지 않음) */
     fun delete(context: Context, path: String?) {
         val f = path?.let { File(it) } ?: return

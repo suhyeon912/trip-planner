@@ -16,7 +16,9 @@ class TripListViewModel(app: Application) : AndroidViewModel(app) {
     val trips = repo.observeTripsWithCounts()
 
     init {
-        viewModelScope.launch { repo.seedIfEmpty() }
+        viewModelScope.launch {
+            repo.seedIfEmpty { asset -> Photos.importAsset(getApplication(), asset) }
+        }
     }
 
     fun deleteTrip(trip: Trip) = viewModelScope.launch {
