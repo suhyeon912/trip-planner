@@ -63,6 +63,8 @@
         <item name="textAppearanceLabelMedium">@style/TextAppearance.TripPlanner.LabelMedium</item>
         <item name="textAppearanceLabelSmall">@style/TextAppearance.TripPlanner.LabelSmall</item>
         <!-- 시스템 바 -->
+        <!-- 상태 표시줄: 화면 배경과 같은 색 (다크 모드는 values-night 의 background) · 아이콘은 배경에 맞춰 어둡게/밝게 -->
+        <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">@bool/light_system_bars</item>
         <!-- 2단계 공통 컴포넌트 (시안 컴포넌트 페이지 기준) -->
         <item name="actionBarSize">64dp</item>
@@ -92,6 +94,12 @@
         <item name="android:scrollbarSize">4dp</item>
         <item name="android:scrollbarDefaultDelayBeforeFade">1000</item>
         <item name="android:scrollbarFadeDuration">300</item>
+    </style>
+
+    <!-- 표지 사진 맞추기: 어두운 화면이라 상태 표시줄도 어둡게, 아이콘은 밝게 -->
+    <style name="Theme.TripPlanner.Crop">
+        <item name="android:statusBarColor">@color/crop_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <!--
