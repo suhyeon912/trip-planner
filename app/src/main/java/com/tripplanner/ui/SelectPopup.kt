@@ -74,6 +74,13 @@ fun showSelect(anchor: View, rows: List<SelectRow>, widthDp: Int = 200) {
     })
     popup.anchorView = anchor
     popup.width = (widthDp * ctx.resources.displayMetrics.density).toInt()
+    // 누른 것 바로 아래 4 · 누른 것의 오른쪽 끝에 맞춤 (시안 Menu · Select).
+    // 화면 왼쪽에 있는 좁은 것(예: 사진 칸)은 왼쪽 끝에 맞춰 화면 밖으로 나가지 않게
+    popup.verticalOffset = (4 * ctx.resources.displayMetrics.density).toInt()
+    val loc = IntArray(2).also { anchor.getLocationOnScreen(it) }
+    val screenW = ctx.resources.displayMetrics.widthPixels
+    if (loc[0] + anchor.width > screenW / 2) popup.setDropDownGravity(android.view.Gravity.END)
+    popup.animationStyle = R.style.Animation_TripPlanner_Popover
     popup.isModal = true
     popup.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.bg_menu))
     popup.setListSelector(ContextCompat.getDrawable(ctx, R.drawable.press_overlay))   // 누른 줄: 물결 대신 덧칠
