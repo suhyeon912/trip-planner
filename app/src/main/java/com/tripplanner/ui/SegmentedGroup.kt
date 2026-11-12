@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
-import com.google.android.material.button.MaterialButton
+import com.tripplanner.ui.widget.TpButton
 
 /**
  * 시안 세그먼트 (바탕 surface_container · 안쪽 4 · 고른 칸 card_bg · 모서리 10).
@@ -33,7 +33,7 @@ class SegmentedGroup @JvmOverloads constructor(context: Context, attrs: Attribut
     fun check(id: Int) {
         val prev = current
         current = id
-        // MaterialButton 은 눌릴 때 스스로 체크를 뒤집으므로, 고른 칸 하나만 체크되게 매번 다시 맞춤
+        // TpButton 은 눌릴 때 스스로 체크를 뒤집으므로, 고른 칸 하나만 체크되게 매번 다시 맞춤
         applyStates()
         if (prev == id) return
         if (prev != View.NO_ID) listeners.forEach { it.onButtonChecked(this, prev, false) }
@@ -51,12 +51,12 @@ class SegmentedGroup @JvmOverloads constructor(context: Context, attrs: Attribut
 
     override fun onViewAdded(child: View) {
         super.onViewAdded(child)
-        val b = child as? MaterialButton ?: return
+        val b = child as? TpButton ?: return
         b.isCheckable = true
         // 칸 사이 4 (시안 gap 4)
         if (childCount > 1) (b.layoutParams as? MarginLayoutParams)?.marginStart = (4 * resources.displayMetrics.density).toInt()
         b.setOnClickListener { check(b.id) }
     }
 
-    private fun buttons() = (0 until childCount).mapNotNull { getChildAt(it) as? MaterialButton }
+    private fun buttons() = (0 until childCount).mapNotNull { getChildAt(it) as? TpButton }
 }

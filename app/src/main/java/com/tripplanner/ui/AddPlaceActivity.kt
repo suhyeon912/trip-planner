@@ -12,11 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
-import com.google.android.material.materialswitch.MaterialSwitch
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.tripplanner.ui.widget.TpSwitch
+import android.widget.EditText
+import com.tripplanner.ui.widget.TpTextField
 import com.tripplanner.R
 import com.tripplanner.TripPlannerApp
 import com.tripplanner.data.Place
@@ -57,13 +55,13 @@ class AddPlaceActivity : AppCompatActivity() {
     private var startDate: String? = null
     private var dayCounts: Map<Int, Int> = emptyMap()
 
-    private lateinit var chips: ChipGroup
+    private lateinit var chips: com.tripplanner.ui.widget.TpChipGroup
     private lateinit var ivPhoto: ImageView
     private lateinit var toggle: SegmentedGroup
     private lateinit var fieldDay: SelectField
-    private lateinit var tilName: TextInputLayout
+    private lateinit var tilName: TpTextField
 
-    private fun field(id: Int) = findViewById<TextInputEditText>(id)
+    private fun field(id: Int) = findViewById<EditText>(id)
 
     /** 사진 고르기 (Android 사진 선택기 — 저장소 권한 필요 없음) */
     private val pickPhoto = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -92,7 +90,7 @@ class AddPlaceActivity : AppCompatActivity() {
         fieldDay = findViewById(R.id.fieldDay)
         fieldDay.setCompact()
         ivPhoto = findViewById(R.id.ivPhoto)
-        val switchReservation = findViewById<MaterialSwitch>(R.id.switchReservation)
+        val switchReservation = findViewById<TpSwitch>(R.id.switchReservation)
         field(R.id.etName).doAfterTextChanged { tilName.error = null }
 
         // ---------- 종류 칩: 바탕색 = 종류, 고르면 테두리 2 + ✓ ----------
@@ -100,8 +98,8 @@ class AddPlaceActivity : AppCompatActivity() {
         buildCategoryChips(null)
         refreshStayHint()
         findViewById<View>(R.id.btnCategoryInfo).setOnClickListener { showCategoryInfo(it) }
-        chips.setOnCheckedStateChangeListener { _, ids ->
-            ids.firstOrNull()?.let { id -> PlaceCategory.entries.getOrNull(id - 1000)?.let { category = it; refreshPhoto(); refreshStayHint() } }
+        chips.onCheckedChange = { id ->
+            PlaceCategory.entries.getOrNull(id - 1000)?.let { category = it; refreshPhoto(); refreshStayHint() }
         }
 
 
@@ -129,7 +127,7 @@ class AddPlaceActivity : AppCompatActivity() {
         toggle.addOnButtonCheckedListener { _, _, _ -> render() }
 
         // ---------- 위치: 주소(검색 또는 직접) · 상세 주소 · 위치 메모 ----------
-        findViewById<TextInputLayout>(R.id.tilAddress).setEndIconOnClickListener {
+        findViewById<TpTextField>(R.id.tilAddress).setEndIconOnClickListener {
             val q = field(R.id.etAddress).text?.toString()?.takeIf { it.isNotBlank() } ?: field(R.id.etName).text?.toString().orEmpty()
             showPlaceSearch(this, q, tripDomestic) { hit ->
                 lat = hit.lat; lng = hit.lng
@@ -211,39 +209,41 @@ class AddPlaceActivity : AppCompatActivity() {
         if (visible.isEmpty()) { category = PlaceCategory.ETC; return }
         if (category !in visible) category = visible.first()
         visible.forEach { c ->
-            chips.addView(Chip(this, null, com.google.android.material.R.attr.chipStyle).apply {
-                id = 1000 + c.ordinal
-                text = c.label
-                isCheckable = true
-                setChipIconResource(c.icon)
-                isChipIconVisible = true
-                chipIconTint = ColorStateList.valueOf(color(R.color.on_surface))
-                chipIconSize = 18 * resources.displayMetrics.density
-                rippleColor = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)   // 물결 없이 고른 상태로만 표시
-                isCheckedIconVisible = false
-                chipMinHeight = 36 * resources.displayMetrics.density
-                chipStartPadding = 8 * resources.displayMetrics.density
-                chipEndPadding = 12 * resources.displayMetrics.density
-                iconEndPadding = 3 * resources.displayMetrics.density
-                textStartPadding = 3 * resources.displayMetrics.density
-                textEndPadding = 0f
-                chipBackgroundColor = ColorStateList.valueOf(color(c.bgColor))
-                setCheckedIconResource(R.drawable.ic_check)
-                checkedIconTint = ColorStateList.valueOf(color(R.color.on_surface))
-                setTextAppearanceResource(R.style.TextAppearance_TripPlanner_LabelLarge)
-                setTextColor(color(R.color.on_surface))
-                chipStrokeColor = ColorStateList.valueOf(color(R.color.on_surface))
-                chipStrokeWidth = 0f
-                shapeAppearanceModel = shapeAppearanceModel.withCornerSize(10 * resources.displayMetrics.density)
-                setEnsureMinTouchTargetSize(false)
-                // 고르면 테두리 2 + 종류 아이콘 자리에 ✓ + 굵게 (시안)
-                setOnCheckedChangeListener { v, checked ->
-                    (v as Chip).chipStrokeWidth = if (checked) 2 * resources.displayMetrics.density else 0f
-                    v.setChipIconResource(if (checked) R.drawable.ic_check else c.icon)
-                    v.typeface = androidx.core.content.res.ResourcesCompat.getFont(this@AddPlaceActivity,
-                        if (checked) R.font.pretendard_bold else R.font.pretendard_semibold)
-                }
-            })
+            chips.addView(categoryChip(c))
+        }
+    }
+
+    /** 종류 칩 (시안): 높이 36 · 모서리 10 · 바탕 = 종류 색 · 고르면 테두리 2 + 아이콘 자리에 ✓ + 굵게 */
+    private fun categoryChip(c: PlaceCategory): com.tripplanner.ui.widget.TpButton {
+        val d = resources.displayMetrics.density
+        fun bg(checked: Boolean) = android.graphics.drawable.GradientDrawable().apply {
+            setColor(color(c.bgColor)); cornerRadius = 10 * d
+            if (checked) setStroke((2 * d).toInt(), color(R.color.on_surface))
+        }
+        return object : com.tripplanner.ui.widget.TpButton(this@AddPlaceActivity, null, 0) {
+            override fun setChecked(checked: Boolean) {
+                super.setChecked(checked)
+                background = bg(checked)
+                setIconResource(if (checked) R.drawable.ic_check else c.icon)
+                typeface = androidx.core.content.res.ResourcesCompat.getFont(context,
+                    if (checked) R.font.pretendard_bold else R.font.pretendard_semibold)
+            }
+        }.apply {
+            id = 1000 + c.ordinal
+            text = c.label
+            isCheckable = true
+            setTextAppearance(R.style.TextAppearance_TripPlanner_LabelLarge)
+            setTextColor(color(R.color.on_surface))
+            gravity = android.view.Gravity.CENTER
+            minHeight = (36 * d).toInt(); minimumHeight = minHeight; minWidth = 0; minimumWidth = 0
+            setPaddingRelative((8 * d).toInt(), 0, (12 * d).toInt(), 0)
+            iconSize = (18 * d).toInt(); iconPadding = (6 * d).toInt()
+            iconTint = ColorStateList.valueOf(color(R.color.on_surface))
+            setIconResource(c.icon)
+            background = bg(false)
+            foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_r10)
+            stateListAnimator = null
+            isClickable = true; isFocusable = true
         }
     }
 
@@ -277,7 +277,7 @@ class AddPlaceActivity : AppCompatActivity() {
 
     /** 머무는 시간을 비워 두면 종류별 기본값 (관광 90 · 맛집 60 · 카페 60 · 쇼핑 120 · 체험 120 · 기타 60) */
     private fun refreshStayHint() {
-        findViewById<TextInputLayout>(R.id.tilStay).placeholderText = category.defaultStay.toString()
+        findViewById<TpTextField>(R.id.tilStay).placeholderText = category.defaultStay.toString()
     }
 
     private fun confirmed() = toggle.checkedButtonId == R.id.btnConfirmed

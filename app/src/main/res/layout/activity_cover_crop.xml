@@ -36,7 +36,7 @@
             android:textColor="@color/white"
             tools:targetApi="28" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnDone"
             style="@style/Widget.TripPlanner.Button"
             android:layout_width="wrap_content"
@@ -68,18 +68,12 @@
             android:src="@drawable/ic_image"
             app:tint="@color/white" />
 
-        <com.google.android.material.slider.Slider
+        <com.tripplanner.ui.widget.TpSlider
             android:id="@+id/sliderScale"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:contentDescription="@string/cover_zoom"
-            android:valueFrom="1"
-            android:valueTo="3"
-            app:labelBehavior="gone"
-            app:thumbColor="@color/white"
-            app:trackColorActive="@color/white"
-            app:trackColorInactive="#66FFFFFF" />
+            android:contentDescription="@string/cover_zoom" />
 
         <ImageView
             android:layout_width="24dp"

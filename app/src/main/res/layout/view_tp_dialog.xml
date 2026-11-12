@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 팝업 (TpDialog): 모서리 24 · 제목 · 설명 · 내용(입력칸 등) · 목록 · 버튼(오른쪽, 보조는 왼쪽 끝) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/dlgScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="24dp">
+
+            <TextView
+                android:id="@+id/dlgTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:accessibilityHeading="true"
+                android:textAppearance="@style/TextAppearance.TripPlanner.TitleLarge"
+                android:textColor="@color/on_surface"
+                tools:ignore="UnusedAttribute" />
+
+            <TextView
+                android:id="@+id/dlgMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="@dimen/space_s"
+                android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+                android:textColor="@color/text_sub" />
+
+            <FrameLayout
+                android:id="@+id/dlgCustom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/dlgItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:orientation="vertical"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/dlgButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="@dimen/space_l"
+        android:paddingBottom="20dp">
+
+        <com.tripplanner.ui.widget.TpButton
+            android:id="@+id/dlgNeutral"
+            style="@style/Widget.TripPlanner.Button.Text.Danger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <com.tripplanner.ui.widget.TpButton
+            android:id="@+id/dlgNegative"
+            style="@style/Widget.TripPlanner.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp" />
+
+        <com.tripplanner.ui.widget.TpButton
+            android:id="@+id/dlgPositive"
+            style="@style/Widget.TripPlanner.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:minWidth="64dp"
+            android:minHeight="40dp" />
+
+        <com.tripplanner.ui.widget.TpButton
+            android:id="@+id/dlgPositiveDanger"
+            style="@style/Widget.TripPlanner.Button.Danger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:minWidth="64dp"
+            android:minHeight="40dp" />
+    </LinearLayout>
+</LinearLayout>

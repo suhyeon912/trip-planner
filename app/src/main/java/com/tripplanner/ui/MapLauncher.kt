@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.tripplanner.ui.widget.TpDialog
 import com.tripplanner.R
 import com.tripplanner.route.Region
 
@@ -68,7 +68,7 @@ object MapLauncher {
             context.getString(R.string.mode_car),
             context.getString(R.string.mode_walk),
             context.getString(if (hasWaypoints) R.string.mode_transit_legs else R.string.mode_transit))
-        MaterialAlertDialogBuilder(context)
+        TpDialog.Builder(context)
             .setTitle(R.string.kakao_mode_title)
             .setItems(items) { _, which ->
                 when (which) {
@@ -85,7 +85,7 @@ object MapLauncher {
     /** 대중교통은 경유지가 안 되니 '숙소 → 센소지' 같은 구간을 하나 골라서 엶 */
     private fun chooseLeg(context: Context, points: List<MapPoint>) {
         val legs = points.zipWithNext()
-        MaterialAlertDialogBuilder(context)
+        TpDialog.Builder(context)
             .setTitle(R.string.pick_leg_title)
             .setItems(legs.mapIndexed { i, (a, b) -> context.getString(R.string.leg_item, i + 1, a.name, b.name) }.toTypedArray()) { _, which ->
                 openKakaoRoute(context, legs[which].toList(), "publictransit")

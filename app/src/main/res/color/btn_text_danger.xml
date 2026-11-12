@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 빨간 글자 버튼 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/text_disabled" android:state_enabled="false" />
+    <item android:color="@color/badge_red" />
+</selector>

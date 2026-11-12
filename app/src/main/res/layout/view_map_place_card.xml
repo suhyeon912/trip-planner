@@ -86,19 +86,18 @@
         android:layout_marginTop="@dimen/space_m"
         android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnCardMap"
             style="@style/Widget.TripPlanner.Button.Outlined"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/space_s"
             android:paddingHorizontal="@dimen/space_l"
-            app:iconPadding="6dp"
-            app:iconSize="20dp"
-            app:iconTint="@null"
+            app:tpIconPadding="6dp"
+            app:tpIconSize="20dp"
             tools:text="Google Maps" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnCardView"
             style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="wrap_content"
@@ -107,7 +106,7 @@
             android:paddingHorizontal="@dimen/space_l"
             android:text="@string/action_view" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnCardEdit"
             style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="wrap_content"
@@ -116,7 +115,7 @@
             android:paddingHorizontal="@dimen/space_l"
             android:text="@string/action_edit" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnCardConfirm"
             style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="wrap_content"

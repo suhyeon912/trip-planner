@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 세그먼트 칸: 고른 칸만 흰 바탕 · 모서리 10 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <shape>
+            <solid android:color="@color/card_bg" />
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

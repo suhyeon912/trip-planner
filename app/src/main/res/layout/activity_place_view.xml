@@ -3,35 +3,39 @@
   장소 정보 (시안 PlaceView, 읽기 전용)
   상단 바(뒤로 · 장소 정보 · ⋮ 수정/삭제) / 종류 타일 + 이름 + 뱃지 / 지도 버튼 / 운영 정보
 -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:fitsSystemWindows="true">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <com.tripplanner.ui.widget.TopBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        app:liftOnScroll="false"
-        app:liftOnScrollTargetViewId="@id/scroll">
+        app:tpScrollTarget="@id/scroll">
 
-        <com.google.android.material.appbar.MaterialToolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
             app:title="@string/place_info_title" />
-    </com.google.android.material.appbar.AppBarLayout>
+    </com.tripplanner.ui.widget.TopBarLayout>
+
+    <!-- 상단 바 아래 내용 (목록 + 위에 뜨는 버튼) -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:scrollbars="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -72,13 +76,13 @@
                         tools:text="츠지한 니혼바시" />
 
                     <!-- 줄이 넘치면 다음 줄로 (ChipGroup 은 줄바꿈 배치만 씀) -->
-                    <com.google.android.material.chip.ChipGroup
+                    <com.tripplanner.ui.widget.FlowLayout
                         android:id="@+id/chips"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        app:chipSpacingHorizontal="6dp"
-                        app:chipSpacingVertical="4dp" />
+                        app:tpSpacingH="6dp"
+                        app:tpSpacingV="4dp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -89,18 +93,17 @@
                 android:layout_marginTop="@dimen/space_l"
                 android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButton
+                <com.tripplanner.ui.widget.TpButton
                     android:id="@+id/btnOpenMap"
                     style="@style/Widget.TripPlanner.Button.Outlined.Rect"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:iconGravity="textStart"
-                    app:iconSize="24dp"
-                    app:iconTint="@null"
+                    app:tpIconGravity="textStart"
+                    app:tpIconSize="24dp"
                     tools:text="Google Maps에서 보기" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.tripplanner.ui.widget.TpButton
                     android:id="@+id/btnTripMap"
                     style="@style/Widget.TripPlanner.Button.Outlined.Rect"
                     android:layout_width="0dp"
@@ -108,8 +111,8 @@
                     android:layout_marginStart="@dimen/space_s"
                     android:layout_weight="1"
                     android:text="@string/show_on_trip_map"
-                    app:icon="@drawable/ic_place"
-                    app:iconGravity="textStart" />
+                    app:tpIcon="@drawable/ic_place"
+                    app:tpIconGravity="textStart" />
             </LinearLayout>
 
             <TextView
@@ -126,4 +129,5 @@
                 android:orientation="vertical" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </FrameLayout>
+</LinearLayout>

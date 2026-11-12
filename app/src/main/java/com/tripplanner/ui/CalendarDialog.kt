@@ -16,7 +16,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.MaterialToolbar
+import androidx.appcompat.widget.Toolbar
 import com.tripplanner.R
 import com.tripplanner.data.Trip
 import com.tripplanner.route.TimeUtil
@@ -65,7 +65,7 @@ class CalendarDialog private constructor(
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_range_calendar)
         window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT)
-        findViewById<MaterialToolbar>(R.id.calToolbar).apply {
+        findViewById<Toolbar>(R.id.calToolbar).apply {
             this.title = this@CalendarDialog.title
             setNavigationOnClickListener { dismiss() }
         }

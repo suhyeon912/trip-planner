@@ -3,27 +3,25 @@
   메인 (시안 Main)
   상단 바 "여행 플래너" + 코드로 참여 / 보기 설정 줄 / 여행 카드 + 지난 여행 / 빈 상태 / 새 여행 FAB
 -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:fitsSystemWindows="true">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <com.tripplanner.ui.widget.TopBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        app:liftOnScroll="false"
-        app:liftOnScrollTargetViewId="@id/rvTrips">
+        app:tpScrollTarget="@id/rvTrips">
 
-        <com.google.android.material.appbar.MaterialToolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_marginTop="10dp"
-            android:background="?attr/colorSurface"
             app:title="@string/title_my_trips"
             app:titleTextAppearance="@style/TextAppearance.TripPlanner.TitleLarge" />
 
@@ -36,7 +34,7 @@
             android:background="@drawable/bg_segmented"
             android:padding="4dp">
 
-            <com.google.android.material.tabs.TabLayout
+            <com.tripplanner.ui.widget.TpTabs
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -61,21 +59,27 @@
                 android:textColor="@color/text_sub"
                 tools:text="일정 가까운 순 · 지난 여행 보임" />
 
-            <com.google.android.material.button.MaterialButton
+            <com.tripplanner.ui.widget.TpButton
                 android:id="@+id/btnViewSettings"
                 style="@style/Widget.TripPlanner.Button.Text.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="@dimen/space_m"
                 android:text="@string/view_settings"
-                app:icon="@drawable/ic_tune" />
+                app:tpIcon="@drawable/ic_tune" />
         </LinearLayout>
-    </com.google.android.material.appbar.AppBarLayout>
+    </com.tripplanner.ui.widget.TopBarLayout>
+
+    <!-- 상단 바 아래 내용 (목록 + 위에 뜨는 버튼) -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTrips"
@@ -97,7 +101,7 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+    <com.tripplanner.ui.widget.TpFab
         android:id="@+id/fabNewTrip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -105,7 +109,7 @@
         android:layout_margin="@dimen/space_l"
         android:text="@string/new_trip"
         android:textColor="@color/on_primary"
-        app:backgroundTint="@color/primary"
-        app:icon="@drawable/ic_add"
-        app:iconTint="@color/on_primary" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        app:tpIcon="@drawable/ic_add"
+        app:tpIconTint="@color/on_primary" />
+    </FrameLayout>
+</LinearLayout>

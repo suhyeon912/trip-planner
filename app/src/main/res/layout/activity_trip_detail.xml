@@ -6,25 +6,23 @@
   ├ 목록: 일차 제목 · 숙소 출발 · 장소 · 숙소 도착 · 여행 메모
   └ 아래: [n일차 경로 제안 보기] [+]
 -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:fitsSystemWindows="true">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <com.tripplanner.ui.widget.TopBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        app:liftOnScroll="false"
-        app:liftOnScrollTargetViewId="@id/rvPlaces">
+        app:tpScrollTarget="@id/rvPlaces">
 
-        <com.google.android.material.appbar.MaterialToolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
             app:menu="@menu/trip_detail" />
 
         <!-- 세그먼트 바탕(안쪽 4)은 감싸는 칸이 그림: TabLayout 자체 패딩은 고정 모드에서 오른쪽이 무시되어 고른 칸이 끝에 붙음 -->
@@ -35,7 +33,7 @@
             android:background="@drawable/bg_segmented"
             android:padding="4dp">
 
-            <com.google.android.material.tabs.TabLayout
+            <com.tripplanner.ui.widget.TpTabs
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -53,12 +51,18 @@
             android:paddingBottom="@dimen/space_xs"
             android:requiresFadingEdge="horizontal"
             android:fadingEdgeLength="32dp" />
-    </com.google.android.material.appbar.AppBarLayout>
+    </com.tripplanner.ui.widget.TopBarLayout>
+
+    <!-- 상단 바 아래 내용 (목록 + 위에 뜨는 버튼) -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPlaces"
@@ -83,7 +87,7 @@
         android:orientation="horizontal"
         android:padding="@dimen/space_l">
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnRouteCta"
             style="@style/Widget.TripPlanner.Button.Tonal"
             android:layout_width="0dp"
@@ -91,20 +95,23 @@
             android:layout_marginEnd="@dimen/space_s"
             android:layout_weight="1"
             android:visibility="gone"
-            app:icon="@drawable/ic_route"
-            app:iconGravity="textStart"
-            app:iconTint="@color/on_secondary_container" />
+            app:tpIcon="@drawable/ic_route"
+            app:tpIconGravity="textStart"
+            app:tpIconTint="@color/on_secondary_container" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.tripplanner.ui.widget.TpFab
             android:id="@+id/fabAddPlace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/add_place"
-            android:src="@drawable/ic_add"
-            app:backgroundTint="@color/primary"
-            app:elevation="2dp"
-            app:fabSize="normal"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.TripPlanner.Round"
-            app:tint="@color/on_primary" />
+            app:tpIcon="@drawable/ic_add"
+            android:background="@drawable/bg_fab_round"
+            android:foreground="@drawable/press_oval_on_primary"
+            android:minWidth="56dp"
+            android:minHeight="56dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:tpIconTint="@color/on_primary" />
     </LinearLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </FrameLayout>
+</LinearLayout>

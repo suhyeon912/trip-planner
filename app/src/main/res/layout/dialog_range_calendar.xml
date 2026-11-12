@@ -11,7 +11,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/calToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -80,7 +80,7 @@
         android:id="@+id/calBottom"
         style="@style/Widget.TripPlanner.BottomBar">
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/calCancel"
             style="@style/Widget.TripPlanner.Button.Outlined"
             android:layout_width="0dp"
@@ -88,7 +88,7 @@
             android:layout_weight="1"
             android:text="@string/action_cancel" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/calOk"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

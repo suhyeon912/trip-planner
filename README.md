@@ -40,7 +40,7 @@
 
 | 구분 | 사용 |
 |---|---|
-| 언어 · UI | Kotlin, XML Views, Material Components |
+| 언어 · UI | Kotlin, XML Views (AppCompat), 자체 컴포넌트 `ui/widget` — 버튼 · 입력칸 · 탭 · 스위치 · 칩 · 팝업 · 알림 · 시간 휠 · 기간 달력 (Material 컴포넌트 사용 안 함) |
 | 구조 | MVVM: Activity → ViewModel(LiveData) → Repository → Room DAO |
 | DB | Room (KSP), DB 버전 7, 마이그레이션 포함 |
 | 지도 | 카카오맵 SDK v2, Google Maps SDK, osmdroid(OpenStreetMap) |
@@ -202,7 +202,12 @@ trip-planner/
 │     ├─ TripMap · KakaoMapEngine · GoogleMapEngine · OsmMapEngine 앱 안 지도
 │     ├─ MapLauncher.kt              카카오맵 / Google Maps 앱 열기
 │     ├─ ShareDialogs.kt             공유 · 초대 다이얼로그
-│     ├─ FormDialog.kt · Pickers.kt  입력 다이얼로그 · 달력·시계
+│     ├─ FormDialog.kt · Pickers.kt  입력 팝업 · 날짜·시각 고르기
+│     ├─ WheelView · WheelPopup · CalendarDialog   시간 휠 팝오버 · 전체 화면 기간 달력
+│     ├─ SegmentedGroup · SelectPopup · Motion     세그먼트 · 메뉴(Select) · 공통 모션
+│     ├─ widget/                     자체 컴포넌트 (Material 대신)
+│     │    TpButton · TpFab · TpTextField · TpTabs · TpSwitch · TpSlider · TpProgressBar
+│     │    TpChipGroup · FlowLayout · CardFrame · TopBarLayout · TpDialog · TpSnackbar
 │     ├─ Photos.kt                   장소 사진 줄여서 저장
 │     ├─ EmptyState.kt · ScreenChrome.kt          빈 화면 · 툴바 공통
 │     └─ Labels.kt · TripFormat.kt · Visuals.kt   문구 · 날짜 표시 · 아이콘과 색

@@ -28,7 +28,7 @@
         android:layout_marginTop="@dimen/space_m"
         android:visibility="gone">
 
-        <Button
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnFree"
             style="@style/Widget.TripPlanner.SegmentedButton"
             android:layout_width="0dp"
@@ -36,7 +36,7 @@
             android:layout_weight="1"
             android:text="@string/end_free" />
 
-        <Button
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnSetTime"
             style="@style/Widget.TripPlanner.SegmentedButton"
             android:layout_width="0dp"
@@ -73,14 +73,14 @@
         android:gravity="end|center_vertical"
         android:orientation="horizontal">
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnWheelCancel"
             style="@style/Widget.TripPlanner.Button.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/action_cancel" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnWheelApply"
             style="@style/Widget.TripPlanner.Button"
             android:layout_width="wrap_content"

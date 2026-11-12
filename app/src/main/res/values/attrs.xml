@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TripPlanner 자체 컴포넌트 속성 (Material 컴포넌트 대신, ui/widget) -->
+<resources>
+    <!-- 테마: 기본 버튼 모양 -->
+    <attr name="tpButtonStyle" format="reference" />
+    <attr name="tpFabStyle" format="reference" />
+
+    <declare-styleable name="TpButton">
+        <attr name="tpIcon" format="reference" />
+        <attr name="tpIconSize" format="dimension" />
+        <attr name="tpIconPadding" format="dimension" />
+        <attr name="tpIconTint" format="color" />
+        <!-- start: 왼쪽 끝 · textStart: 글자 바로 앞 -->
+        <attr name="tpIconGravity" format="enum">
+            <enum name="start" value="0" />
+            <enum name="textStart" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="TpTextField">
+        <attr name="tpPlaceholder" format="string" />
+        <attr name="tpEndIcon" format="reference" />
+        <attr name="tpStartIcon" format="reference" />
+        <attr name="tpEndIconDescription" format="string" />
+        <!-- 촘촘한 칸 (높이 48 · 좌우 12) -->
+        <attr name="tpCompact" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="FlowLayout">
+        <attr name="tpSpacingH" format="dimension" />
+        <attr name="tpSpacingV" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="TopBarLayout">
+        <!-- 이 목록이 맨 위가 아니면 아래 1px 구분선 -->
+        <attr name="tpScrollTarget" format="reference" />
+    </declare-styleable>
+</resources>

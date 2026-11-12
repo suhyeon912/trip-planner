@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 버튼 바탕 채움 · 알약 (TpButton) -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="@color/press_on_surface" />
+            <corners android:radius="@dimen/radius_pill" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="@color/primary" />
+            <corners android:radius="@dimen/radius_pill" />
+        </shape>
+    </item>
+</selector>

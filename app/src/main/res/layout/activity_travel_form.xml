@@ -12,11 +12,10 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorSurface" />
+        android:layout_height="?attr/actionBarSize" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll"
@@ -61,19 +60,18 @@
                         android:labelFor="@id/inputNumber"
                         android:text="@string/hint_flight_no" />
 
-                    <com.google.android.material.textfield.TextInputLayout
+                    <com.tripplanner.ui.widget.TpTextField
                         android:id="@+id/layoutNumber"
-                        style="@style/Widget.TripPlanner.TextField.NoLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:placeholderText="@string/placeholder_flight_no">
+                        app:tpPlaceholder="@string/placeholder_flight_no">
 
-                        <com.google.android.material.textfield.TextInputEditText
+                        <EditText
                             android:id="@+id/inputNumber"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textCapCharacters|textNoSuggestions" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                    </com.tripplanner.ui.widget.TpTextField>
                 </LinearLayout>
 
                 <LinearLayout
@@ -94,18 +92,17 @@
                             android:labelFor="@id/inputFrom"
                             android:text="@string/hint_from_airport" />
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.TripPlanner.TextField.NoLabel"
+                        <com.tripplanner.ui.widget.TpTextField
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:placeholderText="@string/placeholder_from">
+                            app:tpPlaceholder="@string/placeholder_from">
 
-                            <com.google.android.material.textfield.TextInputEditText
+                            <EditText
                                 android:id="@+id/inputFrom"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="text" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                        </com.tripplanner.ui.widget.TpTextField>
                     </LinearLayout>
 
                     <LinearLayout
@@ -120,18 +117,17 @@
                             android:labelFor="@id/inputTo"
                             android:text="@string/hint_to_airport" />
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.TripPlanner.TextField.NoLabel"
+                        <com.tripplanner.ui.widget.TpTextField
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:placeholderText="@string/placeholder_to">
+                            app:tpPlaceholder="@string/placeholder_to">
 
-                            <com.google.android.material.textfield.TextInputEditText
+                            <EditText
                                 android:id="@+id/inputTo"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="text" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                        </com.tripplanner.ui.widget.TpTextField>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -168,18 +164,17 @@
                     android:labelFor="@id/inputLodgingName"
                     android:text="@string/hint_lodging_name" />
 
-                <com.google.android.material.textfield.TextInputLayout
+                <com.tripplanner.ui.widget.TpTextField
                     android:id="@+id/layoutLodgingName"
-                    style="@style/Widget.TripPlanner.TextField.NoLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <EditText
                         android:id="@+id/inputLodgingName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text" />
-                </com.google.android.material.textfield.TextInputLayout>
+                </com.tripplanner.ui.widget.TpTextField>
 
                 <TextView
                     style="@style/Widget.TripPlanner.FieldLabel"
@@ -197,18 +192,17 @@
                     android:labelFor="@id/inputAddressDetail"
                     android:text="@string/label_address_detail" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.TripPlanner.TextField.NoLabel"
+                <com.tripplanner.ui.widget.TpTextField
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:placeholderText="@string/placeholder_lodging_detail">
+                    app:tpPlaceholder="@string/placeholder_lodging_detail">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <EditText
                         android:id="@+id/inputAddressDetail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text" />
-                </com.google.android.material.textfield.TextInputLayout>
+                </com.tripplanner.ui.widget.TpTextField>
 
                 <TextView
                     style="@style/Widget.TripPlanner.FieldLabel"
@@ -216,18 +210,17 @@
                     android:labelFor="@id/inputLocationMemo"
                     android:text="@string/label_location_memo" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.TripPlanner.TextField.NoLabel"
+                <com.tripplanner.ui.widget.TpTextField
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:placeholderText="@string/placeholder_lodging_memo">
+                    app:tpPlaceholder="@string/placeholder_lodging_memo">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <EditText
                         android:id="@+id/inputLocationMemo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text" />
-                </com.google.android.material.textfield.TextInputLayout>
+                </com.tripplanner.ui.widget.TpTextField>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -275,7 +268,7 @@
 
     <LinearLayout style="@style/Widget.TripPlanner.BottomBar">
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnCancel"
             style="@style/Widget.TripPlanner.Button.Outlined"
             android:layout_width="0dp"
@@ -283,7 +276,7 @@
             android:layout_weight="1"
             android:text="@string/action_cancel" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnSave"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

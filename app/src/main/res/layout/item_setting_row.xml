@@ -58,7 +58,7 @@
             android:src="@drawable/ic_chevron_right"
             app:tint="@color/text_sub" />
 
-        <com.google.android.material.materialswitch.MaterialSwitch
+        <com.tripplanner.ui.widget.TpSwitch
             android:id="@+id/switchEnd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

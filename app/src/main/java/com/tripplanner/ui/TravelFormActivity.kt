@@ -5,9 +5,9 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.tripplanner.ui.widget.TpButton
+import android.widget.EditText
+import com.tripplanner.ui.widget.TpTextField
 import com.tripplanner.R
 import com.tripplanner.TripPlannerApp
 import com.tripplanner.data.Flight
@@ -81,8 +81,8 @@ class TravelFormActivity : AppCompatActivity() {
         fieldCheckOut = findViewById(R.id.fieldCheckOut)
         setupFields()
 
-        findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener { finish() }
-        findViewById<MaterialButton>(R.id.btnSave).setOnClickListener { save() }
+        findViewById<TpButton>(R.id.btnCancel).setOnClickListener { finish() }
+        findViewById<TpButton>(R.id.btnSave).setOnClickListener { save() }
 
         if (savedInstanceState != null) {
             restore(savedInstanceState); render()
@@ -103,7 +103,7 @@ class TravelFormActivity : AppCompatActivity() {
         } else render()
     }
 
-    private fun input(id: Int) = findViewById<TextInputEditText>(id)
+    private fun input(id: Int) = findViewById<EditText>(id)
 
     private fun setupFields() {
         fieldMode.label = getString(R.string.hint_transport_mode)
@@ -135,8 +135,8 @@ class TravelFormActivity : AppCompatActivity() {
                 Pickers.dateRange(this, getString(R.string.add_lodging), checkIn, checkOut) { s, e -> checkIn = s; checkOut = e; render() }
             }
         }
-        input(R.id.inputNumber).doAfterTextChanged { if (!it.isNullOrBlank()) findViewById<TextInputLayout>(R.id.layoutNumber).error = null }
-        input(R.id.inputLodgingName).doAfterTextChanged { if (!it.isNullOrBlank()) findViewById<TextInputLayout>(R.id.layoutLodgingName).error = null }
+        input(R.id.inputNumber).doAfterTextChanged { if (!it.isNullOrBlank()) findViewById<TpTextField>(R.id.layoutNumber).error = null }
+        input(R.id.inputLodgingName).doAfterTextChanged { if (!it.isNullOrBlank()) findViewById<TpTextField>(R.id.layoutLodgingName).error = null }
     }
 
     private fun render() {
@@ -188,7 +188,7 @@ class TravelFormActivity : AppCompatActivity() {
             if (isFlight) {
                 val number = input(R.id.inputNumber).text.toString().trim()
                 if (needsNumber(mode) && number.isBlank()) {
-                    findViewById<TextInputLayout>(R.id.layoutNumber).error = getString(R.string.error_flight_no)
+                    findViewById<TpTextField>(R.id.layoutNumber).error = getString(R.string.error_flight_no)
                     input(R.id.inputNumber).requestFocus(); return@launch
                 }
                 repo.saveFlight(Flight(id = itemId, tripId = tripId,
@@ -199,7 +199,7 @@ class TravelFormActivity : AppCompatActivity() {
             } else {
                 val name = input(R.id.inputLodgingName).text.toString().trim()
                 if (name.isBlank()) {
-                    findViewById<TextInputLayout>(R.id.layoutLodgingName).error = getString(R.string.error_lodging_name)
+                    findViewById<TpTextField>(R.id.layoutLodgingName).error = getString(R.string.error_lodging_name)
                     input(R.id.inputLodgingName).requestFocus(); return@launch
                 }
                 repo.saveLodging(Lodging(id = itemId, tripId = tripId, name = name,

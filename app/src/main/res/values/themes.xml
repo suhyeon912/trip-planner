@@ -1,45 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--
-      앱 테마: 파란 primary(#2563EB)를 기준으로 Material3 색 역할을 모두 지정합니다.
-      (이전에는 colorPrimary 만 지정되어 배경·토널 버튼에 M3 기본 보라색이 나왔음)
+      앱 테마 (Material 컴포넌트 없이 AppCompat 위에 TripPlanner 디자인 시스템).
+      버튼 · 입력칸 · 탭 · 스위치 · 팝업 · 알림은 모두 자체 컴포넌트(ui/widget)이고, 여기서는 색 · 글자 · 모양만 정합니다.
     -->
-    <style name="Theme.TripPlanner" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- primary -->
+    <style name="Theme.TripPlanner" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorOnPrimary">@color/on_primary</item>
-        <item name="colorPrimaryContainer">@color/primary_light</item>
-        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
-        <!-- secondary: 토널 버튼 -->
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="colorSecondaryContainer">@color/secondary_container</item>
-        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
-        <!-- tertiary: 지금은 안 쓰지만 보라 기본값이 새지 않도록 지정 -->
-        <item name="colorTertiary">@color/tertiary</item>
-        <item name="colorOnTertiary">@color/white</item>
-        <item name="colorTertiaryContainer">@color/tertiary_container</item>
-        <item name="colorOnTertiaryContainer">@color/on_tertiary_container</item>
-        <!-- 배경 · 표면 -->
+        <item name="colorPrimaryDark">@color/background</item>
+        <item name="colorAccent">@color/primary</item>
+        <!-- 커서 · 글자 선택 손잡이 · 체크 등 -->
+        <item name="colorControlActivated">@color/primary</item>
+        <item name="colorControlNormal">@color/text_sub</item>
+        <item name="android:textColorHighlight">@color/primary_light</item>
         <item name="android:colorBackground">@color/background</item>
-        <item name="colorOnBackground">@color/on_surface</item>
-        <item name="colorSurface">@color/background</item>
-        <item name="colorOnSurface">@color/on_surface</item>
-        <item name="colorSurfaceVariant">@color/surface_container</item>
-        <item name="colorOnSurfaceVariant">@color/text_sub</item>
-        <item name="colorSurfaceContainerLowest">@color/card_bg</item>
-        <item name="colorSurfaceContainerLow">@color/card_bg</item>
-        <item name="colorSurfaceContainer">@color/surface_container</item>
-        <item name="colorSurfaceContainerHigh">@color/card_bg</item>
-        <item name="colorSurfaceContainerHighest">@color/surface_container_highest</item>
-        <item name="colorOutline">@color/outline</item>
-        <item name="colorOutlineVariant">@color/outline_variant</item>
-        <!-- 오류 -->
-        <item name="colorError">@color/badge_red</item>
-        <item name="colorOnError">@color/white</item>
-        <item name="colorErrorContainer">@color/error_container</item>
-        <item name="colorOnErrorContainer">@color/on_error_container</item>
-        <!-- 기본 글자색: 색을 따로 지정하지 않은 TextView 도 위 역할을 따르게
-             (지정하지 않으면 M3 기본 보라 기운 회색 #49454F 가 나옴) -->
+        <item name="android:windowBackground">@color/background</item>
+        <!-- 기본 글자색 -->
         <item name="android:textColorPrimary">@color/on_surface</item>
         <item name="android:textColorSecondary">@color/text_sub</item>
         <item name="android:textColorTertiary">@color/text_sub</item>
@@ -47,44 +21,15 @@
         <!-- 글꼴: Pretendard (가장 얇은 굵기 = Medium) -->
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
-        <item name="textAppearanceDisplayLarge">@style/TextAppearance.TripPlanner.M3.DisplayLarge</item>
-        <item name="textAppearanceDisplayMedium">@style/TextAppearance.TripPlanner.M3.DisplayMedium</item>
-        <item name="textAppearanceDisplaySmall">@style/TextAppearance.TripPlanner.M3.DisplaySmall</item>
-        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.TripPlanner.M3.HeadlineLarge</item>
-        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.TripPlanner.M3.HeadlineMedium</item>
-        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.TripPlanner.M3.HeadlineSmall</item>
-        <item name="textAppearanceTitleLarge">@style/TextAppearance.TripPlanner.TitleLarge</item>
-        <item name="textAppearanceTitleMedium">@style/TextAppearance.TripPlanner.TitleMedium</item>
-        <item name="textAppearanceTitleSmall">@style/TextAppearance.TripPlanner.TitleSmall</item>
-        <item name="textAppearanceBodyLarge">@style/TextAppearance.TripPlanner.BodyLarge</item>
-        <item name="textAppearanceBodyMedium">@style/TextAppearance.TripPlanner.BodyMedium</item>
-        <item name="textAppearanceBodySmall">@style/TextAppearance.TripPlanner.BodySmall</item>
-        <item name="textAppearanceLabelLarge">@style/TextAppearance.TripPlanner.LabelLarge</item>
-        <item name="textAppearanceLabelMedium">@style/TextAppearance.TripPlanner.LabelMedium</item>
-        <item name="textAppearanceLabelSmall">@style/TextAppearance.TripPlanner.LabelSmall</item>
-        <!-- 시스템 바 -->
         <!-- 상태 표시줄: 화면 배경과 같은 색 (다크 모드는 values-night 의 background) · 아이콘은 배경에 맞춰 어둡게/밝게 -->
         <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">@bool/light_system_bars</item>
-        <!-- 2단계 공통 컴포넌트 (시안 컴포넌트 페이지 기준) -->
+        <!-- 공통 컴포넌트 -->
         <item name="actionBarSize">64dp</item>
         <item name="toolbarStyle">@style/Widget.TripPlanner.Toolbar</item>
-        <item name="materialButtonStyle">@style/Widget.TripPlanner.Button</item>
-        <item name="materialButtonOutlinedStyle">@style/Widget.TripPlanner.Button.Outlined</item>
-        <item name="borderlessButtonStyle">@style/Widget.TripPlanner.Button.Text</item>
-        <item name="extendedFloatingActionButtonStyle">@style/Widget.TripPlanner.Fab</item>
-        <item name="textInputStyle">@style/Widget.TripPlanner.TextField</item>
-        <item name="tabStyle">@style/Widget.TripPlanner.SegmentedTabs</item>
-        <item name="snackbarStyle">@style/Widget.TripPlanner.Snackbar</item>
-        <item name="snackbarTextViewStyle">@style/Widget.TripPlanner.Snackbar.Text</item>
-        <item name="materialAlertDialogTheme">@style/ThemeOverlay.TripPlanner.Dialog</item>
-        <item name="android:popupMenuStyle">@style/Widget.TripPlanner.PopupMenu</item>
-        <item name="popupMenuStyle">@style/Widget.TripPlanner.PopupMenu</item>
+        <item name="tpButtonStyle">@style/Widget.TripPlanner.Button</item>
+        <item name="tpFabStyle">@style/Widget.TripPlanner.Fab</item>
         <item name="android:dropDownListViewStyle">@style/Widget.TripPlanner.PopupList</item>
-        <item name="android:textAppearanceLargePopupMenu">@style/TextAppearance.TripPlanner.BodyLarge</item>
-        <item name="android:textAppearanceSmallPopupMenu">@style/TextAppearance.TripPlanner.BodyLarge</item>
-        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.TripPlanner.BodyLarge</item>
-        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.TripPlanner.BodyLarge</item>
         <item name="android:listPreferredItemHeightSmall">48dp</item>
         <item name="listPreferredItemHeightSmall">48dp</item>
         <item name="android:textViewStyle">@style/Widget.TripPlanner.TextView</item>
@@ -100,9 +45,9 @@
         <item name="selectableItemBackgroundBorderless">@drawable/press_overlay_borderless</item>
         <item name="android:selectableItemBackgroundBorderless">@drawable/press_overlay_borderless</item>
         <item name="android:colorControlHighlight">@color/press_on_surface</item>
+        <item name="colorControlHighlight">@color/press_on_surface</item>
         <item name="android:listChoiceBackgroundIndicator">@drawable/press_overlay</item>
         <item name="listChoiceBackgroundIndicator">@drawable/press_overlay</item>
-        <item name="colorControlHighlight">@color/press_on_surface</item>
     </style>
 
     <!-- 표지 사진 맞추기: 어두운 화면이라 상태 표시줄도 어둡게, 아이콘은 밝게 -->
@@ -111,11 +56,25 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
+    <!-- 팝업 (TpDialog): 떠 있는 창 · 바탕 45% 어둡게 -->
+    <style name="Theme.TripPlanner.Popup" parent="Theme.TripPlanner">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.45</item>
+    </style>
+    <style name="Animation.TripPlanner.Dialog" parent="">
+        <item name="android:windowEnterAnimation">@anim/dialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/dialog_exit</item>
+    </style>
+
     <!--
-      글자 역할 (Material3 TextAppearance 상속, 글꼴 Pretendard, 최소 12sp).
+      글자 역할 (글꼴 Pretendard, 최소 12sp, 글자 간격 0).
       굵기: 본문·보조 = Medium(가장 얇음) / 버튼·탭·작은 제목 = SemiBold / 큰 제목 = Bold
     -->
-    <style name="TextAppearance.TripPlanner.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+    <style name="TextAppearance.TripPlanner.TitleLarge" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">22sp</item>
@@ -123,88 +82,64 @@
         <item name="lineHeight">28sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
-    <style name="TextAppearance.TripPlanner.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+    <style name="TextAppearance.TripPlanner.TitleMedium" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard_semibold</item>
         <item name="fontFamily">@font/pretendard_semibold</item>
         <item name="android:textSize">18sp</item>
         <item name="lineHeight">24sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
-    <style name="TextAppearance.TripPlanner.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+    <style name="TextAppearance.TripPlanner.TitleSmall" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard_semibold</item>
         <item name="fontFamily">@font/pretendard_semibold</item>
         <item name="android:textSize">16sp</item>
         <item name="lineHeight">20sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
-    <style name="TextAppearance.TripPlanner.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+    <style name="TextAppearance.TripPlanner.BodyLarge" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">16sp</item>
         <item name="lineHeight">24sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
-    <style name="TextAppearance.TripPlanner.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+    <style name="TextAppearance.TripPlanner.BodyMedium" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">14sp</item>
         <item name="lineHeight">20sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
-    <style name="TextAppearance.TripPlanner.BodySmall" parent="TextAppearance.Material3.BodySmall">
+    <style name="TextAppearance.TripPlanner.BodySmall" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">16sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
-    <style name="TextAppearance.TripPlanner.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+    <style name="TextAppearance.TripPlanner.LabelLarge" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard_semibold</item>
         <item name="fontFamily">@font/pretendard_semibold</item>
         <item name="android:textSize">14sp</item>
         <item name="lineHeight">20sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
-    <style name="TextAppearance.TripPlanner.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+    <style name="TextAppearance.TripPlanner.LabelMedium" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">16sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
-    <style name="TextAppearance.TripPlanner.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+    <style name="TextAppearance.TripPlanner.LabelSmall" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">16sp</item>
         <item name="android:letterSpacing">0</item>
-    </style>
-    <!-- 큰 글자 역할은 크기는 M3 그대로, 글꼴만 Pretendard -->
-    <style name="TextAppearance.TripPlanner.M3.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
-        <item name="android:fontFamily">@font/pretendard</item>
-        <item name="fontFamily">@font/pretendard</item>
     </style>
 
-    <style name="TextAppearance.TripPlanner.M3.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
-        <item name="android:fontFamily">@font/pretendard</item>
-        <item name="fontFamily">@font/pretendard</item>
-    </style>
-    <style name="TextAppearance.TripPlanner.M3.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
-        <item name="android:fontFamily">@font/pretendard</item>
-        <item name="fontFamily">@font/pretendard</item>
-    </style>
-    <style name="TextAppearance.TripPlanner.M3.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
-        <item name="android:fontFamily">@font/pretendard</item>
-        <item name="fontFamily">@font/pretendard</item>
-    </style>
-    <style name="TextAppearance.TripPlanner.M3.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
-        <item name="android:fontFamily">@font/pretendard</item>
-        <item name="fontFamily">@font/pretendard</item>
-    </style>
-    <style name="TextAppearance.TripPlanner.M3.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
-        <item name="android:fontFamily">@font/pretendard</item>
-        <item name="fontFamily">@font/pretendard</item>
-    </style>
+    <!-- 공통 위젯 스타일 -->
 
     <!-- 3단계 공통 위젯 스타일 -->
     <style name="Widget.TripPlanner.SummaryRow" parent="">
@@ -239,6 +174,7 @@
         <item name="android:paddingVertical">1dp</item>
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelMedium</item>
     </style>
+
     <!-- 하단 고정 바: 높이 80 · 위 12 · 아래 20 · 좌우 16 · 위 경계선 -->
     <style name="Widget.TripPlanner.BottomBar" parent="">
         <item name="android:layout_width">match_parent</item>
@@ -252,6 +188,7 @@
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">20dp</item>
     </style>
+
     <!-- 여행 카드 정보 줄: 작은 아이콘 + 글자 -->
     <style name="Widget.TripPlanner.TripInfoLine" parent="">
         <item name="android:layout_width">match_parent</item>
@@ -262,6 +199,7 @@
         <item name="android:textColor">@color/text_sub</item>
         <item name="drawableTint">@color/text_sub</item>
     </style>
+
     <!-- 6단계: 편집 화면 섹션 제목 -->
     <style name="Widget.TripPlanner.SectionTitle" parent="">
         <item name="android:layout_width">match_parent</item>
@@ -278,212 +216,141 @@
         <item name="android:orientation">horizontal</item>
     </style>
 
-    <!-- 디자인 2차: 장소 썸네일 모서리 -->
-    <style name="ShapeAppearance.TripPlanner.Thumb" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">12dp</item>
-    </style>
-
-    <!-- ============================================================
-         2단계 공통 컴포넌트 (design/export 디자인 토큰·컴포넌트 PDF 기준)
-         primary 색은 누를 수 있는 것에만, 채움 버튼은 화면마다 하나
-         ============================================================ -->
-
     <!-- 한글은 단어 단위로 줄바꿈 (Android 13+, 그 아래는 무시) -->
-    <style name="Widget.TripPlanner.TextView" parent="Widget.MaterialComponents.TextView">
+    <style name="Widget.TripPlanner.TextView" parent="android:Widget.TextView">
         <item name="android:lineBreakWordStyle" tools:targetApi="33">phrase</item>
     </style>
 
     <!-- 상단 바: 높이 64 · 좌우 16 · 제목 18 SemiBold -->
-    <style name="Widget.TripPlanner.Toolbar" parent="Widget.Material3.Toolbar">
+    <style name="Widget.TripPlanner.Toolbar" parent="Widget.AppCompat.Toolbar">
         <item name="android:minHeight">64dp</item>
         <item name="titleTextAppearance">@style/TextAppearance.TripPlanner.TitleMedium</item>
         <item name="subtitleTextAppearance">@style/TextAppearance.TripPlanner.BodySmall</item>
+        <item name="titleTextColor">@color/on_surface</item>
         <item name="subtitleTextColor">@color/text_sub</item>
         <item name="contentInsetStart">16dp</item>
         <item name="contentInsetStartWithNavigation">56dp</item>
         <item name="android:paddingEnd">4dp</item>
+        <item name="android:background">@color/background</item>
     </style>
 
-    <!-- 버튼: 알약 모양 · 높이 48 · 글자 14 SemiBold -->
-    <style name="Widget.TripPlanner.Button" parent="Widget.Material3.Button">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:paddingStart">20dp</item>
-        <item name="android:paddingEnd">20dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="rippleColor">@android:color/transparent</item>
+    <!--
+      버튼 (TpButton): 알약 · 높이 48 · 글자 14 SemiBold · 눌림 12% 덧칠
+      primary 색은 누를 수 있는 것에만, 채움 버튼은 화면마다 하나
+    -->
+    <style name="Widget.TripPlanner.Button" parent="">
+        <item name="android:background">@drawable/bg_btn_filled</item>
         <item name="android:foreground">@drawable/press_pill_on_primary</item>
-    </style>
-    <style name="Widget.TripPlanner.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/btn_text_on_primary</item>
+        <item name="tpIconTint">@color/btn_text_on_primary</item>
         <item name="android:minHeight">48dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
+        <item name="android:minWidth">0dp</item>
         <item name="android:paddingStart">20dp</item>
         <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:gravity">center</item>
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="strokeColor">@color/button_outline_stroke</item>
-        <item name="rippleColor">@android:color/transparent</item>
-        <item name="android:foreground">@drawable/press_pill_primary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
     </style>
-    <style name="Widget.TripPlanner.Button.Text" parent="Widget.Material3.Button.TextButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="rippleColor">@android:color/transparent</item>
-        <item name="android:foreground">@drawable/press_pill_primary</item>
+    <style name="Widget.TripPlanner.Button.Danger">
+        <item name="android:background">@drawable/bg_btn_danger</item>
+        <item name="android:textColor">@color/btn_text_white</item>
+        <item name="tpIconTint">@color/btn_text_white</item>
     </style>
-    <style name="Widget.TripPlanner.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:paddingStart">20dp</item>
-        <item name="android:paddingEnd">20dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="rippleColor">@android:color/transparent</item>
+    <style name="Widget.TripPlanner.Button.Tonal">
+        <item name="android:background">@drawable/bg_btn_tonal</item>
         <item name="android:foreground">@drawable/press_pill_primary</item>
+        <item name="android:textColor">@color/btn_text_tonal</item>
+        <item name="tpIconTint">@color/btn_text_tonal</item>
     </style>
-    <style name="Widget.TripPlanner.Button.Outlined.Icon" parent="Widget.TripPlanner.Button.Outlined">
+    <style name="Widget.TripPlanner.Button.Outlined">
+        <item name="android:background">@drawable/bg_btn_outlined</item>
+        <item name="android:foreground">@drawable/press_pill_primary</item>
+        <item name="android:textColor">@color/btn_text_primary</item>
+        <item name="tpIconTint">@color/btn_text_primary</item>
+    </style>
+    <style name="Widget.TripPlanner.Button.Outlined.Icon">
         <item name="android:paddingStart">16dp</item>
-        <item name="iconPadding">8dp</item>
-        <item name="iconSize">20dp</item>
+        <item name="tpIconPadding">8dp</item>
+        <item name="tpIconSize">20dp</item>
     </style>
     <!-- 네모난 테두리 버튼: 높이 44 · 모서리 12 (장소 정보의 지도 버튼) -->
-    <style name="Widget.TripPlanner.Button.Outlined.Rect" parent="Widget.TripPlanner.Button.Outlined">
+    <style name="Widget.TripPlanner.Button.Outlined.Rect">
+        <item name="android:background">@drawable/bg_btn_outlined_rect</item>
+        <item name="android:foreground">@drawable/press_r12_primary</item>
         <item name="android:minHeight">44dp</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Input</item>
-        <item name="iconPadding">6dp</item>
-        <item name="iconSize">18dp</item>
-        <item name="android:foreground">@drawable/press_r12_primary</item>
-    </style>
-    <style name="Widget.TripPlanner.Button.Text.Icon" parent="Widget.TripPlanner.Button.Text">
-        <item name="iconPadding">8dp</item>
-        <item name="iconSize">20dp</item>
-    </style>
-    <!-- 위험 동작(삭제)은 빨강 채움, 팝업 안에서만 -->
-    <style name="Widget.TripPlanner.Button.Danger" parent="Widget.TripPlanner.Button">
-        <item name="backgroundTint">@color/badge_red</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="tpIconPadding">6dp</item>
+        <item name="tpIconSize">18dp</item>
     </style>
     <!-- 작은 버튼: 높이 40 · 테두리 (예: 후보 탭 확정하기) -->
     <style name="Widget.TripPlanner.Button.Small" parent="Widget.TripPlanner.Button.Outlined">
         <item name="android:minHeight">40dp</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">14dp</item>
-        <item name="iconSize">16dp</item>
-        <item name="iconPadding">4dp</item>
+        <item name="tpIconSize">16dp</item>
+        <item name="tpIconPadding">4dp</item>
     </style>
-    <!-- 목록 바로 아래 '추가' 점선 버튼: 높이 48 · 모서리 12 -->
-    <style name="Widget.TripPlanner.Button.DashedAdd" parent="Widget.TripPlanner.Button.Text.Icon">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:background">@drawable/bg_dashed_add</item>
-        <item name="backgroundTint">@null</item>
-        <item name="iconGravity">textStart</item>
-        <item name="android:foreground">@drawable/press_r12_primary</item>
-    </style>
-    <!-- 아이콘 버튼: 터치 48 · 아이콘 24 · 바탕 없음 -->
-    <style name="Widget.TripPlanner.IconButton" parent="Widget.Material3.Button.IconButton">
-        <item name="android:minWidth">48dp</item>
-        <item name="android:minHeight">48dp</item>
-        <item name="iconSize">24dp</item>
-        <item name="iconTint">@color/on_surface</item>
-        <item name="rippleColor">@android:color/transparent</item>
-        <item name="android:foreground">@drawable/press_overlay_borderless</item>
-    </style>
-    <!-- FAB: 높이 56 · 모서리 16 -->
-    <style name="Widget.TripPlanner.Fab" parent="Widget.Material3.ExtendedFloatingActionButton.Icon.Primary">
-        <item name="android:minHeight">56dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.TripPlanner.Fab</item>
-        <item name="rippleColor">@android:color/transparent</item>
-        <item name="android:foreground">@drawable/press_r16_on_primary</item>
-    </style>
-    <style name="ShapeAppearance.TripPlanner.Round" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
-    </style>
-    <style name="ShapeAppearance.TripPlanner.Fab" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">16dp</item>
-    </style>
-
-    <!-- 입력 칸: 칸 52 · 모서리 12 · 고른 칸만 2px primary · 오류는 빨강 -->
-    <style name="Widget.TripPlanner.TextField" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Input</item>
-        <item name="boxStrokeColor">@color/input_stroke</item>
-        <item name="boxStrokeWidth">1dp</item>
-        <item name="boxStrokeWidthFocused">2dp</item>
-        <item name="boxBackgroundColor">@color/card_bg</item>
-        <item name="hintTextColor">@color/primary</item>
-        <item name="errorIconDrawable">@null</item>
-        <item name="materialThemeOverlay">@style/ThemeOverlay.TripPlanner.TextField</item>
-    </style>
-    <!-- 라벨을 칸 밖 위에 따로 두는 칸 (시안 TextField). 라벨은 Widget.TripPlanner.FieldLabel -->
-    <style name="Widget.TripPlanner.TextField.NoLabel" parent="Widget.TripPlanner.TextField">
-        <item name="hintEnabled">false</item>
-        <item name="expandedHintEnabled">false</item>
-    </style>
-    <!-- 촘촘한 칸 (높이 48 · 좌우 12): 장소 추가의 운영 정보·위치 칸 (시안 AddPlace) -->
-    <style name="Widget.TripPlanner.TextField.NoLabel.Compact">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.TripPlanner.TextField.Compact</item>
-    </style>
-    <style name="ThemeOverlay.TripPlanner.TextField.Compact" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
-        <item name="editTextStyle">@style/Widget.TripPlanner.EditText.Compact</item>
-    </style>
-    <style name="Widget.TripPlanner.EditText.Compact" parent="Widget.TripPlanner.EditText">
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
+    <style name="Widget.TripPlanner.Button.Text">
+        <item name="android:background">@null</item>
+        <item name="android:foreground">@drawable/press_pill_primary</item>
+        <item name="android:textColor">@color/btn_text_primary</item>
+        <item name="tpIconTint">@color/btn_text_primary</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
     </style>
-    <style name="Widget.TripPlanner.TextField.Dropdown" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-        <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Input</item>
-        <item name="boxStrokeColor">@color/input_stroke</item>
-        <item name="boxStrokeWidth">1dp</item>
-        <item name="boxStrokeWidthFocused">2dp</item>
-        <item name="boxBackgroundColor">@color/card_bg</item>
-        <item name="hintTextColor">@color/primary</item>
-        <item name="materialThemeOverlay">@style/ThemeOverlay.TripPlanner.TextField.Dropdown</item>
+    <style name="Widget.TripPlanner.Button.Text.Icon">
+        <item name="tpIconPadding">8dp</item>
+        <item name="tpIconSize">20dp</item>
     </style>
-    <style name="Widget.TripPlanner.TextField.Dropdown.NoLabel" parent="Widget.TripPlanner.TextField.Dropdown">
-        <item name="hintEnabled">false</item>
-        <item name="expandedHintEnabled">false</item>
+    <style name="Widget.TripPlanner.Button.Text.Danger">
+        <item name="android:textColor">@color/btn_text_danger</item>
     </style>
-    <style name="ThemeOverlay.TripPlanner.TextField" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
-        <item name="editTextStyle">@style/Widget.TripPlanner.EditText</item>
+    <!-- 목록 아래 '추가' 점선 버튼: 모서리 12 -->
+    <style name="Widget.TripPlanner.Button.DashedAdd" parent="Widget.TripPlanner.Button.Text.Icon">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/bg_dashed_add</item>
+        <item name="android:foreground">@drawable/press_r12_primary</item>
+        <item name="tpIconGravity">textStart</item>
     </style>
-    <style name="ThemeOverlay.TripPlanner.TextField.Dropdown" parent="ThemeOverlay.Material3.AutoCompleteTextView.OutlinedBox">
-        <item name="autoCompleteTextViewStyle">@style/Widget.TripPlanner.AutoComplete</item>
+    <!-- 아이콘 버튼: 48 터치 · 아이콘 24 · 바탕 없음 -->
+    <style name="Widget.TripPlanner.IconButton" parent="Widget.TripPlanner.Button">
+        <item name="android:background">@null</item>
+        <item name="android:foreground">@drawable/press_overlay_borderless</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="tpIconSize">24dp</item>
+        <item name="tpIconTint">@color/on_surface</item>
     </style>
-    <style name="Widget.TripPlanner.EditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
-        <item name="android:minHeight">52dp</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingBottom">14dp</item>
-        <item name="android:paddingStart">14dp</item>
-        <item name="android:paddingEnd">14dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.BodyLarge</item>
+    <!-- 떠 있는 추가 버튼 (TpFab): 높이 56 · 모서리 16 · 그림자 -->
+    <style name="Widget.TripPlanner.Fab" parent="Widget.TripPlanner.Button">
+        <item name="android:background">@drawable/bg_fab</item>
+        <item name="android:foreground">@drawable/press_r16_on_primary</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:minWidth">56dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:elevation">6dp</item>
+        <item name="tpIconSize">24dp</item>
+        <item name="tpIconPadding">12dp</item>
     </style>
-    <style name="Widget.TripPlanner.AutoComplete" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox">
-        <item name="android:minHeight">52dp</item>
-        <item name="android:paddingTop">14dp</item>
-        <item name="android:paddingBottom">14dp</item>
-        <item name="android:paddingStart">14dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.BodyLarge</item>
+    <!-- 세그먼트 칸 (SegmentedGroup 안) -->
+    <style name="Widget.TripPlanner.SegmentedButton" parent="Widget.TripPlanner.Button">
+        <item name="android:background">@drawable/bg_segment_btn</item>
+        <item name="android:foreground">@drawable/press_r10</item>
+        <item name="android:textColor">@color/segmented_text</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
     </style>
-    <style name="ShapeAppearance.TripPlanner.Input" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">12dp</item>
-    </style>
+
     <!-- 칸 위 라벨 12 · 필수 칸은 라벨 끝에 * -->
     <style name="Widget.TripPlanner.FieldLabel" parent="">
         <item name="android:layout_width">match_parent</item>
@@ -493,135 +360,23 @@
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelMedium</item>
         <item name="android:textColor">@color/text_sub</item>
     </style>
-
-    <!-- 세그먼트 탭 (TabLayout): 바탕 surface_container · 고른 칸 card_bg · 높이 40 -->
-    <style name="Widget.TripPlanner.SegmentedTabs" parent="Widget.Material3.TabLayout">
-        <item name="android:background">@null</item>
-        <item name="android:minHeight">40dp</item>
-        <item name="tabIndicator">@drawable/bg_segmented_selected</item>
-        <item name="tabIndicatorGravity">stretch</item>
-        <item name="tabIndicatorFullWidth">true</item>
-        <item name="tabIndicatorHeight">0dp</item>
-        <item name="tabIndicatorColor">@null</item>
-        <item name="tabIndicatorAnimationMode">linear</item>
-        <item name="tabIndicatorAnimationDuration">@integer/motion_medium</item>
-        <item name="tabRippleColor">@null</item>
-        <item name="tabGravity">fill</item>
-        <item name="tabMode">fixed</item>
-        <item name="tabPaddingStart">4dp</item>
-        <item name="tabPaddingEnd">4dp</item>
-        <item name="tabMinWidth">0dp</item>
-        <item name="tabTextAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
-        <item name="tabTextColor">@color/text_sub</item>
-        <item name="tabSelectedTextColor">@color/on_surface</item>
-    </style>
-    <!-- 세그먼트 버튼 (MaterialButtonToggleGroup 안의 버튼) -->
-    <style name="Widget.TripPlanner.SegmentedButton" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:minHeight">40dp</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="android:textColor">@color/segmented_text</item>
-        <item name="backgroundTint">@color/segmented_bg</item>
-        <item name="strokeWidth">0dp</item>
-        <item name="rippleColor">@android:color/transparent</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Segment</item>
-        <item name="android:foreground">@drawable/press_r10</item>
-    </style>
     <style name="Widget.TripPlanner.SegmentedGroup" parent="">
         <item name="android:background">@drawable/bg_segmented</item>
         <item name="android:padding">4dp</item>
     </style>
-    <style name="ShapeAppearance.TripPlanner.Segment" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">10dp</item>
-    </style>
 
-    <!-- 팝업 (가운데 · 좌우 24 · 모서리 24 · 바탕 45% 어둡게 · 버튼은 오른쪽) -->
-    <style name="ThemeOverlay.TripPlanner.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.TripPlanner.Dialog</item>
-        <item name="backgroundInsetStart">24dp</item>
-        <item name="backgroundInsetEnd">24dp</item>
-        <item name="android:backgroundDimAmount">0.45</item>
-        <item name="colorSurface">@color/card_bg</item>
-        <item name="colorSurfaceContainerHigh">@color/card_bg</item>
-        <item name="alertDialogStyle">@style/TripPlanner.Dialog</item>
-        <item name="elevationOverlayEnabled">false</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/TripPlanner.Dialog.Title</item>
-        <item name="materialAlertDialogBodyTextStyle">@style/TripPlanner.Dialog.Body</item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.TripPlanner.Dialog.Positive</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.TripPlanner.Dialog.Negative</item>
-        <item name="buttonBarNeutralButtonStyle">@style/Widget.TripPlanner.Dialog.Neutral</item>
-    </style>
-    <!-- 삭제 확인 팝업: 확인 버튼이 빨강 채움 -->
-    <style name="ThemeOverlay.TripPlanner.Dialog.Danger">
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.TripPlanner.Dialog.Positive.Danger</item>
-    </style>
-    <style name="TripPlanner.Dialog" parent="MaterialAlertDialog.Material3">
-        <item name="backgroundTint">@color/card_bg</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Dialog</item>
-        <item name="backgroundInsetStart">24dp</item>
-        <item name="backgroundInsetEnd">24dp</item>
-    </style>
-    <style name="ShapeAppearance.TripPlanner.Dialog" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">24dp</item>
-    </style>
-    <style name="TripPlanner.Dialog.Title" parent="MaterialAlertDialog.Material3.Title.Text">
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.TitleLarge</item>
-        <item name="android:textColor">@color/on_surface</item>
-    </style>
-    <style name="TripPlanner.Dialog.Body" parent="MaterialAlertDialog.Material3.Body.Text">
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.BodyMedium</item>
-        <item name="android:textColor">@color/text_sub</item>
-    </style>
-    <style name="Widget.TripPlanner.Dialog.Positive" parent="Widget.TripPlanner.Button">
-        <item name="android:minWidth">64dp</item>
-        <item name="android:minHeight">40dp</item>
-        <item name="android:layout_marginStart">8dp</item>
-    </style>
-    <style name="Widget.TripPlanner.Dialog.Positive.Danger">
-        <item name="backgroundTint">@color/badge_red</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-    <style name="Widget.TripPlanner.Dialog.Negative" parent="Widget.TripPlanner.Button.Text">
-        <item name="android:minHeight">40dp</item>
-    </style>
-    <style name="Widget.TripPlanner.Dialog.Neutral" parent="Widget.TripPlanner.Button.Text">
-        <item name="android:minHeight">40dp</item>
-        <item name="android:textColor">@color/badge_red</item>
-    </style>
-
-    <!-- 메뉴 · select: 모서리 14 · 그림자 · 항목 48 · 아이콘 없이 글자만 -->
-    <style name="Widget.TripPlanner.PopupMenu" parent="Widget.Material3.PopupMenu">
-        <item name="android:popupBackground">@drawable/bg_menu</item>
-        <item name="android:popupElevation">8dp</item>
-        <item name="android:dropDownVerticalOffset">4dp</item>
-    </style>
     <style name="Widget.TripPlanner.PopupList" parent="Widget.AppCompat.ListView.DropDown">
         <item name="android:divider">@null</item>
         <item name="android:paddingTop">6dp</item>
         <item name="android:paddingBottom">6dp</item>
     </style>
 
-    <!-- 스낵바: 아래 24 · 좌우 16 · 글자만 -->
-    <style name="Widget.TripPlanner.Snackbar" parent="Widget.Material3.Snackbar">
-        <item name="backgroundTint">@color/snackbar_bg</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:layout_marginBottom">24dp</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Input</item>
-    </style>
-    <style name="Widget.TripPlanner.Snackbar.Text" parent="Widget.Material3.Snackbar.TextView">
-        <item name="android:textAppearance">@style/TextAppearance.TripPlanner.BodyMedium</item>
-        <item name="android:textColor">@color/snackbar_text</item>
-    </style>
     <!-- 팝오버 · 메뉴 등장/사라짐 -->
     <style name="Animation.TripPlanner.Popover" parent="">
         <item name="android:windowEnterAnimation">@anim/popover_enter</item>
         <item name="android:windowExitAnimation">@anim/popover_exit</item>
     </style>
+
     <!-- 전체 화면 달력 (기간 고르기): 아래에서 올라오는 입력 화면 -->
     <style name="Theme.TripPlanner.FullScreenDialog" parent="Theme.TripPlanner">
         <item name="android:windowIsFloating">false</item>

@@ -9,9 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.tabs.TabLayout
+import com.tripplanner.ui.widget.TpButton
+import com.tripplanner.ui.widget.TpFab
+import com.tripplanner.ui.widget.TpTabs
 import com.tripplanner.R
 import com.tripplanner.data.Place
 import com.tripplanner.data.PlaceStatus
@@ -33,7 +33,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
     }
 
     private val viewModel: TripDetailViewModel by viewModels()
-    private lateinit var tabs: TabLayout
+    private lateinit var tabs: TpTabs
     private lateinit var detailMap: TripDetailMap
 
     /** 장소 정보에서 '여행 지도에서'를 누르면 그 장소가 보이게 지도를 열고 카드 표시 */
@@ -41,9 +41,9 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
         val id = r.data?.getLongExtra(PlaceViewActivity.RESULT_SHOW_ON_MAP, -1L) ?: -1L
         if (r.resultCode != RESULT_OK || id < 0) return@registerForActivityResult
         val place = viewModel.placeById(id) ?: return@registerForActivityResult
-        if (place.status == PlaceStatus.CANDIDATE) tabs.getTabAt(1)?.select()
+        if (place.status == PlaceStatus.CANDIDATE) tabs.select(1)
         else {
-            tabs.getTabAt(0)?.select()
+            tabs.select(0)
             val sel = viewModel.selectedDay.value ?: TripDetailViewModel.DAY_ALL
             if (sel != TripDetailViewModel.DAY_ALL && sel != place.day) viewModel.selectDay(TripDetailViewModel.DAY_ALL)
         }
@@ -71,16 +71,10 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
 
         // ---------- 탭 ----------
         tabs = findViewById(R.id.tabs)
-        tabs.addTab(tabs.newTab().setText(R.string.tab_schedule))
-        tabs.addTab(tabs.newTab().setText(R.string.tab_candidates))
-        if (viewModel.currentTab.value == PlaceStatus.CANDIDATE) tabs.getTabAt(1)?.select()
-        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                viewModel.setTab(if (tab.position == 0) PlaceStatus.CONFIRMED else PlaceStatus.CANDIDATE)
-            }
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {}
-        })
+        tabs.addTab(getString(R.string.tab_schedule))
+        tabs.addTab(getString(R.string.tab_candidates))
+        if (viewModel.currentTab.value == PlaceStatus.CANDIDATE) tabs.select(1, animate = false, notify = false)
+        tabs.onSelect = { i -> viewModel.setTab(if (i == 0) PlaceStatus.CONFIRMED else PlaceStatus.CANDIDATE) }
 
         // ---------- 일차 칩 ----------
         val rvDays = findViewById<RecyclerView>(R.id.rvDays)
@@ -146,8 +140,8 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
 
         // ---------- 아래 버튼 ----------
         val bottom = findViewById<View>(R.id.bottomActions)
-        val routeCta = findViewById<MaterialButton>(R.id.btnRouteCta)
-        val fab = findViewById<FloatingActionButton>(R.id.fabAddPlace)
+        val routeCta = findViewById<TpButton>(R.id.btnRouteCta)
+        val fab = findViewById<TpFab>(R.id.fabAddPlace)
         fab.setOnClickListener { openPlaceEditor(null) }
 
         // ---------- 지도로 보기 ----------
@@ -212,8 +206,8 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
         }
 
         viewModel.ui.observe(this) { ui ->
-            tabs.getTabAt(0)?.text = getString(R.string.tab_schedule_n, ui.confirmedCount)
-            tabs.getTabAt(1)?.text = getString(R.string.tab_candidates_n, ui.candidateCount)
+            tabs.setTabText(0, getString(R.string.tab_schedule_n, ui.confirmedCount))
+            tabs.setTabText(1, getString(R.string.tab_candidates_n, ui.candidateCount))
             val onSchedule = viewModel.currentTab.value != PlaceStatus.CANDIDATE
             rvDays.visibility = if (onSchedule || viewModel.mapMode.value == true) View.VISIBLE else View.GONE
             // 후보 탭: 탭 아래 16 띄우고 카드 시작 (카드 위아래 여백 5 포함, 시안 DetailCandidates)
@@ -270,7 +264,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
     override fun onOpenNote() = showTripNoteDialog()
     override fun onEmptyAction(action: EmptyState.Action) {
         when (action) {
-            EmptyState.Action.SHOW_CANDIDATES -> tabs.getTabAt(1)?.select()
+            EmptyState.Action.SHOW_CANDIDATES -> tabs.select(1)
             EmptyState.Action.ADD_PLACE -> openPlaceEditor(null)
             EmptyState.Action.GO_BACK -> finish()
             EmptyState.Action.NEW_TRIP -> Unit

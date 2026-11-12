@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- 여행 카드 ⋮ 메뉴 (길게 눌러도 같은 메뉴) -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/action_edit" android:title="@string/action_edit" />
-    <item android:id="@+id/action_delete" android:title="@string/action_delete" />
-</menu>

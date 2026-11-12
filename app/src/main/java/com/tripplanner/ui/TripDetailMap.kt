@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.material.button.MaterialButton
+import com.tripplanner.ui.widget.TpButton
 import com.tripplanner.R
 import com.tripplanner.data.Lodging
 import com.tripplanner.data.Place
@@ -50,7 +50,7 @@ class TripDetailMap(
     private val cardOrder: TextView = card.findViewById(R.id.tvCardOrder)
     private val cardName: TextView = card.findViewById(R.id.tvCardName)
     private val cardSub: TextView = card.findViewById(R.id.tvCardSub)
-    private val cardMap: MaterialButton = card.findViewById(R.id.btnCardMap)
+    private val cardMap: TpButton = card.findViewById(R.id.btnCardMap)
     private val cardView: Button = card.findViewById(R.id.btnCardView)
     private val cardEdit: Button = card.findViewById(R.id.btnCardEdit)
     private val cardConfirm: Button = card.findViewById(R.id.btnCardConfirm)

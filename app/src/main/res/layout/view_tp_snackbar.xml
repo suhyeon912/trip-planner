@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 결과 알림 (TpSnackbar): 어두운 바탕 · 모서리 12 · 글자 + (선택) 글자 버튼 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_snackbar"
+    android:elevation="6dp"
+    android:gravity="center_vertical"
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_l"
+    android:paddingEnd="@dimen/space_xs">
+
+    <TextView
+        android:id="@+id/snackText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingVertical="14dp"
+        android:paddingEnd="@dimen/space_m"
+        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+        android:textColor="@color/snackbar_text" />
+
+    <TextView
+        android:id="@+id/snackAction"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:background="@drawable/press_r12"
+        android:gravity="center"
+        android:paddingHorizontal="@dimen/space_m"
+        android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
+        android:textColor="@color/snackbar_action"
+        android:visibility="gone" />
+</LinearLayout>

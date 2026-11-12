@@ -42,7 +42,10 @@
     <!-- 2단계 컴포넌트 -->
     <color name="scrollbar_thumb">#52E8ECF3</color>
     <color name="snackbar_bg">#E8ECF3</color>
+    <color name="snackbar_action">#1D4ED8</color>
     <color name="snackbar_text">#0F131A</color>
+    <!-- 끈 버튼 글자 (on_surface 38%) -->
+    <color name="text_disabled">#61E8ECF3</color>
     <!-- 눌림 덧칠 12% (on_surface · on_primary · primary) -->
     <color name="press_on_surface">#1FE8ECF3</color>
     <color name="press_on_primary">#1F0A1A3F</color>

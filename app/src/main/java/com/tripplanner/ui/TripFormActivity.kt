@@ -7,9 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.activity.result.contract.ActivityResultContracts
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.tripplanner.ui.widget.TpButton
+import android.widget.EditText
+import com.tripplanner.ui.widget.TpTextField
 import com.tripplanner.R
 import com.tripplanner.TripPlannerApp
 import com.tripplanner.data.Trip
@@ -49,10 +49,10 @@ class TripFormActivity : AppCompatActivity() {
         showCover()
     }
 
-    private lateinit var layoutName: TextInputLayout
-    private lateinit var inputName: TextInputEditText
-    private lateinit var layoutPeriod: TextInputLayout
-    private lateinit var inputPeriod: TextInputEditText
+    private lateinit var layoutName: TpTextField
+    private lateinit var inputName: EditText
+    private lateinit var layoutPeriod: TpTextField
+    private lateinit var inputPeriod: EditText
     private lateinit var tvNights: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,15 +74,14 @@ class TripFormActivity : AppCompatActivity() {
 
         inputName.doAfterTextChanged { if (!it.isNullOrBlank()) layoutName.error = null }
         inputPeriod.setOnClickListener { pickPeriod() }
-        layoutPeriod.setStartIconOnClickListener { pickPeriod() }
 
         findViewById<View>(R.id.btnCoverUpload).setOnClickListener { chooseCover(it) }
         findViewById<View>(R.id.btnCoverChange).setOnClickListener { chooseCover(it) }
         findViewById<View>(R.id.btnCoverRemove).setOnClickListener { cover = null; coverY = 0.5f; coverScale = 1f; showCover() }
         findViewById<View>(R.id.btnCoverAdjust).setOnClickListener { openAdjust() }
 
-        findViewById<MaterialButton>(R.id.btnCancel).setOnClickListener { finish() }
-        findViewById<MaterialButton>(R.id.btnSave).apply {
+        findViewById<TpButton>(R.id.btnCancel).setOnClickListener { finish() }
+        findViewById<TpButton>(R.id.btnSave).apply {
             setText(if (tripId == 0L) R.string.action_add else R.string.action_save)
             setOnClickListener { save() }
         }

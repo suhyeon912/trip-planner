@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 팝업 바탕: 모서리 24 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/card_bg" />
+    <corners android:radius="24dp" />
+</shape>

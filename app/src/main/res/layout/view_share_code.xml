@@ -31,14 +31,14 @@
             android:textSize="28sp"
             tools:text="3CEQEP" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnCopy"
             style="@style/Widget.TripPlanner.Button.Text.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/space_m"
             android:text="@string/share_copy"
-            app:icon="@drawable/ic_copy" />
+            app:tpIcon="@drawable/ic_copy" />
     </LinearLayout>
 
     <TextView

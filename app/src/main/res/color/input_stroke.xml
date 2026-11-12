@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- 입력 칸 테두리: 고른 칸 primary, 끔 연하게, 기본 outline_variant 보다 진한 회색 -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/primary" android:state_focused="true" />
-    <item android:color="@color/outline_variant" android:state_enabled="false" />
-    <item android:color="@color/outline" />
-</selector>

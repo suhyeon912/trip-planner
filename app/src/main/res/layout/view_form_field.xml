@@ -11,15 +11,14 @@
         android:id="@+id/label"
         style="@style/Widget.TripPlanner.FieldLabel" />
 
-    <com.google.android.material.textfield.TextInputLayout
+    <com.tripplanner.ui.widget.TpTextField
         android:id="@+id/layout"
-        style="@style/Widget.TripPlanner.TextField.NoLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <EditText
             android:id="@+id/input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-    </com.google.android.material.textfield.TextInputLayout>
+    </com.tripplanner.ui.widget.TpTextField>
 </LinearLayout>

@@ -11,11 +11,10 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorSurface"
         tools:title="@string/new_trip" />
 
     <androidx.core.widget.NestedScrollView
@@ -39,20 +38,19 @@
                 android:labelFor="@id/inputName"
                 android:text="@string/label_trip_name" />
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.tripplanner.ui.widget.TpTextField
                 android:id="@+id/layoutName"
-                style="@style/Widget.TripPlanner.TextField.NoLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:placeholderText="@string/hint_trip_title">
+                app:tpPlaceholder="@string/hint_trip_title">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <EditText
                     android:id="@+id/inputName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:imeOptions="actionDone"
                     android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
+            </com.tripplanner.ui.widget.TpTextField>
 
             <TextView
                 style="@style/Widget.TripPlanner.FieldLabel"
@@ -65,16 +63,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <com.google.android.material.textfield.TextInputLayout
+                <com.tripplanner.ui.widget.TpTextField
                     android:id="@+id/layoutPeriod"
-                    style="@style/Widget.TripPlanner.TextField.NoLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:placeholderText="@string/placeholder_trip_period"
-                    app:startIconDrawable="@drawable/ic_calendar"
-                    app:startIconTint="@color/text_sub">
+                    app:tpPlaceholder="@string/placeholder_trip_period"
+                    app:tpStartIcon="@drawable/ic_calendar">
 
-                    <com.google.android.material.textfield.TextInputEditText
+                    <EditText
                         android:id="@+id/inputPeriod"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -82,7 +78,7 @@
                         android:focusable="false"
                         android:inputType="none"
                         android:paddingEnd="88dp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                </com.tripplanner.ui.widget.TpTextField>
 
                 <TextView
                     android:id="@+id/tvNights"
@@ -105,14 +101,14 @@
                 android:layout_marginTop="@dimen/space_l"
                 android:text="@string/label_cover" />
 
-            <com.google.android.material.button.MaterialButton
+            <com.tripplanner.ui.widget.TpButton
                 android:id="@+id/btnCoverUpload"
                 style="@style/Widget.TripPlanner.Button.DashedAdd"
                 android:layout_height="72dp"
                 android:text="@string/cover_upload"
                 android:textColor="@color/on_surface"
-                app:icon="@drawable/ic_add_photo"
-                app:iconTint="@color/text_sub" />
+                app:tpIcon="@drawable/ic_add_photo"
+                app:tpIconTint="@color/text_sub" />
 
             <FrameLayout
                 android:id="@+id/coverBox"
@@ -140,7 +136,7 @@
                     android:layout_margin="@dimen/space_xs"
                     android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
+                    <com.tripplanner.ui.widget.TpButton
                         android:id="@+id/btnCoverAdjust"
                         style="@style/Widget.TripPlanner.Button.Text.Icon"
                         android:layout_width="wrap_content"
@@ -148,11 +144,11 @@
                         android:paddingHorizontal="@dimen/space_s"
                         android:text="@string/cover_adjust"
                         android:textColor="@color/white"
-                        app:icon="@drawable/ic_tune"
-                        app:iconSize="16dp"
-                        app:iconTint="@color/white" />
+                        app:tpIcon="@drawable/ic_tune"
+                        app:tpIconSize="16dp"
+                        app:tpIconTint="@color/white" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <com.tripplanner.ui.widget.TpButton
                         android:id="@+id/btnCoverChange"
                         style="@style/Widget.TripPlanner.Button.Text.Icon"
                         android:layout_width="wrap_content"
@@ -160,11 +156,11 @@
                         android:paddingHorizontal="@dimen/space_s"
                         android:text="@string/cover_change"
                         android:textColor="@color/white"
-                        app:icon="@drawable/ic_sync"
-                        app:iconSize="16dp"
-                        app:iconTint="@color/white" />
+                        app:tpIcon="@drawable/ic_sync"
+                        app:tpIconSize="16dp"
+                        app:tpIconTint="@color/white" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <com.tripplanner.ui.widget.TpButton
                         android:id="@+id/btnCoverRemove"
                         style="@style/Widget.TripPlanner.Button.Text.Icon"
                         android:layout_width="wrap_content"
@@ -172,9 +168,9 @@
                         android:paddingHorizontal="@dimen/space_s"
                         android:text="@string/cover_remove"
                         android:textColor="@color/white"
-                        app:icon="@drawable/ic_close"
-                        app:iconSize="16dp"
-                        app:iconTint="@color/white" />
+                        app:tpIcon="@drawable/ic_close"
+                        app:tpIconSize="16dp"
+                        app:tpIconTint="@color/white" />
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>
@@ -183,7 +179,7 @@
     <!-- 하단 바: 취소 : 확인 = 1 : 2 -->
     <LinearLayout style="@style/Widget.TripPlanner.BottomBar">
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnCancel"
             style="@style/Widget.TripPlanner.Button.Outlined"
             android:layout_width="0dp"
@@ -191,7 +187,7 @@
             android:layout_weight="1"
             android:text="@string/action_cancel" />
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnSave"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

@@ -33,6 +33,6 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            android:textColor="@color/text_sub" />
     </LinearLayout>
 </LinearLayout>

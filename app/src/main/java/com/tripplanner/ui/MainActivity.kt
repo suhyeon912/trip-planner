@@ -3,13 +3,12 @@ package com.tripplanner.ui
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.PopupMenu
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.android.material.tabs.TabLayout
+import com.tripplanner.ui.widget.TpFab
+import com.tripplanner.ui.widget.TpTabs
 import com.tripplanner.R
 import com.tripplanner.data.Trip
 
@@ -19,7 +18,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: TripListViewModel by viewModels()
     private lateinit var prefs: TripViewPrefs
     private lateinit var adapter: TripAdapter
-    private lateinit var tabs: TabLayout
+    private lateinit var tabs: TpTabs
     /** 설정에서 '공유 코드로 참여'를 하면 그 여행을 바로 엶 */
     private val settings = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { r ->
         val id = r.data?.getLongExtra(SettingsActivity.RESULT_JOINED, -1L) ?: -1L
@@ -75,13 +74,9 @@ class MainActivity : AppCompatActivity() {
         // ---------- 탭: 전체 / 내 여행 / 초대받은 ----------
         filter = savedInstanceState?.getString("filter")?.let { runCatching { TripFilter.valueOf(it) }.getOrNull() } ?: TripFilter.ALL
         tabs = findViewById(R.id.tabs)
-        TripFilter.entries.forEach { tabs.addTab(tabs.newTab()) }
-        tabs.getTabAt(filter.ordinal)?.select()
-        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) { filter = TripFilter.entries[tab.position]; showRows() }
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {}
-        })
+        TripFilter.entries.forEach { _ -> tabs.addTab() }
+        tabs.select(filter.ordinal, animate = false, notify = false)
+        tabs.onSelect = { i -> filter = TripFilter.entries[i]; showRows() }
 
         val viewRow = findViewById<View>(R.id.viewRow)
         viewModel.trips.observe(this) { list ->
@@ -93,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btnViewSettings).setOnClickListener { showViewSettings(it) }
 
         // 새 여행 (스크롤하면 아이콘만 남게 줄어듦)
-        val fab = findViewById<ExtendedFloatingActionButton>(R.id.fabNewTrip)
+        val fab = findViewById<TpFab>(R.id.fabNewTrip)
         fab.setOnClickListener { showTripForm(null) }
         rvTrips.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
@@ -113,9 +108,9 @@ class MainActivity : AppCompatActivity() {
         val list = viewModel.trips.value ?: emptyList()
         val rows = TripArrange.rows(list, prefs.sort, prefs.showPast, filter = filter)
         adapter.submit(rows)
-        tabs.getTabAt(0)?.text = getString(R.string.tab_all_n, list.size)
-        tabs.getTabAt(1)?.text = getString(R.string.tab_mine_n, list.count { TripArrange.matches(it, TripFilter.MINE) })
-        tabs.getTabAt(2)?.text = getString(R.string.tab_invited_n, list.count { TripArrange.matches(it, TripFilter.INVITED) })
+        tabs.setTabText(0, getString(R.string.tab_all_n, list.size))
+        tabs.setTabText(1, getString(R.string.tab_mine_n, list.count { TripArrange.matches(it, TripFilter.MINE) }))
+        tabs.setTabText(2, getString(R.string.tab_invited_n, list.count { TripArrange.matches(it, TripFilter.INVITED) }))
         // 빈 상태: 여행이 하나도 없을 때 / 고른 탭에 없을 때
         val empty = when {
             list.isEmpty() -> EmptyState(getString(R.string.empty_trips_title), getString(R.string.empty_trips_body), icon = R.drawable.ic_flight)
@@ -152,19 +147,12 @@ class MainActivity : AppCompatActivity() {
 
     /** ⋮ 또는 길게 누르기: 수정 / 삭제(빨간 글자, 확인 후 삭제) */
     private fun showTripMenu(trip: Trip, anchor: View) {
-        val popup = PopupMenu(this, anchor)
-        popup.inflate(R.menu.trip_actions)
-        popup.markDanger(this, R.id.action_delete)
-        popup.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.action_edit -> showTripForm(trip)
-                R.id.action_delete -> confirmDelete(this, trip.title, getString(R.string.trip_delete_confirm)) {
-                    viewModel.deleteTrip(trip)
-                }
+        showSelect(anchor, listOf(
+            SelectRow.Option(getString(R.string.action_edit)) { showTripForm(trip) },
+            SelectRow.Option(getString(R.string.action_delete), danger = true) {
+                confirmDelete(this, trip.title, getString(R.string.trip_delete_confirm)) { viewModel.deleteTrip(trip) }
             }
-            true
-        }
-        popup.show()
+        ), widthDp = 160)
     }
 
     /** 새 여행 · 여행 수정: 전체 화면 */

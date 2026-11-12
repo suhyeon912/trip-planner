@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 눌림 덧칠 (여행 카드 · 모서리 20): 누르는 즉시 12%, 떼면 100ms 에 사라짐 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:exitFadeDuration="@integer/motion_press_exit">
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/press_on_surface" />
+            <corners android:radius="@dimen/radius_trip_card" />
+        </shape>
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

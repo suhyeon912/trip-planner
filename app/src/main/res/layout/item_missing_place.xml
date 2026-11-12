@@ -42,7 +42,7 @@
             tools:text="1일차" />
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <com.tripplanner.ui.widget.TpButton
         android:id="@+id/btnFindLocation"
         style="@style/Widget.TripPlanner.Button.Tonal"
         android:layout_width="wrap_content"
@@ -50,6 +50,6 @@
         android:minHeight="40dp"
         android:paddingHorizontal="@dimen/space_m"
         android:text="@string/find_location"
-        app:icon="@drawable/ic_search"
-        app:iconSize="18dp" />
+        app:tpIcon="@drawable/ic_search"
+        app:tpIconSize="18dp" />
 </LinearLayout>

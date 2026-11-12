@@ -11,8 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.ChipGroup
+import com.tripplanner.ui.widget.TpButton
 import com.tripplanner.R
 import com.tripplanner.TripPlannerApp
 import com.tripplanner.data.Place
@@ -71,7 +70,7 @@ class PlaceViewActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvName).text = p.name
 
         // 종류 · 상태(확정 · n일차 n번째 / 후보) · 예약필수
-        val chips = findViewById<ChipGroup>(R.id.chips)
+        val chips = findViewById<android.view.ViewGroup>(R.id.chips)
         chips.removeAllViews()
         fun badge(text: String, bg: Int?, fg: Int) {
             val tv = LayoutInflater.from(this).inflate(R.layout.view_badge, chips, false) as TextView
@@ -88,7 +87,7 @@ class PlaceViewActivity : AppCompatActivity() {
 
         // 지도 버튼: 국내 = 카카오맵 공식 아이콘 + 글자, 해외 = 글자만
         val domestic = isDomestic(p, all, lodgingCoords)
-        findViewById<MaterialButton>(R.id.btnOpenMap).apply {
+        findViewById<TpButton>(R.id.btnOpenMap).apply {
             text = getString(R.string.open_in_map, MapLauncher.mapName(this@PlaceViewActivity, domestic))
             icon = if (domestic) ContextCompat.getDrawable(this@PlaceViewActivity, R.drawable.ic_kakaomap) else null
             setOnClickListener {

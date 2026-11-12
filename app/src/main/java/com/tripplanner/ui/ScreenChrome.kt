@@ -1,16 +1,16 @@
 package com.tripplanner.ui
 
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.appbar.MaterialToolbar
+import androidx.appcompat.widget.Toolbar
 import com.tripplanner.R
 
 /**
  * 화면 위 툴바 공통 설정.
- * 레이아웃에 id 가 toolbar 인 MaterialToolbar 가 있어야 합니다.
+ * 레이아웃에 id 가 toolbar 인 Toolbar 가 있어야 합니다.
  * 뒤로 가기 버튼은 시스템 뒤로 가기와 똑같이 동작합니다.
  */
-fun AppCompatActivity.setupToolbar(title: CharSequence? = null, showBack: Boolean = true): MaterialToolbar {
-    val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+fun AppCompatActivity.setupToolbar(title: CharSequence? = null, showBack: Boolean = true): Toolbar {
+    val toolbar = findViewById<Toolbar>(R.id.toolbar)
     if (title != null) toolbar.title = title
     if (showBack) {
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
@@ -39,18 +39,7 @@ fun AppCompatActivity.limitScrollContentWidth(scrollId: Int) {
     (findViewById<android.view.ViewGroup>(scrollId)).getChildAt(0)?.limitContentWidth()
 }
 
-/** 메뉴의 위험 동작(삭제)을 빨간 글자로 (시안 Menu: 위험한 동작은 빨강, 맨 아래) */
-fun android.widget.PopupMenu.markDanger(context: android.content.Context, itemId: Int) {
-    val item = menu.findItem(itemId) ?: return
-    item.title = android.text.SpannableString(item.title).apply {
-        setSpan(android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(context, R.color.badge_red)),
-            0, length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    }
-}
-
 /** 결과 알림: 화면 아래 스낵바 (시안 Snackbar · 3초 뒤 사라짐 · 글자만) */
 fun AppCompatActivity.showSnack(message: CharSequence) {
-    com.google.android.material.snackbar.Snackbar
-        .make(findViewById(android.R.id.content), message, com.google.android.material.snackbar.Snackbar.LENGTH_SHORT)
-        .show()
+    com.tripplanner.ui.widget.TpSnackbar.show(this, message)
 }

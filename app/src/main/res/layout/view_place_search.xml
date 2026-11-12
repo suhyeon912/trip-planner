@@ -8,22 +8,20 @@
     android:paddingHorizontal="@dimen/space_xl"
     android:paddingTop="@dimen/space_s">
 
-    <com.google.android.material.textfield.TextInputLayout
+    <com.tripplanner.ui.widget.TpTextField
         android:id="@+id/tilQuery"
-        style="@style/Widget.TripPlanner.TextField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/search_hint"
-        app:endIconContentDescription="@string/search_place"
-        app:endIconDrawable="@drawable/ic_search"
-        app:endIconMode="custom">
-        <com.google.android.material.textfield.TextInputEditText
+        app:tpEndIconDescription="@string/search_place"
+        app:tpEndIcon="@drawable/ic_search">
+        <EditText
             android:id="@+id/etQuery"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:imeOptions="actionSearch"
             android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+    </com.tripplanner.ui.widget.TpTextField>
 
     <com.tripplanner.ui.SegmentedGroup
         style="@style/Widget.TripPlanner.SegmentedGroup"
@@ -31,14 +29,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_s">
-        <Button
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnDomestic"
             style="@style/Widget.TripPlanner.SegmentedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/search_domestic" />
-        <Button
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnOverseas"
             style="@style/Widget.TripPlanner.SegmentedButton"
             android:layout_width="0dp"
@@ -47,12 +45,11 @@
             android:text="@string/search_overseas" />
     </com.tripplanner.ui.SegmentedGroup>
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
+    <com.tripplanner.ui.widget.TpProgressBar
         android:id="@+id/progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_s"
-        android:indeterminate="true"
         android:visibility="invisible" />
 
     <TextView
@@ -62,7 +59,7 @@
         android:layout_marginTop="@dimen/space_xs"
         android:accessibilityLiveRegion="polite"
         android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="@color/text_sub"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView

@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import com.tripplanner.R
 import com.tripplanner.route.RouteOption
 import com.tripplanner.route.RoutePlanner
@@ -88,8 +87,8 @@ class RouteActivity : AppCompatActivity() {
         // 좁은 화면·큰 글자에서는 하단 버튼에 짧은 라벨
         val cfg = resources.configuration
         val compactButtons = cfg.screenWidthDp < 360 || cfg.fontScale > 1.15f
-        (findViewById<View>(R.id.btnRouteMap) as com.google.android.material.button.MaterialButton).apply {
-            setIconResource(R.drawable.ic_map); iconGravity = com.google.android.material.button.MaterialButton.ICON_GRAVITY_TEXT_START
+        (findViewById<View>(R.id.btnRouteMap) as com.tripplanner.ui.widget.TpButton).apply {
+            setIconResource(R.drawable.ic_map); iconGravity = com.tripplanner.ui.widget.TpButton.ICON_GRAVITY_TEXT_START
             iconSize = (18 * resources.displayMetrics.density).toInt()
         }
 
@@ -157,10 +156,8 @@ class RouteActivity : AppCompatActivity() {
         // 적용 후: 스낵바 + 상세로 돌아가기
         viewModel.applied.observe(this) { msg ->
             if (msg != null) {
-                Snackbar.make(findViewById(R.id.root), msg, Snackbar.LENGTH_LONG)
-                    .setAnchorView(bottomBar)
-                    .setAction(R.string.go_to_detail) { finish() }
-                    .show()
+                com.tripplanner.ui.widget.TpSnackbar.show(this, msg, above = bottomBar,
+                    action = getString(R.string.go_to_detail)) { finish() }
                 viewModel.appliedShown()
             }
         }

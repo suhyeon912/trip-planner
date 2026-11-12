@@ -12,9 +12,9 @@ import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.materialswitch.MaterialSwitch
+import com.tripplanner.ui.widget.TpButton
+import com.tripplanner.ui.widget.TpDialog
+import com.tripplanner.ui.widget.TpSwitch
 import com.tripplanner.BuildConfig
 import com.tripplanner.R
 import com.tripplanner.data.PlaceCategory
@@ -86,9 +86,9 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     /** 스위치 줄: 줄 전체를 누르면 켜고 끔 (TalkBack 은 '이름, 켜짐/꺼짐') */
-    private fun switchRow(card: LinearLayout, icon: Int?, title: String, checked: Boolean, onChange: (Boolean) -> Unit): MaterialSwitch {
+    private fun switchRow(card: LinearLayout, icon: Int?, title: String, checked: Boolean, onChange: (Boolean) -> Unit): TpSwitch {
         val v = row(card, icon, title, chevron = false) {}
-        val sw = v.findViewById<MaterialSwitch>(R.id.switchEnd)
+        val sw = v.findViewById<TpSwitch>(R.id.switchEnd)
         sw.visibility = View.VISIBLE
         sw.isChecked = checked
         val r = v.findViewById<View>(R.id.row)
@@ -169,13 +169,13 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun showLicenses() {
-        MaterialAlertDialogBuilder(this)
+        TpDialog.Builder(this)
             .setTitle(R.string.settings_licenses)
             .setMessage(R.string.licenses_body)
             .setPositiveButton(R.string.action_close, null)
             .setNeutralButton(R.string.licenses_ofl) { _, _ ->
                 val text = runCatching { assets.open("licenses/Pretendard-OFL.txt").bufferedReader().readText() }.getOrDefault("")
-                MaterialAlertDialogBuilder(this).setTitle("Pretendard").setMessage(text)
+                TpDialog.Builder(this).setTitle("Pretendard").setMessage(text)
                     .setPositiveButton(R.string.action_close, null).show()
             }
             .show()

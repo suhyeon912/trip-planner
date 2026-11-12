@@ -9,12 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.tripplanner.ui.widget.TpDialog
+import android.widget.EditText
+import com.tripplanner.ui.widget.TpTextField
 import com.tripplanner.R
 import com.tripplanner.TripPlannerApp
 import com.tripplanner.share.ShareCodec
@@ -31,21 +31,21 @@ private val AppCompatActivity.share: ShareManager get() = (application as TripPl
 private val AppCompatActivity.repo get() = (application as TripPlannerApp).repository
 
 private fun AppCompatActivity.notConfigured() {
-    MaterialAlertDialogBuilder(this)
+    TpDialog.Builder(this)
         .setTitle(R.string.share_not_configured_title)
         .setMessage(R.string.share_not_configured)
         .setPositiveButton(android.R.string.ok, null)
         .show()
 }
 
-private fun AppCompatActivity.progressDialog(): AlertDialog =
-    MaterialAlertDialogBuilder(this).setMessage(R.string.working).setCancelable(false).show()
+private fun AppCompatActivity.progressDialog(): TpDialog =
+    TpDialog.Builder(this).setMessage(R.string.working).setCancelable(false).show()
 
 /** 팝업 안 입력 칸 하나 (라벨은 칸 위) → (칸 묶음, 입력칸, 오류 표시용 칸) */
-private fun AppCompatActivity.labeledField(label: String, value: String): Triple<View, TextInputEditText, TextInputLayout> {
+private fun AppCompatActivity.labeledField(label: String, value: String): Triple<View, EditText, TpTextField> {
     val row = LayoutInflater.from(this).inflate(R.layout.view_form_field, null)
-    val layout = row.findViewById<TextInputLayout>(R.id.layout)
-    val input = layout.findViewById<TextInputEditText>(R.id.input).apply {
+    val layout = row.findViewById<TpTextField>(R.id.layout)
+    val input = layout.findViewById<EditText>(R.id.input).apply {
         id = View.generateViewId(); setText(value)
     }
     row.findViewById<TextView>(R.id.label).apply { text = label; labelFor = input.id }
@@ -67,7 +67,7 @@ fun AppCompatActivity.openShareDialog(tripId: Long) {
         if (code == null) {
             // 여행 공유: 내 닉네임 (함께 보는 사람에게 보이는 이름) → 공유 시작
             val (row, input, layout) = labeledField(getString(R.string.label_nickname), share.nickname)
-            val dialog = MaterialAlertDialogBuilder(this@openShareDialog)
+            val dialog = TpDialog.Builder(this@openShareDialog)
                 .setTitle(R.string.share_new_title)
                 .setMessage(R.string.share_intro)
                 .setView(dialogBox(row))
@@ -75,7 +75,7 @@ fun AppCompatActivity.openShareDialog(tripId: Long) {
                 .setNegativeButton(R.string.action_cancel, null)
                 .create()
             dialog.setOnShowListener {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)!!.setOnClickListener {
                     val name = input.text?.toString()?.trim().orEmpty()
                     if (name.isEmpty()) { layout.error = getString(R.string.error_nickname); return@setOnClickListener }
                     share.nickname = name
@@ -114,7 +114,7 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
     }
 
     // 버튼: 왼쪽 '공유 중지'(빨간 글자) · 오른쪽 '코드 보내기'(채움)
-    MaterialAlertDialogBuilder(this)
+    TpDialog.Builder(this)
         .setTitle(R.string.share_code_title)
         .setView(view)
         .setPositiveButton(R.string.share_send) { _, _ ->
@@ -137,14 +137,14 @@ fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
     input.filters = arrayOf(InputFilter.AllCaps(), InputFilter.LengthFilter(8))
     val (nameRow, nameInput, nameLayout) = labeledField(getString(R.string.label_nickname), share.nickname)
     val box = dialogBox(row, nameRow)
-    val dialog = MaterialAlertDialogBuilder(this)
+    val dialog = TpDialog.Builder(this)
         .setTitle(R.string.join_title)
         .setView(box)
         .setPositiveButton(R.string.join_button, null)
         .setNegativeButton(R.string.action_cancel, null)
         .create()
     dialog.setOnShowListener {
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE)!!.setOnClickListener {
             val code = ShareCodec.normalize(input.text?.toString().orEmpty())
             if (!ShareCodec.isValidCode(code)) { layout.error = getString(R.string.join_invalid); return@setOnClickListener }
             layout.error = null

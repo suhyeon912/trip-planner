@@ -10,10 +10,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.progressindicator.LinearProgressIndicator
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.tripplanner.ui.widget.TpDialog
+import com.tripplanner.ui.widget.TpProgressBar
+import android.widget.EditText
+import com.tripplanner.ui.widget.TpTextField
 import com.tripplanner.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -24,16 +24,16 @@ import kotlinx.coroutines.launch
  */
 fun showPlaceSearch(activity: AppCompatActivity, initialQuery: String, domesticDefault: Boolean, onPick: (SearchHit) -> Unit) {
     val view = LayoutInflater.from(activity).inflate(R.layout.view_place_search, null)
-    val til = view.findViewById<TextInputLayout>(R.id.tilQuery)
-    val et = view.findViewById<TextInputEditText>(R.id.etQuery)
+    val til = view.findViewById<TpTextField>(R.id.tilQuery)
+    val et = view.findViewById<EditText>(R.id.etQuery)
     val toggle = view.findViewById<SegmentedGroup>(R.id.toggleRegion)
-    val progress = view.findViewById<LinearProgressIndicator>(R.id.progress)
+    val progress = view.findViewById<TpProgressBar>(R.id.progress)
     val msg = view.findViewById<TextView>(R.id.tvMessage)
     val rv = view.findViewById<RecyclerView>(R.id.rvHits)
     toggle.check(if (domesticDefault) R.id.btnDomestic else R.id.btnOverseas)
     et.setText(initialQuery)
 
-    val dialog = MaterialAlertDialogBuilder(activity)
+    val dialog = TpDialog.Builder(activity)
         .setTitle(R.string.search_place)
         .setView(view)
         .setNegativeButton(R.string.action_cancel, null)

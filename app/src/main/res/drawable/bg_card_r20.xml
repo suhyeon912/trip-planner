@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 여행 카드: 흰 바탕 + 1dp 테두리 · 모서리 20 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/card_bg" />
+    <stroke android:width="@dimen/stroke_card" android:color="@color/outline_variant" />
+    <corners android:radius="@dimen/radius_trip_card" />
+</shape>

@@ -100,7 +100,7 @@
                 android:orientation="horizontal" />
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnConfirm"
             style="@style/Widget.TripPlanner.Button.Small"
             android:layout_width="wrap_content"
@@ -109,7 +109,7 @@
             android:layout_marginEnd="@dimen/space_s"
             android:textSize="13sp"
             android:text="@string/confirm_pick"
-            app:icon="@drawable/ic_check" />
+            app:tpIcon="@drawable/ic_check" />
 
         <!-- 일차를 고른 타임라인에서만: 끌면 순서 변경 -->
         <ImageView
