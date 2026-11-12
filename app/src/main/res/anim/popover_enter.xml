@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 팝오버 등장: 위쪽에서 0.96 → 1 로 커지며 나타남 (150ms, 감속) -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@interpolator/motion_decelerate">
+    <alpha android:duration="@integer/motion_short" android:fromAlpha="0" android:toAlpha="1" />
+    <scale android:duration="@integer/motion_short" android:fromXScale="0.96" android:fromYScale="0.96"
+        android:pivotX="50%" android:pivotY="0%" android:toXScale="1" android:toYScale="1" />
+</set>

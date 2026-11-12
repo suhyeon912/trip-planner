@@ -617,4 +617,20 @@
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.BodyMedium</item>
         <item name="android:textColor">@color/snackbar_text</item>
     </style>
+    <!-- 팝오버 · 메뉴 등장/사라짐 -->
+    <style name="Animation.TripPlanner.Popover" parent="">
+        <item name="android:windowEnterAnimation">@anim/popover_enter</item>
+        <item name="android:windowExitAnimation">@anim/popover_exit</item>
+    </style>
+    <!-- 전체 화면 달력 (기간 고르기): 아래에서 올라오는 입력 화면 -->
+    <style name="Theme.TripPlanner.FullScreenDialog" parent="Theme.TripPlanner">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:windowAnimationStyle">@style/Animation.TripPlanner.SheetUp</item>
+    </style>
+    <style name="Animation.TripPlanner.SheetUp" parent="">
+        <item name="android:windowEnterAnimation">@anim/sheet_up_enter</item>
+        <item name="android:windowExitAnimation">@anim/sheet_down_exit</item>
+    </style>
 </resources>

@@ -110,7 +110,7 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
 /** 선택한 경로 시간표: 숙소 출발 → (이동) → 장소 → … → 숙소 도착 */
 class RouteStopAdapter(
     private val placeOf: (Long) -> Place?,
-    private val onLeave: (Visit) -> Unit = {}
+    private val onLeave: (Visit, View) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private sealed class Row {
@@ -187,7 +187,7 @@ class RouteStopAdapter(
                 leave.visibility = View.VISIBLE
                 leave.text = TimeUtil.format(v.leave)
                 leave.contentDescription = ctx.getString(R.string.leave_a11y, leave.text)
-                leave.setOnClickListener { onLeave(v) }
+                leave.setOnClickListener { onLeave(v, it) }
                 val place = placeOf(v.stop.id)
                 Thumbs.bind(icon, place?.photoUri, place?.category ?: com.tripplanner.data.PlaceCategory.ETC)
                 icon.setPadding(6.dp(ctx), 6.dp(ctx), 6.dp(ctx), 6.dp(ctx))

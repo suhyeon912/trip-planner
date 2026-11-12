@@ -116,11 +116,11 @@ class TravelFormActivity : AppCompatActivity() {
         fieldDepart.label = getString(R.string.hint_depart_at)
         fieldDepart.setIcon(R.drawable.ic_calendar)
         fieldDepart.setPlaceholder(getString(R.string.placeholder_pick_datetime))
-        fieldDepart.setOnClickListener { Pickers.dateTime(this, getString(R.string.hint_depart_at), departAt) { departAt = it; render() } }
+        fieldDepart.setOnClickListener { Pickers.dateTime(fieldDepart, getString(R.string.hint_depart_at), departAt) { departAt = it; render() } }
         fieldArrive.label = getString(R.string.hint_arrive_at)
         fieldArrive.setIcon(R.drawable.ic_calendar)
         fieldArrive.setPlaceholder(getString(R.string.placeholder_pick_datetime))
-        fieldArrive.setOnClickListener { Pickers.dateTime(this, getString(R.string.hint_arrive_at), arriveAt.ifBlank { departAt }) { arriveAt = it; render() } }
+        fieldArrive.setOnClickListener { Pickers.dateTime(fieldArrive, getString(R.string.hint_arrive_at), arriveAt.ifBlank { departAt }) { arriveAt = it; render() } }
 
         fieldLocation.label = getString(R.string.label_location)
         fieldLocation.setIcon(R.drawable.ic_place)

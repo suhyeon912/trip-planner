@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 팝오버 사라짐: 100ms 흐려짐 (가속) -->
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@integer/motion_press_exit" android:fromAlpha="1" android:toAlpha="0"
+    android:interpolator="@interpolator/motion_accelerate" />

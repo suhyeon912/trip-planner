@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 휠 가운데 값 줄: secondary_container · 모서리 12 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/secondary_container" />
+    <corners android:radius="@dimen/radius_input" />
+</shape>

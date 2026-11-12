@@ -4,6 +4,8 @@
     <!-- 공통 -->
     <string name="action_save">저장</string>
     <string name="action_cancel">취소</string>
+    <string name="action_apply">적용</string>
+    <string name="ok">확인</string>
     <string name="action_delete">삭제</string>
     <string name="action_edit">수정</string>
     <string name="action_add">추가</string>
@@ -135,6 +137,18 @@
     <string name="category_info_a11y">종류 도움말 보기</string>
     <string name="category_info_title">종류는 설정에서 바꿔요</string>
     <string name="category_info_body">설정 › 장소 종류에서 안 쓰는 종류를 숨길 수 있어요.</string>
+    <string name="title_start_time">출발 시각</string>
+    <string name="title_end_time">도착 시각</string>
+    <string name="wheel_hour">시</string>
+    <string name="wheel_minute">분</string>
+    <string name="wheel_date">날짜</string>
+    <string name="range_label">시작일 – 종료일</string>
+    <string name="date_label">날짜</string>
+    <string name="cal_start">시작일</string>
+    <string name="cal_end">종료일</string>
+    <string name="cal_selected">선택됨</string>
+    <string name="cal_today">오늘</string>
+    <string name="cal_month">%1$d년 %2$d월</string>
     <string name="pick_end_time">숙소에 도착할 시각</string>
     <string name="label_arrive_home">도착</string>
     <string name="end_free">시간 자유</string>

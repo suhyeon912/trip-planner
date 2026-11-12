@@ -100,7 +100,7 @@ fun showFormDialog(
                     }
                 }
                 f.kind == FieldKind.DATE -> Pickers.date(activity, f.hint, inputs[i].text.toString()) { inputs[i].setText(it) }
-                else -> Pickers.dateTime(activity, f.hint, inputs[i].text.toString()) { inputs[i].setText(it) }
+                else -> Pickers.dateTime(inputs[i], f.hint, inputs[i].text.toString()) { inputs[i].setText(it) }
             }
         }
         inputs[i].setOnClickListener { open() }

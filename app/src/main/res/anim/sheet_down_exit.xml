@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 입력 화면 닫힘: 아래로 내려가며 사라짐 (200ms, 가속) -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@interpolator/motion_accelerate">
+    <translate android:duration="@integer/motion_medium" android:fromYDelta="0" android:toYDelta="8%" />
+    <alpha android:duration="@integer/motion_medium" android:fromAlpha="1" android:toAlpha="0" />
+</set>

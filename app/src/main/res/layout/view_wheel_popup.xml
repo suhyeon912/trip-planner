@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  시안 TimePicker 팝오버: 누른 칩 아래 · 모서리 16 · 제목 · (도착: 시간 자유 / 시각 정하기) · 휠 5칸 · 취소 / 적용
+  휠 칸은 WheelPopup.kt 가 넣음 (시 : 분, 또는 날짜 · 시 : 분)
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_popover"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_l"
+    android:paddingTop="@dimen/space_l"
+    android:paddingBottom="@dimen/space_m">
+
+    <TextView
+        android:id="@+id/tvWheelTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityHeading="true"
+        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+        android:textColor="@color/text_sub" />
+
+    <com.tripplanner.ui.SegmentedGroup
+        android:id="@+id/segFree"
+        style="@style/Widget.TripPlanner.SegmentedGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnFree"
+            style="@style/Widget.TripPlanner.SegmentedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/end_free" />
+
+        <Button
+            android:id="@+id/btnSetTime"
+            style="@style/Widget.TripPlanner.SegmentedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/end_set_option" />
+    </com.tripplanner.ui.SegmentedGroup>
+
+    <!-- 가운데 칸 표시 (값 줄) + 휠들 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_s">
+
+        <View
+            android:id="@+id/wheelBand"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/bg_wheel_band" />
+
+        <LinearLayout
+            android:id="@+id/wheels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_m"
+        android:gravity="end|center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWheelCancel"
+            style="@style/Widget.TripPlanner.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/action_cancel" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWheelApply"
+            style="@style/Widget.TripPlanner.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_xs"
+            android:text="@string/action_apply" />
+    </LinearLayout>
+</LinearLayout>

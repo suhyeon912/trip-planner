@@ -54,33 +54,17 @@ class RouteActivity : AppCompatActivity() {
         val btnEndTime = findViewById<View>(R.id.btnEndTime)
         val tvEndTime = findViewById<TextView>(R.id.tvEndTime)
         val mapCard = findViewById<View>(R.id.mapCard)
-        // 출발 시각 바꾸기 (시계 선택 창)
-        btnStartTime.setOnClickListener {
+        // 출발 시각: 칩 아래 휠 (적용 전까지 안 바뀜)
+        btnStartTime.setOnClickListener { chip ->
             val cur = viewModel.ui.value?.startMinutes ?: RoutePlanner.DEFAULT_START
-            val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
-                .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_24H)
-                .setHour(cur / 60).setMinute(cur % 60)
-                .setTitleText(R.string.pick_start_time)
-                .build()
-            picker.addOnPositiveButtonClickListener { viewModel.setStartTime(picker.hour * 60 + picker.minute) }
-            picker.show(supportFragmentManager, "start_time")
+            WheelPopup.time(chip, getString(R.string.title_start_time), cur) { m -> m?.let { viewModel.setStartTime(it) } }
         }
-        // 숙소 도착 목표: 자유 / 시각 정하기 (늦으면 경로에 알림)
-        btnEndTime.setOnClickListener { anchorView ->
+        // 숙소 도착 목표: 시간 자유 / 시각 정하기 + 휠 (늦으면 경로에 알림)
+        btnEndTime.setOnClickListener { chip ->
             val cur = viewModel.ui.value?.endMinutes
-            showSelect(anchorView, listOf(
-                SelectRow.Option(getString(R.string.end_free_option), selected = cur == null) { viewModel.setEndTime(null) },
-                SelectRow.Option(getString(R.string.end_set_option), selected = cur != null) {
-                    val base = cur ?: 19 * 60
-                    val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
-                        .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_24H)
-                        .setHour(base / 60).setMinute(base % 60)
-                        .setTitleText(R.string.pick_end_time)
-                        .build()
-                    picker.addOnPositiveButtonClickListener { viewModel.setEndTime(picker.hour * 60 + picker.minute) }
-                    picker.show(supportFragmentManager, "end_time")
-                }
-            ))
+            WheelPopup.time(chip, getString(R.string.title_end_time), cur, allowFree = true, defaultMinutes = 19 * 60) {
+                viewModel.setEndTime(it)
+            }
         }
 
         // 선택한 경로 지도 (점을 누르면 이름·도착 시각)
@@ -111,18 +95,13 @@ class RouteActivity : AppCompatActivity() {
 
         // 선택한 경로 시간표
         // 떠나는 시각을 고르면 머무는 시간으로 저장
-        val stopAdapter = RouteStopAdapter({ id -> viewModel.placeOf(id) }) { visit ->
-            val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
-                .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_24H)
-                .setHour((visit.leave / 60) % 24).setMinute(visit.leave % 60)
-                .setTitleText(getString(R.string.pick_leave_time, visit.stop.name))
-                .build()
-            picker.addOnPositiveButtonClickListener {
-                var leave = visit.arrive / (24 * 60) * (24 * 60) + picker.hour * 60 + picker.minute
+        val stopAdapter = RouteStopAdapter({ id -> viewModel.placeOf(id) }) { visit, box ->
+            WheelPopup.time(box, getString(R.string.pick_leave_time, visit.stop.name), visit.leave % (24 * 60)) { m ->
+                if (m == null) return@time
+                var leave = visit.arrive / (24 * 60) * (24 * 60) + m
                 if (leave < visit.arrive) leave += 24 * 60
                 viewModel.setLeaveTime(visit.stop.id, visit.arrive, leave)
             }
-            picker.show(supportFragmentManager, "leave_time")
         }
         findViewById<RecyclerView>(R.id.rvStops).apply {
             layoutManager = LinearLayoutManager(this@RouteActivity)

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 입력 화면 등장: 아래에서 올라오며 나타남 (300ms, 감속) -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@interpolator/motion_decelerate">
+    <translate android:duration="@integer/motion_page" android:fromYDelta="8%" android:toYDelta="0" />
+    <alpha android:duration="@integer/motion_medium" android:fromAlpha="0" android:toAlpha="1" />
+</set>

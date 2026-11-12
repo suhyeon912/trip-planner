@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  시안 기간 고르기 (전체 화면 달력, MaterialDatePicker 대신)
+  위: 닫기 · 제목 / 고른 기간 크게 + n박 n일 / 요일 줄 / 달 목록(세로 스크롤) / 아래: 취소 · 확인
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/calToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationContentDescription="@string/action_cancel"
+        app:navigationIcon="@drawable/ic_close" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/screen_margin"
+        android:paddingBottom="@dimen/space_l">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/calLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
+                android:textColor="@color/text_sub" />
+
+            <TextView
+                android:id="@+id/calValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:accessibilityLiveRegion="polite"
+                android:textAppearance="@style/TextAppearance.TripPlanner.TitleLarge" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/calNights"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+            android:textColor="@color/text_sub" />
+    </LinearLayout>
+
+    <!-- 요일 (일요일만 빨강) -->
+    <LinearLayout
+        android:id="@+id/calWeekdays"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="@drawable/bg_divider_bottom"
+        android:importantForAccessibility="noHideDescendants"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/space_s" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/calGrid"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="@dimen/space_s"
+        android:paddingBottom="@dimen/space_l" />
+
+    <LinearLayout
+        android:id="@+id/calBottom"
+        style="@style/Widget.TripPlanner.BottomBar">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/calCancel"
+            style="@style/Widget.TripPlanner.Button.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/action_cancel" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/calOk"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_s"
+            android:layout_weight="2"
+            android:text="@string/ok" />
+    </LinearLayout>
+</LinearLayout>
