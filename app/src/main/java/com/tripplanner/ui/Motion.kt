@@ -59,7 +59,9 @@ object Motion {
     fun clipRoundedCard(v: View) {
         if (v !is android.widget.LinearLayout || v.clipToOutline) return
         val bg = v.background as? android.graphics.drawable.GradientDrawable ?: return
-        if (bg.cornerRadius <= 0f && bg.cornerRadii == null) return
+        // getCornerRadii() 는 Android 11 이하에서 값이 없으면 앱이 멈춤 → 감싸서 확인
+        val rounded = bg.cornerRadius > 0f || runCatching { bg.cornerRadii?.any { it > 0f } == true }.getOrDefault(false)
+        if (!rounded) return
         v.clipToOutline = true
     }
 
