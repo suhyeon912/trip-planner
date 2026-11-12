@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:background="@drawable/bg_code_box"
-            android:foreground="?attr/selectableItemBackground"
+            android:foreground="@drawable/press_r12"
             android:gravity="center"
             android:minHeight="28dp"
             android:paddingVertical="2dp"

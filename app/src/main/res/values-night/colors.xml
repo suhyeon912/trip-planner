@@ -43,4 +43,8 @@
     <color name="scrollbar_thumb">#52E8ECF3</color>
     <color name="snackbar_bg">#E8ECF3</color>
     <color name="snackbar_text">#0F131A</color>
+    <!-- 눌림 덧칠 12% (on_surface · on_primary · primary) -->
+    <color name="press_on_surface">#1FE8ECF3</color>
+    <color name="press_on_primary">#1F0A1A3F</color>
+    <color name="press_primary">#1F8AB4FF</color>
 </resources>

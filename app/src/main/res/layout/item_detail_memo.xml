@@ -8,7 +8,8 @@
     android:layout_marginTop="@dimen/space_m"
     android:layout_marginBottom="@dimen/space_s"
     android:background="@drawable/bg_card"
-    android:foreground="?attr/selectableItemBackground"
+    android:foreground="@drawable/press_card"
+        android:stateListAnimator="@animator/press_scale"
     android:orientation="vertical"
     android:paddingBottom="@dimen/space_m">
 

@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginEnd="@dimen/space_s"
     android:background="@drawable/bg_day_chip"
-    android:foreground="?attr/selectableItemBackground"
+    android:foreground="@drawable/press_r12"
     android:gravity="center"
     android:minHeight="@dimen/touch_min"
     android:orientation="vertical"

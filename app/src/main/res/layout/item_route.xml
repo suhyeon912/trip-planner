@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/space_s"
     android:background="@drawable/bg_option"
-    android:foreground="?attr/selectableItemBackground"
+    android:foreground="@drawable/press_card"
+        android:stateListAnimator="@animator/press_scale"
     android:minHeight="64dp"
     android:orientation="vertical"
     android:padding="@dimen/space_m">

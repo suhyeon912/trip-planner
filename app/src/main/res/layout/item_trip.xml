@@ -13,6 +13,9 @@
     app:cardBackgroundColor="@color/card_bg"
     app:cardCornerRadius="@dimen/radius_trip_card"
     app:cardElevation="0dp"
+    app:cardForegroundColor="@color/card_press_fg"
+    app:rippleColor="@android:color/transparent"
+    android:stateListAnimator="@animator/press_scale"
     app:strokeColor="@color/outline_variant"
     app:strokeWidth="@dimen/stroke_card">
 

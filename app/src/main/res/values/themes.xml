@@ -94,6 +94,15 @@
         <item name="android:scrollbarSize">4dp</item>
         <item name="android:scrollbarDefaultDelayBeforeFade">1000</item>
         <item name="android:scrollbarFadeDuration">300</item>
+        <!-- 눌림: 물결(ripple) 대신 평평한 12% 덧칠 (시안 '누름' 상태) -->
+        <item name="selectableItemBackground">@drawable/press_overlay</item>
+        <item name="android:selectableItemBackground">@drawable/press_overlay</item>
+        <item name="selectableItemBackgroundBorderless">@drawable/press_overlay_borderless</item>
+        <item name="android:selectableItemBackgroundBorderless">@drawable/press_overlay_borderless</item>
+        <item name="android:colorControlHighlight">@color/press_on_surface</item>
+        <item name="android:listChoiceBackgroundIndicator">@drawable/press_overlay</item>
+        <item name="listChoiceBackgroundIndicator">@drawable/press_overlay</item>
+        <item name="colorControlHighlight">@color/press_on_surface</item>
     </style>
 
     <!-- 표지 사진 맞추기: 어두운 화면이라 상태 표시줄도 어둡게, 아이콘은 밝게 -->
@@ -305,6 +314,8 @@
         <item name="android:paddingEnd">20dp</item>
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
         <item name="android:letterSpacing">0</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:foreground">@drawable/press_pill_on_primary</item>
     </style>
     <style name="Widget.TripPlanner.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:minHeight">48dp</item>
@@ -315,6 +326,8 @@
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
         <item name="android:letterSpacing">0</item>
         <item name="strokeColor">@color/button_outline_stroke</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:foreground">@drawable/press_pill_primary</item>
     </style>
     <style name="Widget.TripPlanner.Button.Text" parent="Widget.Material3.Button.TextButton">
         <item name="android:minHeight">48dp</item>
@@ -322,6 +335,8 @@
         <item name="android:insetBottom">0dp</item>
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
         <item name="android:letterSpacing">0</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:foreground">@drawable/press_pill_primary</item>
     </style>
     <style name="Widget.TripPlanner.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
         <item name="android:minHeight">48dp</item>
@@ -331,6 +346,8 @@
         <item name="android:paddingEnd">20dp</item>
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
         <item name="android:letterSpacing">0</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:foreground">@drawable/press_pill_primary</item>
     </style>
     <style name="Widget.TripPlanner.Button.Outlined.Icon" parent="Widget.TripPlanner.Button.Outlined">
         <item name="android:paddingStart">16dp</item>
@@ -345,6 +362,7 @@
         <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Input</item>
         <item name="iconPadding">6dp</item>
         <item name="iconSize">18dp</item>
+        <item name="android:foreground">@drawable/press_r12_primary</item>
     </style>
     <style name="Widget.TripPlanner.Button.Text.Icon" parent="Widget.TripPlanner.Button.Text">
         <item name="iconPadding">8dp</item>
@@ -369,6 +387,7 @@
         <item name="android:background">@drawable/bg_dashed_add</item>
         <item name="backgroundTint">@null</item>
         <item name="iconGravity">textStart</item>
+        <item name="android:foreground">@drawable/press_r12_primary</item>
     </style>
     <!-- 아이콘 버튼: 터치 48 · 아이콘 24 · 바탕 없음 -->
     <style name="Widget.TripPlanner.IconButton" parent="Widget.Material3.Button.IconButton">
@@ -376,6 +395,8 @@
         <item name="android:minHeight">48dp</item>
         <item name="iconSize">24dp</item>
         <item name="iconTint">@color/on_surface</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:foreground">@drawable/press_overlay_borderless</item>
     </style>
     <!-- FAB: 높이 56 · 모서리 16 -->
     <style name="Widget.TripPlanner.Fab" parent="Widget.Material3.ExtendedFloatingActionButton.Icon.Primary">
@@ -383,6 +404,8 @@
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.LabelLarge</item>
         <item name="android:letterSpacing">0</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.TripPlanner.Fab</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:foreground">@drawable/press_r16_on_primary</item>
     </style>
     <style name="ShapeAppearance.TripPlanner.Round" parent="">
         <item name="cornerFamily">rounded</item>
@@ -480,7 +503,8 @@
         <item name="tabIndicatorFullWidth">true</item>
         <item name="tabIndicatorHeight">0dp</item>
         <item name="tabIndicatorColor">@null</item>
-        <item name="tabIndicatorAnimationMode">elastic</item>
+        <item name="tabIndicatorAnimationMode">linear</item>
+        <item name="tabIndicatorAnimationDuration">@integer/motion_medium</item>
         <item name="tabRippleColor">@null</item>
         <item name="tabGravity">fill</item>
         <item name="tabMode">fixed</item>
@@ -501,8 +525,9 @@
         <item name="android:textColor">@color/segmented_text</item>
         <item name="backgroundTint">@color/segmented_bg</item>
         <item name="strokeWidth">0dp</item>
-        <item name="rippleColor">@color/outline_variant</item>
+        <item name="rippleColor">@android:color/transparent</item>
         <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Segment</item>
+        <item name="android:foreground">@drawable/press_r10</item>
     </style>
     <style name="Widget.TripPlanner.SegmentedGroup" parent="">
         <item name="android:background">@drawable/bg_segmented</item>

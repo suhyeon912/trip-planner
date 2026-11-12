@@ -219,6 +219,7 @@ class AddPlaceActivity : AppCompatActivity() {
                 isChipIconVisible = true
                 chipIconTint = ColorStateList.valueOf(color(R.color.on_surface))
                 chipIconSize = 18 * resources.displayMetrics.density
+                rippleColor = ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)   // 물결 없이 고른 상태로만 표시
                 isCheckedIconVisible = false
                 chipMinHeight = 36 * resources.displayMetrics.density
                 chipStartPadding = 8 * resources.displayMetrics.density

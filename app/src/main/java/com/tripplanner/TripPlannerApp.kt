@@ -16,6 +16,7 @@ class TripPlannerApp : Application() {
     override fun onCreate() {
         super.onCreate()
         com.tripplanner.ui.AppPrefs.applyTheme(this)   // 설정의 테마 (기기 설정 / 밝게 / 어둡게)
+        com.tripplanner.ui.Motion.register(this)   // 공통 모션 (스크롤 끝 효과 · 상단 바 구분선)
         TripMap.init(this)   // 앱 안 지도 설정
         share.start()        // 공유 중인 여행 실시간 동기화
     }

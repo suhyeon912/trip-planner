@@ -5,4 +5,6 @@
     <item name="kakaoMap" type="id" />
     <item name="googleMap" type="id" />
     <item name="action_more" type="id" />
+    <!-- 상단 바 스크롤 구분선을 붙였는지 (Motion.kt) -->
+    <item name="tag_scroll_divider" type="id" />
 </resources>

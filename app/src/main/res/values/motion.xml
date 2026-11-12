@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  모션 기준 (시안에 정해진 값이 없어 앱에서 정함)
+  · 눌림: 누르는 즉시 12% 덧칠, 뗄 때 100ms 에 걸쳐 사라짐 (물결 ripple 대신)
+  · 작은 변화 150 · 화면 안 전환 200~250 · 화면 사이 전환 300
+  · 곡선: 기본 0.2,0,0,1 · 들어올 때 감속 · 나갈 때 가속
+  · 이동은 8~16dp, 크기는 0.96~1.0 사이로 작게
+-->
+<resources>
+    <integer name="motion_press_exit">100</integer>
+    <integer name="motion_short">150</integer>
+    <integer name="motion_medium">200</integer>
+    <integer name="motion_long">250</integer>
+    <integer name="motion_page">300</integer>
+</resources>

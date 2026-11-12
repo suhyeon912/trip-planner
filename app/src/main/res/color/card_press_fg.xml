@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MaterialCardView 눌림 덧칠 (물결 대신) -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/press_on_surface" android:state_pressed="true" />
+    <item android:color="@android:color/transparent" />
+</selector>

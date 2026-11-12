@@ -76,6 +76,7 @@ fun showSelect(anchor: View, rows: List<SelectRow>, widthDp: Int = 200) {
     popup.width = (widthDp * ctx.resources.displayMetrics.density).toInt()
     popup.isModal = true
     popup.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.bg_menu))
+    popup.setListSelector(ContextCompat.getDrawable(ctx, R.drawable.press_overlay))   // 누른 줄: 물결 대신 덧칠
     popup.setOnItemClickListener { _, _, position, _ ->
         (rows[position] as? SelectRow.Option)?.onClick?.invoke()
         popup.dismiss()
