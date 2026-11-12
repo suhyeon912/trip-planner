@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -60,7 +59,7 @@ class AddPlaceActivity : AppCompatActivity() {
 
     private lateinit var chips: ChipGroup
     private lateinit var ivPhoto: ImageView
-    private lateinit var toggle: MaterialButtonToggleGroup
+    private lateinit var toggle: SegmentedGroup
     private lateinit var fieldDay: SelectField
     private lateinit var tilName: TextInputLayout
 
@@ -89,6 +88,7 @@ class AddPlaceActivity : AppCompatActivity() {
 
         tilName = findViewById(R.id.tilName)
         toggle = findViewById(R.id.toggleStatus)
+        if (toggle.checkedButtonId == View.NO_ID) toggle.check(R.id.btnCandidate)
         fieldDay = findViewById(R.id.fieldDay)
         fieldDay.setCompact()
         ivPhoto = findViewById(R.id.ivPhoto)

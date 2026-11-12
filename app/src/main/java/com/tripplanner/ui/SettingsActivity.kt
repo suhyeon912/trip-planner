@@ -13,7 +13,6 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.tripplanner.BuildConfig
@@ -129,7 +128,7 @@ class SettingsActivity : AppCompatActivity() {
         // 테마: 세그먼트 (기기 설정 / 밝게 / 어둡게)
         val screen = section(R.string.settings_screen)
         val themeBox = LayoutInflater.from(this).inflate(R.layout.item_setting_theme, screen, false)
-        val group = themeBox.findViewById<MaterialButtonToggleGroup>(R.id.toggleTheme)
+        val group = themeBox.findViewById<SegmentedGroup>(R.id.toggleTheme)
         group.check(when (appPrefs.theme) { AppPrefs.Theme.SYSTEM -> R.id.btnThemeSystem; AppPrefs.Theme.LIGHT -> R.id.btnThemeLight; AppPrefs.Theme.DARK -> R.id.btnThemeDark })
         group.addOnButtonCheckedListener { _, id, checked ->
             if (!checked) return@addOnButtonCheckedListener

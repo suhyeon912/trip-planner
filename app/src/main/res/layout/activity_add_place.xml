@@ -171,15 +171,12 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButtonToggleGroup
+                <com.tripplanner.ui.SegmentedGroup
                     android:id="@+id/toggleStatus"
                     style="@style/Widget.TripPlanner.SegmentedGroup"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:checkedButton="@+id/btnCandidate"
-                    app:selectionRequired="true"
-                    app:singleSelection="true">
+                    android:layout_weight="1">
 
                     <Button
                         android:id="@+id/btnCandidate"
@@ -196,7 +193,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/action_confirm" />
-                </com.google.android.material.button.MaterialButtonToggleGroup>
+                </com.tripplanner.ui.SegmentedGroup>
 
                 <com.tripplanner.ui.SelectField
                     android:id="@+id/fieldDay"

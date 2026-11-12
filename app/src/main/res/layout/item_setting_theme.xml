@@ -14,13 +14,11 @@
         android:text="@string/settings_theme"
         android:textAppearance="@style/TextAppearance.TripPlanner.BodyLarge" />
 
-    <com.google.android.material.button.MaterialButtonToggleGroup
+    <com.tripplanner.ui.SegmentedGroup
         android:id="@+id/toggleTheme"
         style="@style/Widget.TripPlanner.SegmentedGroup"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:selectionRequired="true"
-        app:singleSelection="true">
+        android:layout_height="wrap_content">
 
         <Button
             android:id="@+id/btnThemeSystem"
@@ -45,5 +43,5 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/theme_dark" />
-    </com.google.android.material.button.MaterialButtonToggleGroup>
+    </com.tripplanner.ui.SegmentedGroup>
 </LinearLayout>

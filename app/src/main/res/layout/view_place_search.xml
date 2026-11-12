@@ -25,14 +25,12 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButtonToggleGroup
+    <com.tripplanner.ui.SegmentedGroup
         style="@style/Widget.TripPlanner.SegmentedGroup"
         android:id="@+id/toggleRegion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_s"
-        app:selectionRequired="true"
-        app:singleSelection="true">
+        android:layout_marginTop="@dimen/space_s">
         <Button
             android:id="@+id/btnDomestic"
             style="@style/Widget.TripPlanner.SegmentedButton"
@@ -47,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/search_overseas" />
-    </com.google.android.material.button.MaterialButtonToggleGroup>
+    </com.tripplanner.ui.SegmentedGroup>
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress"

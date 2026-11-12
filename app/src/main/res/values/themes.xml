@@ -505,7 +505,7 @@
         <item name="rippleColor">@color/outline_variant</item>
         <item name="shapeAppearance">@style/ShapeAppearance.TripPlanner.Segment</item>
     </style>
-    <style name="Widget.TripPlanner.SegmentedGroup" parent="Widget.Material3.MaterialButtonToggleGroup">
+    <style name="Widget.TripPlanner.SegmentedGroup" parent="">
         <item name="android:background">@drawable/bg_segmented</item>
         <item name="android:padding">4dp</item>
     </style>

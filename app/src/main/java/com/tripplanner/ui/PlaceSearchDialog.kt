@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
@@ -27,7 +26,7 @@ fun showPlaceSearch(activity: AppCompatActivity, initialQuery: String, domesticD
     val view = LayoutInflater.from(activity).inflate(R.layout.view_place_search, null)
     val til = view.findViewById<TextInputLayout>(R.id.tilQuery)
     val et = view.findViewById<TextInputEditText>(R.id.etQuery)
-    val toggle = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleRegion)
+    val toggle = view.findViewById<SegmentedGroup>(R.id.toggleRegion)
     val progress = view.findViewById<LinearProgressIndicator>(R.id.progress)
     val msg = view.findViewById<TextView>(R.id.tvMessage)
     val rv = view.findViewById<RecyclerView>(R.id.rvHits)
