@@ -32,7 +32,10 @@ object Motion {
     fun register(app: Application) = app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
         override fun onActivityStarted(activity: Activity) = apply(activity)
         override fun onActivityCreated(a: Activity, b: Bundle?) {}
-        override fun onActivityResumed(a: Activity) {}
+        override fun onActivityResumed(a: Activity) {
+            // 화면이 뜬 뒤에 만들어진 카드까지 (예: 설정 목록)
+            a.findViewById<ViewGroup>(android.R.id.content)?.let { r -> walk(r) { clipRoundedCard(it) } }
+        }
         override fun onActivityPaused(a: Activity) {}
         override fun onActivityStopped(a: Activity) {}
         override fun onActivitySaveInstanceState(a: Activity, b: Bundle) {}
@@ -46,6 +49,18 @@ object Motion {
                 v.overScrollMode = View.OVER_SCROLL_NEVER
         }
         walk(root) { v -> if (v is AppBarLayout) attachDivider(v, root) }
+        walk(root) { v -> clipRoundedCard(v) }
+    }
+
+    /**
+     * 둥근 카드 안의 누를 수 있는 줄: 눌림 덧칠이 카드 모서리 밖으로 삐져나오지 않게 카드 모양으로 자름.
+     * (XML 의 clipToOutline 은 Android 12 이상에서만 적용되어 코드로 켬)
+     */
+    fun clipRoundedCard(v: View) {
+        if (v !is android.widget.LinearLayout || v.clipToOutline) return
+        val bg = v.background as? android.graphics.drawable.GradientDrawable ?: return
+        if (bg.cornerRadius <= 0f && bg.cornerRadii == null) return
+        v.clipToOutline = true
     }
 
     private fun walk(v: View, f: (View) -> Unit) {

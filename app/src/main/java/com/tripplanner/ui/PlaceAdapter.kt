@@ -133,7 +133,7 @@ class PlaceAdapter(
         return when (viewType) {
             TYPE_HEADER -> HeaderHolder(inf.inflate(R.layout.item_day_header, parent, false))
             TYPE_LODGING -> LodgingHolder(inf.inflate(R.layout.item_timeline_lodging, parent, false))
-            TYPE_SUMMARY -> SummaryHolder(inf.inflate(R.layout.item_detail_summary, parent, false))
+            TYPE_SUMMARY -> SummaryHolder(inf.inflate(R.layout.item_detail_summary, parent, false).also { Motion.clipRoundedCard(it) })
             TYPE_MEMO -> MemoHolder(inf.inflate(R.layout.item_detail_memo, parent, false))
             TYPE_EMPTY -> EmptyHolder(inf.inflate(R.layout.view_empty_state, parent, false).apply {
                 setPadding(paddingLeft, (40 * resources.displayMetrics.density).toInt(), paddingRight,

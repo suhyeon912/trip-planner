@@ -65,6 +65,7 @@ class SettingsActivity : AppCompatActivity() {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(R.drawable.bg_card)
+            clipToOutline = true   // 눌림 덧칠이 카드 모서리 밖으로 나오지 않게
             content.addView(this)
         }
     }

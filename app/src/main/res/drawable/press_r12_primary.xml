@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 눌림 덧칠 : 누르는 즉시 12%, 떼면 100ms 에 사라짐 (물결 효과 대신) -->
+<!-- 눌림 덧칠 (네모난 테두리 버튼 · 모서리 12): 누르는 즉시 12%, 떼면 100ms 에 사라짐 (물결 효과 대신) -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     android:exitFadeDuration="@integer/motion_press_exit">
     <item android:state_pressed="true">
-        <shape android:shape="oval">
+        <shape>
             <solid android:color="@color/press_primary" />
-                <corners android:radius="@dimen/radius_input" />
+            <corners android:radius="@dimen/radius_input" />
         </shape>
     </item>
     <item android:state_focused="true">
-        <shape android:shape="oval">
+        <shape>
             <solid android:color="@color/press_primary" />
-                <corners android:radius="@dimen/radius_input" />
+            <corners android:radius="@dimen/radius_input" />
         </shape>
     </item>
     <item android:drawable="@android:color/transparent" />
