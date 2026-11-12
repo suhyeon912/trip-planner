@@ -23,17 +23,30 @@ class SegmentedGroup @JvmOverloads constructor(context: Context, attrs: Attribut
 
     init { orientation = HORIZONTAL }
 
-    val checkedButtonId: Int
-        get() = buttons().firstOrNull { it.isChecked }?.id ?: View.NO_ID
+    /** 지금 고른 칸 (버튼 자체의 눌림 토글과 상관없이 이 값이 기준) */
+    private var current: Int = View.NO_ID
+
+    val checkedButtonId: Int get() = current
 
     fun addOnButtonCheckedListener(l: OnButtonCheckedListener) { listeners += l }
 
     fun check(id: Int) {
-        val prev = checkedButtonId
+        val prev = current
+        current = id
+        // MaterialButton 은 눌릴 때 스스로 체크를 뒤집으므로, 고른 칸 하나만 체크되게 매번 다시 맞춤
+        applyStates()
         if (prev == id) return
-        buttons().forEach { it.isChecked = it.id == id }
         if (prev != View.NO_ID) listeners.forEach { it.onButtonChecked(this, prev, false) }
         listeners.forEach { it.onButtonChecked(this, id, true) }
+    }
+
+    private fun applyStates() = buttons().forEach { it.isChecked = it.id == current }
+
+    /** 화면 회전 등으로 버튼 상태가 복원된 뒤: 복원된 체크를 기준으로 하나만 남김 */
+    override fun dispatchRestoreInstanceState(container: android.util.SparseArray<android.os.Parcelable>) {
+        super.dispatchRestoreInstanceState(container)
+        buttons().firstOrNull { it.isChecked }?.let { current = it.id }
+        applyStates()
     }
 
     override fun onViewAdded(child: View) {
