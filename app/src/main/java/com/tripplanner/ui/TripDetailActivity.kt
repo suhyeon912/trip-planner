@@ -94,7 +94,10 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
         rvPlaces.layoutManager = LinearLayoutManager(this)
         rvPlaces.adapter = adapter
         // 일차 하나를 보고 있을 때: 손잡이를 끌어 순서 바꾸기 → 놓으면 저장
+        // 왼쪽 순서 점은 제자리에 두고 카드만 움직임 (끄는 카드 · 밀려나는 카드 모두)
         var moved = false
+        var dragging: RecyclerView.ViewHolder? = null
+        rvPlaces.itemAnimator = CardOnlyMoveAnimator { dragging }
         val touch = ItemTouchHelper(object : ItemTouchHelper.Callback() {
             override fun getMovementFlags(rv: RecyclerView, vh: RecyclerView.ViewHolder) =
                 if (adapter.dragEnabled && vh is PlaceAdapter.PlaceHolder)
@@ -105,10 +108,32 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
                 return ok
             }
             override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {}
+            override fun onSelectedChanged(vh: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(vh, actionState)
+                if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && vh is PlaceAdapter.PlaceHolder) {
+                    dragging = vh
+                    // 들어 올린 느낌: 그림자 (크기는 눌림 효과가 맡음)
+                    vh.card.animate().translationZ(8 * resources.displayMetrics.density)
+                        .setDuration(resources.getInteger(R.integer.motion_short).toLong()).start()
+                    vh.card.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                }
+            }
+            // 끄는 동안: 줄 전체가 아니라 카드만 손가락을 따라감
+            override fun onChildDraw(c: android.graphics.Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
+                                     dX: Float, dY: Float, actionState: Int, active: Boolean) {
+                if (vh is PlaceAdapter.PlaceHolder) vh.card.translationY = dY
+                else super.onChildDraw(c, rv, vh, dX, dY, actionState, active)
+            }
             // 길게 누르기는 '장소 수정'이라 끌기는 손잡이로만 시작
             override fun isLongPressDragEnabled() = false
             override fun clearView(rv: RecyclerView, vh: RecyclerView.ViewHolder) {
                 super.clearView(rv, vh)
+                dragging = null
+                if (vh is PlaceAdapter.PlaceHolder) {
+                    vh.card.translationY = 0f
+                    vh.card.animate().translationZ(0f)
+                        .setDuration(resources.getInteger(R.integer.motion_short).toLong()).start()
+                }
                 if (moved) {
                     moved = false
                     viewModel.reorderDay(adapter.currentItems.filterIsInstance<DetailItem.PlaceRow>().map { it.place.id })
@@ -172,7 +197,13 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
                 routeCta.setOnClickListener { openRoute(day) }
             }
         }
+        // 지도 보기에서 뒤로(상단 ← 또는 시스템 뒤로) → 목록으로 돌아감 (여행 상세를 닫지 않음)
+        val backToList = object : androidx.activity.OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() { viewModel.toggleMapMode() }
+        }
+        onBackPressedDispatcher.addCallback(this, backToList)
         viewModel.mapMode.observe(this) { mapOn ->
+            backToList.isEnabled = mapOn
             toolbar.menu.findItem(R.id.action_view_mode)?.apply {
                 setIcon(if (mapOn) R.drawable.ic_list else R.drawable.ic_map)
                 setTitle(if (mapOn) R.string.show_list else R.string.show_map)

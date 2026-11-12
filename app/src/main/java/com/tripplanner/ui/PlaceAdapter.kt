@@ -49,6 +49,8 @@ class PlaceAdapter(
     }
 
     companion object {
+        /** 끌기 중 순서 점만 다시 그릴 때 */
+        const val PAYLOAD_TIMELINE = "timeline"
         private const val TYPE_HEADER = 0
         private const val TYPE_LODGING = 1
         private const val TYPE_PLACE = 2
@@ -73,8 +75,16 @@ class PlaceAdapter(
         if (items.getOrNull(from) !is DetailItem.PlaceRow || items.getOrNull(to) !is DetailItem.PlaceRow) return false
         val list = items.toMutableList()
         list.add(to, list.removeAt(from))
+        // 왼쪽 순서 점은 자리에 고정: 자리마다 원래 번호·위아래 선을 그대로 두고 장소만 바꿈
+        val lo = minOf(from, to); val hi = maxOf(from, to)
+        for (i in lo..hi) {
+            val slot = items[i] as? DetailItem.PlaceRow ?: continue
+            val row = list[i] as? DetailItem.PlaceRow ?: continue
+            list[i] = row.copy(order = slot.order, isFirst = slot.isFirst, isLast = slot.isLast)
+        }
         items = list
         notifyItemMoved(from, to)
+        notifyItemRangeChanged(lo, hi - lo + 1, PAYLOAD_TIMELINE)
         return true
     }
 
@@ -143,6 +153,13 @@ class PlaceAdapter(
         }
     }
 
+    /** 끌기 중 순서 점만 다시 그림 (카드는 그대로) */
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        val row = items.getOrNull(position)
+        if (PAYLOAD_TIMELINE in payloads && holder is PlaceHolder && row is DetailItem.PlaceRow) bindTimeline(holder, row)
+        else super.onBindViewHolder(holder, position, payloads)
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
             is DetailItem.Header -> (holder as HeaderHolder).apply {
@@ -186,12 +203,10 @@ class PlaceAdapter(
         }
     }
 
-    private fun bindPlace(h: PlaceHolder, row: DetailItem.PlaceRow) {
+    /** 왼쪽 타임라인 열: 위 선 · 순서 점 · 아래 선 */
+    private fun bindTimeline(h: PlaceHolder, row: DetailItem.PlaceRow) {
         val place = row.place
         val ctx = h.itemView.context
-        val confirmed = place.status == PlaceStatus.CONFIRMED
-
-        // 타임라인 열
         h.timeline.visibility = if (row.timeline) View.VISIBLE else View.GONE
         h.lineAbove.visibility = if (row.isFirst) View.INVISIBLE else View.VISIBLE
         h.lineBelow.visibility = if (row.isLast) View.INVISIBLE else View.VISIBLE
@@ -204,6 +219,15 @@ class PlaceAdapter(
             h.dot.text = ""
             h.dot.setBackgroundResource(R.drawable.bg_timeline_dot_hollow)
         }
+
+    }
+
+    private fun bindPlace(h: PlaceHolder, row: DetailItem.PlaceRow) {
+        val place = row.place
+        val ctx = h.itemView.context
+        val confirmed = place.status == PlaceStatus.CONFIRMED
+
+        bindTimeline(h, row)
 
         h.name.text = place.name
         val hours = place.openingHours.trim().replace(" ~ ", "–")
