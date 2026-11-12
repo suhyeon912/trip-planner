@@ -12,7 +12,11 @@
     android:orientation="vertical"
     android:paddingBottom="@dimen/space_m">
 
-    <LinearLayout style="@style/Widget.TripPlanner.SummaryRow">
+    <!-- 카드 전체가 한 번에 눌린 색이 되도록 제목 줄은 자체 눌림 색 없음 -->
+    <LinearLayout
+        style="@style/Widget.TripPlanner.SummaryRow"
+        android:background="@null"
+        android:duplicateParentState="true">
 
         <ImageView
             style="@style/Widget.TripPlanner.SummaryIcon"
