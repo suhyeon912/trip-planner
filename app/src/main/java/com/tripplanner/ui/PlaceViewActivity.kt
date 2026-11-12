@@ -81,7 +81,7 @@ class PlaceViewActivity : AppCompatActivity() {
             tv.setTextColor(color(fg))
             chips.addView(tv)
         }
-        badge(p.category.label, null, R.color.text_sub)
+        badge(p.category.label, R.color.surface_container, R.color.on_surface)
         badge(statusText(p, all), if (p.status == PlaceStatus.CONFIRMED) R.color.primary else R.color.surface_container,
             if (p.status == PlaceStatus.CONFIRMED) R.color.on_primary else R.color.text_sub)
         if (p.isReservationRequired) badge(getString(R.string.reservation_required), R.color.error_container, R.color.on_error_container)

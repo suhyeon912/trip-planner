@@ -17,10 +17,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:minHeight="@dimen/touch_min"
         android:orientation="horizontal"
         android:paddingHorizontal="@dimen/space_l"
-        android:paddingVertical="@dimen/space_m">
+        android:paddingVertical="4dp"
+        android:minHeight="56dp">
 
         <ImageView
             android:id="@+id/ivIcon"
@@ -32,8 +32,9 @@
 
         <TextView
             android:id="@+id/tvLabel"
-            android:layout_width="88dp"
+            android:layout_width="92dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_m"
             android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
             android:textColor="@color/text_sub"
             tools:text="운영시간" />
@@ -43,7 +44,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:fontFeatureSettings="tnum"
             android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+            android:textSize="15sp"
             tools:text="11:00 – 21:00" />
     </LinearLayout>
 </LinearLayout>

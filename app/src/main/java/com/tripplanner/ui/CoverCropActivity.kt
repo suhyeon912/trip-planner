@@ -23,6 +23,7 @@ class CoverCropActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cover_crop)
+        findViewById<android.view.View>(R.id.coverPreviewBox).clipToOutline = true  // XML 속성은 API 31 이상에서만 적용
         val path = intent.getStringExtra(EXTRA_PATH) ?: run { finish(); return }
         val y = savedInstanceState?.getFloat(EXTRA_Y) ?: intent.getFloatExtra(EXTRA_Y, 0.5f)
         val scale = savedInstanceState?.getFloat(EXTRA_SCALE) ?: intent.getFloatExtra(EXTRA_SCALE, 1f)

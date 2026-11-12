@@ -94,6 +94,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/cover_height"
         android:layout_margin="@dimen/screen_margin"
+        android:id="@+id/coverPreviewBox"
         android:background="@drawable/bg_cover_preview"
         android:clipToOutline="true">
 

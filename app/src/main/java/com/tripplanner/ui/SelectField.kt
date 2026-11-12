@@ -36,6 +36,13 @@ class SelectField @JvmOverloads constructor(context: Context, attrs: AttributeSe
         errorText = findViewById(R.id.selectError)
     }
 
+    /** 촘촘한 칸 (높이 48 · 왼쪽 12) — 장소 추가의 일차 칸 */
+    fun setCompact() {
+        val d = resources.displayMetrics.density
+        box.minimumHeight = (48 * d).toInt()
+        box.setPaddingRelative((12 * d).toInt(), box.paddingTop, box.paddingEnd, box.paddingBottom)
+    }
+
     fun setIcon(res: Int?) {
         icon.visibility = if (res == null) GONE else VISIBLE
         res?.let { icon.setImageResource(it) }

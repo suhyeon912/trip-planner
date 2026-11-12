@@ -3,6 +3,7 @@ package com.tripplanner.ui
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
@@ -89,6 +90,7 @@ class AddPlaceActivity : AppCompatActivity() {
         tilName = findViewById(R.id.tilName)
         toggle = findViewById(R.id.toggleStatus)
         fieldDay = findViewById(R.id.fieldDay)
+        fieldDay.setCompact()
         ivPhoto = findViewById(R.id.ivPhoto)
         val switchReservation = findViewById<MaterialSwitch>(R.id.switchReservation)
         field(R.id.etName).doAfterTextChanged { tilName.error = null }
@@ -97,6 +99,7 @@ class AddPlaceActivity : AppCompatActivity() {
         chips = findViewById(R.id.chipsCategory)
         buildCategoryChips(null)
         refreshStayHint()
+        findViewById<View>(R.id.btnCategoryInfo).setOnClickListener { showCategoryInfo(it) }
         chips.setOnCheckedStateChangeListener { _, ids ->
             ids.firstOrNull()?.let { id -> PlaceCategory.entries.getOrNull(id - 1000)?.let { category = it; refreshPhoto(); refreshStayHint() } }
         }
@@ -214,7 +217,15 @@ class AddPlaceActivity : AppCompatActivity() {
                 isCheckable = true
                 setChipIconResource(c.icon)
                 isChipIconVisible = true
-                chipIconTint = ColorStateList.valueOf(color(c.fgColor))
+                chipIconTint = ColorStateList.valueOf(color(R.color.on_surface))
+                chipIconSize = 18 * resources.displayMetrics.density
+                isCheckedIconVisible = false
+                chipMinHeight = 36 * resources.displayMetrics.density
+                chipStartPadding = 8 * resources.displayMetrics.density
+                chipEndPadding = 12 * resources.displayMetrics.density
+                iconEndPadding = 3 * resources.displayMetrics.density
+                textStartPadding = 3 * resources.displayMetrics.density
+                textEndPadding = 0f
                 chipBackgroundColor = ColorStateList.valueOf(color(c.bgColor))
                 setCheckedIconResource(R.drawable.ic_check)
                 checkedIconTint = ColorStateList.valueOf(color(R.color.on_surface))
@@ -222,9 +233,15 @@ class AddPlaceActivity : AppCompatActivity() {
                 setTextColor(color(R.color.on_surface))
                 chipStrokeColor = ColorStateList.valueOf(color(R.color.on_surface))
                 chipStrokeWidth = 0f
-                shapeAppearanceModel = shapeAppearanceModel.withCornerSize(12 * resources.displayMetrics.density)
-                setEnsureMinTouchTargetSize(true)
-                setOnCheckedChangeListener { v, checked -> (v as Chip).chipStrokeWidth = if (checked) 2 * resources.displayMetrics.density else 0f }
+                shapeAppearanceModel = shapeAppearanceModel.withCornerSize(10 * resources.displayMetrics.density)
+                setEnsureMinTouchTargetSize(false)
+                // 고르면 테두리 2 + 종류 아이콘 자리에 ✓ + 굵게 (시안)
+                setOnCheckedChangeListener { v, checked ->
+                    (v as Chip).chipStrokeWidth = if (checked) 2 * resources.displayMetrics.density else 0f
+                    v.setChipIconResource(if (checked) R.drawable.ic_check else c.icon)
+                    v.typeface = androidx.core.content.res.ResourcesCompat.getFont(this@AddPlaceActivity,
+                        if (checked) R.font.pretendard_bold else R.font.pretendard_semibold)
+                }
             })
         }
     }
@@ -244,6 +261,17 @@ class AddPlaceActivity : AppCompatActivity() {
         chips.check(1000 + c.ordinal)
         refreshPhoto()
         refreshStayHint()
+    }
+
+    /** 종류 ⓘ: 아이콘 아래 어두운 안내 상자 (시안 AddPlaceInfo) */
+    private fun showCategoryInfo(anchor: View) {
+        val d = resources.displayMetrics.density
+        val box = layoutInflater.inflate(R.layout.view_tooltip, null)
+        box.findViewById<TextView>(R.id.tvTipTitle).setText(R.string.category_info_title)
+        box.findViewById<TextView>(R.id.tvTipBody).setText(R.string.category_info_body)
+        val popup = android.widget.PopupWindow(box, (300 * d).toInt(), android.view.ViewGroup.LayoutParams.WRAP_CONTENT, true)
+        popup.elevation = 8 * d
+        popup.showAsDropDown(anchor, 0, (-4 * d).toInt(), android.view.Gravity.END)
     }
 
     /** 머무는 시간을 비워 두면 종류별 기본값 (관광 90 · 맛집 60 · 카페 60 · 쇼핑 120 · 체험 120 · 기타 60) */

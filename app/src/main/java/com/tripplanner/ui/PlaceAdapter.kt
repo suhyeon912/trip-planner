@@ -207,10 +207,17 @@ class PlaceAdapter(
 
         h.name.text = place.name
         val hours = place.openingHours.trim().replace(" ~ ", "–")
-        h.summary.text = if (hours.isEmpty()) "" else ctx.getString(R.string.opening_hours_line, hours)
-        h.summary.visibility = if (hours.isEmpty()) View.GONE else View.VISIBLE
+        // 후보 카드(시안 DetailCandidates): 예약필수는 뱃지 대신 '영업 … · 예약필수' 한 줄, 글자 13
+        val inlineReservation = !confirmed && place.isReservationRequired
+        h.summary.text = listOfNotNull(hours.takeIf { it.isNotEmpty() }?.let { ctx.getString(R.string.opening_hours_line, it) },
+            if (inlineReservation) ctx.getString(R.string.reservation_required) else null).joinToString(" · ")
+        h.summary.visibility = if (h.summary.text.isEmpty()) View.GONE else View.VISIBLE
+        h.summary.textSize = if (confirmed) 14f else 13f
         Thumbs.bind(h.thumb, place.photoUri, place.category)
-        bindBadges(h.badges, place)
+        bindBadges(h.badges, place, skipReservation = inlineReservation)
+        (h.card.layoutParams as ViewGroup.MarginLayoutParams).apply {
+            val m = ((if (confirmed) 4 else 5) * ctx.resources.displayMetrics.density).toInt(); topMargin = m; bottomMargin = m
+        }
 
         // 순서 바꾸기: 손잡이를 누르면 바로 끌기 시작
         h.drag.visibility = if (dragEnabled && row.timeline && confirmed) View.VISIBLE else View.GONE
@@ -223,7 +230,7 @@ class PlaceAdapter(
         h.confirm.setOnClickListener { listener.onConfirmPick(place, it) }
 
         h.card.contentDescription = listOfNotNull(row.order?.let { "$it." }, place.name, h.summary.text.takeIf { it.isNotEmpty() },
-            badges(ctx, place).joinToString(", ") { it.text }.takeIf { it.isNotEmpty() }).joinToString(" ")
+            badges(ctx, place).filterNot { inlineReservation && it.text == ctx.getString(R.string.reservation_required) }.joinToString(", ") { it.text }.takeIf { it.isNotEmpty() }).joinToString(" ")
         h.card.setOnClickListener { listener.onOpen(place) }
         h.card.setOnLongClickListener { listener.onEdit(place); true }
     }
@@ -238,10 +245,10 @@ class PlaceAdapter(
     )
 
     /** 카드 뱃지: 최대 2개, 넘치면 +n */
-    private fun bindBadges(box: LinearLayout, place: Place) {
+    private fun bindBadges(box: LinearLayout, place: Place, skipReservation: Boolean = false) {
         val ctx = box.context
         box.removeAllViews()
-        val all = badges(ctx, place)
+        val all = badges(ctx, place).let { if (skipReservation) it.drop(if (place.isReservationRequired) 1 else 0) else it }
         val shown = all.take(MAX_BADGES)
         val inf = LayoutInflater.from(ctx)
         shown.forEach { b ->

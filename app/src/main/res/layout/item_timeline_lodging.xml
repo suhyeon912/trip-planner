@@ -41,14 +41,16 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/space_s"
+        android:layout_marginVertical="4dp"
         android:layout_weight="1"
         android:background="@drawable/bg_card"
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
-        android:minHeight="64dp"
+        android:minHeight="80dp"
         android:orientation="horizontal"
-        android:padding="@dimen/space_m">
+        android:paddingVertical="@dimen/space_s"
+        android:paddingStart="@dimen/space_m"
+        android:paddingEnd="@dimen/space_m">
 
         <ImageView
             android:layout_width="@dimen/thumb_size"

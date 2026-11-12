@@ -91,11 +91,10 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnOpenMap"
-                    style="@style/Widget.TripPlanner.Button.Outlined"
+                    style="@style/Widget.TripPlanner.Button.Outlined.Rect"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:paddingHorizontal="@dimen/space_m"
                     app:iconGravity="textStart"
                     app:iconSize="24dp"
                     app:iconTint="@null"
@@ -103,7 +102,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTripMap"
-                    style="@style/Widget.TripPlanner.Button.Outlined.Icon"
+                    style="@style/Widget.TripPlanner.Button.Outlined.Rect"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/space_s"
@@ -115,8 +114,8 @@
 
             <TextView
                 style="@style/Widget.TripPlanner.SectionTitle"
-                android:layout_marginTop="@dimen/space_xl"
-                android:layout_marginBottom="@dimen/space_s"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="@dimen/space_m"
                 android:text="@string/section_hours" />
 
             <LinearLayout

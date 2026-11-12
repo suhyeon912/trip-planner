@@ -100,7 +100,7 @@ object Thumbs {
             v.setPadding(pad, pad, pad, pad)
             v.scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
             v.setImageResource(category.icon)
-            v.imageTintList = android.content.res.ColorStateList.valueOf(ctx.color(category.fgColor))
+            v.imageTintList = android.content.res.ColorStateList.valueOf(ctx.color(R.color.on_surface))  // 시안: 종류 아이콘은 바탕색만 다르고 아이콘은 진한 글자색
         }
     }
 }

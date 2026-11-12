@@ -41,7 +41,7 @@
                 style="@style/Widget.TripPlanner.Button.Outlined.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="52dp"
+                android:minHeight="48dp"
                 android:text="@string/search"
                 app:icon="@drawable/ic_search"
                 app:iconGravity="textStart"
@@ -124,18 +124,41 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 종류 -->
-            <TextView
-                style="@style/Widget.TripPlanner.FieldLabel"
-                android:layout_marginTop="@dimen/space_l"
-                android:text="@string/label_category" />
+            <!-- 종류 + ⓘ (종류는 설정에서 바꿈) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginBottom="0dp"
+                    android:text="@string/label_category" />
+
+                <ImageButton
+                    android:id="@+id/btnCategoryInfo"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="-4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/category_info_a11y"
+                    android:padding="7dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_info"
+                    app:tint="@color/text_sub" />
+            </LinearLayout>
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipsCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 app:chipSpacingHorizontal="@dimen/space_s"
-                app:chipSpacingVertical="0dp"
+                app:chipSpacingVertical="@dimen/space_s"
                 app:selectionRequired="true"
                 app:singleSelection="true" />
 
@@ -205,7 +228,7 @@
                     <TextView style="@style/Widget.TripPlanner.FieldLabel" android:labelFor="@id/etHours" android:text="@string/info_hours" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.TripPlanner.TextField.NoLabel"
+                        style="@style/Widget.TripPlanner.TextField.NoLabel.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:placeholderText="@string/placeholder_hours">
@@ -228,7 +251,7 @@
                     <TextView style="@style/Widget.TripPlanner.FieldLabel" android:labelFor="@id/etBreak" android:text="@string/label_break" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.TripPlanner.TextField.NoLabel"
+                        style="@style/Widget.TripPlanner.TextField.NoLabel.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:placeholderText="@string/placeholder_break">
@@ -258,7 +281,7 @@
                     <TextView style="@style/Widget.TripPlanner.FieldLabel" android:labelFor="@id/etClosed" android:text="@string/info_closed" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.TripPlanner.TextField.NoLabel"
+                        style="@style/Widget.TripPlanner.TextField.NoLabel.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:placeholderText="@string/placeholder_closed">
@@ -282,7 +305,7 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilStay"
-                        style="@style/Widget.TripPlanner.TextField.NoLabel"
+                        style="@style/Widget.TripPlanner.TextField.NoLabel.Compact"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:placeholderText="60">
@@ -311,7 +334,7 @@
             <!-- 주소: 검색하면 채워지고, 직접 고칠 수도 있음 (저장할 때 좌표로 바꿈) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilAddress"
-                style="@style/Widget.TripPlanner.TextField.NoLabel"
+                style="@style/Widget.TripPlanner.TextField.NoLabel.Compact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:endIconContentDescription="@string/location_search"
@@ -359,7 +382,7 @@
                 android:text="@string/label_address_detail" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.TripPlanner.TextField.NoLabel"
+                style="@style/Widget.TripPlanner.TextField.NoLabel.Compact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:placeholderText="@string/placeholder_address_detail">
@@ -378,7 +401,7 @@
                 android:text="@string/label_location_memo" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.TripPlanner.TextField.NoLabel"
+                style="@style/Widget.TripPlanner.TextField.NoLabel.Compact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:placeholderText="@string/placeholder_location_memo">
@@ -410,7 +433,7 @@
                 android:text="@string/memo_label" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.TripPlanner.TextField.NoLabel"
+                style="@style/Widget.TripPlanner.TextField.NoLabel.Compact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 

@@ -158,6 +158,7 @@ class TripFormActivity : AppCompatActivity() {
         val has = cover != null
         findViewById<View>(R.id.btnCoverUpload).visibility = if (has) View.GONE else View.VISIBLE
         findViewById<View>(R.id.coverBox).visibility = if (has) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.coverBox).clipToOutline = true  // XML 속성은 API 31 이상에서만 적용
         cover?.let { CoverPhoto.bind(findViewById(R.id.ivCover), it, coverY, coverScale) }
     }
 
