@@ -46,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
-                android:layout_marginStart="@dimen/space_m"
+                android:layout_marginStart="@dimen/space_l"
                 android:layout_marginTop="@dimen/space_m"
                 android:background="@drawable/bg_cover_pill"
                 android:paddingHorizontal="10dp"
@@ -72,8 +72,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"
-                android:layout_marginHorizontal="@dimen/space_m"
-                android:layout_marginBottom="@dimen/space_m"
+                android:layout_marginStart="@dimen/space_l"
+                android:layout_marginEnd="@dimen/space_s"
+                android:layout_marginBottom="14dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -106,9 +107,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/space_m"
+            android:paddingHorizontal="@dimen/space_l"
             android:paddingTop="@dimen/space_m"
-            android:paddingBottom="@dimen/space_m">
+            android:paddingBottom="@dimen/space_l">
 
             <TextView
                 android:id="@+id/tvTripDates"
@@ -119,7 +120,7 @@
             <TextView
                 android:id="@+id/tvTripCount"
                 style="@style/Widget.TripPlanner.TripInfoLine"
-                android:layout_marginTop="@dimen/space_xs"
+                android:layout_marginTop="6dp"
                 app:drawableStartCompat="@drawable/ic_place_small"
                 tools:text="확정 9곳 · 후보 3곳" />
 
@@ -128,7 +129,7 @@
                 android:id="@+id/badges"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_s"
+                android:layout_marginTop="6dp"
                 android:orientation="horizontal" />
         </LinearLayout>
     </LinearLayout>

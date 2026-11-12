@@ -112,63 +112,63 @@
         <item name="android:textSize">22sp</item>
         <item name="android:textStyle">bold</item>
         <item name="lineHeight">28sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <style name="TextAppearance.TripPlanner.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:fontFamily">@font/pretendard_semibold</item>
         <item name="fontFamily">@font/pretendard_semibold</item>
         <item name="android:textSize">18sp</item>
         <item name="lineHeight">24sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <style name="TextAppearance.TripPlanner.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:fontFamily">@font/pretendard_semibold</item>
         <item name="fontFamily">@font/pretendard_semibold</item>
         <item name="android:textSize">16sp</item>
         <item name="lineHeight">20sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <style name="TextAppearance.TripPlanner.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">16sp</item>
         <item name="lineHeight">24sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <style name="TextAppearance.TripPlanner.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">14sp</item>
         <item name="lineHeight">20sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <style name="TextAppearance.TripPlanner.BodySmall" parent="TextAppearance.Material3.BodySmall">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">16sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <style name="TextAppearance.TripPlanner.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:fontFamily">@font/pretendard_semibold</item>
         <item name="fontFamily">@font/pretendard_semibold</item>
         <item name="android:textSize">14sp</item>
         <item name="lineHeight">20sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <style name="TextAppearance.TripPlanner.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">16sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <style name="TextAppearance.TripPlanner.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:fontFamily">@font/pretendard</item>
         <item name="fontFamily">@font/pretendard</item>
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">16sp</item>
-        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:letterSpacing">0</item>
     </style>
     <!-- 큰 글자 역할은 크기는 M3 그대로, 글꼴만 Pretendard -->
     <style name="TextAppearance.TripPlanner.M3.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
@@ -250,7 +250,7 @@
         <item name="android:drawablePadding">6dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textAppearance">@style/TextAppearance.TripPlanner.BodyMedium</item>
-        <item name="android:textColor">@color/on_surface</item>
+        <item name="android:textColor">@color/text_sub</item>
         <item name="drawableTint">@color/text_sub</item>
     </style>
     <!-- 6단계: 편집 화면 섹션 제목 -->

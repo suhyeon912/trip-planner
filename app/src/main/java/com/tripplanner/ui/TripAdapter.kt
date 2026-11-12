@@ -96,10 +96,10 @@ class TripAdapter(
             val tv = LayoutInflater.from(ctx).inflate(R.layout.view_badge, holder.badges, false) as TextView
             tv.text = text
             tv.backgroundTintList = android.content.res.ColorStateList.valueOf(ctx.color(if (tertiary) R.color.tertiary_container else R.color.surface_container))
-            tv.setTextColor(ctx.color(if (tertiary) R.color.on_tertiary_container else R.color.text_sub))
-            val s = (14 * ctx.resources.displayMetrics.density).toInt()
-            val d = androidx.core.content.ContextCompat.getDrawable(ctx, icon)?.mutate()?.apply {
-                setBounds(0, 0, s, s); setTint(ctx.color(if (tertiary) R.color.on_tertiary_container else R.color.text_sub))
+            tv.setTextColor(ctx.color(if (tertiary) R.color.on_tertiary_container else R.color.on_surface))
+            val s = (16 * ctx.resources.displayMetrics.density).toInt()
+            val d = if (icon == 0) null else androidx.core.content.ContextCompat.getDrawable(ctx, icon)?.mutate()?.apply {
+                setBounds(0, 0, s, s); setTint(ctx.color(if (tertiary) R.color.on_tertiary_container else R.color.on_surface))
             }
             tv.setCompoundDrawablesRelative(d, null, null, null)
             tv.compoundDrawablePadding = (4 * ctx.resources.displayMetrics.density).toInt()
@@ -133,7 +133,7 @@ class TripAdapter(
     private fun tripBadges(ctx: android.content.Context, t: Trip): List<Triple<Int, String, Boolean>> = buildList {
         if (t.ownedByMe) {
             add(Triple(R.drawable.ic_person, ctx.getString(R.string.badge_mine), false))
-            if (t.shareCode != null) add(Triple(R.drawable.ic_group_add,
+            if (t.shareCode != null) add(Triple(0,
                 if (t.members.isEmpty()) ctx.getString(R.string.shared_badge) else ctx.getString(R.string.badge_shared_n, t.members.size), true))
         } else {
             add(Triple(R.drawable.ic_group_add,

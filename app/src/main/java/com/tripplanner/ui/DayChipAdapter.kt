@@ -64,6 +64,14 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
         holder.itemView.isSelected = chip.selected
         ViewCompat.setStateDescription(holder.itemView, if (chip.selected) ctx.getString(R.string.state_selected) else null)
         holder.itemView.setOnClickListener { onSelect(chip.key) }
+        // 시안: '전체'는 가운데·좌우 12, 일차 칩은 왼쪽 정렬·좌우 8 · 칩 사이 6 ('전체' 뒤 8)
+        val d = ctx.resources.displayMetrics.density
+        val wide = compact || chip.key == 0
+        val h = ((if (wide) 12 else 8) * d).toInt()
+        holder.itemView.setPaddingRelative(h, (6 * d).toInt(), h, (6 * d).toInt())
+        (holder.itemView as android.widget.LinearLayout).gravity =
+            if (wide) android.view.Gravity.CENTER else android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
+        (holder.itemView.layoutParams as? ViewGroup.MarginLayoutParams)?.marginEnd = ((if (chip.key == 0 && !compact) 8 else 6) * d).toInt()
     }
 
     override fun getItemCount() = chips.size
