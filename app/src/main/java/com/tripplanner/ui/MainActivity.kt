@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
             showRows()
             val noTrips = list.isEmpty()
             viewRow.visibility = if (noTrips) View.GONE else View.VISIBLE
-            tabs.visibility = if (noTrips) View.GONE else View.VISIBLE
+            (tabs.parent as View).visibility = if (noTrips) View.GONE else View.VISIBLE
         }
         findViewById<View>(R.id.btnViewSettings).setOnClickListener { showViewSettings(it) }
 

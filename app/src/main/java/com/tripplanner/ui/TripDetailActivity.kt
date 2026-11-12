@@ -145,7 +145,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             rvPlaces.visibility = if (mapOn) View.GONE else View.VISIBLE
             detailMap.container.visibility = if (mapOn) View.VISIBLE else View.GONE
             // 지도 보기: 탭 없이 일차 칩(한 줄 + 색 점)만, 아래 버튼 없음
-            tabs.visibility = if (mapOn) View.GONE else View.VISIBLE
+            (tabs.parent as View).visibility = if (mapOn) View.GONE else View.VISIBLE
             chipAdapter.compact = mapOn
             if (mapOn) rvDays.visibility = View.VISIBLE
             bottom.visibility = if (mapOn) View.GONE else View.VISIBLE
@@ -185,6 +185,9 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             tabs.getTabAt(1)?.text = getString(R.string.tab_candidates_n, ui.candidateCount)
             val onSchedule = viewModel.currentTab.value != PlaceStatus.CANDIDATE
             rvDays.visibility = if (onSchedule || viewModel.mapMode.value == true) View.VISIBLE else View.GONE
+            // 후보 탭: 탭 아래 16 띄우고 카드 시작 (카드 위아래 여백 5 포함, 시안 DetailCandidates)
+            rvPlaces.setPadding(rvPlaces.paddingLeft, ((if (onSchedule) 4 else 11) * resources.displayMetrics.density).toInt(),
+                rvPlaces.paddingRight, rvPlaces.paddingBottom)
             chipAdapter.submit(ui.chips)
             adapter.dragEnabled = onSchedule && (viewModel.selectedDay.value ?: 0) > 0
             adapter.submit(ui.items)

@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
-        app:liftOnScroll="true"
+        app:liftOnScroll="false"
         app:liftOnScrollTargetViewId="@id/rvPlaces">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -27,11 +27,19 @@
             android:background="?attr/colorSurface"
             app:menu="@menu/trip_detail" />
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabs"
+        <!-- 세그먼트 바탕(안쪽 4)은 감싸는 칸이 그림: TabLayout 자체 패딩은 고정 모드에서 오른쪽이 무시되어 고른 칸이 끝에 붙음 -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/screen_margin" />
+            android:layout_marginHorizontal="@dimen/screen_margin"
+            android:background="@drawable/bg_segmented"
+            android:padding="4dp">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </FrameLayout>
 
         <!-- 일차 칩 줄 (일정 탭에서만 보임, 넘치면 가로 스크롤) -->
         <androidx.recyclerview.widget.RecyclerView
