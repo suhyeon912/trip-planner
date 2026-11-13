@@ -109,6 +109,8 @@ class TpTextField @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /** 오류 글자 (null 이면 숨김) */
     var error: CharSequence? = null
         set(v) {
+            // 오류가 새로 나타나면 짧게 '아니요' 진동
+            if (field.isNullOrEmpty() && !v.isNullOrEmpty()) com.tripplanner.ui.Haptics.reject(this)
             field = v
             errorView.text = v
             errorView.visibility = if (v.isNullOrEmpty()) GONE else VISIBLE

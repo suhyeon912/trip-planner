@@ -7,4 +7,7 @@
     <item name="action_more" type="id" />
     <!-- 상단 바 스크롤 구분선을 붙였는지 (Motion.kt) -->
     <item name="tag_scroll_divider" type="id" />
+    <!-- 흐려졌다 바뀔 글자 (Haptics.kt setTextFading) · 목록 칸에 마지막으로 그린 항목 -->
+    <item name="tag_fade_target" type="id" />
+    <item name="tag_bound_key" type="id" />
 </resources>

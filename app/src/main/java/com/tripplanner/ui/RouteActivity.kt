@@ -126,10 +126,10 @@ class RouteActivity : AppCompatActivity() {
             optionAdapter.submit(s.options, option?.key, hasHome = s.anchor != null)
             stopAdapter.submit(option, s.anchor, s.startMinutes)
             val startLabel = TimeUtil.format(s.startMinutes)
-            tvStartTime.text = startLabel
+            tvStartTime.setTextFading(startLabel)
             btnStartTime.contentDescription = getString(R.string.start_time_a11y, startLabel)
             val endLabel = s.endMinutes?.let { TimeUtil.format(it) } ?: getString(R.string.end_free)
-            tvEndTime.text = endLabel
+            tvEndTime.setTextFading(endLabel)
             btnEndTime.contentDescription = getString(R.string.end_time_a11y, endLabel)
             if (option != null) {
                 renderRouteMap(option)
@@ -146,7 +146,7 @@ class RouteActivity : AppCompatActivity() {
                 btnMap.text = getString(R.string.open_directions_short)
                 btnMap.contentDescription = getString(R.string.open_directions, mapName)
                 btnMap.setOnClickListener { MapLauncher.openRoute(this, pointsOf(option)) }
-                btnApply.setOnClickListener { viewModel.apply(option) }
+                btnApply.setOnClickListener { Haptics.confirm(it); viewModel.apply(option) }
             } else alertPanel.visibility = View.GONE
         }
         viewModel.ui.observe(this) { render() }

@@ -69,7 +69,10 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
         h.key.setTextColor(ctx.color(if (selected) R.color.on_primary else R.color.on_surface))
         h.name.text = ctx.getString(R.string.option_name, o.title, o.totalKm)
         val seq = o.visits.joinToString(" → ") { it.stop.name }
-        h.stats.text = ctx.getString(if (hasHome) R.string.option_seq else R.string.option_seq_no_home, seq, TimeUtil.format(o.endTime))
+        val stats = ctx.getString(if (hasHome) R.string.option_seq else R.string.option_seq_no_home, seq, TimeUtil.format(o.endTime))
+        val same = h.itemView.getTag(R.id.tag_bound_key) == o.key
+        h.itemView.setTag(R.id.tag_bound_key, o.key)
+        if (same) h.stats.setTextFading(stats) else h.stats.setTextNow(stats)
         val warnCount = o.warnings.size
         val small = (14 * ctx.resources.displayMetrics.density).toInt()
         fun icon(res: Int, tint: Int) = ContextCompat.getDrawable(ctx, res)?.mutate()?.apply {
@@ -98,7 +101,7 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
         h.itemView.contentDescription = listOfNotNull(ctx.getString(R.string.option_a11y, o.key, o.title, statsLine(ctx, o, ", "),
                 if (warnCount > 0) ctx.getString(R.string.warn_n_a11y, warnCount) else "",
                 if (o.added.isNotEmpty()) ctx.getString(R.string.added_n_a11y, o.added.size) else ""),
-            if (recommended) ctx.getString(R.string.recommended) else null, h.stats.text).joinToString(", ")
+            if (recommended) ctx.getString(R.string.recommended) else null, stats).joinToString(", ")
         ViewCompat.setStateDescription(h.itemView, if (selected) ctx.getString(R.string.state_selected) else null)
         h.itemView.setOnClickListener { onSelect(o.key) }
     }
@@ -158,8 +161,19 @@ class RouteStopAdapter(
         else StopHolder(inf.inflate(R.layout.item_route_stop, parent, false))
     }
 
+    /** 같은 줄(같은 장소·숙소)이 다시 그려질 때만 시각을 흐려졌다 바꿈 */
+    private fun rowKey(position: Int, row: Row): String = when (row) {
+        is Row.Home -> if (position == 0) "home-start" else "home-end"
+        is Row.Stop -> "stop-${row.visit.stop.id}"
+        is Row.Leg -> "leg-$position"
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val ctx = holder.itemView.context
+        val key = rowKey(position, rows[position])
+        val same = holder.itemView.getTag(R.id.tag_bound_key) == key
+        holder.itemView.setTag(R.id.tag_bound_key, key)
+        fun TextView.time(t: CharSequence) = if (same) setTextFading(t) else setTextNow(t)
         when (val row = rows[position]) {
             is Row.Leg -> (holder as LegHolder).text.apply {
                 text = ctx.getString(R.string.leg_line, ctx.minutesLabel(row.minutes), row.km)
@@ -168,7 +182,7 @@ class RouteStopAdapter(
                 setCompoundDrawablesRelative(d, null, null, null)
             }
             is Row.Home -> (holder as StopHolder).apply {
-                arrive.text = TimeUtil.format(row.time)
+                arrive.time(TimeUtil.format(row.time))
                 leave.visibility = View.GONE
                 leave.setOnClickListener(null)
                 icon.setImageResource(R.drawable.ic_hotel)
@@ -179,14 +193,14 @@ class RouteStopAdapter(
                 sub.visibility = View.GONE
                 warn.visibility = View.GONE
                 itemView.background = null
-                itemView.contentDescription = "${arrive.text} ${row.name}"
+                itemView.contentDescription = "${TimeUtil.format(row.time)} ${row.name}"
             }
             is Row.Stop -> (holder as StopHolder).apply {
                 val v = row.visit
-                arrive.text = TimeUtil.format(v.arrive)
+                arrive.time(TimeUtil.format(v.arrive))
                 leave.visibility = View.VISIBLE
-                leave.text = TimeUtil.format(v.leave)
-                leave.contentDescription = ctx.getString(R.string.leave_a11y, leave.text)
+                leave.time(TimeUtil.format(v.leave))
+                leave.contentDescription = ctx.getString(R.string.leave_a11y, TimeUtil.format(v.leave))
                 leave.setOnClickListener { onLeave(v, it) }
                 val place = placeOf(v.stop.id)
                 Thumbs.bind(icon, place?.photoUri, place?.category ?: com.tripplanner.data.PlaceCategory.ETC)
@@ -203,7 +217,7 @@ class RouteStopAdapter(
                 arrive.setTextColor(ctx.color(if (v.warning != null) R.color.warn_text else R.color.on_surface))
                 itemView.background = if (v.warning != null) ContextCompat.getDrawable(ctx, R.drawable.bg_stop_warn) else null
                 itemView.contentDescription = listOfNotNull(
-                    ctx.getString(R.string.stop_meta, arrive.text, v.stop.stayMinutes), v.stop.name, subText).joinToString(", ")
+                    ctx.getString(R.string.stop_meta, TimeUtil.format(v.arrive), v.stop.stayMinutes), v.stop.name, subText).joinToString(", ")
             }
         }
     }

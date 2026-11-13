@@ -78,7 +78,11 @@ class TpDialog private constructor(context: Context, private val b: Builder) :
             if (spec == null) { btn.visibility = View.GONE; return }
             btn.text = spec.text
             btn.visibility = View.VISIBLE
-            btn.setOnClickListener { spec.onClick?.invoke(this, which); dismiss() }
+            btn.setOnClickListener {
+                // 확인 버튼: 삭제면 묵직하게, 그 밖의 확인은 가볍게
+                if (which == DialogInterface.BUTTON_POSITIVE) { if (b.danger) com.tripplanner.ui.Haptics.delete(it) else com.tripplanner.ui.Haptics.confirm(it) }
+                spec.onClick?.invoke(this, which); dismiss()
+            }
             buttons[which] = btn
         }
         bind(DialogInterface.BUTTON_POSITIVE, if (b.danger) R.id.dlgPositiveDanger else R.id.dlgPositive, b.positive)

@@ -130,6 +130,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
                 }
                 if (moved) {
                     moved = false
+                    Haptics.dragEnd(vh.itemView)
                     viewModel.reorderDay(adapter.currentItems.filterIsInstance<DetailItem.PlaceRow>().map { it.place.id })
                 }
             }
@@ -255,8 +256,8 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
         val rows = viewModel.dayOptions().map { (day, date, count) ->
             SelectRow.Option(listOf(dayLabel(day), date, getString(R.string.places_count, count))
                 .filter { it.isNotEmpty() }.joinToString(getString(R.string.list_separator)),
-                dotColor = PinIcons.dayColor(day)) { viewModel.confirm(place, day) }
-        } + SelectRow.Option(getString(R.string.day_none), hollowDot = true) { viewModel.confirm(place, null) }
+                dotColor = PinIcons.dayColor(day)) { Haptics.confirm(anchor); viewModel.confirm(place, day) }
+        } + SelectRow.Option(getString(R.string.day_none), hollowDot = true) { Haptics.confirm(anchor); viewModel.confirm(place, null) }
         showSelect(anchor, rows, widthDp = 220)
     }
 
