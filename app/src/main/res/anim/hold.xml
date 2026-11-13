@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 입력 화면이 위에 뜨고 닫히는 동안 아래 화면은 그대로 -->
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="@integer/motion_page" android:fromXDelta="0" android:toXDelta="0" />

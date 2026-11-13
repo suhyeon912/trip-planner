@@ -33,7 +33,8 @@ class TravelInfoActivity : AppCompatActivity() {
             onMenu = { f, anchor -> rowMenu(anchor, { openForm(TravelFormActivity.KIND_FLIGHT, f.id) }) {
                 confirmDelete(this, flightTitle(f), getString(R.string.flight_delete_confirm)) { viewModel.deleteFlight(f) }
             } },
-            iconOf = { it.mode.icon }
+            iconOf = { it.mode.icon },
+            idOf = { it.id }
         )
         val lodgingAdapter = SimpleAdapter<Lodging>(
             title = { it.name },
@@ -43,7 +44,8 @@ class TravelInfoActivity : AppCompatActivity() {
             onMenu = { l, anchor -> rowMenu(anchor, { openForm(TravelFormActivity.KIND_LODGING, l.id) }) {
                 confirmDelete(this, l.name, getString(R.string.lodging_delete_confirm)) { viewModel.deleteLodging(l) }
             } },
-            icon = R.drawable.ic_hotel
+            icon = R.drawable.ic_hotel,
+            idOf = { it.id }
         )
         val rvFlights = findViewById<RecyclerView>(R.id.rvFlights).apply {
             layoutManager = LinearLayoutManager(this@TravelInfoActivity); adapter = flightAdapter

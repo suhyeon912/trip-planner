@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 뒤로 갈 때 닫히는 화면: 오른쪽으로 밀려나며 사라짐 (200ms, 가속) -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@interpolator/motion_accelerate"
+    android:zAdjustment="top">
+    <translate android:duration="@integer/motion_medium" android:fromXDelta="0" android:toXDelta="12%" />
+    <alpha android:duration="@integer/motion_medium" android:fromAlpha="1" android:toAlpha="0" />
+</set>

@@ -23,8 +23,15 @@ class TripAdapter(
     private var rows: List<TripRow> = emptyList()
 
     fun submit(list: List<TripRow>) {
+        val old = rows
         rows = list
-        notifyDataSetChanged()
+        ListDiff.dispatch(this, old, list, ::sameRow)
+    }
+
+    private fun sameRow(a: TripRow, b: TripRow) = when {
+        a is TripRow.Card && b is TripRow.Card -> a.item.trip.id == b.item.trip.id
+        a is TripRow.Past && b is TripRow.Past -> a.item.trip.id == b.item.trip.id
+        else -> a is TripRow.PastHeader && b is TripRow.PastHeader
     }
 
     fun isFullWidth(position: Int) = rows.getOrNull(position) !is TripRow.Card

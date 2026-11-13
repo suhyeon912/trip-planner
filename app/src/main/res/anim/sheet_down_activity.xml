@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 입력 화면 닫힘 (액티비티): 아래로 내려가며 사라짐, 아래 화면 위에 그림 -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@interpolator/motion_accelerate"
+    android:zAdjustment="top">
+    <translate android:duration="@integer/motion_medium" android:fromYDelta="0" android:toYDelta="8%" />
+    <alpha android:duration="@integer/motion_medium" android:fromAlpha="1" android:toAlpha="0" />
+</set>

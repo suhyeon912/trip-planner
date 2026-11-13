@@ -89,8 +89,18 @@ class PlaceAdapter(
     }
 
     fun submit(newList: List<DetailItem>) {
+        val old = items
         items = newList
-        notifyDataSetChanged()
+        ListDiff.dispatch(this, old, newList, ::sameItem)
+    }
+
+    private fun sameItem(a: DetailItem, b: DetailItem) = when (a) {
+        is DetailItem.PlaceRow -> b is DetailItem.PlaceRow && a.place.id == b.place.id
+        is DetailItem.Header -> b is DetailItem.Header && (if (a.day != null) a.day == b.day else b.day == null && a.title == b.title)
+        is DetailItem.LodgingRow -> b is DetailItem.LodgingRow && a.start == b.start
+        is DetailItem.Summary -> b is DetailItem.Summary
+        is DetailItem.Memo -> b is DetailItem.Memo
+        is DetailItem.Empty -> b is DetailItem.Empty && a.state == b.state
     }
 
     override fun getItemViewType(position: Int) = when (items[position]) {

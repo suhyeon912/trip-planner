@@ -19,14 +19,16 @@ class SimpleAdapter<T>(
     private val onClick: (T) -> Unit,
     private val onMenu: (T, View) -> Unit,
     private val icon: Int = 0,         // 왼쪽 아이콘 (0 이면 숨김)
-    private val iconOf: ((T) -> Int)? = null   // 항목마다 다른 아이콘 (교통 종류 등)
+    private val iconOf: ((T) -> Int)? = null,  // 항목마다 다른 아이콘 (교통 종류 등)
+    private val idOf: (T) -> Any? = { it }     // 같은 항목인지 (목록 변화 애니메이션용)
 ) : RecyclerView.Adapter<SimpleAdapter.Holder>() {
 
     private var items: List<T> = emptyList()
 
     fun submit(list: List<T>) {
+        val old = items
         items = list
-        notifyDataSetChanged()
+        ListDiff.dispatch(this, old, list, { a, b -> idOf(a) == idOf(b) }, firstMatters = true)
     }
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {

@@ -48,12 +48,33 @@
         <item name="colorControlHighlight">@color/press_on_surface</item>
         <item name="android:listChoiceBackgroundIndicator">@drawable/press_overlay</item>
         <item name="listChoiceBackgroundIndicator">@drawable/press_overlay</item>
+        <!-- 화면 전환: 상세 화면은 옆에서 밀려 들어오고, 뒤로 가면 옆으로 빠짐 -->
+        <item name="android:windowAnimationStyle">@style/Animation.TripPlanner.Push</item>
+    </style>
+
+    <style name="Animation.TripPlanner.Push" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/push_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/push_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/pop_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/pop_exit</item>
+    </style>
+
+    <!-- 입력 화면 (여행 만들기·수정, 장소 추가, 교통·숙소 입력): 아래에서 올라오고, 닫으면 아래로 내려감 -->
+    <style name="Theme.TripPlanner.Sheet">
+        <item name="android:windowAnimationStyle">@style/Animation.TripPlanner.Sheet</item>
+    </style>
+    <style name="Animation.TripPlanner.Sheet" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/sheet_up_activity</item>
+        <item name="android:activityOpenExitAnimation">@anim/hold</item>
+        <item name="android:activityCloseEnterAnimation">@anim/hold</item>
+        <item name="android:activityCloseExitAnimation">@anim/sheet_down_activity</item>
     </style>
 
     <!-- 표지 사진 맞추기: 어두운 화면이라 상태 표시줄도 어둡게, 아이콘은 밝게 -->
     <style name="Theme.TripPlanner.Crop">
         <item name="android:statusBarColor">@color/crop_bg</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowAnimationStyle">@style/Animation.TripPlanner.Sheet</item>
     </style>
 
     <!-- 팝업 (TpDialog): 떠 있는 창 · 바탕 45% 어둡게 -->

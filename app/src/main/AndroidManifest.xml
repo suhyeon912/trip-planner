@@ -31,8 +31,10 @@
         <activity android:name=".ui.TripDetailActivity" />
         <activity
             android:name=".ui.TripFormActivity"
+            android:theme="@style/Theme.TripPlanner.Sheet"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.AddPlaceActivity" />
+        <activity android:name=".ui.AddPlaceActivity"
+            android:theme="@style/Theme.TripPlanner.Sheet" />
         <activity android:name=".ui.PlaceViewActivity" />
         <activity android:name=".ui.CoverCropActivity"
             android:theme="@style/Theme.TripPlanner.Crop" />
@@ -50,6 +52,7 @@
         <activity android:name=".ui.TravelInfoActivity" />
         <activity
             android:name=".ui.TravelFormActivity"
+            android:theme="@style/Theme.TripPlanner.Sheet"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.RouteActivity" />
     </application>

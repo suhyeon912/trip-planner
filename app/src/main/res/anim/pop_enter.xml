@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 뒤로 갈 때 아래 화면: 제자리로 돌아옴 (250ms) -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@interpolator/motion_standard">
+    <translate android:duration="@integer/motion_long" android:fromXDelta="-6%" android:toXDelta="0" />
+</set>

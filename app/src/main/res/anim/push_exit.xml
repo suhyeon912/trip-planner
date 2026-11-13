@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 상세 화면이 열릴 때 뒤 화면: 왼쪽으로 조금 물러남 (300ms) -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@interpolator/motion_standard">
+    <translate android:duration="@integer/motion_page" android:fromXDelta="0" android:toXDelta="-6%" />
+</set>
