@@ -48,6 +48,8 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     val flights = repo.observeFlights(tripId)
     val lodgings = repo.observeLodgings(tripId)
     private val places = repo.observePlaces(tripId)
+    /** 예약·티켓 자료 (장소 카드 '티켓 n' · 전체 요약 줄) */
+    private val attachments = repo.observeAttachments(tripId)
 
     /** 지금 보고 있는 탭 (확정 / 후보) — 회전해도 유지 */
     val currentTab = MutableLiveData(PlaceStatus.CONFIRMED)
@@ -68,6 +70,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         addSource(trip) { update() }
         addSource(lodgings) { update() }
         addSource(flights) { update() }
+        addSource(attachments) { update() }
     }
 
     fun setTab(status: PlaceStatus) { currentTab.value = status }
@@ -230,6 +233,11 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         lodgings.value.orEmpty().takeIf { it.isNotEmpty() }?.let { list ->
             out += R.drawable.ic_hotel to ctx.getString(R.string.summary_lodging, list.joinToString(", ") { it.name })
         }
+        attachments.value.orEmpty().takeIf { it.isNotEmpty() }?.let { list ->
+            val names = list.take(2).joinToString(", ") { it.name.substringBeforeLast('.') }
+            out += R.drawable.ic_ticket to ctx.getString(R.string.summary_tickets,
+                if (list.size > 2) ctx.getString(R.string.summary_tickets_more, names, list.size - 2) else names)
+        }
         if (out.isEmpty()) out += R.drawable.ic_route to ctx.getString(R.string.summary_travel_empty)
         return out
     }
@@ -237,7 +245,8 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     private fun rows(list: List<Place>, timeline: Boolean, edgesOpen: Boolean = false) = list.mapIndexed { i, p ->
         // 방문 순서가 아직 없으면 목록 순서로 번호 (경로 확정·끌어서 바꾸면 저장된 순서)
         DetailItem.PlaceRow(p, order = if (timeline && p.day != null) (p.orderInDay ?: (i + 1)).toString() else null,
-            isFirst = i == 0 && !edgesOpen, isLast = i == list.lastIndex && !edgesOpen, timeline = timeline)
+            isFirst = i == 0 && !edgesOpen, isLast = i == list.lastIndex && !edgesOpen, timeline = timeline,
+            files = attachments.value.orEmpty().count { it.placeId == p.id })
     }
 
     private fun buildChips(confirmed: List<Place>, days: Int, hasUndated: Boolean, sel: Int): List<DayChip> {

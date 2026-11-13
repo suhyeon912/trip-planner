@@ -41,12 +41,45 @@
             app:tpIcon="@drawable/ic_copy" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tvMembers"
+    <!-- 함께 보는 사람: 겹친 머리글자 동그라미 + 이름 · 오른쪽 '활동 기록 ›' -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_m"
-        android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
-        android:textColor="@color/text_sub"
-        tools:text="2명이 함께 보는 중" />
+        android:layout_marginEnd="-12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/avatars"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/space_m"
+            android:importantForAccessibility="noHideDescendants"
+            android:orientation="horizontal"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvMembers"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
+            android:textColor="@color/on_surface"
+            tools:text="지우 · 민지 · 하준" />
+
+        <TextView
+            android:id="@+id/btnActivity"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/press_pill_primary"
+            android:drawableEnd="@drawable/ic_chevron_right"
+            android:drawablePadding="2dp"
+            android:drawableTint="@color/primary"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:text="@string/activity_log"
+            android:textAppearance="@style/TextAppearance.TripPlanner.LabelLarge"
+            android:textColor="@color/primary" />
+    </LinearLayout>
 </LinearLayout>

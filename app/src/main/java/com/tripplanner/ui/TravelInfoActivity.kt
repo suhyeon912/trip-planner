@@ -20,6 +20,9 @@ class TravelInfoActivity : AppCompatActivity() {
 
     private val viewModel: TravelInfoViewModel by viewModels()
 
+    private val repo by lazy { (application as com.tripplanner.TripPlannerApp).repository }
+    private val files = AttachmentsUi(this, { Triple(viewModel.tripId, null, com.tripplanner.data.AttachmentKind.TRIP) }) {}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_travel_info)
@@ -67,6 +70,14 @@ class TravelInfoActivity : AppCompatActivity() {
             tvLodgingTitle.text = if (it.isEmpty()) getString(R.string.lodgings) else getString(R.string.lodgings_n, it.size)
             rvLodgings.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
         }
+
+        // 예약·티켓: 이 여행의 모든 자료 (어디에 붙었는지 함께), 여기서 올리면 '여행' 자료
+        val tvTicketTitle = findViewById<TextView>(R.id.tvTicketTitle)
+        repo.observeAttachments(viewModel.tripId).observe(this) { list ->
+            files.bindRows(findViewById(R.id.fileRows), list, showKind = true)
+            tvTicketTitle.text = if (list.isEmpty()) getString(R.string.section_tickets) else getString(R.string.section_tickets_n, list.size)
+        }
+        findViewById<View>(R.id.btnUpload).setOnClickListener { files.showUploadMenu(it) }
 
         findViewById<View>(R.id.btnAddFlight).setOnClickListener { openForm(TravelFormActivity.KIND_FLIGHT, 0L) }
         findViewById<View>(R.id.btnAddLodging).setOnClickListener { openForm(TravelFormActivity.KIND_LODGING, 0L) }

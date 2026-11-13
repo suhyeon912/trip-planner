@@ -12,6 +12,8 @@ import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.tripplanner.ui.widget.TpButton
 import com.tripplanner.ui.widget.TpDialog
 import com.tripplanner.ui.widget.TpSwitch
@@ -198,5 +200,78 @@ class SettingsActivity : AppCompatActivity() {
             icon.setPadding((7 * d).toInt(), (7 * d).toInt(), (7 * d).toInt(), (7 * d).toInt())
             sw.contentDescription = getString(R.string.category_switch_a11y, c.label)
         }
+        buildCustomTypes()
     }
+
+    // ---------------- 내가 만든 종류 ----------------
+    private val repo by lazy { (application as com.tripplanner.TripPlannerApp).repository }
+    private var customStart = -1
+    /** 지금 펼친 편집 카드: 종류 id (새 종류는 0), 없으면 null */
+    private var editingType: Long? = null
+
+    /** '내가 만든 종류' 제목 아래를 처음부터 다시 그림 (목록 · 편집 카드 · 종류 추가) */
+    private fun buildCustomTypes() {
+        if (customStart < 0) customStart = content.childCount
+        while (content.childCount > customStart) content.removeViewAt(customStart)
+        lifecycleScope.launch {
+            val types = repo.getTypes()
+            while (content.childCount > customStart) content.removeViewAt(customStart)
+            val d = resources.displayMetrics.density
+            if (types.isNotEmpty()) {
+                val card = section(R.string.categories_custom)
+                types.forEach { t ->
+                    val v = row(card, null, t.name, chevron = false) { openEditor(t.id) }
+                    val icon = v.findViewById<ImageView>(R.id.ivIcon)
+                    icon.visibility = View.VISIBLE
+                    icon.layoutParams = icon.layoutParams.apply { width = (36 * d).toInt(); height = (36 * d).toInt() }
+                    Thumbs.bind(icon, null, TypeIcons.res(t.icon), PlaceKinds.colorRes(t.color))
+                    icon.setPadding((7 * d).toInt(), (7 * d).toInt(), (7 * d).toInt(), (7 * d).toInt())
+                    // 오른쪽 연필 (시안: 연파랑 동그라미)
+                    v.findViewById<ImageView>(R.id.ivEnd).apply {
+                        visibility = View.VISIBLE
+                        setImageResource(R.drawable.ic_edit)
+                        imageTintList = ColorStateList.valueOf(color(R.color.on_primary_container))
+                        layoutParams = layoutParams.apply { width = (40 * d).toInt(); height = (40 * d).toInt() }
+                        setPadding((10 * d).toInt(), (10 * d).toInt(), (10 * d).toInt(), (10 * d).toInt())
+                        background = android.graphics.drawable.GradientDrawable().apply {
+                            shape = android.graphics.drawable.GradientDrawable.OVAL
+                            setColor(color(R.color.primary_light))
+                        }
+                    }
+                    v.findViewById<View>(R.id.row).contentDescription = getString(R.string.type_edit_a11y, t.name)
+                }
+            }
+            val editing = editingType
+            if (editing != null) {
+                val original = types.firstOrNull { it.id == editing }
+                val editor = TypeEditor(this@SettingsActivity, original,
+                    onSave = { t -> lifecycleScope.launch {
+                        repo.saveType(t); editingType = null; Haptics.confirm(content)
+                        buildCustomTypes(); showSnack(getString(R.string.type_saved))
+                    } },
+                    onDelete = { t -> confirmDelete(this@SettingsActivity, t.name, getString(R.string.type_delete_confirm),
+                        note = getString(R.string.type_delete_note)) {
+                        lifecycleScope.launch { repo.deleteType(t); editingType = null; buildCustomTypes() }
+                    } },
+                    onCancel = { editingType = null; buildCustomTypes() })
+                content.addView(editor, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    .apply { topMargin = (12 * d).toInt() })
+                if (original == null) editor.post { editor.focusName() }
+                editor.post { findViewById<androidx.core.widget.NestedScrollView>(R.id.scroll).smoothScrollTo(0, editor.top - (16 * d).toInt()) }
+            }
+            if (editing != 0L) {
+                content.addView(TpButton(this@SettingsActivity, null, R.attr.tpButtonStyle).apply {
+                    setText(R.string.type_add)
+                    background = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.bg_dashed_add)
+                    foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_r12_primary)
+                    setTextColor(color(R.color.primary))
+                    iconTint = ColorStateList.valueOf(color(R.color.primary))
+                    setIconResource(R.drawable.ic_add)
+                    setOnClickListener { openEditor(0L) }
+                }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (56 * d).toInt()).apply { topMargin = (12 * d).toInt() })
+            }
+        }
+    }
+
+    private fun openEditor(id: Long) { editingType = id; buildCustomTypes() }
 }

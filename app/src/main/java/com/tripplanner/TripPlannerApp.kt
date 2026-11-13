@@ -19,5 +19,7 @@ class TripPlannerApp : Application() {
         com.tripplanner.ui.Motion.register(this)   // 공통 모션 (스크롤 끝 효과 · 상단 바 구분선)
         TripMap.init(this)   // 앱 안 지도 설정
         share.start()        // 공유 중인 여행 실시간 동기화
+        // 내가 만든 장소 종류: 늘 최신으로 (목록·지도·편집 화면이 함께 씀)
+        repository.observeTypes().observeForever { list -> com.tripplanner.ui.PlaceKinds.types = list.associateBy { it.id } }
     }
 }

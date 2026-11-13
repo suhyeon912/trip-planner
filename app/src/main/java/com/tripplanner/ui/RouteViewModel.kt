@@ -12,6 +12,7 @@ import com.tripplanner.data.Place
 import com.tripplanner.data.PlaceStatus
 import com.tripplanner.data.Trip
 import com.tripplanner.route.Anchor
+import com.tripplanner.route.LegMode
 import com.tripplanner.route.RouteOption
 import com.tripplanner.route.RoutePlanner
 import com.tripplanner.route.Stop
@@ -97,6 +98,18 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
 
     fun selectOption(key: String) { selectedKey.value = key }
 
+    // ---------------- 구간 이동 수단 (기기에 여행마다 저장) ----------------
+    private val legModes = LegModes(app, tripId)
+
+    /** 이 구간의 수단 (고르지 않았으면 거리로 정함) */
+    fun legMode(from: Long, to: Long, km: Double): LegMode = legModes.mode(from, to, km)
+
+    /** 구간 수단 고르기. legs = 바꿀 구간들 (남은 구간도 같게면 이 구간부터 끝까지) */
+    fun setLegMode(legs: List<Pair<Long, Long>>, mode: LegMode) = viewModelScope.launch {
+        legModes.set(legs, mode)
+        compute()
+    }
+
     /** 지금 고른 안 (없으면 첫 번째) */
     fun selectedOption(): RouteOption? {
         val options = ui.value?.options.orEmpty()
@@ -150,7 +163,7 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
 
         // 순서 비교는 계산이 많으니 백그라운드에서
         loading.value = true
-        val options = withContext(Dispatchers.Default) { RoutePlanner.plan(anchor, stops, candidates, t.startMinutes, t.endMinutes) }
+        val options = withContext(Dispatchers.Default) { RoutePlanner.plan(anchor, stops, candidates, t.startMinutes, t.endMinutes, legModes.legTime) }
         loading.value = false
         ui.value = RouteUiState(day, dateLabel, anchor, options, null,
             notes + if (anchor == null) listOf(ctx.getString(R.string.note_no_anchor)) else emptyList(), t.startMinutes, t.endMinutes)

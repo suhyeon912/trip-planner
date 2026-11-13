@@ -41,7 +41,38 @@ class TripRepository(private val db: AppDatabase) {
     suspend fun getPlace(id: Long) = dao.getPlace(id)
     suspend fun savePlace(p: Place) { if (p.id == 0L) dao.insertPlace(p) else dao.updatePlace(p); changed(p.tripId) }
     suspend fun updatePlaces(list: List<Place>) { dao.updatePlaces(list); list.map { it.tripId }.distinct().forEach { changed(it) } }
-    suspend fun deletePlace(p: Place) { dao.deletePlace(p); changed(p.tripId) }
+    suspend fun deletePlace(p: Place) {
+        // 장소에 붙은 자료(파일)도 함께 지움
+        dao.getPlaceAttachments(p.id).forEach { deleteAttachmentFile(it); dao.deleteAttachment(it) }
+        dao.deletePlace(p); changed(p.tripId)
+    }
+
+    // 내가 만든 장소 종류 (모든 여행 공통)
+    fun observeTypes() = dao.observeTypes()
+    suspend fun getTypes() = dao.getTypes()
+    suspend fun saveType(t: PlaceType): Long {
+        if (t.id == 0L) return dao.insertType(t)
+        dao.updateType(t); dao.tripsUsingType(t.id).forEach { changed(it) }
+        return t.id
+    }
+    suspend fun deleteType(t: PlaceType) {
+        val trips = dao.tripsUsingType(t.id)
+        db.withTransaction { dao.clearType(t.id); dao.deleteType(t) }
+        trips.forEach { changed(it) }
+    }
+    /** 공유로 받은 종류: 같은 이름이 있으면 그것, 없으면 새로 만듦 → id */
+    suspend fun findOrCreateType(name: String, icon: String, color: Int): Long =
+        dao.getTypes().firstOrNull { it.name == name }?.id ?: dao.insertType(PlaceType(name = name, icon = icon, color = color))
+
+    // 예약·티켓 자료 (기기에만 · 공유하지 않음 → changed 를 부르지 않음, 활동 기록은 ShareManager 가 따로 남김)
+    fun observeAttachments(tripId: Long) = dao.observeAttachments(tripId)
+    suspend fun getAttachments(tripId: Long) = dao.getAttachments(tripId)
+    suspend fun getPlaceAttachments(placeId: Long) = dao.getPlaceAttachments(placeId)
+    var attachmentListener: ((Attachment) -> Unit)? = null
+    suspend fun addAttachment(a: Attachment): Long = dao.insertAttachment(a).also { attachmentListener?.invoke(a) }
+    suspend fun renameAttachment(a: Attachment, name: String) = dao.updateAttachment(a.copy(name = name))
+    suspend fun deleteAttachment(a: Attachment) { deleteAttachmentFile(a); dao.deleteAttachment(a) }
+    private fun deleteAttachmentFile(a: Attachment) { runCatching { java.io.File(a.path).delete() } }
 
     // ---------- 공유 ----------
     suspend fun getSharedTrips() = dao.getSharedTrips()
@@ -59,11 +90,15 @@ class TripRepository(private val db: AppDatabase) {
     /** 서버에서 받은 여행으로 통째로 바꿈 (내 기기의 같은 여행 id 유지). 서버로 다시 올리지 않음 */
     suspend fun replaceTripContents(trip: Trip, places: List<Place>, flights: List<Flight>, lodgings: List<Lodging>) {
         db.withTransaction {
+            // 장소에 붙은 자료는 장소 이름으로 다시 연결 (장소 id 가 새로 매겨지므로)
+            val oldNames = dao.getPlaces(trip.id).associate { it.id to it.name }
+            val files = dao.getAttachments(trip.id).filter { it.placeId != null }
             dao.updateTrip(trip)
             dao.deletePlacesOf(trip.id); dao.deleteFlightsOf(trip.id); dao.deleteLodgingsOf(trip.id)
-            places.forEach { dao.insertPlace(it.copy(id = 0, tripId = trip.id)) }
+            val newIds = places.associate { it.name to dao.insertPlace(it.copy(id = 0, tripId = trip.id)) }
             flights.forEach { dao.insertFlight(it.copy(id = 0, tripId = trip.id)) }
             lodgings.forEach { dao.insertLodging(it.copy(id = 0, tripId = trip.id)) }
+            dao.updateAttachments(files.map { a -> a.copy(placeId = newIds[oldNames[a.placeId]]) })
         }
     }
 

@@ -13,6 +13,15 @@ data class Stop(
     val isCandidate: Boolean = false
 )
 
+/** 구간 이동 수단 (시안 RouteLegMode): 도보 · 대중교통 · 택시·차 */
+enum class LegMode { WALK, TRANSIT, TAXI }
+
+/**
+ * 구간 이동 시간 정하기: (출발 id, 도착 id, 거리 km) → 분. 숙소 id 는 ANCHOR_ID.
+ * 기본은 예전과 같은 어림값 (도보+대중교통 평균 15km/h).
+ */
+typealias LegTime = (from: Long, to: Long, km: Double) -> Int
+
 /** 출발·도착 지점 (보통 숙소) */
 data class Anchor(val name: String, val lat: Double, val lng: Double)
 
@@ -54,16 +63,20 @@ object RoutePlanner {
         stops: List<Stop>,
         candidates: List<Stop>,
         startTime: Int = DEFAULT_START,
-        endLimit: Int? = null
+        endLimit: Int? = null,
+        legTime: LegTime = DEFAULT_LEG
     ): List<RouteOption> {
         if (stops.isEmpty()) return emptyList()
+        fun build(key: String, title: String, desc: String, anchor: Anchor?, order: List<Stop>, startTime: Int,
+                  added: List<Stop> = emptyList(), endLimit: Int? = null) =
+            build(key, title, desc, anchor, order, startTime, added, endLimit, legTime)
 
         // A. 최단
         val orderA = shortestOrder(anchor, stops)
         val a = build("A", "최단 경로", "이동거리가 가장 짧은 순서", anchor, orderA, startTime, endLimit = endLimit)
 
         // B. 운영시간 맞춤
-        val orderB = timeAwareOrder(anchor, stops, startTime)
+        val orderB = timeAwareOrder(anchor, stops, startTime, legTime)
         val b = if (orderB.map { it.id } == orderA.map { it.id })
             build("B", "시간 맞춤", "최단 경로가 이미 운영시간과 잘 맞아요", anchor, orderB, startTime, endLimit = endLimit)
         else
@@ -91,6 +104,22 @@ object RoutePlanner {
 
     fun legMinutes(km: Double): Int = if (km < 0.05) 0 else maxOf(5, Math.round(km / SPEED_KMH * 60).toInt())
 
+    const val ANCHOR_ID = -1L
+    val DEFAULT_LEG: LegTime = { _, _, km -> legMinutes(km) }
+
+    /** 고르지 않은 구간의 수단: 1.2km 까지는 도보, 그보다 멀면 대중교통 */
+    fun defaultMode(km: Double) = if (km <= 1.2) LegMode.WALK else LegMode.TRANSIT
+
+    /**
+     * 수단별 어림 시간 (직선 × 1.3 거리 기준, 길찾기 API 없이):
+     *  도보 4.5km/h · 대중교통 = 기다림·환승 5분 + 22km/h · 택시·차 = 부르기·주차 3분 + 24km/h
+     */
+    fun modeMinutes(mode: LegMode, km: Double): Int = if (km < 0.05) 0 else when (mode) {
+        LegMode.WALK -> maxOf(1, Math.round(km / 4.5 * 60).toInt())
+        LegMode.TRANSIT -> 5 + Math.round(km / 22.0 * 60).toInt()
+        LegMode.TAXI -> 3 + Math.round(km / 24.0 * 60).toInt()
+    }
+
     /** 숙소 → 장소들 → 숙소 총 거리. 숙소가 없으면 첫 장소에서 출발해 마지막 장소에서 끝 */
     fun totalKm(anchor: Anchor?, order: List<Stop>): Double {
         if (order.isEmpty()) return 0.0
@@ -107,11 +136,11 @@ object RoutePlanner {
         if (stops.size <= MAX_EXACT) permutations(stops).minBy { totalKm(anchor, it) }
         else twoOpt(anchor, nearestNeighbor(anchor, stops))
 
-    fun timeAwareOrder(anchor: Anchor?, stops: List<Stop>, startTime: Int): List<Stop> {
+    fun timeAwareOrder(anchor: Anchor?, stops: List<Stop>, startTime: Int, legTime: LegTime = DEFAULT_LEG): List<Stop> {
         val candidates = if (stops.size <= MAX_EXACT) permutations(stops).toList()
                          else listOf(shortestOrder(anchor, stops))
         return candidates.minBy { order ->
-            val sim = simulate(anchor, order, startTime)
+            val sim = simulate(anchor, order, startTime, legTime)
             sim.penalty * 1000 + sim.waitMinutes * 2 + totalKm(anchor, order)
         }
     }
@@ -145,18 +174,19 @@ object RoutePlanner {
                           val moveMinutes: Int, val endTime: Int)
 
     /** 출발 시각부터 차례로 이동·체류하며 도착 시각과 문제(경고)를 계산 */
-    fun simulate(anchor: Anchor?, order: List<Stop>, startTime: Int): Simulation {
+    fun simulate(anchor: Anchor?, order: List<Stop>, startTime: Int, legTime: LegTime = DEFAULT_LEG): Simulation {
         var t = startTime
         var penalty = 0
         var wait = 0
         var move = 0
         var prevLat = anchor?.lat
         var prevLng = anchor?.lng
+        var prevId = ANCHOR_ID
         val visits = mutableListOf<Visit>()
 
         for (s in order) {
             if (prevLat != null && prevLng != null) {
-                val m = legMinutes(legKm(prevLat, prevLng, s.lat, s.lng))
+                val m = legTime(prevId, s.id, legKm(prevLat, prevLng, s.lat, s.lng))
                 t += m; move += m
             }
             var arrive = t
@@ -181,18 +211,18 @@ object RoutePlanner {
             }
             visits += Visit(s, arrive, leave, warning, waited)
             t = leave
-            prevLat = s.lat; prevLng = s.lng
+            prevLat = s.lat; prevLng = s.lng; prevId = s.id
         }
         if (anchor != null && order.isNotEmpty()) {
-            val m = legMinutes(legKm(order.last().lat, order.last().lng, anchor.lat, anchor.lng))
+            val m = legTime(order.last().id, ANCHOR_ID, legKm(order.last().lat, order.last().lng, anchor.lat, anchor.lng))
             t += m; move += m
         }
         return Simulation(visits, penalty, wait, move, t)
     }
 
     private fun build(key: String, title: String, desc: String, anchor: Anchor?, order: List<Stop>,
-                      startTime: Int, added: List<Stop> = emptyList(), endLimit: Int? = null): RouteOption {
-        val sim = simulate(anchor, order, startTime)
+                      startTime: Int, added: List<Stop>, endLimit: Int?, legTime: LegTime): RouteOption {
+        val sim = simulate(anchor, order, startTime, legTime)
         return RouteOption(key, title, desc, sim.visits, totalKm(anchor, order), sim.moveMinutes, sim.endTime, added, endLimit)
     }
 

@@ -20,7 +20,9 @@ sealed class DetailItem {
     /** 타임라인 맨 위·아래 숙소 (출발 / 도착) */
     data class LodgingRow(val name: String, val start: Boolean) : DetailItem()
     /** 장소 카드. order = 방문 순서(경로 확정 전이면 null), timeline = 왼쪽 타임라인 열 표시 */
-    data class PlaceRow(val place: Place, val order: String?, val isFirst: Boolean, val isLast: Boolean, val timeline: Boolean) : DetailItem()
+    data class PlaceRow(val place: Place, val order: String?, val isFirst: Boolean, val isLast: Boolean, val timeline: Boolean,
+                        /** 붙은 예약·티켓 자료 수 ('티켓 n' 뱃지) */
+                        val files: Int = 0) : DetailItem()
     /** '전체' 맨 위 교통 · 숙소 요약 */
     data class Summary(val lines: List<Pair<Int, String>>) : DetailItem()   // (아이콘, 글자)
     /** 맨 아래 여행 메모 */
@@ -247,8 +249,8 @@ class PlaceAdapter(
             if (inlineReservation) ctx.getString(R.string.reservation_required) else null).joinToString(" · ")
         h.summary.visibility = if (h.summary.text.isEmpty()) View.GONE else View.VISIBLE
         h.summary.textSize = if (confirmed) 14f else 13f
-        Thumbs.bind(h.thumb, place.photoUri, place.category)
-        bindBadges(h.badges, place, skipReservation = inlineReservation)
+        Thumbs.bind(h.thumb, place)
+        bindBadges(h.badges, place, skipReservation = inlineReservation, files = row.files)
         (h.card.layoutParams as ViewGroup.MarginLayoutParams).apply {
             val m = ((if (confirmed) 4 else 5) * ctx.resources.displayMetrics.density).toInt(); topMargin = m; bottomMargin = m
         }
@@ -264,7 +266,7 @@ class PlaceAdapter(
         h.confirm.setOnClickListener { listener.onConfirmPick(place, it) }
 
         h.card.contentDescription = listOfNotNull(row.order?.let { "$it." }, place.name, h.summary.text.takeIf { it.isNotEmpty() },
-            badges(ctx, place).filterNot { inlineReservation && it.text == ctx.getString(R.string.reservation_required) }.joinToString(", ") { it.text }.takeIf { it.isNotEmpty() }).joinToString(" ")
+            badges(ctx, place, row.files).filterNot { inlineReservation && it.text == ctx.getString(R.string.reservation_required) }.joinToString(", ") { it.text }.takeIf { it.isNotEmpty() }).joinToString(" ")
         h.card.setOnClickListener { listener.onOpen(place) }
         h.card.setOnLongClickListener { listener.onEdit(place); true }
     }
@@ -272,17 +274,18 @@ class PlaceAdapter(
     private data class B(val text: String, val bg: Int, val fg: Int)
 
     /** 예약필수(빨강) · 브레이크(회색) · 위치 없음(노랑) */
-    private fun badges(ctx: android.content.Context, place: Place) = listOfNotNull(
+    private fun badges(ctx: android.content.Context, place: Place, files: Int = 0) = listOfNotNull(
         if (place.isReservationRequired) B(ctx.getString(R.string.reservation_required), R.color.error_container, R.color.on_error_container) else null,
+        if (files > 0) B(ctx.getString(R.string.badge_tickets, files), R.color.primary_light, R.color.on_primary_container) else null,
         place.breakTime?.let { B(ctx.getString(R.string.break_badge, it.replace(" ~ ", "–")), R.color.surface_container, R.color.text_sub) },
         if (!place.hasLocation) B(ctx.getString(R.string.badge_no_location), R.color.warn_bg, R.color.warn_text) else null
     )
 
     /** 카드 뱃지: 최대 2개, 넘치면 +n */
-    private fun bindBadges(box: LinearLayout, place: Place, skipReservation: Boolean = false) {
+    private fun bindBadges(box: LinearLayout, place: Place, skipReservation: Boolean = false, files: Int = 0) {
         val ctx = box.context
         box.removeAllViews()
-        val all = badges(ctx, place).let { if (skipReservation) it.drop(if (place.isReservationRequired) 1 else 0) else it }
+        val all = badges(ctx, place, files).let { if (skipReservation) it.drop(if (place.isReservationRequired) 1 else 0) else it }
         val shown = all.take(MAX_BADGES)
         val inf = LayoutInflater.from(ctx)
         shown.forEach { b ->

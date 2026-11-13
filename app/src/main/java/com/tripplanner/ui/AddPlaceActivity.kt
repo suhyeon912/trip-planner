@@ -45,6 +45,12 @@ class AddPlaceActivity : AppCompatActivity() {
 
     // 화면 상태 (회전해도 유지)
     private var category = PlaceCategory.SIGHT
+    /** 내가 만든 종류를 골랐으면 그 id (기본 종류면 null) */
+    private var typeId: Long? = null
+    /** 검색으로 채운 Google 장소 id ('다시 가져오기'용) */
+    private var sourceId = ""
+    /** 칩 id 2000+n ↔ 내가 만든 종류 id */
+    private var customChipTypes: List<Long> = emptyList()
     private var photoPath: String? = null
     private var day: Int? = null
     private var lat = 0.0
@@ -99,8 +105,10 @@ class AddPlaceActivity : AppCompatActivity() {
         refreshStayHint()
         findViewById<View>(R.id.btnCategoryInfo).setOnClickListener { showCategoryInfo(it) }
         chips.onCheckedChange = { id ->
-            PlaceCategory.entries.getOrNull(id - 1000)?.let { category = it; refreshPhoto(); refreshStayHint() }
+            if (id >= 2000) customChipTypes.getOrNull(id - 2000)?.let { typeId = it; category = PlaceCategory.ETC; refreshPhoto(); refreshStayHint() }
+            else PlaceCategory.entries.getOrNull(id - 1000)?.let { typeId = null; category = it; refreshPhoto(); refreshStayHint() }
         }
+        findViewById<View>(R.id.btnRefreshHours).setOnClickListener { refreshHours(it) }
 
 
         // ---------- 사진: 비었으면 고르기, 있으면 바꾸기 / 빼기 ----------
@@ -145,11 +153,13 @@ class AddPlaceActivity : AppCompatActivity() {
 
         savedInstanceState?.let { st ->
             category = st.getString("category")?.let { runCatching { PlaceCategory.valueOf(it) }.getOrNull() } ?: category
+            typeId = st.getLong("typeId", 0L).takeIf { it > 0 }
+            sourceId = st.getString("sourceId").orEmpty()
             photoPath = st.getString("photo")
             day = st.getInt("day", 0).takeIf { it > 0 }
             lat = st.getDouble("lat"); lng = st.getDouble("lng"); coordsAddress = st.getString("coordsAddress")
         }
-        selectCategory(category)
+        selectKind(category, typeId)
         render()
 
         lifecycleScope.launch {
@@ -179,7 +189,8 @@ class AddPlaceActivity : AppCompatActivity() {
                     field(R.id.etLocationMemo).setText(p.locationMemo)
                     coordsAddress = p.address
                     day = p.day
-                    selectCategory(p.category)
+                    sourceId = p.sourceId
+                    selectKind(p.category, p.typeId)
                     toggle.check(if (p.status == PlaceStatus.CONFIRMED) R.id.btnConfirmed else R.id.btnCandidate)
                 }
             }
@@ -190,6 +201,8 @@ class AddPlaceActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("category", category.name)
+        outState.putLong("typeId", typeId ?: 0L)
+        outState.putString("sourceId", sourceId)
         outState.putString("photo", photoPath)
         outState.putInt("day", day ?: 0)
         outState.putDouble("lat", lat); outState.putDouble("lng", lng)
@@ -203,34 +216,41 @@ class AddPlaceActivity : AppCompatActivity() {
     private fun buildCategoryChips(current: PlaceCategory?) {
         chips.removeAllViews()
         val visible = AppPrefs.visibleCategories(AppPrefs(this).hiddenCategories, current)
+        // 내가 만든 종류 (설정 › 장소 종류) 는 기본 종류 뒤에
+        val custom = PlaceKinds.types.values.sortedBy { it.id }
+        customChipTypes = custom.map { it.id }
         val label = (chips.parent as android.view.ViewGroup).getChildAt((chips.parent as android.view.ViewGroup).indexOfChild(chips) - 1)
-        chips.visibility = if (visible.isEmpty()) View.GONE else View.VISIBLE
+        chips.visibility = if (visible.isEmpty() && custom.isEmpty()) View.GONE else View.VISIBLE
         label.visibility = chips.visibility
-        if (visible.isEmpty()) { category = PlaceCategory.ETC; return }
-        if (category !in visible) category = visible.first()
-        visible.forEach { c ->
-            chips.addView(categoryChip(c))
+        if (typeId != null && typeId !in customChipTypes) typeId = null
+        if (visible.isEmpty() && custom.isEmpty()) { category = PlaceCategory.ETC; return }
+        if (typeId == null && category !in visible) {
+            if (visible.isNotEmpty()) category = visible.first() else { typeId = custom.first().id; category = PlaceCategory.ETC }
         }
+        visible.forEach { c -> chips.addView(categoryChip(1000 + c.ordinal, c.label, c.icon, c.bgColor)) }
+        custom.forEachIndexed { i, t -> chips.addView(categoryChip(2000 + i, t.name, TypeIcons.res(t.icon), PlaceKinds.colorRes(t.color))) }
     }
 
+    private fun kindChipId() = typeId?.let { t -> customChipTypes.indexOf(t).takeIf { it >= 0 }?.let { 2000 + it } } ?: (1000 + category.ordinal)
+
     /** 종류 칩 (시안): 높이 36 · 모서리 10 · 바탕 = 종류 색 · 고르면 테두리 2 + 아이콘 자리에 ✓ + 굵게 */
-    private fun categoryChip(c: PlaceCategory): com.tripplanner.ui.widget.TpButton {
+    private fun categoryChip(chipId: Int, label: String, iconRes: Int, bgRes: Int): com.tripplanner.ui.widget.TpButton {
         val d = resources.displayMetrics.density
         fun bg(checked: Boolean) = android.graphics.drawable.GradientDrawable().apply {
-            setColor(color(c.bgColor)); cornerRadius = 10 * d
+            setColor(color(bgRes)); cornerRadius = 10 * d
             if (checked) setStroke((2 * d).toInt(), color(R.color.on_surface))
         }
         return object : com.tripplanner.ui.widget.TpButton(this@AddPlaceActivity, null, 0) {
             override fun setChecked(checked: Boolean) {
                 super.setChecked(checked)
                 background = bg(checked)
-                setIconResource(if (checked) R.drawable.ic_check else c.icon)
+                setIconResource(if (checked) R.drawable.ic_check else iconRes)
                 typeface = androidx.core.content.res.ResourcesCompat.getFont(context,
                     if (checked) R.font.pretendard_bold else R.font.pretendard_semibold)
             }
         }.apply {
-            id = 1000 + c.ordinal
-            text = c.label
+            id = chipId
+            text = label
             isCheckable = true
             setTextAppearance(R.style.TextAppearance_TripPlanner_LabelLarge)
             setTextColor(color(R.color.on_surface))
@@ -239,7 +259,7 @@ class AddPlaceActivity : AppCompatActivity() {
             setPaddingRelative((8 * d).toInt(), 0, (12 * d).toInt(), 0)
             iconSize = (18 * d).toInt(); iconPadding = (6 * d).toInt()
             iconTint = ColorStateList.valueOf(color(R.color.on_surface))
-            setIconResource(c.icon)
+            setIconResource(iconRes)
             background = bg(false)
             foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_r10)
             stateListAnimator = null
@@ -251,15 +271,22 @@ class AddPlaceActivity : AppCompatActivity() {
         val has = photoPath != null
         ivPhoto.visibility = if (has) View.VISIBLE else View.GONE
         findViewById<View>(R.id.photoEmpty).visibility = if (has) View.GONE else View.VISIBLE
-        if (has) Thumbs.bind(ivPhoto, photoPath, category)
+        if (has) {
+            val t = typeId?.let { PlaceKinds.types[it] }
+            Thumbs.bind(ivPhoto, photoPath, t?.let { TypeIcons.res(it.icon) } ?: category.icon, t?.let { PlaceKinds.colorRes(it.color) } ?: category.bgColor)
+        }
         findViewById<View>(R.id.photoBox).contentDescription = getString(if (has) R.string.change_photo else R.string.pick_photo)
     }
 
-    private fun selectCategory(c: PlaceCategory) {
-        // 숨긴 종류여도 이 장소의 종류면 칩을 보여 줌
-        if (chips.findViewById<View>(1000 + c.ordinal) == null && chips.visibility == View.VISIBLE) buildCategoryChips(c)
+    private fun selectCategory(c: PlaceCategory) = selectKind(c, null)
+
+    /** 종류 고르기: 내가 만든 종류(typeId)가 있으면 그것, 없으면 기본 종류 */
+    private fun selectKind(c: PlaceCategory, type: Long?) {
+        typeId = type?.takeIf { it in PlaceKinds.types }
         category = c
-        chips.check(1000 + c.ordinal)
+        // 숨긴 종류여도 이 장소의 종류면 칩을 보여 줌
+        if (chips.findViewById<View>(kindChipId()) == null) buildCategoryChips(if (typeId == null) c else null)
+        if (chips.visibility == View.VISIBLE) chips.check(kindChipId())
         refreshPhoto()
         refreshStayHint()
     }
@@ -346,11 +373,44 @@ class AddPlaceActivity : AppCompatActivity() {
         coordsAddress = hit.address
         field(R.id.etAddress).setText(hit.address)
         selectCategory(hit.category)
+        sourceId = hit.sourceId
         val hours = field(R.id.etHours)
         val cur = hours.text?.toString()?.trim().orEmpty()
         if (hit.hours != null && (cur.isEmpty() || cur == getString(R.string.hours_unknown))) hours.setText(hit.hours)
         render()
         showSnack(getString(R.string.search_filled, hit.name))
+    }
+
+    /**
+     * 운영 정보 다시 가져오기: 검색으로 채운 장소면 그 장소, 아니면 이름(+주소)으로 Google 에서 찾아
+     * 운영시간 · 브레이크 타임 · 휴무일 칸을 새 값으로 바꿈 (모르는 칸은 그대로).
+     */
+    private fun refreshHours(button: View) {
+        val name = field(R.id.etName).text?.toString()?.trim().orEmpty()
+        if (name.isEmpty() && sourceId.isEmpty()) { tilName.error = getString(R.string.error_place_name); return }
+        button.isEnabled = false
+        lifecycleScope.launch {
+            val result = runCatching {
+                PlaceSearch.refreshHours(this@AddPlaceActivity, sourceId, name, field(R.id.etAddress).text?.toString()?.trim().orEmpty())
+            }
+            button.isEnabled = true
+            val info = result.getOrNull()
+            when {
+                result.exceptionOrNull() is PlaceSearch.NoKeyException ->
+                    showSnack(getString((result.exceptionOrNull() as PlaceSearch.NoKeyException).messageRes))
+                result.isFailure -> showSnack(getString(R.string.refresh_hours_failed))
+                info == null || (info.hours == null && info.breakTime == null && info.closedDays == null) ->
+                    showSnack(getString(R.string.refresh_hours_none))
+                else -> {
+                    sourceId = info.sourceId
+                    info.hours?.let { field(R.id.etHours).setText(it) }
+                    field(R.id.etBreak).setText(info.breakTime ?: "")
+                    field(R.id.etClosed).setText(info.closedDays ?: getString(R.string.closed_none))
+                    Haptics.confirm(button)
+                    showSnack(getString(R.string.refresh_hours_done))
+                }
+            }
+        }
     }
 
     private fun save(reservation: Boolean) {
@@ -384,7 +444,10 @@ class AddPlaceActivity : AppCompatActivity() {
             orderInDay = if (confirmed && old?.day == d) old?.orderInDay else null,
             stayMinutes = field(R.id.etStay).text.toString().toIntOrNull()?.coerceIn(10, 720) ?: category.defaultStay,
             category = category,
-            photoUri = photoPath
+            photoUri = photoPath,
+            typeId = typeId,
+            sourceId = sourceId,
+            links = old?.links ?: ""
         )
         // 사진을 바꾸거나 뺐으면 예전에 복사해 둔 사진 파일 정리
         if (old?.photoUri != null && old.photoUri != photoPath) Photos.delete(this, old.photoUri)

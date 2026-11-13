@@ -42,6 +42,7 @@ fun showFormDialog(
     title: String,
     fields: List<Field>,
     onDelete: (() -> Unit)? = null,
+    positive: Int = R.string.action_save,
     onSave: (List<String>) -> Boolean
 ) {
     val res = context.resources
@@ -111,7 +112,7 @@ fun showFormDialog(
     val builder = TpDialog.Builder(context)
         .setTitle(title)
         .setView(box)
-        .setPositiveButton(R.string.action_save, null)
+        .setPositiveButton(positive, null)
         .setNegativeButton(R.string.action_cancel, null)
     if (onDelete != null) builder.setNeutralButton(R.string.action_delete) { _, _ -> onDelete() }
     val dialog = builder.create()

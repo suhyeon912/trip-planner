@@ -41,4 +41,19 @@ class PlaceSearchTest {
         assertEquals("00:00 ~ 24:00", PlaceSearch.googleHours(allDay))
         assertNull(PlaceSearch.googleHours(null))
     }
+
+    @Test fun googleBreakAndClosed() {
+        // 화요일 휴무, 나머지는 11:00~15:00 · 17:00~21:00 → 브레이크 15:00 ~ 17:00
+        val arr = org.json.JSONArray()
+        for (d in listOf(0, 1, 3, 4, 5, 6)) { arr.put(period(d, 11, 0, d, 15, 0)); arr.put(period(d, 17, 0, d, 21, 0)) }
+        val h = JSONObject().put("periods", arr)
+        assertEquals("15:00 ~ 17:00", PlaceSearch.googleBreak(h))
+        assertEquals("화요일", PlaceSearch.googleClosed(h))
+        assertEquals("11:00 ~ 21:00", PlaceSearch.googleHours(h))
+        // 매일 한 구간 → 브레이크 · 휴무 없음
+        val every = JSONObject().put("periods", org.json.JSONArray().apply { (0..6).forEach { put(period(it, 9, 0, it, 18, 0)) } })
+        assertNull(PlaceSearch.googleBreak(every)); assertNull(PlaceSearch.googleClosed(every))
+        // 24시간
+        assertNull(PlaceSearch.googleClosed(JSONObject().put("periods", org.json.JSONArray().put(period(0, 0, 0, null)))))
+    }
 }

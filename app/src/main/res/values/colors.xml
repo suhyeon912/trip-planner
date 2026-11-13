@@ -43,6 +43,8 @@
     <color name="cat_cafe_bg">#F5E8DD</color>     <color name="cat_cafe_fg">#8A4B1F</color>
     <color name="cat_shopping_bg">#FCE7F3</color> <color name="cat_shopping_fg">#BE185D</color>
     <color name="cat_activity_bg">#DCFCE7</color> <color name="cat_activity_fg">#15803D</color>
+    <!-- 내가 만든 종류 바탕색 중 노랑 -->
+    <color name="cat_yellow_bg">#FEF9C3</color>
     <!-- 일차 색 (지도 선·점, 타임라인 번호). 흰 글자 대비 3:1 이상. PinIcons.DAY_COLORS 와 같은 값 -->
     <color name="day_1">#2563EB</color>
     <color name="day_2">#C2410C</color>

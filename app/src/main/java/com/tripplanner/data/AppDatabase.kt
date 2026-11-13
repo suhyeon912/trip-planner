@@ -8,8 +8,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [Trip::class, Flight::class, Lodging::class, Place::class],
-    version = 7,   // 구조가 바뀌면 1씩 올리고 아래 MIGRATION 추가
+    entities = [Trip::class, Flight::class, Lodging::class, Place::class, PlaceType::class, Attachment::class],
+    version = 8,   // 구조가 바뀌면 1씩 올리고 아래 MIGRATION 추가
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -68,6 +68,18 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** 7 → 8: 장소 관련 링크 · 내가 만든 종류 · Google 장소 id, 내가 만든 종류 표 · 예약·티켓 자료 표 */
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE places ADD COLUMN links TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE places ADD COLUMN typeId INTEGER")
+                db.execSQL("ALTER TABLE places ADD COLUMN sourceId TEXT NOT NULL DEFAULT ''")
+                db.execSQL("CREATE TABLE IF NOT EXISTS `place_types` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `icon` TEXT NOT NULL, `color` INTEGER NOT NULL)")
+                db.execSQL("CREATE TABLE IF NOT EXISTS `attachments` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tripId` INTEGER NOT NULL, `placeId` INTEGER, `kind` TEXT NOT NULL, `name` TEXT NOT NULL, `path` TEXT NOT NULL, `mime` TEXT NOT NULL, `size` INTEGER NOT NULL, `uploader` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, FOREIGN KEY(`tripId`) REFERENCES `trips`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_attachments_tripId` ON `attachments` (`tripId`)")
+            }
+        }
+
         @Volatile private var instance: AppDatabase? = null
 
         /** 앱 전체에서 DB 는 하나만 만들어 씁니다 (싱글톤) */
@@ -75,7 +87,7 @@ abstract class AppDatabase : RoomDatabase() {
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(context.applicationContext,
                     AppDatabase::class.java, "trip_planner.db")
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                     // 그보다 오래된 개발용 버전(1)은 지우고 새로 만듦
                     .fallbackToDestructiveMigrationFrom(1)
                     .build()

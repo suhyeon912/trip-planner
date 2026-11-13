@@ -86,6 +86,31 @@
                 android:layout_height="wrap_content"
                 android:text="@string/add_lodging"
                 app:tpIcon="@drawable/ic_add" />
+
+            <!-- 예약·티켓: 여행의 모든 자료 (장소 · 교통 · 숙소) -->
+            <TextView
+                android:id="@+id/tvTicketTitle"
+                style="@style/Widget.TripPlanner.SectionTitle"
+                android:layout_marginTop="@dimen/space_xl"
+                android:layout_marginBottom="@dimen/space_s"
+                android:text="@string/section_tickets" />
+
+            <LinearLayout
+                android:id="@+id/fileRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_s"
+                android:background="@drawable/bg_card"
+                android:clipToOutline="true"
+                android:orientation="vertical"
+                android:visibility="gone" />
+
+            <com.tripplanner.ui.widget.TpButton
+                android:id="@+id/btnUpload"
+                style="@style/Widget.TripPlanner.Button.DashedAdd"
+                android:layout_height="wrap_content"
+                android:text="@string/upload_files"
+                app:tpIcon="@drawable/ic_upload_file" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
     </FrameLayout>

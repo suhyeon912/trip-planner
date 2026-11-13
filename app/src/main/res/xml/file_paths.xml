@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 카메라로 찍은 사진을 잠깐 받아 둘 곳 (앱 캐시) -->
+<!-- 카메라로 찍은 사진을 잠깐 받아 둘 곳 (앱 캐시) · 예약·티켓 자료 -->
 <paths>
     <cache-path name="camera" path="camera/" />
+    <!-- 예약·티켓 자료: 열기 · 다른 앱으로 보내기 -->
+    <files-path name="attachments" path="attachments/" />
 </paths>

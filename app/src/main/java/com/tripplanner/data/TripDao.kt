@@ -79,6 +79,28 @@ interface TripDao {
     @Update suspend fun updatePlaces(places: List<Place>)
     @Delete suspend fun deletePlace(place: Place)
 
+    // ---------- 내가 만든 장소 종류 ----------
+    @Query("SELECT * FROM place_types ORDER BY id") fun observeTypes(): LiveData<List<PlaceType>>
+    @Query("SELECT * FROM place_types ORDER BY id") suspend fun getTypes(): List<PlaceType>
+    @Insert suspend fun insertType(t: PlaceType): Long
+    @Update suspend fun updateType(t: PlaceType)
+    @Delete suspend fun deleteType(t: PlaceType)
+    /** 지운 종류를 쓰던 장소는 '기타'(또는 원래 기본 종류)로 */
+    @Query("UPDATE places SET typeId = NULL WHERE typeId = :typeId") suspend fun clearType(typeId: Long)
+    @Query("SELECT DISTINCT tripId FROM places WHERE typeId = :typeId") suspend fun tripsUsingType(typeId: Long): List<Long>
+
+    // ---------- 예약·티켓 자료 ----------
+    @Query("SELECT * FROM attachments WHERE tripId = :tripId ORDER BY createdAt")
+    fun observeAttachments(tripId: Long): LiveData<List<Attachment>>
+    @Query("SELECT * FROM attachments WHERE tripId = :tripId ORDER BY createdAt")
+    suspend fun getAttachments(tripId: Long): List<Attachment>
+    @Query("SELECT * FROM attachments WHERE placeId = :placeId ORDER BY createdAt")
+    suspend fun getPlaceAttachments(placeId: Long): List<Attachment>
+    @Insert suspend fun insertAttachment(a: Attachment): Long
+    @Update suspend fun updateAttachment(a: Attachment)
+    @Update suspend fun updateAttachments(list: List<Attachment>)
+    @Delete suspend fun deleteAttachment(a: Attachment)
+
     // ---------- 공유: 다른 사람이 바꾼 내용으로 여행 하나를 통째로 갈아끼울 때 ----------
     @Query("DELETE FROM places WHERE tripId = :tripId") suspend fun deletePlacesOf(tripId: Long)
     @Query("DELETE FROM flights WHERE tripId = :tripId") suspend fun deleteFlightsOf(tripId: Long)

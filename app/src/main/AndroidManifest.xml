@@ -55,6 +55,7 @@
             android:theme="@style/Theme.TripPlanner.Sheet"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.RouteActivity" />
+        <activity android:name=".ui.ActivityLogActivity" />
     </application>
 
 </manifest>

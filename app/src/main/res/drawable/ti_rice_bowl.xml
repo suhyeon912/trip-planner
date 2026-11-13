@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 종류 아이콘 · Material Symbols Rounded · rice_bowl (채움) · 굵기 400 (Apache 2.0) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="960" android:viewportHeight="960"
+    android:tint="@color/on_surface">
+    <group android:translateY="960">
+        <path android:fillColor="@android:color/white" android:pathData="M350-80q-12.75 0-21.37-8.63Q320-97.25 320-110v-40q-105-42-172.5-130T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 112-67.5 200T640-150v40q0 12.75-8.62 21.37Q622.75-80 610-80H350Zm40-399h180v-329q-22.5-6-45-9t-45-3q-22.5 0-45 3t-45 9v329Zm-250 0h190v-306q-88 43-139 125.5T140-479Zm490 0h190q0-98-51-180.5T630-785v306Z" />
+    </group>
+</vector>

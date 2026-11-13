@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   장소 정보 (시안 PlaceView, 읽기 전용)
-  상단 바(뒤로 · 장소 정보 · ⋮ 수정/삭제) / 종류 타일 + 이름 + 뱃지 / 지도 버튼 / 운영 정보
+  상단 바(뒤로 · 장소 정보 · ⋮ 수정/삭제) / 종류 타일 + 이름 + 뱃지 / 지도 버튼 / 운영 정보 / 예약·티켓 / 관련 링크
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -127,6 +127,54 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card"
                 android:orientation="vertical" />
+
+            <!-- 예약·티켓: 파일 · 사진 (이 기기에만) -->
+            <TextView
+                style="@style/Widget.TripPlanner.SectionTitle"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="@dimen/space_m"
+                android:text="@string/section_tickets" />
+
+            <LinearLayout
+                android:id="@+id/fileRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_s"
+                android:background="@drawable/bg_card"
+                android:clipToOutline="true"
+                android:orientation="vertical"
+                android:visibility="gone" />
+
+            <com.tripplanner.ui.widget.TpButton
+                android:id="@+id/btnUpload"
+                style="@style/Widget.TripPlanner.Button.DashedAdd"
+                android:layout_height="56dp"
+                android:text="@string/upload_files"
+                app:tpIcon="@drawable/ic_upload_file" />
+
+            <!-- 관련 링크 -->
+            <TextView
+                style="@style/Widget.TripPlanner.SectionTitle"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="@dimen/space_m"
+                android:text="@string/section_links" />
+
+            <LinearLayout
+                android:id="@+id/linkRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_s"
+                android:background="@drawable/bg_card"
+                android:clipToOutline="true"
+                android:orientation="vertical"
+                android:visibility="gone" />
+
+            <com.tripplanner.ui.widget.TpButton
+                android:id="@+id/btnAddLink"
+                style="@style/Widget.TripPlanner.Button.DashedAdd"
+                android:layout_height="56dp"
+                android:text="@string/link_add"
+                app:tpIcon="@drawable/ic_add" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
     </FrameLayout>

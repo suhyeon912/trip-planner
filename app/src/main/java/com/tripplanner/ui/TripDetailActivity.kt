@@ -51,6 +51,9 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
         detailMap.focus(id)
     }
 
+    /** 구간 이동 수단 (지도 시간 이름표 계산용, 경로 제안과 같은 값) */
+    private val legModes by lazy { LegModes(this, intent.getLongExtra(EXTRA_TRIP_ID, -1L)) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trip_detail)
@@ -177,7 +180,9 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             val day = viewModel.selectedDay.value ?: TripDetailViewModel.DAY_ALL
             val lodgings = if (day > 0) listOfNotNull(viewModel.lodgingFor(day)) else viewModel.lodgings.value.orEmpty()
             val (places, candidates) = viewModel.mapPlaces()
-            detailMap.render(places, candidates, day, lodgings, viewModel.tripCoords())
+            legModes.reload()   // 경로 제안에서 바꿨을 수 있음
+            detailMap.render(places, candidates, day, lodgings, viewModel.tripCoords(),
+                startMinutes = trip?.startMinutes ?: com.tripplanner.route.RoutePlanner.DEFAULT_START, legTime = legModes.legTime)
             toolbar.subtitle = mapSubtitle()
         }
         fun updateBottom() {

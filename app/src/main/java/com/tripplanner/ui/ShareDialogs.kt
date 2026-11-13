@@ -103,10 +103,31 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
     val members = view.findViewById<TextView>(R.id.tvMembers)
     lifecycleScope.launch {
         val t = repo.getTrip(tripId)
-        val me = share.nickname.takeIf { it.isNotBlank() }?.let { getString(R.string.me_suffix, it) }
+        val me = share.nickname.takeIf { it.isNotBlank() }
         val names = listOfNotNull(me) + t?.members.orEmpty()
         members.text = if (t != null && t.members.isNotEmpty()) names.joinToString(" · ")
                        else getString(R.string.share_members, share.memberCount(code))
+        // 머리글자 동그라미 (활동 기록과 같은 색 순서), 2px 겹침 테두리
+        if (t != null && t.members.isNotEmpty()) {
+            val box = view.findViewById<android.widget.LinearLayout>(R.id.avatars)
+            val d = resources.displayMetrics.density
+            box.visibility = View.VISIBLE
+            names.take(4).forEachIndexed { i, n ->
+                box.addView(TextView(this@showCode).apply {
+                    text = n.take(1); gravity = android.view.Gravity.CENTER
+                    setTextColor(0xFFFFFFFF.toInt()); textSize = 13f
+                    typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.pretendard_bold)
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        shape = android.graphics.drawable.GradientDrawable.OVAL
+                        setColor(PinIcons.DAY_COLORS[i % PinIcons.DAY_COLORS.size])
+                        setStroke((2 * d).toInt(), color(R.color.card_bg))
+                    }
+                }, android.widget.LinearLayout.LayoutParams((32 * d).toInt(), (32 * d).toInt()).apply { if (i > 0) marginStart = (-6 * d).toInt() })
+            }
+        }
+    }
+    view.findViewById<View>(R.id.btnActivity).setOnClickListener {
+        startActivity(Intent(this, ActivityLogActivity::class.java).putExtra(TripDetailActivity.EXTRA_TRIP_ID, tripId))
     }
     view.findViewById<View>(R.id.btnCopy).setOnClickListener {
         (getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("code", code))

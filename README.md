@@ -27,10 +27,13 @@
 | 여행 목록 | 여행 추가, 길게 눌러 수정·삭제, 확정·후보 개수, 여행 카드(색·D-day·교통 아이콘), 넓은 화면(840dp 이상)은 2열 |
 | 여행 상세 | 일차 칩으로 일차 고르기, 확정/후보 탭, 교통·숙소 요약, 여행 메모, 목록 ↔ 지도 전환, 장소 순서 끌어서 바꾸기 |
 | 장소 카드 | 눌러서 펼침·접힘, 운영시간·브레이크·휴무·예약 필수·메모, 지도 앱으로 열기, 수정, 일차 변경, 후보 ↔ 확정, 삭제 |
-| 장소 추가·수정 | 장소 검색으로 자동 입력, 후보/확정, 일차, 종류(관광·맛집·카페·쇼핑·체험·기타), 사진, 머무는 시간, 위치 |
-| 교통·숙소 | 비행기·기차(KTX)·버스·배·렌터카, 숙소 추가·수정·삭제, 달력·시계로 날짜와 시각 입력 (숙소 위치 = 경로 출발점) |
-| 경로 제안 | 일차별 A 최단 / B 시간 맞춤 / C 후보 포함 / D 지금 순서 그대로 비교, 출발 시각·숙소 도착 목표 시각(늦으면 알림), 시간표에서 떠나는 시각을 고르면 머무는 시간 저장, 지도에 경로 표시, 확정 저장, 지도 앱 길찾기 |
-| 공유·초대 | 6자리 코드 만들기·보내기, 코드로 참여, 실시간 함께 편집 |
+| 장소 정보 | 예약·티켓 파일·사진 올리기(사진 보관함·파일·카메라) · 열기 · 이름 바꾸기 · 다른 앱으로 보내기 · 삭제, 관련 링크 추가·수정·삭제 |
+| 장소 추가·수정 | 장소 검색으로 자동 입력, 운영 정보 '다시 가져오기'(Google), 후보/확정, 일차, 종류(기본 6가지 + 내가 만든 종류), 사진, 머무는 시간, 위치 |
+| 설정 › 장소 종류 | 기본 종류 숨기기, 내가 만든 종류 추가·수정·삭제 (이름 · 아이콘 120개 검색 · 바탕색 8가지) |
+| 교통·숙소 | 비행기·기차(KTX)·버스·배·렌터카, 숙소 추가·수정·삭제, 달력·시계로 날짜와 시각 입력 (숙소 위치 = 경로 출발점), 여행의 모든 예약·티켓 자료 |
+| 경로 제안 | 일차별 A 최단 / B 시간 맞춤 / C 후보 포함 / D 지금 순서 그대로 비교, 출발 시각·숙소 도착 목표 시각(늦으면 알림), 시간표에서 떠나는 시각을 고르면 머무는 시간 저장, 구간마다 이동 수단(도보·대중교통·택시·차, 남은 구간도 같게), 지도에 경로 표시, 확정 저장, 지도 앱 길찾기 |
+| 공유·초대 | 6자리 코드 만들기·보내기, 코드로 참여, 실시간 함께 편집, 활동 기록(누가 무엇을 바꿨는지, 사람별 보기) |
+| 지도로 보기 | n일차: 점마다 도착–떠남 시각 이름표, 숙소는 출발–도착, 고른 장소 카드에 '도착 · 떠남' |
 
 - 다크 모드는 휴대폰 설정을 따라갑니다.
 - 처음 실행하면 디자인 시안과 같은 예시 여행 4개(도쿄 · 타이베이 · 부산 · 지난 여행 오사카)가 표지 그림과 함께 자동으로 들어갑니다. 이미 여행이 있으면 넣지 않습니다.
@@ -42,7 +45,7 @@
 |---|---|
 | 언어 · UI | Kotlin, XML Views (AppCompat), 자체 컴포넌트 `ui/widget` — 버튼 · 입력칸 · 탭 · 스위치 · 칩 · 팝업 · 알림 · 시간 휠 · 기간 달력 (Material 컴포넌트 사용 안 함) |
 | 구조 | MVVM: Activity → ViewModel(LiveData) → Repository → Room DAO |
-| DB | Room (KSP), DB 버전 7, 마이그레이션 포함 |
+| DB | Room (KSP), DB 버전 8, 마이그레이션 포함 |
 | 지도 | 카카오맵 SDK v2, Google Maps SDK, osmdroid(OpenStreetMap) |
 | 검색 | 카카오 로컬 API(국내), Google Places API (New)(해외) |
 | 공유 | Firebase Authentication(익명) + Cloud Firestore |
@@ -121,7 +124,8 @@ MAPS_API_KEY=구글_API_키
 
 `route/RoutePlanner.kt` — 안드로이드와 무관한 순수 코틀린이라 단위 테스트로 검증합니다.
 
-- 길찾기 API 없이 **직선거리 × 1.3**으로 거리를, **평균 15km/h**로 이동 시간을 추정
+- 길찾기 API 없이 **직선거리 × 1.3**으로 거리를 추정
+- 이동 시간은 구간마다 수단별로 어림: 도보 4.5km/h · 대중교통 5분 + 22km/h · 택시·차 3분 + 24km/h (고르지 않은 구간은 1.2km 이하 도보, 그보다 멀면 대중교통). 고른 수단은 기기에 여행마다 저장
 - 숙소 출발(기본 10:00, 경로 화면에서 바꾸면 여행에 저장) → 장소들 → 숙소 복귀
 - 장소 8곳 이하는 모든 순서를 비교
 - **A 최단**: 총 거리가 가장 짧은 순서
@@ -153,7 +157,8 @@ MAPS_API_KEY=구글_API_키
 - 여행 상세 툴바의 공유 버튼 → 6자리 코드 만들기 → 친구에게 보내기·복사
 - 여행 목록 툴바의 참여 버튼 → 코드 입력 → 같은 여행을 실시간으로 함께 편집
 - 여행 하나를 Firestore 문서 하나로 저장하고, 여행 단위로 **마지막 저장 우선**으로 동기화
-- 장소 사진은 기기에만 저장되고 공유되지 않습니다.
+- 장소 사진과 예약·티켓 파일은 기기에만 저장되고 공유되지 않습니다 (파일 공유는 Firebase Storage가 필요한데 Blaze 요금제라서 제외). 관련 링크 · 내가 만든 종류(이름·아이콘·색)는 함께 공유됩니다.
+- **활동 기록**: 내가 바꾼 내용을 올릴 때 지난번 맞춘 내용과 비교해 '후보에 추가 / n일차 k번째로 옮김 / 운영시간 바꿈 / 파일 올림 / 참여' 같은 기록을 같은 문서의 `activity`에 최근 100개까지 남깁니다 (보안 규칙 변경 없음).
 - 공유를 시작하거나 참여할 때 **내 닉네임**을 받아 문서의 `names`에 올립니다. 메인의 '내 여행 / 초대받은' 탭과 'n명과 공유 중', '○○님이 초대함' 뱃지가 이 정보를 씁니다.
 - `firestore.rules`가 `names`를 허용하도록 바뀌었으니 Firebase 콘솔 규칙 탭에 **다시 붙여 넣고 게시**하세요. 예전 규칙이면 닉네임 없이 참여만 됩니다.
 
@@ -166,7 +171,9 @@ MAPS_API_KEY=구글_API_키
 | `Trip` | 이름, 시작·끝 날짜, 메모, 출발 시각·도착 목표 시각, 공유 코드, 수정 시각, 내가 만든 여행인지·만든 사람·함께 보는 사람 닉네임, 표지 사진(기기에만)·위치·확대 |
 | `Flight` | 교통 종류(`TransportMode`), 편명·열차 번호, 출발지·도착지, 출발·도착 시각 |
 | `Lodging` | 이름, 체크인·체크아웃, 위도·경도 (경로 출발점), 주소·상세 주소·위치 메모 |
-| `Place` | 이름, 후보/확정(`PlaceStatus`), 종류(`PlaceCategory`), 운영시간·브레이크·휴무, 예약 필수, 메모, 위도·경도, 주소·상세 주소·위치 메모, 일차·순서, 머무는 시간, 사진 |
+| `Place` | 이름, 후보/확정(`PlaceStatus`), 종류(`PlaceCategory` 또는 내가 만든 종류 `typeId`), 운영시간·브레이크·휴무, 예약 필수, 메모, 위도·경도, 주소·상세 주소·위치 메모, 일차·순서, 머무는 시간, 사진, 관련 링크, Google 장소 id |
+| `PlaceType` | 내가 만든 장소 종류: 이름, 아이콘 이름, 바탕색 번호 (모든 여행 공통) |
+| `Attachment` | 예약·티켓 자료: 여행·장소, 붙은 곳(장소·교통·숙소·여행), 파일 이름·경로·형식·크기, 올린 사람, 올린 시각 (기기에만) |
 
 - 위도·경도가 0이면 '위치 모름'으로 보고 경로 계산에서 빠집니다.
 - DB 구조(엔티티)를 바꾸면 `AppDatabase`의 `version`을 1 올리고 `MIGRATION`을 추가하세요.
@@ -191,14 +198,18 @@ trip-planner/
 │  │  └─ Geo.kt                 좌표 거리 (하버사인)
 │  ├─ share/
 │  │  ├─ ShareManager.kt        Firebase 익명 로그인 + Firestore 동기화
-│  │  └─ ShareCodec.kt          여행 ↔ Firestore 문서 변환
+│  │  ├─ ShareCodec.kt          여행 ↔ Firestore 문서 변환
+│  │  └─ ActivityLog.kt         활동 기록 (바뀐 것 찾기 · 문서 변환)
 │  └─ ui/
 │     ├─ MainActivity · TripListViewModel · TripAdapter            여행 목록
 │     ├─ TripDetailActivity · TripDetailViewModel · PlaceAdapter   여행 상세
 │     ├─ TripDetailMap · DayChipAdapter                            상세 지도 · 일차 칩
 │     ├─ AddPlaceActivity · PlaceSearch · PlaceSearchDialog        장소 추가·수정 · 검색
 │     ├─ TravelInfoActivity · TravelInfoViewModel · SimpleAdapter  교통·숙소
-│     ├─ RouteActivity · RouteViewModel · RouteAdapter             경로 제안
+│     ├─ RouteActivity · RouteViewModel · RouteAdapter · LegModes  경로 제안 · 구간 이동 수단
+│     ├─ PlaceViewActivity · AttachmentsUi                         장소 정보 · 예약·티켓 자료 · 관련 링크
+│     ├─ ActivityLogActivity                                       활동 기록
+│     ├─ SettingsActivity · TypeEditor · TypeIcons                 설정 · 내가 만든 장소 종류 · 아이콘 120개
 │     ├─ TripMap · KakaoMapEngine · GoogleMapEngine · OsmMapEngine 앱 안 지도
 │     ├─ MapLauncher.kt              카카오맵 / Google Maps 앱 열기
 │     ├─ ShareDialogs.kt             공유 · 초대 다이얼로그
@@ -226,11 +237,12 @@ trip-planner/
 
 | 파일 | 개수 | 확인하는 것 |
 |---|---|---|
-| `route/RoutePlannerTest.kt` | 8 | 경로 A/B/C 계산 |
+| `route/RoutePlannerTest.kt` | 11 | 경로 A/B/C/D 계산 · 구간 이동 수단 |
 | `route/RegionTest.kt` | 2 | 국내/해외 판별 |
-| `share/ShareCodecTest.kt` | 3 | 공유 문서 변환 |
+| `share/ShareCodecTest.kt` | 6 | 공유 문서 변환 (링크 · 내가 만든 종류 포함) |
+| `share/ActivityLogTest.kt` | 4 | 활동 기록: 바뀐 것 찾기 · 문서 변환 · 100개 제한 |
 | `ui/MapProviderTest.kt` | 4 | 카카오 / 구글 / OpenStreetMap 지도 선택 |
-| `ui/PlaceSearchTest.kt` | 3 | 검색 결과의 종류 · 운영시간 해석 |
+| `ui/PlaceSearchTest.kt` | 4 | 검색 결과의 종류 · 운영시간 · 브레이크 · 휴무일 해석 |
 | `ui/TripFormatTest.kt` | 2 | 여행 날짜 표시 |
 
 ## 디자인 시안
@@ -253,5 +265,5 @@ trip-planner/
 - [ ] 디자인 시안에 맞춰 화면 다듬기 (`design/export` PDF 기준)
 - [x] 주소 · 상세 주소 · 위치 메모 (DB 4, 직접 쓴 주소는 Android Geocoder 로 좌표 변환)
 - [ ] 장소·교통·숙소 첨부 파일 공유 (Firebase Storage, Blaze 요금제 필요)
-- [ ] 여행 활동 기록, 경로 구간별 이동 수단 고르기 (시안에 '새 기능'으로 표시)
+- [x] 여행 활동 기록, 경로 구간별 이동 수단 고르기, 예약·티켓 자료(기기에만), 관련 링크, 내가 만든 장소 종류, 운영 정보 다시 가져오기, 지도 시간 이름표
 - [ ] LLM API로 경로 설명·추천 (10주차)

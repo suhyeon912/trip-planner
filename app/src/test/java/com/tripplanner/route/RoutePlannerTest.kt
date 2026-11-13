@@ -104,4 +104,19 @@ class RoutePlannerTest {
         assertEquals(0, free.lateMinutes)
         assertTrue(free.warnings.isEmpty())
     }
+
+    @Test fun legModes_minutesAndCustomLegTime() {
+        assertEquals(LegMode.WALK, RoutePlanner.defaultMode(1.0))
+        assertEquals(LegMode.TRANSIT, RoutePlanner.defaultMode(2.6))
+        assertEquals(19, RoutePlanner.modeMinutes(LegMode.WALK, 1.4))      // 1.4km 도보 ≈ 19분
+        assertEquals(12, RoutePlanner.modeMinutes(LegMode.TRANSIT, 2.6))   // 5 + 7
+        assertEquals(10, RoutePlanner.modeMinutes(LegMode.TAXI, 2.6))      // 3 + 7
+        assertEquals(0, RoutePlanner.modeMinutes(LegMode.WALK, 0.01))
+        // 구간마다 다른 시간: 숙소 → 첫 장소만 30분, 나머지 0분
+        val hotel = Anchor("호텔", 35.0, 135.0)
+        val a = Stop(1, "A", 35.01, 135.0, stayMinutes = 60)
+        val sim = RoutePlanner.simulate(hotel, listOf(a), 600) { from, to, _ -> if (from == RoutePlanner.ANCHOR_ID && to == 1L) 30 else 0 }
+        assertEquals(630, sim.visits.single().arrive)
+        assertEquals(690, sim.endTime)
+    }
 }

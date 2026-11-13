@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tripplanner.R
 import com.tripplanner.data.Place
 import com.tripplanner.route.Anchor
+import com.tripplanner.route.LegMode
 import com.tripplanner.route.RouteOption
 import com.tripplanner.route.RoutePlanner
 import com.tripplanner.route.TimeUtil
@@ -109,17 +110,29 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
     override fun getItemCount() = options.size
 }
 
+/** 수단 이름 · 아이콘 */
+val LegMode.labelRes: Int get() = when (this) {
+    LegMode.WALK -> R.string.leg_walk; LegMode.TRANSIT -> R.string.leg_transit; LegMode.TAXI -> R.string.leg_taxi
+}
+val LegMode.iconRes: Int get() = when (this) {
+    LegMode.WALK -> R.drawable.ic_walk; LegMode.TRANSIT -> R.drawable.ic_subway; LegMode.TAXI -> R.drawable.ic_taxi
+}
+
 // =====================================================================
 /** 선택한 경로 시간표: 숙소 출발 → (이동) → 장소 → … → 숙소 도착 */
 class RouteStopAdapter(
     private val placeOf: (Long) -> Place?,
-    private val onLeave: (Visit, View) -> Unit = { _, _ -> }
+    private val onLeave: (Visit, View) -> Unit = { _, _ -> },
+    /** 구간 (출발 id, 도착 id, km) → 수단 */
+    private val legMode: (Long, Long, Double) -> LegMode = { _, _, km -> RoutePlanner.defaultMode(km) },
+    /** 구간 알약을 누르면: 이 구간 · 이 구간부터 끝까지 · 누른 알약 */
+    private val onLeg: (leg: Pair<Long, Long>, rest: List<Pair<Long, Long>>, km: Double, View) -> Unit = { _, _, _, _ -> }
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private sealed class Row {
         data class Home(val name: String, val time: Int) : Row()
         data class Stop(val visit: Visit) : Row()
-        data class Leg(val minutes: Int, val km: Double) : Row()
+        data class Leg(val from: Long, val to: Long, val km: Double) : Row()
     }
 
     private var rows: List<Row> = emptyList()
@@ -127,18 +140,18 @@ class RouteStopAdapter(
     fun submit(option: RouteOption?, anchor: Anchor?, startMinutes: Int = RoutePlanner.DEFAULT_START) {
         rows = if (option == null) emptyList() else buildList {
             var prev: Pair<Double, Double>? = anchor?.let { it.lat to it.lng }
-            fun leg(to: Pair<Double, Double>) {
+            var prevId = RoutePlanner.ANCHOR_ID
+            fun leg(toId: Long, to: Pair<Double, Double>) {
                 val from = prev ?: return
-                val km = RoutePlanner.legKm(from.first, from.second, to.first, to.second)
-                add(Row.Leg(RoutePlanner.legMinutes(km), km))
+                add(Row.Leg(prevId, toId, RoutePlanner.legKm(from.first, from.second, to.first, to.second)))
             }
             if (anchor != null) add(Row.Home(anchor.name, startMinutes))
             option.visits.forEach { v ->
-                leg(v.stop.lat to v.stop.lng)
+                leg(v.stop.id, v.stop.lat to v.stop.lng)
                 add(Row.Stop(v))
-                prev = v.stop.lat to v.stop.lng
+                prev = v.stop.lat to v.stop.lng; prevId = v.stop.id
             }
-            if (anchor != null) { leg(anchor.lat to anchor.lng); add(Row.Home(anchor.name, option.endTime)) }
+            if (anchor != null) { leg(RoutePlanner.ANCHOR_ID, anchor.lat to anchor.lng); add(Row.Home(anchor.name, option.endTime)) }
         }
         notifyDataSetChanged()
     }
@@ -165,7 +178,7 @@ class RouteStopAdapter(
     private fun rowKey(position: Int, row: Row): String = when (row) {
         is Row.Home -> if (position == 0) "home-start" else "home-end"
         is Row.Stop -> "stop-${row.visit.stop.id}"
-        is Row.Leg -> "leg-$position"
+        is Row.Leg -> "leg-${row.from}-${row.to}"
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -176,10 +189,19 @@ class RouteStopAdapter(
         fun TextView.time(t: CharSequence) = if (same) setTextFading(t) else setTextNow(t)
         when (val row = rows[position]) {
             is Row.Leg -> (holder as LegHolder).text.apply {
-                text = ctx.getString(R.string.leg_line, ctx.minutesLabel(row.minutes), row.km)
-                val s = (14 * ctx.resources.displayMetrics.density).toInt()
-                val d = ContextCompat.getDrawable(ctx, R.drawable.ic_route)?.mutate()?.apply { setBounds(0, 0, s, s); setTint(ctx.color(R.color.text_sub)) }
-                setCompoundDrawablesRelative(d, null, null, null)
+                // "🚶 도보 · 18분 · 1.4km ⌄" — 누르면 수단 고르기
+                val mode = legMode(row.from, row.to, row.km)
+                val label = ctx.getString(mode.labelRes)
+                val line = ctx.getString(R.string.leg_mode_line, label, ctx.minutesLabel(RoutePlanner.modeMinutes(mode, row.km)), row.km)
+                if (same) setTextFading(line) else setTextNow(line)
+                val s = (16 * ctx.resources.displayMetrics.density).toInt()
+                val d = ContextCompat.getDrawable(ctx, mode.iconRes)?.mutate()?.apply { setBounds(0, 0, s, s); setTint(ctx.color(R.color.on_surface)) }
+                val more = ContextCompat.getDrawable(ctx, R.drawable.ic_expand_more)?.mutate()?.apply { setBounds(0, 0, s, s); setTint(ctx.color(R.color.text_sub)) }
+                setCompoundDrawablesRelative(d, null, more, null)
+                contentDescription = ctx.getString(R.string.leg_mode_a11y, line)
+                val legs = rows.filterIsInstance<Row.Leg>()
+                val i = legs.indexOf(row)
+                setOnClickListener { onLeg(row.from to row.to, legs.drop(i).map { it.from to it.to }, row.km, it) }
             }
             is Row.Home -> (holder as StopHolder).apply {
                 arrive.time(TimeUtil.format(row.time))
@@ -203,7 +225,7 @@ class RouteStopAdapter(
                 leave.contentDescription = ctx.getString(R.string.leave_a11y, TimeUtil.format(v.leave))
                 leave.setOnClickListener { onLeave(v, it) }
                 val place = placeOf(v.stop.id)
-                Thumbs.bind(icon, place?.photoUri, place?.category ?: com.tripplanner.data.PlaceCategory.ETC)
+                if (place != null) Thumbs.bind(icon, place) else Thumbs.bind(icon, null, com.tripplanner.data.PlaceCategory.ETC)
                 icon.setPadding(6.dp(ctx), 6.dp(ctx), 6.dp(ctx), 6.dp(ctx))
                 name.text = v.stop.name
                 // 이유 한 줄: 경고 > 대기 > 후보에서 추가

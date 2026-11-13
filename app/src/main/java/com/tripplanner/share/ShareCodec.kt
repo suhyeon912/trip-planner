@@ -5,6 +5,9 @@ import com.tripplanner.data.Lodging
 import com.tripplanner.data.Place
 import com.tripplanner.data.PlaceCategory
 import com.tripplanner.data.PlaceStatus
+import com.tripplanner.data.PlaceLinks
+import com.tripplanner.data.PlaceLink
+import com.tripplanner.data.PlaceType
 import com.tripplanner.data.TransportMode
 import com.tripplanner.data.Trip
 
@@ -13,7 +16,11 @@ data class TripSnapshot(
     val trip: Trip,
     val places: List<Place>,
     val flights: List<Flight>,
-    val lodgings: List<Lodging>
+    val lodgings: List<Lodging>,
+    /** 올릴 때: 장소가 쓰는 내가 만든 종류 (id → 종류) */
+    val types: Map<Long, PlaceType> = emptyMap(),
+    /** 받을 때: places 와 같은 순서로 각 장소의 내가 만든 종류 (없으면 null, id 는 0) */
+    val remoteTypes: List<PlaceType?> = emptyList()
 )
 
 /**
@@ -47,7 +54,10 @@ object ShareCodec {
                 "reservation" to p.isReservationRequired, "memo" to p.memo,
                 "lat" to p.lat, "lng" to p.lng, "day" to p.day, "order" to p.orderInDay,
                 "stay" to p.stayMinutes, "category" to p.category.name,
-                "address" to p.address, "addressDetail" to p.addressDetail, "locMemo" to p.locationMemo
+                "address" to p.address, "addressDetail" to p.addressDetail, "locMemo" to p.locationMemo,
+                "links" to PlaceLinks.parse(p.links).map { mapOf("name" to it.name, "url" to it.url) },
+                "source" to p.sourceId,
+                "type" to p.typeId?.let { s.types[it] }?.let { mapOf("name" to it.name, "icon" to it.icon, "color" to it.color) }
             )
         },
         "flights" to s.flights.map { f ->
@@ -83,8 +93,18 @@ object ShareCodec {
                 stayMinutes = p.int("stay") ?: 60,
                 category = enumOr(p.str("category"), PlaceCategory.SIGHT),
                 address = p.str("address") ?: "", addressDetail = p.str("addressDetail") ?: "",
-                locationMemo = p.str("locMemo") ?: ""
+                locationMemo = p.str("locMemo") ?: "",
+                links = PlaceLinks.encode(p.list("links").map { PlaceLink(it.str("name") ?: "", it.str("url") ?: "") }
+                    .filter { it.url.isNotBlank() }),
+                sourceId = p.str("source") ?: ""
             )
+        }
+        @Suppress("UNCHECKED_CAST")
+        val remoteTypes = m.list("places").map { p ->
+            (p["type"] as? Map<String, Any?>)?.let { t ->
+                val name = t.str("name")
+                if (name.isNullOrBlank()) null else PlaceType(name = name, icon = t.str("icon") ?: "", color = t.int("color") ?: 0)
+            }
         }
         val flights = m.list("flights").map { f ->
             Flight(tripId = base.id, flightNo = f.str("no") ?: "", fromAirport = f.str("from") ?: "",
@@ -97,7 +117,7 @@ object ShareCodec {
                 address = l.str("address") ?: "", addressDetail = l.str("addressDetail") ?: "",
                 locationMemo = l.str("locMemo") ?: "")
         }
-        return TripSnapshot(trip, places, flights, lodgings)
+        return TripSnapshot(trip, places, flights, lodgings, remoteTypes = remoteTypes)
     }
 
     /** 서버 문서의 멤버 이름 정보 → (만든 사람 닉네임: 내가 만들었으면 "", 나를 뺀 멤버 닉네임들) */

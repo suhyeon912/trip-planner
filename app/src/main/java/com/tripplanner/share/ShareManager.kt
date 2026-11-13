@@ -44,6 +44,10 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
     private val pushJobs = mutableMapOf<Long, Job>()
     /** 서버에서 받아 적용하는 중인 여행 (이때 생긴 변경은 다시 올리지 않음) */
     private val applying = mutableSetOf<Long>()
+    /** 활동 기록: 마지막으로 서버와 맞춘 여행 내용 (내가 바꾼 것을 찾는 기준) · 서버의 기록 · 아직 안 올린 기록 */
+    private val baseline = mutableMapOf<Long, TripSnapshot>()
+    private val serverActivity = mutableMapOf<Long, List<ActivityEvent>>()
+    private val pendingEvents = mutableMapOf<Long, MutableList<ActivityEvent>>()
 
     val isConfigured: Boolean by lazy {
         BuildConfig.HAS_FIREBASE && runCatching {
@@ -65,6 +69,18 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
     fun start() {
         if (!isConfigured) return
         repo.changeListener = { tripId -> schedulePush(tripId) }
+        // 자료 파일은 올리지 않지만 '올렸어요' 기록은 남김
+        repo.attachmentListener = { a ->
+            scope.launch {
+                val trip = repo.getTrip(a.tripId)
+                if (trip?.shareCode != null) {
+                    val me = runCatching { uid() }.getOrNull() ?: return@launch
+                    pendingEvents.getOrPut(a.tripId) { mutableListOf() } +=
+                        ActivityEvent(me, nickname, ActivityEvent.Type.FILE, a.name, at = System.currentTimeMillis())
+                    schedulePush(a.tripId)
+                }
+            }
+        }
         scope.launch {
             runCatching { repo.getSharedTrips().forEach { listen(it) } }
                 .onFailure { Log.w(TAG, "공유 여행 불러오기 실패", it) }
@@ -89,6 +105,7 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
             "updatedBy" to me, "updatedAt" to FieldValue.serverTimestamp()
         )
         db.collection(COLLECTION).document(code).set(data).await()
+        baseline[tripId] = snapshot(trip)
         repo.setShareCode(trip, code)
         listen(trip.copy(shareCode = code))
         return code
@@ -110,8 +127,13 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         val base = Trip(title = "", startDate = "", endDate = "", shareCode = code,
             ownedByMe = false, inviterName = inviter, memberNames = others.joinToString(", "))
         val s = ShareCodec.fromMap(data, base)
-        val id = repo.insertSharedTrip(s.trip, s.places, s.flights, s.lodgings)
+        val id = repo.insertSharedTrip(s.trip, withLocalTypes(s), s.flights, s.lodgings)
+        baseline[id] = s
+        serverActivity[id] = ActivityLog.fromList(data["activity"])
+        // '여행에 참여했어요' 기록 (참여 규칙은 멤버만 바꿀 수 있어서 내용 올리기와 함께)
+        pendingEvents.getOrPut(id) { mutableListOf() } += ActivityEvent(me, nickname, ActivityEvent.Type.JOIN, at = System.currentTimeMillis())
         repo.getTrip(id)?.let { listen(it) }
+        schedulePush(id)
         return id
     }
 
@@ -129,6 +151,25 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         repo.setShareCode(trip, null)
     }
 
+    /** 활동 기록 화면: 멤버 (uid → 이름, 들어온 순서) · 기록 (최근 것이 위). 그만 볼 때 remove() */
+    fun observeActivity(code: String, onUpdate: (members: List<Pair<String, String>>, events: List<ActivityEvent>, me: String) -> Unit): ListenerRegistration? {
+        if (!isConfigured) return null
+        var reg: ListenerRegistration? = null
+        var stopped = false
+        scope.launch {
+            val me = runCatching { uid() }.getOrNull() ?: return@launch
+            if (stopped) return@launch
+            reg = db.collection(COLLECTION).document(code).addSnapshotListener { snap, _ ->
+                if (snap == null || !snap.exists()) return@addSnapshotListener
+                @Suppress("UNCHECKED_CAST")
+                val names = (snap.get("names") as? Map<String, Any?>).orEmpty().mapValues { it.value as? String ?: "" }
+                val members = (snap.get("members") as? List<*>)?.mapNotNull { it as? String }.orEmpty().map { it to names[it].orEmpty() }
+                onUpdate(members, ActivityLog.fromList(snap.get("activity")).sortedByDescending { it.at }, me)
+            }
+        }
+        return object : ListenerRegistration { override fun remove() { stopped = true; reg?.remove() } }
+    }
+
     /** 이 여행을 함께 보는 사람 수 (나 포함) */
     suspend fun memberCount(code: String): Int = runCatching {
         uid()
@@ -137,7 +178,14 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
 
     // ---------------- 동기화 ----------------
     private suspend fun snapshot(trip: Trip) =
-        TripSnapshot(trip, repo.getPlaces(trip.id), repo.getFlights(trip.id), repo.getLodgings(trip.id))
+        TripSnapshot(trip, repo.getPlaces(trip.id), repo.getFlights(trip.id), repo.getLodgings(trip.id),
+            types = repo.getTypes().associateBy { it.id })
+
+    /** 받은 장소들의 내가 만든 종류를 내 기기의 종류로 연결 */
+    private suspend fun withLocalTypes(s: TripSnapshot) = s.places.mapIndexed { i, p ->
+        val t = s.remoteTypes.getOrNull(i)
+        if (t == null) p.copy(typeId = null) else p.copy(typeId = repo.findOrCreateType(t.name, t.icon, t.color))
+    }
 
     private fun listen(trip: Trip) {
         val code = trip.shareCode ?: return
@@ -150,7 +198,11 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
                 // 함께 보는 사람 이름은 매번 맞춤 (참여·나가기는 updatedBy 가 바뀌지 않음)
                 val (inviter, others) = ShareCodec.memberInfo(snap.data ?: emptyMap(), me)
                 scope.launch { repo.setMembers(trip.id, inviter, others.joinToString(", ")) }
-                if (snap.getString("updatedBy") == me) return@addSnapshotListener   // 내가 올린 것
+                serverActivity[trip.id] = ActivityLog.fromList(snap.get("activity"))
+                if (snap.getString("updatedBy") == me) {   // 내가 올린 것
+                    if (trip.id !in baseline) scope.launch { baseline[trip.id] = ShareCodec.fromMap(snap.data ?: return@launch, trip) }
+                    return@addSnapshotListener
+                }
                 scope.launch { applyRemote(trip.id, snap.data ?: return@launch, inviter, others) }
             }
         }
@@ -161,9 +213,10 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         val s = ShareCodec.fromMap(data, local.copy(inviterName = inviter, memberNames = others.joinToString(", ")))
         // 사진은 기기에만 있으므로 같은 이름 장소의 내 사진을 그대로 유지
         val photos = repo.getPlaces(tripId).filter { it.photoUri != null }.associate { it.name to it.photoUri }
+        baseline[tripId] = s
         applying += tripId
         try {
-            repo.replaceTripContents(s.trip, s.places.map { it.copy(photoUri = photos[it.name]) }, s.flights, s.lodgings)
+            repo.replaceTripContents(s.trip, withLocalTypes(s).map { it.copy(photoUri = photos[it.name]) }, s.flights, s.lodgings)
         } finally { applying -= tripId }
     }
 
@@ -176,9 +229,17 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
             val code = trip.shareCode ?: return@launch
             runCatching {
                 val me = uid()
-                val data = ShareCodec.toMap(snapshot(trip)) + mapOf(
-                    "updatedBy" to me, "updatedAt" to FieldValue.serverTimestamp())
+                val now = snapshot(trip)
+                // 지난번 맞춘 내용과 비교해 내가 바꾼 것을 활동 기록으로
+                val events = (baseline[tripId]?.let { ActivityLog.diff(it, now, me, nickname, System.currentTimeMillis()) } ?: emptyList()) +
+                    pendingEvents.remove(tripId).orEmpty()
+                val activity = ActivityLog.append(serverActivity[tripId].orEmpty(), events)
+                val data = ShareCodec.toMap(now) + mapOf(
+                    "updatedBy" to me, "updatedAt" to FieldValue.serverTimestamp(),
+                    "activity" to activity.map { ActivityLog.toMap(it) })
                 db.collection(COLLECTION).document(code).set(data, SetOptions.merge()).await()
+                baseline[tripId] = now
+                serverActivity[tripId] = activity
             }.onFailure { Log.w(TAG, "올리기 실패", it) }
         }
     }

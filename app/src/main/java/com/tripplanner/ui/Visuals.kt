@@ -40,6 +40,24 @@ val PlaceCategory.fgColor: Int get() = when (this) {
     PlaceCategory.ETC -> R.color.text_sub
 }
 
+/**
+ * 장소 종류 보이기 (기본 종류 또는 내가 만든 종류).
+ * 내가 만든 종류는 앱이 DB 를 지켜보며 types 를 늘 최신으로 맞춤 (TripPlannerApp).
+ */
+object PlaceKinds {
+    /** 바탕색 8가지 (라이트·다크 모두 글자·아이콘과 대비가 맞는 색) */
+    val COLORS = intArrayOf(R.color.cat_sight_bg, R.color.cat_food_bg, R.color.cat_cafe_bg, R.color.cat_shopping_bg,
+        R.color.cat_activity_bg, R.color.tertiary_container, R.color.cat_yellow_bg, R.color.surface_container)
+    fun colorRes(index: Int) = COLORS[index.mod(COLORS.size)]
+
+    @Volatile var types: Map<Long, com.tripplanner.data.PlaceType> = emptyMap()
+
+    fun type(place: com.tripplanner.data.Place) = place.typeId?.let { types[it] }
+    fun label(place: com.tripplanner.data.Place) = type(place)?.name ?: place.category.label
+    fun icon(place: com.tripplanner.data.Place) = type(place)?.let { TypeIcons.res(it.icon) } ?: place.category.icon
+    fun bg(place: com.tripplanner.data.Place) = type(place)?.let { colorRes(it.color) } ?: place.category.bgColor
+}
+
 /** 교통 종류 아이콘 */
 val TransportMode.icon: Int get() = when (this) {
     TransportMode.FLIGHT -> R.drawable.ic_flight
@@ -79,13 +97,20 @@ object Covers {
 
 /** 장소 썸네일: 사진 또는 종류 아이콘 (상세 목록·지도 카드·편집 화면 공용) */
 object Thumbs {
-    fun bind(v: android.widget.ImageView, photoPath: String?, category: PlaceCategory) {
+    /** 장소: 사진 또는 종류(기본·내가 만든) 아이콘 */
+    fun bind(v: android.widget.ImageView, place: com.tripplanner.data.Place) =
+        bind(v, place.photoUri, PlaceKinds.icon(place), PlaceKinds.bg(place))
+
+    fun bind(v: android.widget.ImageView, photoPath: String?, category: PlaceCategory) =
+        bind(v, photoPath, category.icon, category.bgColor)
+
+    fun bind(v: android.widget.ImageView, photoPath: String?, iconRes: Int, bgRes: Int) {
         val ctx = v.context
         val d = ctx.resources.displayMetrics.density
         val photo = photoPath?.let { java.io.File(it) }?.takeIf { it.exists() }
         val bg = GradientDrawable().apply {
             cornerRadius = 12 * d
-            setColor(ctx.color(if (photo != null) R.color.surface_container else category.bgColor))
+            setColor(ctx.color(if (photo != null) R.color.surface_container else bgRes))
         }
         v.background = bg
         v.clipToOutline = true
@@ -99,7 +124,7 @@ object Thumbs {
             val pad = (10 * d).toInt()
             v.setPadding(pad, pad, pad, pad)
             v.scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
-            v.setImageResource(category.icon)
+            v.setImageResource(iconRes)
             v.imageTintList = android.content.res.ColorStateList.valueOf(ctx.color(R.color.on_surface))  // 시안: 종류 아이콘은 바탕색만 다르고 아이콘은 진한 글자색
         }
     }

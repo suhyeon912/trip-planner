@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 /**
  * 장소 정보 (시안 PlaceView, 읽기 전용) — 여행 상세에서 장소 카드를 한 번 누르면 열림.
  * ⋮ → 수정(장소 수정 화면) / 삭제(확인 팝업). 지도 앱에서 보기 · 여행 지도에서.
- * 예약·티켓 · 관련 링크 자료는 새 기능(4단계)이라 아직 없음.
+ * 예약·티켓: 파일 · 사진 올리기 (이 기기에만) · 관련 링크: 추가 · 수정 · 삭제 (함께 보는 사람과 공유).
  */
 class PlaceViewActivity : AppCompatActivity() {
 
@@ -35,6 +35,7 @@ class PlaceViewActivity : AppCompatActivity() {
     private val tripId by lazy { intent.getLongExtra(TripDetailActivity.EXTRA_TRIP_ID, -1L) }
     private val placeId by lazy { intent.getLongExtra(AddPlaceActivity.EXTRA_PLACE_ID, -1L) }
     private var place: Place? = null
+    private val files = AttachmentsUi(this, { Triple(tripId, placeId, com.tripplanner.data.AttachmentKind.PLACE) }) { refreshFiles() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +50,65 @@ class PlaceViewActivity : AppCompatActivity() {
             true
         }
         limitScrollContentWidth(R.id.scroll)
+        findViewById<View>(R.id.btnUpload).setOnClickListener { files.showUploadMenu(it) }
+        findViewById<View>(R.id.btnAddLink).setOnClickListener { editLink(null) }
+    }
+
+    private fun refreshFiles() {
+        lifecycleScope.launch { files.bindRows(findViewById(R.id.fileRows), repo.getPlaceAttachments(placeId), showKind = false) }
+    }
+
+    // ---------------- 관련 링크 ----------------
+    private fun links() = com.tripplanner.data.PlaceLinks.parse(place?.links.orEmpty())
+
+    private fun bindLinks() {
+        bindLinkRows(findViewById(R.id.linkRows), links(), onOpen = { openLink(it.url) }) { anchor, i ->
+            showSelect(anchor, listOf(
+                SelectRow.Option(getString(R.string.action_edit)) { editLink(i) },
+                SelectRow.Option(getString(R.string.action_delete), danger = true) {
+                    val l = links().getOrNull(i) ?: return@Option
+                    confirmDelete(this, l.name.ifBlank { l.url }, getString(R.string.link_delete_confirm)) {
+                        saveLinks(links().filterIndexed { k, _ -> k != i })
+                    }
+                }
+            ), widthDp = 168)
+        }
+    }
+
+    /** 링크 추가(index = null) · 수정 팝업: 이름 · 주소 */
+    private fun editLink(index: Int?) {
+        val cur = index?.let { links().getOrNull(it) }
+        showFormDialog(this, getString(if (cur == null) R.string.link_add else R.string.link_edit), listOf(
+            Field(getString(R.string.link_name), cur?.name.orEmpty()),
+            Field(getString(R.string.link_url), cur?.url ?: "https://", android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI)
+        ), positive = if (cur == null) R.string.action_add else R.string.action_save) { (name, rawUrl) ->
+            val url = normalizeUrl(rawUrl)
+            if (url == null) { showSnack(getString(R.string.error_link_url)); false }
+            else {
+                val link = com.tripplanner.data.PlaceLink(name.ifBlank { url.removePrefix("https://").removePrefix("http://").substringBefore('/') }, url)
+                saveLinks(if (index == null) links() + link else links().mapIndexed { k, l -> if (k == index) link else l })
+                true
+            }
+        }
+    }
+
+    private fun normalizeUrl(raw: String): String? {
+        val t = raw.trim()
+        if (t.isEmpty() || t == "https://" || t == "http://") return null
+        return if (t.startsWith("http://") || t.startsWith("https://")) t else "https://$t"
+    }
+
+    private fun saveLinks(list: List<com.tripplanner.data.PlaceLink>) {
+        val p = place ?: return
+        val updated = p.copy(links = com.tripplanner.data.PlaceLinks.encode(list))
+        place = updated
+        bindLinks()
+        lifecycleScope.launch { repo.savePlace(updated) }
+    }
+
+    private fun openLink(url: String) {
+        runCatching { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))) }
+            .onFailure { showSnack(getString(R.string.no_app_to_open)) }
     }
 
     /** 수정하고 돌아오면 바뀐 내용으로 다시 그림 */
@@ -64,7 +124,7 @@ class PlaceViewActivity : AppCompatActivity() {
     }
 
     private fun bind(p: Place, all: List<Place>, lodgingCoords: List<Pair<Double, Double>>) {
-        Thumbs.bind(findViewById(R.id.ivThumb), p.photoUri, p.category)
+        Thumbs.bind(findViewById(R.id.ivThumb), p)
         (findViewById<ImageView>(R.id.ivThumb).background as? android.graphics.drawable.GradientDrawable)
             ?.cornerRadius = 16 * resources.displayMetrics.density
         findViewById<TextView>(R.id.tvName).text = p.name
@@ -80,7 +140,7 @@ class PlaceViewActivity : AppCompatActivity() {
             tv.setTextColor(color(fg))
             chips.addView(tv)
         }
-        badge(p.category.label, R.color.surface_container, R.color.on_surface)
+        badge(PlaceKinds.label(p), R.color.surface_container, R.color.on_surface)
         badge(statusText(p, all), if (p.status == PlaceStatus.CONFIRMED) R.color.primary else R.color.surface_container,
             if (p.status == PlaceStatus.CONFIRMED) R.color.on_primary else R.color.text_sub)
         if (p.isReservationRequired) badge(getString(R.string.reservation_required), R.color.error_container, R.color.on_error_container)
@@ -123,6 +183,9 @@ class PlaceViewActivity : AppCompatActivity() {
         if (p.locationMemo.isNotBlank()) row(R.drawable.ic_note, R.string.label_location_memo, p.locationMemo)
         if (!p.hasLocation) row(R.drawable.ic_place, R.string.info_location, getString(R.string.no_location_info))
         if (p.memo.isNotBlank()) row(R.drawable.ic_note, R.string.memo_label, p.memo.trim())
+
+        bindLinks()
+        refreshFiles()
     }
 
     /** "확정 · 1일차 2번째" / "확정 · 일차 미정" / "후보" */

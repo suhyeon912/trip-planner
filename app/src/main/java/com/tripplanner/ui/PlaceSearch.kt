@@ -22,8 +22,16 @@ data class SearchHit(
     val lng: Double,
     val category: PlaceCategory,
     /** "11:00 ~ 21:00" 형식 (구글만, 없으면 null) */
-    val hours: String? = null
+    val hours: String? = null,
+    /** Google 장소 id (구글만, '다시 가져오기'용) */
+    val sourceId: String = "",
+    /** 브레이크 타임 "15:00 ~ 17:00" · 휴무일 "화요일" (구글만, 없거나 모르면 null) */
+    val breakTime: String? = null,
+    val closedDays: String? = null
 )
+
+/** 다시 가져온 운영 정보 */
+data class HoursInfo(val hours: String?, val breakTime: String?, val closedDays: String?, val sourceId: String)
 
 /**
  * 장소 검색 → 이름·주소·위도·경도·종류(·운영시간) 자동 입력.
@@ -75,7 +83,7 @@ object PlaceSearch {
         val headers = mutableMapOf(
             "Content-Type" to "application/json",
             "X-Goog-Api-Key" to key,
-            "X-Goog-FieldMask" to "places.displayName,places.formattedAddress,places.location,places.primaryType,places.types,places.regularOpeningHours.periods",
+            "X-Goog-FieldMask" to "places.id,places.displayName,places.formattedAddress,places.location,places.primaryType,places.types,places.regularOpeningHours.periods",
             // 키를 'Android 앱'으로 제한했을 때 필요한 앱 정보
             "X-Android-Package" to context.packageName
         )
@@ -95,9 +103,72 @@ object PlaceSearch {
                 lat = loc?.optDouble("latitude") ?: 0.0,
                 lng = loc?.optDouble("longitude") ?: 0.0,
                 category = googleCategory(types),
-                hours = googleHours(p.optJSONObject("regularOpeningHours"))
+                hours = googleHours(p.optJSONObject("regularOpeningHours")),
+                sourceId = p.optString("id"),
+                breakTime = googleBreak(p.optJSONObject("regularOpeningHours")),
+                closedDays = googleClosed(p.optJSONObject("regularOpeningHours"))
             )
         }
+    }
+
+    /**
+     * 운영 정보 다시 가져오기 (Google Places).
+     * Google 장소 id 가 있으면 그 장소를, 없으면 이름(+주소)으로 찾은 첫 장소의 운영시간 · 브레이크 · 휴무일.
+     * 찾지 못하면 null.
+     */
+    suspend fun refreshHours(context: Context, sourceId: String, name: String, address: String): HoursInfo? =
+        withContext(Dispatchers.IO) {
+            val key = BuildConfig.MAPS_API_KEY
+            if (key.isBlank()) throw NoKeyException(R.string.search_no_google_key)
+            val headers = mutableMapOf("X-Goog-Api-Key" to key, "X-Android-Package" to context.packageName)
+            certSha1(context)?.let { headers["X-Android-Cert"] = it }
+            if (sourceId.isNotBlank()) {
+                headers["X-Goog-FieldMask"] = "id,regularOpeningHours.periods"
+                val p = JSONObject(http(URL("https://places.googleapis.com/v1/places/" + URLEncoder.encode(sourceId, "UTF-8")),
+                    "GET", headers, null))
+                val h = p.optJSONObject("regularOpeningHours")
+                HoursInfo(googleHours(h), googleBreak(h), googleClosed(h), p.optString("id").ifBlank { sourceId })
+            } else {
+                val hit = google(context, listOf(name, address).filter { it.isNotBlank() }.joinToString(" ")).firstOrNull()
+                    ?: return@withContext null
+                HoursInfo(hit.hours, hit.breakTime, hit.closedDays, hit.sourceId)
+            }
+        }
+
+    /** 하루에 영업 구간이 둘 이상이면 그 사이 = 브레이크 타임 (가장 흔한 것) */
+    internal fun googleBreak(h: JSONObject?): String? {
+        val periods = h?.optJSONArray("periods") ?: return null
+        val byDay = HashMap<Int, MutableList<Pair<Int, Int>>>()
+        for (i in 0 until periods.length()) {
+            val p = periods.getJSONObject(i)
+            val o = p.optJSONObject("open") ?: continue
+            val c = p.optJSONObject("close") ?: continue
+            if (c.optInt("day") != o.optInt("day")) continue
+            byDay.getOrPut(o.optInt("day")) { mutableListOf() } +=
+                (o.optInt("hour") * 60 + o.optInt("minute")) to (c.optInt("hour") * 60 + c.optInt("minute"))
+        }
+        val gaps = byDay.values.mapNotNull { list ->
+            val sorted = list.sortedBy { it.first }
+            if (sorted.size < 2) null else sorted[0].second to sorted[1].first
+        }.filter { it.second > it.first }
+        val gap = gaps.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key ?: return null
+        fun f(m: Int) = "%02d:%02d".format(m / 60, m % 60)
+        return "${f(gap.first)} ~ ${f(gap.second)}"
+    }
+
+    /** 영업 구간이 하나도 없는 요일 = 휴무일 ("월요일, 화요일"), 매일 열면 null */
+    internal fun googleClosed(h: JSONObject?): String? {
+        val periods = h?.optJSONArray("periods") ?: return null
+        if (periods.length() == 0) return null
+        val open = HashSet<Int>()
+        for (i in 0 until periods.length()) {
+            val o = periods.getJSONObject(i).optJSONObject("open") ?: continue
+            if (periods.getJSONObject(i).optJSONObject("close") == null) return null   // 24시간
+            open += o.optInt("day")
+        }
+        val names = listOf("일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일")
+        val closed = (1..7).map { it % 7 }.filter { it !in open }   // 월요일부터
+        return if (closed.isEmpty()) null else closed.joinToString(", ") { names[it] }
     }
 
     internal fun googleCategory(types: List<String>): PlaceCategory = when {

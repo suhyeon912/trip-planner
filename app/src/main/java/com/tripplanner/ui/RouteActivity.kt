@@ -94,14 +94,14 @@ class RouteActivity : AppCompatActivity() {
 
         // 선택한 경로 시간표
         // 떠나는 시각을 고르면 머무는 시간으로 저장
-        val stopAdapter = RouteStopAdapter({ id -> viewModel.placeOf(id) }) { visit, box ->
+        val stopAdapter = RouteStopAdapter({ id -> viewModel.placeOf(id) }, { visit, box ->
             WheelPopup.time(box, getString(R.string.pick_leave_time, visit.stop.name), visit.leave % (24 * 60)) { m ->
                 if (m == null) return@time
                 var leave = visit.arrive / (24 * 60) * (24 * 60) + m
                 if (leave < visit.arrive) leave += 24 * 60
                 viewModel.setLeaveTime(visit.stop.id, visit.arrive, leave)
             }
-        }
+        }, legMode = { f, t, km -> viewModel.legMode(f, t, km) }) { leg, rest, km, pill -> showLegModes(pill, leg, rest, km) }
         findViewById<RecyclerView>(R.id.rvStops).apply {
             layoutManager = LinearLayoutManager(this@RouteActivity)
             adapter = stopAdapter
@@ -161,6 +161,96 @@ class RouteActivity : AppCompatActivity() {
                 viewModel.appliedShown()
             }
         }
+    }
+
+    /** 남은 구간도 같게 (화면을 닫을 때까지 기억) */
+    private var sameForRest = false
+
+    /**
+     * 구간 이동 수단 (시안 RouteLegMode): 누른 알약 아래 팝오버
+     *  도보 · 대중교통 · 택시·차 (각각 어림 시간) / 남은 구간도 같게 (스위치)
+     */
+    private fun showLegModes(anchor: View, leg: Pair<Long, Long>, rest: List<Pair<Long, Long>>, km: Double) {
+        val d = resources.displayMetrics.density
+        fun dp(v: Int) = (v * d).toInt()
+        val current = viewModel.legMode(leg.first, leg.second, km)
+        val box = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            background = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.bg_menu)
+            clipToOutline = true
+            setPadding(0, dp(8), 0, dp(8))
+        }
+        lateinit var popup: android.widget.PopupWindow
+        lateinit var sw: com.tripplanner.ui.widget.TpSwitch
+        com.tripplanner.route.LegMode.entries.forEach { mode ->
+            val sel = mode == current
+            box.addView(android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                setPadding(dp(16), dp(10), dp(16), dp(10))
+                minimumHeight = dp(56)
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                if (sel) setBackgroundColor(color(R.color.primary_light))
+                foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_overlay)
+                isClickable = true; isFocusable = true
+                addView(TextView(context).apply {
+                    setText(mode.labelRes)
+                    setTextAppearance(R.style.TextAppearance_TripPlanner_TitleSmall)
+                    setTextColor(color(if (sel) R.color.on_primary_container else R.color.on_surface))
+                })
+                val about = getString(R.string.leg_about, minutesLabel(com.tripplanner.route.RoutePlanner.modeMinutes(mode, km)))
+                addView(TextView(context).apply {
+                    text = about
+                    setTextAppearance(R.style.TextAppearance_TripPlanner_BodySmall)
+                    setTextColor(color(if (sel) R.color.on_primary_container else R.color.text_sub))
+                })
+                contentDescription = "${getString(mode.labelRes)}, $about"
+                androidx.core.view.ViewCompat.setStateDescription(this, if (sel) getString(R.string.state_selected) else null)
+                setOnClickListener {
+                    Haptics.confirm(it)
+                    viewModel.setLegMode(if (sw.isChecked) rest else listOf(leg), mode)
+                    popup.dismiss()
+                }
+            })
+        }
+        box.addView(View(this).apply { setBackgroundColor(color(R.color.outline_variant)) },
+            android.widget.LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { topMargin = dp(4); bottomMargin = dp(4) })
+        val switchRow = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            setPadding(dp(16), 0, dp(12), 0)
+            minimumHeight = dp(56)
+            isClickable = true; isFocusable = true
+            foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_overlay)
+        }
+        switchRow.addView(TextView(this).apply {
+            setText(R.string.leg_same_rest)
+            setTextAppearance(R.style.TextAppearance_TripPlanner_BodyLarge)
+            setTextColor(color(R.color.on_surface))
+        }, android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        sw = com.tripplanner.ui.widget.TpSwitch(this).apply {
+            isChecked = sameForRest
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            setOnCheckedChangeListener { _, c -> sameForRest = c }
+        }
+        switchRow.addView(sw)
+        switchRow.contentDescription = getString(R.string.leg_same_rest)
+        switchRow.accessibilityDelegate = object : View.AccessibilityDelegate() {
+            override fun onInitializeAccessibilityNodeInfo(host: View, info: android.view.accessibility.AccessibilityNodeInfo) {
+                super.onInitializeAccessibilityNodeInfo(host, info)
+                info.className = android.widget.Switch::class.java.name
+                info.isCheckable = true; info.isChecked = sw.isChecked
+            }
+        }
+        switchRow.setOnClickListener { sw.toggle() }
+        box.addView(switchRow)
+
+        val width = minOf(dp(280), resources.displayMetrics.widthPixels - dp(32))
+        popup = android.widget.PopupWindow(box, width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, true)
+        popup.elevation = 12 * d
+        popup.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(0))
+        popup.animationStyle = R.style.Animation_TripPlanner_Popover
+        popup.isOutsideTouchable = true
+        popup.showAsDropDown(anchor, 0, dp(4))
     }
 
     /** 선택한 안을 지도에: 숙소(집 모양) → 번호 점 → 숙소, C안에서 추가된 후보는 청록색 */

@@ -125,9 +125,70 @@ data class Place(
     /** 주소 (검색 결과 또는 직접 입력) · 상세 주소(예: 2층) · 위치 메모(예: B6 출구 앞) — DB 4 */
     @ColumnInfo(defaultValue = "") val address: String = "",
     @ColumnInfo(defaultValue = "") val addressDetail: String = "",
-    @ColumnInfo(defaultValue = "") val locationMemo: String = ""
+    @ColumnInfo(defaultValue = "") val locationMemo: String = "",
+    /** 관련 링크 (PlaceLinks 형식: 한 줄에 '이름\t주소') — DB 8 */
+    @ColumnInfo(defaultValue = "") val links: String = "",
+    /** 내가 만든 장소 종류 (place_types.id, 없으면 기본 종류 category) — DB 8 */
+    val typeId: Long? = null,
+    /** 검색으로 채운 장소의 Google 장소 id ('다시 가져오기'용, 모르면 빈 글자) — DB 8 */
+    @ColumnInfo(defaultValue = "") val sourceId: String = ""
 ) {
     val hasLocation: Boolean get() = lat != 0.0 || lng != 0.0
+}
+
+/** 장소의 관련 링크 하나 */
+data class PlaceLink(val name: String, val url: String)
+
+/** 관련 링크 ↔ 저장 글자 (탭·줄바꿈은 공백으로 바꿔 저장) */
+object PlaceLinks {
+    private fun clean(s: String) = s.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ').trim()
+    fun parse(raw: String): List<PlaceLink> = raw.lines().filter { it.isNotBlank() }.map {
+        val i = it.indexOf('\t')
+        if (i < 0) PlaceLink(it.trim(), it.trim()) else PlaceLink(it.substring(0, i), it.substring(i + 1))
+    }
+    fun encode(list: List<PlaceLink>): String = list.joinToString("\n") { "${clean(it.name)}\t${clean(it.url)}" }
+}
+
+/**
+ * 내가 만든 장소 종류 (설정 › 장소 종류, 모든 여행에 함께 쓰임) — DB 8
+ * icon = 아이콘 이름 (TypeIcons), color = 바탕색 번호 (0~7)
+ */
+@Entity(tableName = "place_types")
+data class PlaceType(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val icon: String,
+    val color: Int
+)
+
+/** 자료가 붙은 곳 */
+enum class AttachmentKind { PLACE, TRANSPORT, LODGING, TRIP }
+
+/**
+ * 예약·티켓 자료 (파일·사진) — DB 8. 파일은 앱 저장소에만 있고 공유하지 않음.
+ * placeId: 장소에 붙은 자료면 그 장소 (공유로 장소가 다시 만들어지면 이름으로 다시 연결)
+ */
+@Entity(
+    tableName = "attachments",
+    foreignKeys = [ForeignKey(entity = Trip::class, parentColumns = ["id"],
+        childColumns = ["tripId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("tripId")]
+)
+data class Attachment(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val tripId: Long,
+    val placeId: Long? = null,
+    val kind: AttachmentKind,
+    val name: String,
+    /** 앱 내부 저장소 파일 경로 */
+    val path: String,
+    val mime: String,
+    val size: Long,
+    /** 올린 사람 닉네임 */
+    val uploader: String,
+    val createdAt: Long
+) {
+    val isImage: Boolean get() = mime.startsWith("image/")
 }
 
 /** 여행 목록 화면용: 여행 + 확정/후보 개수 */

@@ -199,10 +199,31 @@
             </LinearLayout>
 
             <!-- 운영 정보 -->
-            <TextView
-                style="@style/Widget.TripPlanner.SectionTitle"
-                android:layout_marginTop="@dimen/space_xl"
-                android:text="@string/section_hours" />
+            <!-- 운영 정보 + 오른쪽 '다시 가져오기' (Google 장소 정보로 운영시간 · 브레이크 · 휴무일 다시 채움) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:layout_marginEnd="-12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/Widget.TripPlanner.SectionTitle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/section_hours" />
+
+                <com.tripplanner.ui.widget.TpButton
+                    android:id="@+id/btnRefreshHours"
+                    style="@style/Widget.TripPlanner.Button.Text.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/refresh_hours"
+                    app:tpIcon="@drawable/ic_sync"
+                    app:tpIconSize="18dp"
+                    app:tpIconPadding="4dp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

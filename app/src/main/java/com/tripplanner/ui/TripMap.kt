@@ -56,7 +56,9 @@ data class MapPin(
     val label: String,          // 동그라미 안 글자 ("1", "2" …). 빈 글자면 점만
     val color: Int,             // 채우기 색 (ARGB)
     val style: Style = Style.FILLED,
-    val a11y: String = ""
+    val a11y: String = "",
+    /** 점 아래 작은 이름표 (예: "10:10 – 11:40"), 없으면 null */
+    val caption: String? = null
 ) {
     enum class Style { FILLED, HOLLOW, LODGING }
 }
@@ -229,10 +231,47 @@ object PinIcons {
 
     fun bitmap(ctx: Context, pin: MapPin): Bitmap {
         val density = ctx.resources.displayMetrics.density
-        return cache.getOrPut("${pin.style}|${pin.color}|${pin.label}|$density") {
-            if (pin.style == MapPin.Style.LODGING) lodging(ctx, pin.color, density)
-            else circle(ctx, pin.label, pin.color, pin.style == MapPin.Style.HOLLOW, density)
+        val night = (ctx.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        return cache.getOrPut("${pin.style}|${pin.color}|${pin.label}|$density|${pin.caption}|$night") {
+            val base = if (pin.style == MapPin.Style.LODGING) lodging(ctx, pin.color, density)
+                       else circle(ctx, pin.label, pin.color, pin.style == MapPin.Style.HOLLOW, density)
+            pin.caption?.let { withCaption(ctx, base, it, density) } ?: base
         }
+    }
+
+    /**
+     * 점 아래 이름표 (시안 DetailMap '10:10 – 11:40'): 흰 알약 · 글자 12 · 숫자 고정폭.
+     * 점이 그림 한가운데에 오도록 위에도 같은 높이를 비워 둠 (지도마다 기준점이 가운데라서).
+     */
+    private fun withCaption(ctx: Context, base: Bitmap, caption: String, density: Float): Bitmap {
+        val text = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = ContextCompat.getColor(ctx, R.color.on_surface)
+            textSize = 12 * density
+            typeface = ResourcesCompat.getFont(ctx, R.font.pretendard_semibold) ?: Typeface.DEFAULT_BOLD
+            fontFeatureSettings = "tnum"
+        }
+        val padH = 8 * density; val padV = 4 * density; val gap = 3 * density
+        val tw = text.measureText(caption)
+        val pillW = tw + padH * 2
+        val pillH = -text.ascent() + text.descent() + padV * 2
+        val extra = gap + pillH + 2 * density
+        val w = maxOf(base.width.toFloat(), pillW + 4 * density).toInt()
+        val h = (base.height + extra * 2).toInt()
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmp)
+        val top = extra
+        c.drawBitmap(base, (w - base.width) / 2f, top, null)
+        val l = (w - pillW) / 2f
+        val t = top + base.height + gap
+        val r = pillH / 2
+        val rect = android.graphics.RectF(l, t, l + pillW, t + pillH)
+        c.drawRoundRect(rect, r, r, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = ContextCompat.getColor(ctx, R.color.card_bg) })
+        c.drawRoundRect(rect, r, r, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE; strokeWidth = 1 * density; color = ContextCompat.getColor(ctx, R.color.outline_variant)
+        })
+        c.drawText(caption, l + padH, t + padV - text.ascent(), text)
+        return bmp
     }
 
     private fun circle(ctx: Context, label: String, color: Int, hollow: Boolean, density: Float): Bitmap {

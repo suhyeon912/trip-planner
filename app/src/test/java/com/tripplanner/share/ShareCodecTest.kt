@@ -42,10 +42,27 @@ class ShareCodecTest {
         assertEquals("", back.lodgings.single().address)
     }
 
+    @Test fun linksTypeAndSource_roundTrip() {
+        val links = com.tripplanner.data.PlaceLinks.encode(listOf(
+            com.tripplanner.data.PlaceLink("공식\t홈페이지", "https://a.jp/x"), com.tripplanner.data.PlaceLink("예약", "https://b.jp")))
+        val type = com.tripplanner.data.PlaceType(id = 5, name = "야경", icon = "nightlight", color = 6)
+        val s = snap.copy(places = snap.places.map { it.copy(links = links, typeId = 5, sourceId = "ChIJ123") }, types = mapOf(5L to type))
+        val back = ShareCodec.fromMap(ShareCodec.toMap(s), trip)
+        val p = back.places.single()
+        assertEquals(listOf(com.tripplanner.data.PlaceLink("공식 홈페이지", "https://a.jp/x"), com.tripplanner.data.PlaceLink("예약", "https://b.jp")),
+            com.tripplanner.data.PlaceLinks.parse(p.links))
+        assertEquals("ChIJ123", p.sourceId)
+        assertNull(p.typeId)                                    // id 는 기기마다 달라서 받는 쪽이 이름으로 연결
+        assertEquals("야경", back.remoteTypes.single()?.name); assertEquals(6, back.remoteTypes.single()?.color)
+        // 종류 없는 장소
+        assertNull(ShareCodec.fromMap(ShareCodec.toMap(snap), trip).remoteTypes.single())
+    }
+
     @Test fun oldServerDocument_withoutAddress_readsEmpty() {
         val m = mapOf("title" to "x", "places" to listOf(mapOf("name" to "a")), "lodgings" to listOf(mapOf("name" to "h")))
         val back = ShareCodec.fromMap(m, trip)
         assertEquals("", back.places.single().address); assertEquals("", back.lodgings.single().locationMemo)
+        assertEquals("", back.places.single().links); assertEquals("", back.places.single().sourceId)
     }
 
     @Test fun serverNumbersAsLong_andUnknownEnums() {

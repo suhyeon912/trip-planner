@@ -67,6 +67,10 @@ class TripDetailMap(
     private var selectedId: Long? = null
     /** 장소 id → 지도 점에 쓴 번호 (카드에도 같은 번호를 보여 주려고) */
     private val labels = HashMap<Long, String>()
+    /** n일차 보기: 장소 id → (도착, 떠남) 분 */
+    private val times = HashMap<Long, Pair<Int, Int>>()
+
+    private fun range(a: Int, b: Int) = "${com.tripplanner.route.TimeUtil.format(a)} – ${com.tripplanner.route.TimeUtil.format(b)}"
 
     init {
         card.findViewById<View>(R.id.btnCardClose).setOnClickListener { select(null) }
@@ -79,9 +83,28 @@ class TripDetailMap(
      * @param lodgings 지도에 함께 찍을 숙소
      */
     fun render(places: List<Place>, candidates: List<Place>, selectedDay: Int, lodgings: List<Lodging>,
-               tripCoords: List<Pair<Double, Double>>) {
+               tripCoords: List<Pair<Double, Double>>, startMinutes: Int = com.tripplanner.route.RoutePlanner.DEFAULT_START,
+               legTime: com.tripplanner.route.LegTime = com.tripplanner.route.RoutePlanner.DEFAULT_LEG) {
         shown = places + candidates
         labels.clear()
+        times.clear()
+        // n일차: 지금 순서대로 숙소 출발 → 장소마다 도착·떠남 → 숙소 도착 (경로 제안과 같은 계산)
+        var homeCaption: String? = null
+        if (selectedDay > 0) {
+            val todays = places.filter { it.hasLocation && it.day == selectedDay }
+            val home = lodgings.singleOrNull { it.lat != 0.0 || it.lng != 0.0 }
+            if (todays.isNotEmpty()) {
+                val anchor = home?.let { com.tripplanner.route.Anchor(it.name, it.lat, it.lng) }
+                val stops = todays.map { p ->
+                    com.tripplanner.route.Stop(p.id, p.name, p.lat, p.lng,
+                        open = com.tripplanner.route.TimeUtil.parseRange(p.openingHours),
+                        breakTime = com.tripplanner.route.TimeUtil.parseRange(p.breakTime), stayMinutes = p.stayMinutes)
+                }
+                val sim = com.tripplanner.route.RoutePlanner.simulate(anchor, stops, startMinutes, legTime)
+                sim.visits.forEach { v -> times[v.stop.id] = v.arrive to v.leave }
+                if (anchor != null) homeCaption = range(startMinutes, sim.endTime)
+            }
+        }
         val located = places.filter { it.hasLocation }
         val pins = mutableListOf<MapPin>()
         val paths = mutableListOf<MapPath>()
@@ -91,7 +114,8 @@ class TripDetailMap(
         val homes = lodgings.filter { it.lat != 0.0 || it.lng != 0.0 }
         homes.forEach { l ->
             pins += MapPin(-1, l.lat, l.lng, "", ContextCompat.getColor(ctx, R.color.on_surface), MapPin.Style.LODGING,
-                ctx.getString(R.string.map_pin_a11y, ctx.getString(R.string.map_lodging), l.name))
+                ctx.getString(R.string.map_pin_a11y, ctx.getString(R.string.map_lodging), l.name) +
+                    (homeCaption?.let { ", $it" } ?: ""), caption = homeCaption)
         }
         // 일차별로 묶어서 순서대로 선 + 번호 점
         located.groupBy { it.day }.forEach { (day, group) ->
@@ -99,8 +123,10 @@ class TripDetailMap(
             group.forEachIndexed { i, p ->
                 val label = if (day == null) "" else (p.orderInDay ?: (i + 1)).toString()
                 labels[p.id] = label
+                val caption = times[p.id]?.let { (a, b) -> range(a, b) }
                 pins += MapPin(p.id, p.lat, p.lng, label, color, MapPin.Style.FILLED,
-                    ctx.getString(R.string.map_pin_a11y, day?.let { ctx.dayLabel(it) } ?: ctx.getString(R.string.day_none), p.name))
+                    ctx.getString(R.string.map_pin_a11y, day?.let { ctx.dayLabel(it) } ?: ctx.getString(R.string.day_none), p.name) +
+                        (caption?.let { ", $it" } ?: ""), caption = caption)
             }
             if (day != null) {
                 val line = group.map { it.lat to it.lng }.toMutableList()
@@ -138,7 +164,7 @@ class TripDetailMap(
         val inf = LayoutInflater.from(ctx)
         missing.forEach { p ->
             val row = inf.inflate(R.layout.item_missing_place, missingRows, false)
-            Thumbs.bind(row.findViewById(R.id.ivMissingThumb), p.photoUri, p.category)
+            Thumbs.bind(row.findViewById(R.id.ivMissingThumb), p)
             row.findViewById<TextView>(R.id.tvMissingName).text = p.name
             row.findViewById<TextView>(R.id.tvMissingSub).apply {
                 text = p.day?.let { ctx.dayLabel(it) } ?: ""
@@ -176,14 +202,17 @@ class TripDetailMap(
             day == null -> ContextCompat.getColor(ctx, R.color.outline)
             else -> PinIcons.dayColor(day)
         }
-        Thumbs.bind(cardThumb, place.photoUri, place.category)
+        Thumbs.bind(cardThumb, place)
         val label = labels[place.id].orEmpty()
         cardOrder.visibility = if (confirmed && label.isNotEmpty()) View.VISIBLE else View.GONE
         cardOrder.text = label
         cardOrder.backgroundTintList = ColorStateList.valueOf(color)
         cardName.text = place.name
         val hours = place.openingHours.trim().replace(" ~ ", "–")
-        cardSub.text = listOfNotNull(
+        val visit = times[place.id]
+        cardSub.text = if (visit != null) ctx.getString(R.string.map_card_times,
+            com.tripplanner.route.TimeUtil.format(visit.first), com.tripplanner.route.TimeUtil.format(visit.second))
+        else listOfNotNull(
             if (!confirmed) ctx.getString(R.string.status_candidate) else day?.let { ctx.dayLabel(it) } ?: ctx.getString(R.string.day_none),
             hours.takeIf { it.isNotEmpty() }?.let { ctx.getString(R.string.opening_hours_line, it) }
         ).joinToString(ctx.getString(R.string.list_separator))

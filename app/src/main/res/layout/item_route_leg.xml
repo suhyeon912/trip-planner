@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 시간표 사이 이동 줄: 세로 선 + "이동 10분 · 2.6km" 알약 -->
+<!-- 시간표 사이 이동 줄: 세로 선 + "도보 · 18분 · 1.4km ⌄" 알약 (누르면 이동 수단 고르기) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,10 +15,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_leg_pill"
+        android:foreground="@drawable/press_pill_primary"
+        android:minHeight="36dp"
+        android:clickable="true"
+        android:focusable="true"
         android:drawablePadding="4dp"
         android:gravity="center_vertical"
         android:paddingHorizontal="10dp"
-        android:paddingVertical="4dp"
+        android:paddingVertical="6dp"
         android:textAppearance="@style/TextAppearance.TripPlanner.LabelMedium"
         android:textColor="@color/on_surface"
         tools:text="이동 10분 · 2.6km" />
