@@ -68,7 +68,10 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
         h.key.text = o.key
         h.key.backgroundTintList = ColorStateList.valueOf(ctx.color(if (selected) R.color.primary else R.color.surface_container))
         h.key.setTextColor(ctx.color(if (selected) R.color.on_primary else R.color.on_surface))
-        h.name.text = ctx.getString(R.string.option_name, o.title, o.totalKm)
+        // 순서가 같은 기준이 셋 이상 합쳐지면 두 개만 쓰고 '외 n' (화면 읽기에는 전부)
+        val shortTitle = if (o.kinds.size > 2) ctx.getString(R.string.option_kinds_more,
+            o.kinds[0].title, o.kinds[1].title, o.kinds.size - 2) else o.title
+        h.name.text = ctx.getString(R.string.option_name, shortTitle, o.totalKm)
         val seq = o.visits.joinToString(" → ") { it.stop.name }
         val stats = ctx.getString(if (hasHome) R.string.option_seq else R.string.option_seq_no_home, seq, TimeUtil.format(o.endTime))
         val same = h.itemView.getTag(R.id.tag_bound_key) == o.key

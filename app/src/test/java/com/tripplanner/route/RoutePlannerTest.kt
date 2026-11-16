@@ -44,9 +44,9 @@ class RoutePlannerTest {
 
     @Test fun optionBAvoidsBreakTime() {
         val options = RoutePlanner.plan(hotel, listOf(castle, dotonbori, ramen), emptyList())
-        val b = options.first { it.key == "B" }
-        assertTrue("B안은 경고가 없어야 함: ${b.warnings}", b.warnings.isEmpty())
-        val a = options.first { it.key == "A" }
+        val b = options.first { RouteKind.TIME in it.kinds }
+        assertTrue("시간 맞춤은 경고가 없어야 함: ${b.warnings}", b.warnings.isEmpty())
+        val a = options.first { RouteKind.SHORTEST in it.kinds }
         assertTrue(a.totalKm <= b.totalKm + 1e-9)
         // 모든 장소를 한 번씩 방문
         assertEquals(setOf(1L, 2L, 3L), b.visits.map { it.stop.id }.toSet())
@@ -63,14 +63,46 @@ class RoutePlannerTest {
         val near = Stop(20, "신사이바시", 34.6748, 135.5012, isCandidate = true)
         val far = Stop(21, "USJ", 34.6654, 135.4323, isCandidate = true)
         val options = RoutePlanner.plan(hotel, listOf(castle, dotonbori), listOf(near, far))
-        val c = options.first { it.key == "C" }
+        val c = options.first { RouteKind.CANDIDATES in it.kinds }
         assertEquals(listOf(20L), c.added.map { it.id })
         assertEquals(3, c.visits.size)
     }
 
-    @Test fun noCandidateNoOptionC() {
+    @Test fun oneStop_allKindsMergeIntoOneCard() {
+        // 장소 하나면 순서가 하나뿐 → 후보 포함을 뺀 다섯 기준이 카드 하나로
         val options = RoutePlanner.plan(hotel, listOf(castle), emptyList())
-        assertEquals(listOf("A", "B"), options.map { it.key })
+        assertEquals(listOf("A"), options.map { it.key })
+        assertEquals(listOf(RouteKind.SHORTEST, RouteKind.NEAREST, RouteKind.FEWER_TRANSFERS, RouteKind.CURRENT, RouteKind.TIME),
+            options.single().kinds)
+        assertEquals("이동 거리 우선 · 가까운 곳부터 · 환승 적은 순(어림) · 지금 순서 그대로 · 시간 맞춤", options.single().title)
+    }
+
+    @Test fun keysAreSequential_andOrdersDistinct() {
+        val stops = listOf(castle, dotonbori, ramen, Stop(4, "우메다", 34.7053, 135.4896))
+        val options = RoutePlanner.plan(hotel, stops, emptyList())
+        assertEquals(options.indices.map { ('A' + it).toString() }, options.map { it.key })
+        assertEquals(options.size, options.map { o -> o.visits.map { it.stop.id } }.toSet().size)
+        // 모든 기준이 어딘가에 들어 있음 (후보 없음 → 후보 포함 빼고)
+        assertEquals(RouteKind.entries.toSet() - RouteKind.CANDIDATES, options.flatMap { it.kinds }.toSet())
+    }
+
+    @Test fun nearestFirst_startsFromClosestToLodging() {
+        val home = Anchor("숙소", 35.0, 135.0)
+        val near = Stop(1, "가까움", 35.001, 135.0)
+        val mid = Stop(2, "중간", 35.02, 135.0)
+        val far = Stop(3, "멂", 35.05, 135.0)
+        assertEquals(listOf(1L, 2L, 3L), RoutePlanner.nearestNeighbor(home, listOf(far, mid, near)).map { it.id })
+    }
+
+    @Test fun fewerTransit_prefersWalkableLegs() {
+        // 1번 · 2번은 서로 걸어갈 거리, 3번만 멀리 → 1·2 를 붙여 가는 순서가 대중교통 구간이 적음
+        val home = Anchor("숙소", 35.0, 135.0)
+        val a = Stop(1, "a", 35.03, 135.0)
+        val b = Stop(2, "b", 35.035, 135.0)
+        val c = Stop(3, "c", 35.0, 135.05)
+        val order = RoutePlanner.fewerTransitOrder(home, listOf(a, c, b)) { _, _, km -> km > 1.2 }
+        val ids = order.map { it.id }
+        assertEquals(1, kotlin.math.abs(ids.indexOf(1L) - ids.indexOf(2L)))
     }
 
     @Test fun manyStopsUsesHeuristic() {
@@ -79,18 +111,19 @@ class RoutePlannerTest {
         assertEquals(10, order.toSet().size)
     }
 
-    @Test fun optionDKeepsGivenOrder_onlyWhenDifferent() {
+    @Test fun currentOrder_keptOrMergedWhenSameAsShortest() {
         // 숙소와 세 곳이 네모 꼭짓점 → 둘레를 도는 순서가 최단, 대각선으로 오가는 순서는 더 김
         val home = Anchor("숙소", 35.0, 135.0)
         val a = Stop(1, "a", 35.01, 135.0)
         val b = Stop(2, "b", 35.01, 135.02)
         val c = Stop(3, "c", 35.0, 135.02)
         val given = listOf(b, a, c)
-        val d = RoutePlanner.plan(home, given, emptyList()).single { it.key == "D" }
+        val d = RoutePlanner.plan(home, given, emptyList()).single { RouteKind.CURRENT in it.kinds }
         assertEquals(listOf(2L, 1L, 3L), d.visits.map { it.stop.id })
-        // 이미 최단(A) 순서면 D 는 없음
-        val orderA = RoutePlanner.plan(home, given, emptyList()).first { it.key == "A" }.visits.map { it.stop }
-        assertTrue(RoutePlanner.plan(home, orderA, emptyList()).none { it.key == "D" })
+        // 이미 최단 순서면 '지금 순서 그대로'는 최단과 같은 카드로 합쳐짐
+        val orderA = RoutePlanner.plan(home, given, emptyList()).first { RouteKind.SHORTEST in it.kinds }.visits.map { it.stop }
+        val merged = RoutePlanner.plan(home, orderA, emptyList()).single { RouteKind.CURRENT in it.kinds }
+        assertTrue(RouteKind.SHORTEST in merged.kinds)
     }
 
     @Test

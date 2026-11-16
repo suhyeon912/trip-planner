@@ -341,6 +341,7 @@
     <string name="label_depart">출발</string>
     <string name="recommended">추천</string>
     <string name="option_name">%1$s · %2$.1fkm</string>
+    <string name="option_kinds_more">%1$s · %2$s 외 %3$d</string>
     <string name="option_seq">%1$s · %2$s 숙소 도착</string>
     <string name="option_seq_no_home">%1$s · %2$s 끝</string>
     <string name="timetable_title">%1$s 경로 시간표</string>

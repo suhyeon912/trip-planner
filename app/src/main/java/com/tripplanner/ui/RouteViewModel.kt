@@ -163,7 +163,8 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
 
         // 순서 비교는 계산이 많으니 백그라운드에서
         loading.value = true
-        val options = withContext(Dispatchers.Default) { RoutePlanner.plan(anchor, stops, candidates, t.startMinutes, t.endMinutes, legModes.legTime) }
+        val options = withContext(Dispatchers.Default) { RoutePlanner.plan(anchor, stops, candidates, t.startMinutes, t.endMinutes, legModes.legTime,
+            isTransit = { f, to, km -> legModes.mode(f, to, km) == LegMode.TRANSIT }) }
         loading.value = false
         ui.value = RouteUiState(day, dateLabel, anchor, options, null,
             notes + if (anchor == null) listOf(ctx.getString(R.string.note_no_anchor)) else emptyList(), t.startMinutes, t.endMinutes)
