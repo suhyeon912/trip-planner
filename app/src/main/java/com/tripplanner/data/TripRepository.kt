@@ -70,7 +70,7 @@ class TripRepository(private val db: AppDatabase) {
     suspend fun getPlaceAttachments(placeId: Long) = dao.getPlaceAttachments(placeId)
     var attachmentListener: ((Attachment) -> Unit)? = null
     suspend fun addAttachment(a: Attachment): Long = dao.insertAttachment(a).also { attachmentListener?.invoke(a) }
-    suspend fun renameAttachment(a: Attachment, name: String) = dao.updateAttachment(a.copy(name = name))
+    suspend fun renameAttachment(a: Attachment, name: String, note: String = a.note) = dao.updateAttachment(a.copy(name = name, note = note))
     suspend fun deleteAttachment(a: Attachment) { deleteAttachmentFile(a); dao.deleteAttachment(a) }
     private fun deleteAttachmentFile(a: Attachment) { runCatching { java.io.File(a.path).delete() } }
 

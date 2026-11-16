@@ -98,7 +98,7 @@ class ActivityLogActivity : AppCompatActivity() {
         content.addView(scroller, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             .apply { topMargin = dp(4) })
         chip(null, getString(R.string.activity_all))
-        members.forEach { (uid, name) -> chip(uid, displayName(uid, name) + if (uid == me) getString(R.string.activity_me) else "") }
+        members.forEach { (uid, name) -> chip(uid, displayName(uid, name)) }
 
         val shown = events.filter { filter == null || it.uid == filter }
         if (shown.isEmpty()) {

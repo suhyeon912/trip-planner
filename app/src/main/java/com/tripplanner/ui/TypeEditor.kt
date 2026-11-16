@@ -85,6 +85,7 @@ class TypeEditor(
             imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
         }
         search.addView(searchEdit)
+        search.setSearchStyle()
         searchEdit.doAfterTextChanged { query = it?.toString().orEmpty(); refreshGrid() }
         addView(search)
 

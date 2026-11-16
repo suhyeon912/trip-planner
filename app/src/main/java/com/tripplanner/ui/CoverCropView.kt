@@ -61,8 +61,21 @@ class CoverCropView @JvmOverloads constructor(context: Context, attrs: Attribute
             val x = box.left + box.width() * i / 3
             c.drawLine(x, box.top, x, box.bottom, grid)
         }
+        // 가운데 가로선 (시안: 세로 3등분 + 가로 2등분)
+        c.drawLine(box.left, box.centerY(), box.right, box.centerY(), grid)
         val r = 12 * resources.displayMetrics.density
         c.drawRoundRect(box, r, r, frame)
+        // 가운데 끌기 손잡이 ⠿ (위아래로 움직일 수 있다는 표시)
+        grip?.let { g ->
+            val s = (20 * resources.displayMetrics.density).toInt()
+            val cx = box.centerX().toInt(); val cy = box.centerY().toInt()
+            g.setBounds(cx - s / 2, cy - s / 2, cx + s / 2, cy + s / 2)
+            g.draw(c)
+        }
+    }
+
+    private val grip = androidx.core.content.ContextCompat.getDrawable(context, com.tripplanner.R.drawable.ic_drag)?.mutate()?.apply {
+        setTint(0xFFFFFFFF.toInt())
     }
 
     override fun onTouchEvent(e: MotionEvent): Boolean {

@@ -45,7 +45,7 @@
 |---|---|
 | 언어 · UI | Kotlin, XML Views (AppCompat), 자체 컴포넌트 `ui/widget` — 버튼 · 입력칸 · 탭 · 스위치 · 칩 · 팝업 · 알림 · 시간 휠 · 기간 달력 (Material 컴포넌트 사용 안 함) |
 | 구조 | MVVM: Activity → ViewModel(LiveData) → Repository → Room DAO |
-| DB | Room (KSP), DB 버전 8, 마이그레이션 포함 |
+| DB | Room (KSP), DB 버전 9, 마이그레이션 포함 |
 | 지도 | 카카오맵 SDK v2, Google Maps SDK, osmdroid(OpenStreetMap) |
 | 검색 | 카카오 로컬 API(국내), Google Places API (New)(해외) |
 | 공유 | Firebase Authentication(익명) + Cloud Firestore |
@@ -177,7 +177,7 @@ MAPS_API_KEY=구글_API_키
 | `Lodging` | 이름, 체크인·체크아웃, 위도·경도 (경로 출발점), 주소·상세 주소·위치 메모 |
 | `Place` | 이름, 후보/확정(`PlaceStatus`), 종류(`PlaceCategory` 또는 내가 만든 종류 `typeId`), 운영시간·브레이크·휴무, 예약 필수, 메모, 위도·경도, 주소·상세 주소·위치 메모, 일차·순서, 머무는 시간, 사진, 관련 링크, Google 장소 id |
 | `PlaceType` | 내가 만든 장소 종류: 이름, 아이콘 이름, 바탕색 번호 (모든 여행 공통) |
-| `Attachment` | 예약·티켓 자료: 여행·장소, 붙은 곳(장소·교통·숙소·여행), 파일 이름·경로·형식·크기, 올린 사람, 올린 시각 (기기에만) |
+| `Attachment` | 예약·티켓 자료: 여행·장소, 붙은 곳(장소·교통·숙소·여행), 파일 이름·짧은 설명·경로·형식·크기, 올린 사람, 올린 시각 (기기에만) |
 
 - 위도·경도가 0이면 '위치 모름'으로 보고 경로 계산에서 빠집니다.
 - DB 구조(엔티티)를 바꾸면 `AppDatabase`의 `version`을 1 올리고 `MIGRATION`을 추가하세요.

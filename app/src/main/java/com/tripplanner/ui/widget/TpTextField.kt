@@ -141,8 +141,22 @@ class TpTextField @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (endIcon.visibility == VISIBLE) editText?.let { it.setPaddingRelative(it.paddingStart, it.paddingTop, (48 * dp).toInt(), it.paddingBottom) }
     }
 
+    /** 검색칸 모양 (시안 아이콘 검색): 회색 바탕 · 테두리 없음 · 앞에 돋보기. 입력 중에는 파란 테두리 */
+    private var filled = false
+    fun setSearchStyle() {
+        filled = true
+        startIcon.setImageResource(R.drawable.ic_search)
+        startIcon.visibility = VISIBLE
+        editText?.let { it.setPaddingRelative((44 * dp).toInt(), it.paddingTop, it.paddingEnd, it.paddingBottom) }
+        updateBox()
+    }
+
     private fun updateBox() {
         val c = context
+        if (filled && !focused && error.isNullOrEmpty()) {
+            box.background = GradientDrawable().apply { setColor(ContextCompat.getColor(c, R.color.surface_container)); cornerRadius = 12 * dp }
+            return
+        }
         val color = when {
             !error.isNullOrEmpty() -> R.color.badge_red
             focused -> R.color.primary

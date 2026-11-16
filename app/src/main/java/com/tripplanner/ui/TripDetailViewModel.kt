@@ -223,22 +223,22 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     }
 
     /** '전체' 맨 위 요약: 첫 교통편 · 숙소 */
-    private fun summaryLines(): List<Pair<Int, String>> {
-        val out = mutableListOf<Pair<Int, String>>()
+    private fun summaryLines(): List<SummaryLine> {
+        val out = mutableListOf<SummaryLine>()
         flights.value.orEmpty().firstOrNull()?.let { f ->
             val time = f.departAt.trim().substringAfter(' ', "").take(5)
-            out += f.mode.icon to ctx.getString(R.string.summary_transport,
-                "${f.fromAirport} → ${f.toAirport}" + if (time.isNotEmpty()) " $time" else "")
+            out += SummaryLine(f.mode.icon, ctx.getString(R.string.summary_transport,
+                "${f.fromAirport} → ${f.toAirport}" + if (time.isNotEmpty()) " $time" else ""))
         }
         lodgings.value.orEmpty().takeIf { it.isNotEmpty() }?.let { list ->
-            out += R.drawable.ic_hotel to ctx.getString(R.string.summary_lodging, list.joinToString(", ") { it.name })
+            out += SummaryLine(R.drawable.ic_hotel, ctx.getString(R.string.summary_lodging, list.joinToString(", ") { it.name }))
         }
         attachments.value.orEmpty().takeIf { it.isNotEmpty() }?.let { list ->
             val names = list.take(2).joinToString(", ") { it.name.substringBeforeLast('.') }
-            out += R.drawable.ic_ticket to ctx.getString(R.string.summary_tickets,
-                if (list.size > 2) ctx.getString(R.string.summary_tickets_more, names, list.size - 2) else names)
+            out += SummaryLine(R.drawable.ic_ticket, ctx.getString(R.string.summary_tickets,
+                if (list.size > 2) ctx.getString(R.string.summary_tickets_more, names, list.size - 2) else names), count = list.size)
         }
-        if (out.isEmpty()) out += R.drawable.ic_route to ctx.getString(R.string.summary_travel_empty)
+        if (out.isEmpty()) out += SummaryLine(R.drawable.ic_route, ctx.getString(R.string.summary_travel_empty))
         return out
     }
 

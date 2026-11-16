@@ -139,8 +139,9 @@ class TripDetailMap(
             }
         }
         candidates.filter { it.hasLocation }.forEach { p ->
+            // 후보는 번호가 없으니 점 아래에 이름표 (시안 DetailMapAll)
             pins += MapPin(p.id, p.lat, p.lng, "", primary, MapPin.Style.HOLLOW,
-                ctx.getString(R.string.map_pin_a11y, ctx.getString(R.string.status_candidate), p.name))
+                ctx.getString(R.string.map_pin_a11y, ctx.getString(R.string.status_candidate), p.name), caption = p.name)
         }
         // 지도 종류는 여행 전체 기준 (해외가 한 곳이라도 있으면 Google) → 일차를 바꿔도 같은 지도
         host.render(pins, paths, tripPoints = tripCoords)

@@ -186,7 +186,9 @@ data class Attachment(
     val size: Long,
     /** 올린 사람 닉네임 */
     val uploader: String,
-    val createdAt: Long
+    val createdAt: Long,
+    /** 짧은 설명 (예: 결제 내역 · 티켓) — DB 9 */
+    @ColumnInfo(defaultValue = "") val note: String = ""
 ) {
     val isImage: Boolean get() = mime.startsWith("image/")
 }

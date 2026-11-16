@@ -207,7 +207,22 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             toolbar.menu.findItem(R.id.action_view_mode)?.apply {
                 setIcon(if (mapOn) R.drawable.ic_list else R.drawable.ic_map)
                 setTitle(if (mapOn) R.string.show_list else R.string.show_map)
+                // 시안 DetailMap: 지도 보기 중에는 '목록' 버튼이 연파랑 동그라미 (지금 지도 보기라는 표시)
+                actionView = if (!mapOn) null else android.widget.ImageButton(this@TripDetailActivity).apply {
+                    val d = resources.displayMetrics.density
+                    setImageResource(R.drawable.ic_list)
+                    imageTintList = android.content.res.ColorStateList.valueOf(color(R.color.on_primary_container))
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(color(R.color.primary_light))
+                    }
+                    foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_overlay_borderless)
+                    contentDescription = getString(R.string.show_list)
+                    layoutParams = android.view.ViewGroup.MarginLayoutParams((48 * d).toInt(), (48 * d).toInt()).apply { marginEnd = (8 * d).toInt() }
+                    setOnClickListener { viewModel.toggleMapMode() }
+                }
             }
+            // 지도 보기에서는 공유 버튼을 숨김 (시안)
+            toolbar.menu.findItem(R.id.action_share)?.isVisible = !mapOn
             renderMap(); updateBottom()
         }
 

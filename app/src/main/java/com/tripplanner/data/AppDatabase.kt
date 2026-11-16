@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Trip::class, Flight::class, Lodging::class, Place::class, PlaceType::class, Attachment::class],
-    version = 8,   // 구조가 바뀌면 1씩 올리고 아래 MIGRATION 추가
+    version = 9,   // 구조가 바뀌면 1씩 올리고 아래 MIGRATION 추가
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -80,6 +80,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** 8 → 9: 예약·티켓 자료에 짧은 설명 (기존 자료는 빈 글자) */
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE attachments ADD COLUMN note TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         @Volatile private var instance: AppDatabase? = null
 
         /** 앱 전체에서 DB 는 하나만 만들어 씁니다 (싱글톤) */
@@ -87,7 +94,7 @@ abstract class AppDatabase : RoomDatabase() {
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(context.applicationContext,
                     AppDatabase::class.java, "trip_planner.db")
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
                     // 그보다 오래된 개발용 버전(1)은 지우고 새로 만듦
                     .fallbackToDestructiveMigrationFrom(1)
                     .build()

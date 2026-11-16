@@ -124,7 +124,7 @@ class TravelFormActivity : AppCompatActivity() {
 
         fieldLocation.label = getString(R.string.label_location)
         fieldLocation.setIcon(R.drawable.ic_place)
-        fieldLocation.setDropdown(true)
+        fieldLocation.setEndIcon(R.drawable.ic_search)   // 시안: 주소 + 돋보기
         fieldLocation.setPlaceholder(getString(R.string.placeholder_location))
         fieldLocation.setOnClickListener { pickLocation(it) }
         for ((f, label) in listOf(fieldCheckIn to R.string.hint_check_in, fieldCheckOut to R.string.hint_check_out)) {

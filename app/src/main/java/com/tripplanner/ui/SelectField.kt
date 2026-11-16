@@ -53,6 +53,9 @@ class SelectField @JvmOverloads constructor(context: Context, attrs: AttributeSe
         end.setImageResource(if (dropdown) R.drawable.ic_expand_more else R.drawable.ic_chevron_right)
     }
 
+    /** 끝 아이콘을 직접 (예: 위치 칸의 돋보기 = 누르면 검색) */
+    fun setEndIcon(res: Int) { end.setImageResource(res) }
+
     fun setPlaceholder(text: CharSequence) { placeholder = text; if (value.text.isNullOrEmpty() || value.tag == "ph") setValue(null) }
 
     fun setValue(text: CharSequence?) {

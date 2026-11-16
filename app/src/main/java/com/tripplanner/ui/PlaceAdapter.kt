@@ -13,6 +13,9 @@ import com.tripplanner.R
 import com.tripplanner.data.Place
 import com.tripplanner.data.PlaceStatus
 
+/** '전체' 맨 위 요약 한 줄: 아이콘 · 글자 · (개수) */
+data class SummaryLine(val icon: Int, val text: String, val count: Int? = null)
+
 /** 상세 화면 목록의 한 줄 종류 */
 sealed class DetailItem {
     /** 일차 제목 "● 1일차 11월 20일 (금)" (+ '전체'에서는 오른쪽 '경로 제안') */
@@ -24,7 +27,7 @@ sealed class DetailItem {
                         /** 붙은 예약·티켓 자료 수 ('티켓 n' 뱃지) */
                         val files: Int = 0) : DetailItem()
     /** '전체' 맨 위 교통 · 숙소 요약 */
-    data class Summary(val lines: List<Pair<Int, String>>) : DetailItem()   // (아이콘, 글자)
+    data class Summary(val lines: List<SummaryLine>) : DetailItem()
     /** 맨 아래 여행 메모 */
     data class Memo(val note: String) : DetailItem()
     /** 빈 상태 (목록 안에 표시) */
@@ -196,10 +199,15 @@ class PlaceAdapter(
             is DetailItem.Summary -> (holder as SummaryHolder).apply {
                 rows.removeAllViews()
                 val inf = LayoutInflater.from(itemView.context)
-                item.lines.forEachIndexed { i, (icon, line) ->
+                item.lines.forEachIndexed { i, l ->
                     val row = inf.inflate(R.layout.item_summary_line, rows, false)
-                    row.findViewById<TextView>(R.id.tvSummaryLine).text = line
-                    row.findViewById<ImageView>(R.id.ivSummaryIcon).setImageResource(icon)
+                    row.findViewById<TextView>(R.id.tvSummaryLine).text = l.text
+                    row.findViewById<ImageView>(R.id.ivSummaryIcon).setImageResource(l.icon)
+                    row.findViewById<TextView>(R.id.tvSummaryCount).apply {
+                        visibility = if (l.count == null) View.GONE else View.VISIBLE
+                        text = l.count?.toString()
+                    }
+                    row.contentDescription = listOfNotNull(l.text, l.count?.let { itemView.context.getString(R.string.count_items, it) }).joinToString(", ")
                     row.findViewById<View>(R.id.divider).visibility = if (i == 0) View.GONE else View.VISIBLE
                     row.setOnClickListener { listener.onOpenTravel() }
                     rows.addView(row)

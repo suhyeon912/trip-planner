@@ -156,7 +156,7 @@ class AttachmentsUi(
             AttachmentKind.LODGING -> R.string.attach_kind_lodging
             AttachmentKind.TRIP -> R.string.attach_kind_trip
         })
-        return listOfNotNull(kind, a.uploader.ifBlank { null }, "${date.monthValue}.%02d".format(date.dayOfMonth), sizeLabel(a.size))
+        return listOfNotNull(kind, a.note.ifBlank { null }, a.uploader.ifBlank { null }, "${date.monthValue}.%02d".format(date.dayOfMonth), sizeLabel(a.size))
             .joinToString(activity.getString(R.string.list_separator))
     }
 
@@ -193,17 +193,18 @@ class AttachmentsUi(
         ), widthDp = 200)
     }
 
-    /** 이름 바꾸기 (확장자는 그대로 붙임) */
+    /** 이름 바꾸기 + 짧은 설명 (확장자는 그대로 붙임) */
     private fun rename(a: Attachment) {
         val ext = a.name.substringAfterLast('.', "").takeIf { a.name.contains('.') }
         val base = if (ext != null) a.name.removeSuffix(".$ext") else a.name
         showFormDialog(activity, activity.getString(R.string.attach_rename), listOf(
-            Field(activity.getString(R.string.attach_name), base, InputType.TYPE_CLASS_TEXT)
-        )) { (name) ->
+            Field(activity.getString(R.string.attach_name), base, InputType.TYPE_CLASS_TEXT),
+            Field(activity.getString(R.string.attach_note), a.note, InputType.TYPE_CLASS_TEXT)
+        )) { (name, note) ->
             if (name.isBlank()) false
             else {
                 val full = if (ext != null && !name.endsWith(".$ext")) "$name.$ext" else name
-                activity.lifecycleScope.launch { repo.renameAttachment(a, full); onChanged() }
+                activity.lifecycleScope.launch { repo.renameAttachment(a, full, note.take(20)); onChanged() }
                 true
             }
         }
