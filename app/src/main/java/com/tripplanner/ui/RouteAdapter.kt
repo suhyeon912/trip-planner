@@ -72,9 +72,7 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
         h.key.backgroundTintList = ColorStateList.valueOf(ctx.color(if (selected) R.color.primary else R.color.surface_container))
         h.key.setTextColor(ctx.color(if (selected) R.color.on_primary else R.color.on_surface))
         // 순서가 같은 기준이 셋 이상 합쳐지면 두 개만 쓰고 '외 n' (화면 읽기에는 전부)
-        val shortTitle = if (o.kinds.size > 2) ctx.getString(R.string.option_kinds_more,
-            o.kindTitles[0], o.kindTitles[1], o.kinds.size - 2) else o.title
-        h.name.text = ctx.getString(R.string.option_name, shortTitle, o.totalKm)
+        h.name.text = ctx.getString(R.string.option_name, o.shortTitle(ctx), o.totalKm)
         val seq = o.visits.joinToString(" → ") { it.stop.name }
         val stats = endSpot?.let { ctx.getString(R.string.option_seq_spot, seq, TimeUtil.format(o.endTime), it) }
             ?: ctx.getString(if (hasHome) R.string.option_seq else R.string.option_seq_no_home, seq, TimeUtil.format(o.endTime))
@@ -109,13 +107,18 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
         h.itemView.contentDescription = listOfNotNull(ctx.getString(R.string.option_a11y, o.key, o.title, statsLine(ctx, o, ", "),
                 if (warnCount > 0) ctx.getString(R.string.warn_n_a11y, warnCount) else "",
                 if (o.added.isNotEmpty()) ctx.getString(R.string.added_n_a11y, o.added.size) else ""),
-            if (recommended) ctx.getString(R.string.recommended) else null, stats).joinToString(", ")
+            if (recommended) ctx.getString(R.string.recommended) else null, stats).joinToString(", ") +
+            ", " + ctx.getString(R.string.option_open_a11y)
         ViewCompat.setStateDescription(h.itemView, if (selected) ctx.getString(R.string.state_selected) else null)
         h.itemView.setOnClickListener { onSelect(o.key) }
     }
 
     override fun getItemCount() = options.size
 }
+
+/** 순서가 같은 기준이 셋 이상 합쳐지면 두 개만 쓰고 '외 n' */
+fun RouteOption.shortTitle(ctx: android.content.Context): String = if (kinds.size > 2)
+    ctx.getString(R.string.option_kinds_more, kindTitles[0], kindTitles[1], kinds.size - 2) else title
 
 /** 시간표 구간 한 줄: 수단 · 분 · km · 노선 이름(길찾기로 받았을 때) */
 data class LegInfo(val mode: LegMode, val minutes: Int, val km: Double, val lines: String? = null)

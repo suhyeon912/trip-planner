@@ -348,6 +348,9 @@
     <string name="option_seq_spot">%1$s · %2$s %3$s 도착</string>
     <string name="option_seq_no_home">%1$s · %2$s 끝</string>
     <string name="timetable_title">%1$s 경로 시간표</string>
+    <string name="timetable_title_plain">시간표</string>
+    <string name="route_detail_title">%1$s안 · %2$s</string>
+    <string name="option_open_a11y">눌러서 시간표 보기</string>
     <string name="leg_line">이동 %1$s · %2$.1fkm</string>
     <string name="alert_more">%1$s 외 %2$d개</string>
     <string name="search">검색</string>

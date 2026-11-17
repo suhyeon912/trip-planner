@@ -18,7 +18,9 @@ import android.widget.FrameLayout
 
 /**
  * 경로 제안 (시안 Route): 여행 상세에서 고른 그날의 경로.
- * 출발 시각 칩 → 지도 → 선택지 카드(세로) → 선택한 경로 시간표 → 하단 바에서 길찾기 · 적용
+ *  · 목록: 출발 시각 칩 → 지도 → 선택지 카드(세로, ›)
+ *  · 안을 누르면 그 안의 화면 (같은 화면 안에서 오른쪽에서 밀려 들어옴, 뒤로 = 목록):
+ *    지도(그 안) → 시간표 → (확인할 것) → 하단 바에서 길찾기 · 적용
  * 선택한 안은 앱 안 지도에도 그려 줍니다 (숙소 → 1 → 2 → … → 숙소).
  * 계산(RoutePlanner)과 저장(RouteViewModel.apply)은 그대로입니다.
  */
@@ -53,6 +55,9 @@ class RouteActivity : AppCompatActivity() {
         val btnEndTime = findViewById<View>(R.id.btnEndTime)
         val tvEndTime = findViewById<TextView>(R.id.tvEndTime)
         val mapCard = findViewById<View>(R.id.mapCard)
+        val rvOptions = findViewById<RecyclerView>(R.id.rvOptions)
+        val scroll = findViewById<androidx.core.widget.NestedScrollView>(R.id.scroll)
+        detail = savedInstanceState?.getBoolean(STATE_DETAIL) ?: false
         // 출발 시각: 칩 아래 휠 (적용 전까지 안 바뀜)
         btnStartTime.setOnClickListener { chip ->
             val cur = viewModel.ui.value?.startMinutes ?: RoutePlanner.DEFAULT_START
@@ -78,8 +83,8 @@ class RouteActivity : AppCompatActivity() {
         routeMap = MapHost(findViewById<FrameLayout>(R.id.routeMap), this) { key -> showMapLabel(key) }
 
         // 선택지 카드: 세로로 하나씩
-        val optionAdapter = RouteOptionAdapter { key -> viewModel.selectOption(key) }
-        findViewById<RecyclerView>(R.id.rvOptions).apply {
+        val optionAdapter = RouteOptionAdapter { key -> viewModel.selectOption(key); showDetail(true) }
+        rvOptions.apply {
             layoutManager = LinearLayoutManager(this@RouteActivity)
             adapter = optionAdapter
             itemAnimator = null
@@ -108,6 +113,32 @@ class RouteActivity : AppCompatActivity() {
             adapter = stopAdapter
         }
 
+        // 안 화면에서 뒤로(상단 ← · 시스템 뒤로) → 목록 (경로 제안을 닫지 않음)
+        val backToList = object : androidx.activity.OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() { showDetail(false) }
+        }
+        onBackPressedDispatcher.addCallback(this, backToList)
+        val content = scroll.getChildAt(0)
+        showDetailImpl = { on ->
+            if (detail != on) {
+                detail = on
+                backToList.isEnabled = on
+                scroll.scrollTo(0, 0)
+                // 들어갈 때는 오른쪽에서, 나올 때는 왼쪽에서 조금 밀려 들어옴 (화면 이동 모션과 같은 값)
+                // (시스템 '애니메이션 끄기'면 Animator 길이가 0이 되어 바로 바뀜)
+                val dx = content.width * 0.12f * (if (on) 1 else -1)
+                content.translationX = dx; content.alpha = 0f
+                content.animate().translationX(0f).alpha(1f)
+                    .setDuration(resources.getInteger(R.integer.motion_page).toLong())
+                    .setInterpolator(android.view.animation.AnimationUtils.loadInterpolator(this, R.interpolator.motion_decelerate))
+                    .start()
+                rerender()
+                // 화면 읽기: 바뀐 화면 제목 알리기
+                toolbar.post { toolbar.announceForAccessibility(toolbar.title) }
+            }
+        }
+        backToList.isEnabled = detail
+
         fun render() {
             val s = viewModel.ui.value ?: return
             toolbar.title = getString(R.string.route_title, s.day)
@@ -123,9 +154,13 @@ class RouteActivity : AppCompatActivity() {
 
             bindEmptyState(emptyState, s.empty) { finish() }
             val has = s.options.isNotEmpty()
-            selected.visibility = if (has) View.VISIBLE else View.GONE
-            bottomBar.visibility = if (has) View.VISIBLE else View.GONE
-            timeChips.visibility = if (has) View.VISIBLE else View.GONE
+            if (!has && detail) { detail = false; backToList.isEnabled = false }
+            val inDetail = has && detail
+            selected.visibility = if (inDetail) View.VISIBLE else View.GONE
+            bottomBar.visibility = if (inDetail) View.VISIBLE else View.GONE
+            timeChips.visibility = if (has && !detail) View.VISIBLE else View.GONE
+            rvOptions.visibility = if (detail) View.GONE else View.VISIBLE
+            if (detail) tvNotes.visibility = View.GONE
             mapCard.visibility = if (has) View.VISIBLE else View.GONE
 
             val option = viewModel.selectedOption()
@@ -147,12 +182,13 @@ class RouteActivity : AppCompatActivity() {
             val endLabel = s.endMinutes?.let { TimeUtil.format(it) } ?: getString(R.string.end_free)
             tvEndTime.setTextFading(endLabel)
             btnEndTime.contentDescription = getString(R.string.end_time_a11y, endLabel)
+            if (inDetail && option != null) toolbar.title = getString(R.string.route_detail_title, option.key, option.shortTitle(this))
             if (option != null) {
                 renderRouteMap(option)
-                tvOptionTitle.text = getString(R.string.timetable_title, option.key)
+                tvOptionTitle.setText(R.string.timetable_title_plain)   // 어느 안인지는 상단 제목에
                 // 확인할 것이 있는 경로: 노란 알림 (첫 이유 + 나머지 수)
                 val warnings = option.warnings
-                alertPanel.visibility = if (warnings.isEmpty()) View.GONE else View.VISIBLE
+                alertPanel.visibility = if (warnings.isEmpty() || !inDetail) View.GONE else View.VISIBLE
                 tvAlert.text = if (warnings.size <= 1) warnings.firstOrNull()
                                else getString(R.string.alert_more, warnings.first(), warnings.size - 1)
                 val mapName = MapLauncher.mapName(this, MapLauncher.isDomestic(pointsOf(option)))
@@ -165,6 +201,7 @@ class RouteActivity : AppCompatActivity() {
                 btnApply.setOnClickListener { Haptics.confirm(it); viewModel.apply(option) }
             } else alertPanel.visibility = View.GONE
         }
+        rerender = { render() }
         viewModel.ui.observe(this) { render() }
         viewModel.selectedKey.observe(this) { render() }
         viewModel.loading.observe(this) { progress.visibility = if (it == true) View.VISIBLE else View.INVISIBLE }
@@ -177,6 +214,17 @@ class RouteActivity : AppCompatActivity() {
                 viewModel.appliedShown()
             }
         }
+    }
+
+    /** 안 하나를 크게 보는 중 (목록이 아니라) */
+    private var detail = false
+    private var showDetailImpl: (Boolean) -> Unit = {}
+    private var rerender: () -> Unit = {}
+    private fun showDetail(on: Boolean) = showDetailImpl(on)
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(STATE_DETAIL, detail)
     }
 
     /** 남은 구간도 같게 (화면을 닫을 때까지 기억) */
@@ -325,4 +373,6 @@ class RouteActivity : AppCompatActivity() {
         return listOfNotNull(ends?.start?.let { MapPoint(it.name, it.lat, it.lng) }) + stops +
             listOfNotNull(ends?.end?.let { MapPoint(it.name, it.lat, it.lng) })
     }
+
+    companion object { private const val STATE_DETAIL = "route_detail" }
 }

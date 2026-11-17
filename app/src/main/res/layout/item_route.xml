@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 경로 선택지 카드 (시안 RouteCard): [A] 이름 · 거리 · (✓추천 / ⚠확인 n) / 순서 · 숙소 도착 시각. 고르면 primary 2 테두리 -->
+<!-- 경로 선택지 카드 (시안 RouteCard): [A] 이름 · 거리 · (✓추천 / ⚠확인 n) / 순서 · 숙소 도착 시각 · ›
+     누르면 그 안의 경로 화면(지도 · 시간표 · 적용). 마지막으로 본 안은 primary 2 테두리 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,9 +10,16 @@
     android:background="@drawable/bg_option"
     android:foreground="@drawable/press_card"
         android:stateListAnimator="@animator/press_scale"
+    android:gravity="center_vertical"
     android:minHeight="64dp"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="@dimen/space_m">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -54,4 +63,13 @@
         android:textAppearance="@style/TextAppearance.TripPlanner.BodySmall"
         android:textColor="@color/text_sub"
         tools:text="스카이트리 → 블루보틀 → 츠지한 · 16:43 숙소 도착" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="@dimen/icon_small"
+        android:layout_height="@dimen/icon_small"
+        android:layout_marginStart="@dimen/space_s"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_chevron_right"
+        app:tint="@color/text_sub" />
 </LinearLayout>
