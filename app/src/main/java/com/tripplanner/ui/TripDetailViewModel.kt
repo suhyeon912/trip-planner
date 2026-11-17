@@ -211,7 +211,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
 
     /** 그날 시작 · 끝 (고른 값, 없으면 그날 숙소) */
     fun endpoints(day: Int): DayEndpoints = DayEndpoints.of(trip.value, day, lodgings.value.orEmpty(),
-        places.value.orEmpty().filter { it.status == PlaceStatus.CONFIRMED && it.day == day })
+        places.value.orEmpty().filter { it.status == PlaceStatus.CONFIRMED && it.day == day }, places.value.orEmpty())
 
     /** 그날 타임라인: 시작(숙소 · 장소 · 정하지 않음) → 장소들 → 끝 */
     private fun dayTimeline(day: Int, list: List<Place>): List<DetailItem> {
@@ -219,6 +219,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         fun row(r: com.tripplanner.data.DayAnchors.Resolved, start: Boolean) = when (r) {
             is com.tripplanner.data.DayAnchors.Resolved.Lodge -> DetailItem.LodgingRow(r.lodging.name, start, day)
             is com.tripplanner.data.DayAnchors.Resolved.AtPlace -> DetailItem.LodgingRow(r.place.name, start, day, DetailItem.EndKind.PLACE, r.place)
+            is com.tripplanner.data.DayAnchors.Resolved.Spot -> DetailItem.LodgingRow(r.place.name, start, day, DetailItem.EndKind.SPOT, r.place)
             com.tripplanner.data.DayAnchors.Resolved.None -> DetailItem.LodgingRow("", start, day, DetailItem.EndKind.NONE)
         }
         return listOf(row(ends.start, true)) + rows(ends.pin(list), timeline = true, edgesOpen = true) + row(ends.end, false)
@@ -230,7 +231,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         val updated = t.copy(dayAnchors = com.tripplanner.data.DayAnchors.with(t.dayAnchors, day, start, value))
         repo.updateTrip(updated)
         val dayPlaces = places.value.orEmpty().filter { it.status == PlaceStatus.CONFIRMED && it.day == day }
-        val ends = DayEndpoints.of(updated, day, lodgings.value.orEmpty(), dayPlaces)
+        val ends = DayEndpoints.of(updated, day, lodgings.value.orEmpty(), dayPlaces, places.value.orEmpty())
         val ordered = ends.pin(dayPlaces)
         if (ordered.map { it.id } != dayPlaces.map { it.id })
             repo.updatePlaces(ordered.mapIndexed { i, p -> p.copy(orderInDay = i + 1) })
@@ -305,4 +306,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
 
     fun allLodgings(): List<Lodging> = lodgings.value.orEmpty()
     fun dayPlaces(day: Int): List<Place> = places.value.orEmpty().filter { it.status == PlaceStatus.CONFIRMED && it.day == day }
+    /** 시작 · 끝으로 고를 수 있는 그날 밖 장소: 다른 날 (일차 순) → 일차 미정 → 후보 */
+    fun otherPlaces(day: Int): List<Place> = places.value.orEmpty().filter { !(it.status == PlaceStatus.CONFIRMED && it.day == day) }
+        .sortedWith(compareBy<Place>({ it.status == PlaceStatus.CANDIDATE }, { it.day ?: Int.MAX_VALUE }, { it.orderInDay ?: Int.MAX_VALUE }, { it.id }))
 }

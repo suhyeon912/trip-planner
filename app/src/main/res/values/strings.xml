@@ -154,7 +154,7 @@
     <string name="label_arrive_home">도착</string>
     <string name="end_free">시간 자유</string>
     <string name="end_set_option">시각 정하기</string>
-    <string name="end_time_a11y">숙소 도착 목표 %1$s, 바꾸기</string>
+    <string name="end_time_a11y">도착 목표 %1$s, 바꾸기</string>
     <string name="pick_leave_time">%1$s에서 떠나는 시각</string>
     <string name="leave_a11y">%1$s 떠남, 바꾸기</string>
     <string name="route_note_bullet">· %1$s</string>
@@ -345,6 +345,7 @@
     <string name="option_name">%1$s · %2$.1fkm</string>
     <string name="option_kinds_more">%1$s · %2$s 외 %3$d</string>
     <string name="option_seq">%1$s · %2$s 숙소 도착</string>
+    <string name="option_seq_spot">%1$s · %2$s %3$s 도착</string>
     <string name="option_seq_no_home">%1$s · %2$s 끝</string>
     <string name="timetable_title">%1$s 경로 시간표</string>
     <string name="leg_line">이동 %1$s · %2$.1fkm</string>
@@ -477,6 +478,10 @@
     <!-- 하루의 시작 · 끝 -->
     <string name="endpoint_lodgings">숙소</string>
     <string name="endpoint_places">이 날 장소</string>
+    <string name="endpoint_other_places">다른 장소</string>
+    <string name="endpoint_other_option">%1$s · %2$s</string>
+    <string name="endpoint_spot_start">출발</string>
+    <string name="endpoint_spot_end">도착</string>
     <string name="endpoint_none_start">정하지 않음 (첫 장소에서 출발)</string>
     <string name="endpoint_none_end">정하지 않음 (마지막 장소에서 끝)</string>
     <string name="endpoint_place_start">장소 · 출발</string>

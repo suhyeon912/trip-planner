@@ -33,7 +33,8 @@ enum class LegMode { WALK, TRANSIT, TAXI }
 typealias LegTime = (from: Long, to: Long, km: Double) -> Int
 
 /** 출발·도착 지점 (보통 숙소) */
-data class Anchor(val name: String, val lat: Double, val lng: Double)
+/** 출발 · 도착점. lodging = 숙소인지 (아니면 공항 · 역 같은 장소) — 화면 아이콘에만 씀 */
+data class Anchor(val name: String, val lat: Double, val lng: Double, val lodging: Boolean = true)
 
 /**
  * 하루의 시작 · 끝.

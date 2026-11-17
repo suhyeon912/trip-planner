@@ -23,7 +23,7 @@ sealed class DetailItem {
     /** 타임라인 맨 위·아래 하루의 시작 / 끝: 숙소 · 장소 · 정하지 않음 (누르면 바꾸기) */
     data class LodgingRow(val name: String, val start: Boolean, val day: Int = 0,
                           val kind: EndKind = EndKind.LODGING, val place: Place? = null) : DetailItem()
-    enum class EndKind { LODGING, PLACE, NONE }
+    enum class EndKind { LODGING, PLACE, SPOT, NONE }
     /** 장소 카드. order = 방문 순서(경로 확정 전이면 null), timeline = 왼쪽 타임라인 열 표시 */
     data class PlaceRow(val place: Place, val order: String?, val isFirst: Boolean, val isLast: Boolean, val timeline: Boolean,
                         /** 붙은 예약·티켓 자료 수 ('티켓 n' 뱃지) */
@@ -214,9 +214,13 @@ class PlaceAdapter(
                         thumb.imageTintList = ColorStateList.valueOf(ctx.color(R.color.on_surface))
                         thumb.setPadding((11 * d).toInt(), (11 * d).toInt(), (11 * d).toInt(), (11 * d).toInt())
                     }
-                    DetailItem.EndKind.PLACE -> {
+                    DetailItem.EndKind.PLACE, DetailItem.EndKind.SPOT -> {
                         name.text = item.name
-                        sub.setText(if (item.start) R.string.endpoint_place_start else R.string.endpoint_place_end)
+                        sub.setText(when {
+                            item.kind == DetailItem.EndKind.SPOT -> if (item.start) R.string.endpoint_spot_start else R.string.endpoint_spot_end
+                            item.start -> R.string.endpoint_place_start
+                            else -> R.string.endpoint_place_end
+                        })
                         dot.setImageResource(R.drawable.ic_place)
                         dot.setBackgroundResource(R.drawable.bg_lodging_pin)
                         dot.imageTintList = ColorStateList.valueOf(ctx.color(R.color.card_bg))

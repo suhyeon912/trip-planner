@@ -86,7 +86,9 @@ class TripDetailMap(
                tripCoords: List<Pair<Double, Double>>, startMinutes: Int = com.tripplanner.route.RoutePlanner.DEFAULT_START,
                legTime: com.tripplanner.route.LegTime = com.tripplanner.route.RoutePlanner.DEFAULT_LEG,
                /** n일차의 시작 · 끝 (없으면 그날 숙소 하나로 시작 · 끝) */
-               ends: com.tripplanner.route.Ends? = null) {
+               ends: com.tripplanner.route.Ends? = null,
+               /** 그날 일정 밖인데 시작 · 끝으로 정한 장소 (공항 · 역 등) — 숙소처럼 점 + 시각 이름표 */
+               endSpots: List<Place> = emptyList()) {
         shown = places + candidates
         labels.clear()
         times.clear()
@@ -123,6 +125,11 @@ class TripDetailMap(
             pins += MapPin(-1, l.lat, l.lng, "", ContextCompat.getColor(ctx, R.color.on_surface), MapPin.Style.LODGING,
                 ctx.getString(R.string.map_pin_a11y, ctx.getString(R.string.map_lodging), l.name) +
                     (homeCaptions[l.name]?.let { ", $it" } ?: ""), caption = homeCaptions[l.name])
+        }
+        endSpots.filter { it.hasLocation }.forEach { p ->
+            val cap = homeCaptions[p.name] ?: p.name
+            pins += MapPin(-1, p.lat, p.lng, "", ContextCompat.getColor(ctx, R.color.on_surface), MapPin.Style.SPOT,
+                if (cap == p.name) p.name else "${p.name}, $cap", caption = cap)
         }
         // 일차별로 묶어서 순서대로 선 + 번호 점
         located.groupBy { it.day }.forEach { (day, group) ->

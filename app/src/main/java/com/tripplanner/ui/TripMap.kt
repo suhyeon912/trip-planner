@@ -60,7 +60,8 @@ data class MapPin(
     /** 점 아래 작은 이름표 (예: "10:10 – 11:40"), 없으면 null */
     val caption: String? = null
 ) {
-    enum class Style { FILLED, HOLLOW, LODGING }
+    /** SPOT = 숙소가 아닌 하루의 시작 · 끝 (공항 · 역 등): 숙소 점과 같은 모양, 아이콘만 장소 */
+    enum class Style { FILLED, HOLLOW, LODGING, SPOT }
 }
 
 /** 점들을 잇는 선 하나 */
@@ -234,7 +235,8 @@ object PinIcons {
         val night = (ctx.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
         return cache.getOrPut("${pin.style}|${pin.color}|${pin.label}|$density|${pin.caption}|$night") {
-            val base = if (pin.style == MapPin.Style.LODGING) lodging(ctx, pin.color, density)
+            val base = if (pin.style == MapPin.Style.LODGING || pin.style == MapPin.Style.SPOT)
+                           lodging(ctx, pin.color, density, if (pin.style == MapPin.Style.SPOT) R.drawable.ic_place else R.drawable.ic_hotel)
                        else circle(ctx, pin.label, pin.color, pin.style == MapPin.Style.HOLLOW, density)
             pin.caption?.let { withCaption(ctx, base, it, density) } ?: base
         }
@@ -299,7 +301,7 @@ object PinIcons {
         return bmp
     }
 
-    private fun lodging(ctx: Context, color: Int, density: Float): Bitmap {
+    private fun lodging(ctx: Context, color: Int, density: Float, iconRes: Int = R.drawable.ic_hotel): Bitmap {
         val d = 32 * density
         val stroke = 2.5f * density
         val size = (d + stroke * 2).toInt()
@@ -310,7 +312,7 @@ object PinIcons {
         c.drawCircle(cx, cx, d / 2, Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE; strokeWidth = stroke; this.color = color
         })
-        ContextCompat.getDrawable(ctx, R.drawable.ic_hotel)?.mutate()?.let { icon ->
+        ContextCompat.getDrawable(ctx, iconRes)?.mutate()?.let { icon ->
             val s = (18 * density).toInt()
             val o = ((size - s) / 2f).toInt()
             icon.setTint(color)

@@ -129,12 +129,14 @@ class RouteActivity : AppCompatActivity() {
             mapCard.visibility = if (has) View.VISIBLE else View.GONE
 
             val option = viewModel.selectedOption()
-            optionAdapter.submit(s.options, option?.key, hasHome = s.endpoints.ends.end != null)
+            optionAdapter.submit(s.options, option?.key, hasHome = s.endpoints.ends.end != null,
+                endSpot = s.endpoints.ends.end?.takeIf { !it.lodging }?.name)
             fun pick(r: com.tripplanner.data.DayAnchors.Resolved, start: Boolean): Pair<String, String>? = when (r) {
                 is com.tripplanner.data.DayAnchors.Resolved.AtPlace -> r.place.name to getString(if (start) R.string.endpoint_place_start else R.string.endpoint_place_end)
                 com.tripplanner.data.DayAnchors.Resolved.None -> getString(if (start) R.string.endpoint_unset_start else R.string.endpoint_unset_end) to
                     getString(if (start) R.string.endpoint_none_start_sub else R.string.endpoint_none_end_sub)
                 is com.tripplanner.data.DayAnchors.Resolved.Lodge -> r.lodging.name to getString(R.string.endpoint_no_location)   // 위치 없는 숙소
+                is com.tripplanner.data.DayAnchors.Resolved.Spot -> null   // 출발 · 도착점 줄(시각 있음)로 보임
             }
             stopAdapter.submit(option, s.endpoints.ends, s.startMinutes, pick(s.endpoints.start, true), pick(s.endpoints.end, false),
                 hollowStart = s.endpoints.start !is com.tripplanner.data.DayAnchors.Resolved.AtPlace,
@@ -272,7 +274,7 @@ class RouteActivity : AppCompatActivity() {
     /** 하루의 시작 · 끝 바꾸기: 숙소 · 이 날 장소 · 정하지 않음 */
     private fun pickEndpoint(start: Boolean, row: View) {
         val e = viewModel.ui.value?.endpoints ?: return
-        showEndpointMenu(row, start, if (start) e.start else e.end, viewModel.allLodgings(), viewModel.dayPlaces()) {
+        showEndpointMenu(row, start, if (start) e.start else e.end, viewModel.allLodgings(), viewModel.dayPlaces(), viewModel.otherPlaces()) {
             Haptics.confirm(row); viewModel.setEndpoint(start, it)
         }
     }
@@ -283,9 +285,9 @@ class RouteActivity : AppCompatActivity() {
         val primary = ContextCompat.getColor(this, R.color.primary)
         val added = ContextCompat.getColor(this, R.color.tertiary)
         val pins = mutableListOf<MapPin>()
-        ends?.start?.let { pins += MapPin(-1, it.lat, it.lng, "", ContextCompat.getColor(this, R.color.on_surface), MapPin.Style.LODGING, it.name) }
+        ends?.start?.let { pins += MapPin(-1, it.lat, it.lng, "", ContextCompat.getColor(this, R.color.on_surface), if (it.lodging) MapPin.Style.LODGING else MapPin.Style.SPOT, it.name) }
         ends?.end?.takeIf { it != ends.start }?.let {
-            pins += MapPin(-2, it.lat, it.lng, "", ContextCompat.getColor(this, R.color.on_surface), MapPin.Style.LODGING, it.name)
+            pins += MapPin(-2, it.lat, it.lng, "", ContextCompat.getColor(this, R.color.on_surface), if (it.lodging) MapPin.Style.LODGING else MapPin.Style.SPOT, it.name)
         }
         option.visits.forEachIndexed { i, v ->
             pins += MapPin(i.toLong(), v.stop.lat, v.stop.lng, (i + 1).toString(),

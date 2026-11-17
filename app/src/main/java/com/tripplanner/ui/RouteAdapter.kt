@@ -42,11 +42,14 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
     private var options: List<RouteOption> = emptyList()
     private var selectedKey: String? = null
     private var hasHome = true
+    /** 끝이 숙소가 아닌 장소(공항 · 역 등)면 그 이름 — "16:48 나리타 공항 도착" */
+    private var endSpot: String? = null
 
-    fun submit(list: List<RouteOption>, selected: String?, hasHome: Boolean) {
+    fun submit(list: List<RouteOption>, selected: String?, hasHome: Boolean, endSpot: String? = null) {
         options = list
         selectedKey = selected
         this.hasHome = hasHome
+        this.endSpot = endSpot
         notifyDataSetChanged()
     }
 
@@ -73,7 +76,8 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
             o.kindTitles[0], o.kindTitles[1], o.kinds.size - 2) else o.title
         h.name.text = ctx.getString(R.string.option_name, shortTitle, o.totalKm)
         val seq = o.visits.joinToString(" → ") { it.stop.name }
-        val stats = ctx.getString(if (hasHome) R.string.option_seq else R.string.option_seq_no_home, seq, TimeUtil.format(o.endTime))
+        val stats = endSpot?.let { ctx.getString(R.string.option_seq_spot, seq, TimeUtil.format(o.endTime), it) }
+            ?: ctx.getString(if (hasHome) R.string.option_seq else R.string.option_seq_no_home, seq, TimeUtil.format(o.endTime))
         val same = h.itemView.getTag(R.id.tag_bound_key) == o.key
         h.itemView.setTag(R.id.tag_bound_key, o.key)
         if (same) h.stats.setTextFading(stats) else h.stats.setTextNow(stats)
@@ -139,7 +143,7 @@ class RouteStopAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private sealed class Row {
-        data class Home(val name: String, val time: Int, val start: Boolean) : Row()
+        data class Home(val name: String, val time: Int, val start: Boolean, val lodging: Boolean = true) : Row()
         /** 숙소가 아닌 시작 · 끝 (장소에서 시작 / 정하지 않음) — 시각 없이 이름 · 설명 */
         data class Pick(val start: Boolean, val title: String, val sub: String, val hollow: Boolean) : Row()
         data class Stop(val visit: Visit) : Row()
@@ -162,14 +166,14 @@ class RouteStopAdapter(
                 val from = prev ?: return
                 add(Row.Leg(prevId, toId, RoutePlanner.legKm(from.first, from.second, to.first, to.second)))
             }
-            if (start != null) add(Row.Home(start.name, startMinutes, true))
+            if (start != null) add(Row.Home(start.name, startMinutes, true, start.lodging))
             else startPick?.let { add(Row.Pick(true, it.first, it.second, hollowStart)) }
             option.visits.forEach { v ->
                 leg(v.stop.id, v.stop.lat to v.stop.lng)
                 add(Row.Stop(v))
                 prev = v.stop.lat to v.stop.lng; prevId = v.stop.id
             }
-            if (end != null) { leg(RoutePlanner.ANCHOR_ID, end.lat to end.lng); add(Row.Home(end.name, option.endTime, false)) }
+            if (end != null) { leg(RoutePlanner.ANCHOR_ID, end.lat to end.lng); add(Row.Home(end.name, option.endTime, false, end.lodging)) }
             else endPick?.let { add(Row.Pick(false, it.first, it.second, hollowEnd)) }
         }
         notifyDataSetChanged()
@@ -229,7 +233,7 @@ class RouteStopAdapter(
                 arrive.time(TimeUtil.format(row.time))
                 leave.visibility = View.GONE
                 leave.setOnClickListener(null)
-                icon.setImageResource(R.drawable.ic_hotel)
+                icon.setImageResource(if (row.lodging) R.drawable.ic_hotel else R.drawable.ic_place)
                 icon.setPadding(6.dp(ctx), 6.dp(ctx), 6.dp(ctx), 6.dp(ctx))
                 icon.background = ContextCompat.getDrawable(ctx, R.drawable.bg_lodging_pin)
                 icon.imageTintList = ColorStateList.valueOf(ctx.color(R.color.card_bg))

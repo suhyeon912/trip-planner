@@ -105,6 +105,9 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
 
     fun allLodgings(): List<Lodging> = lodgings
     fun dayPlaces(): List<Place> = places.filter { it.status == PlaceStatus.CONFIRMED && it.day == selectedDay }
+    /** 시작 · 끝으로 고를 수 있는 그날 밖 장소: 다른 날 (일차 순) → 일차 미정 → 후보 */
+    fun otherPlaces(): List<Place> = places.filter { !(it.status == PlaceStatus.CONFIRMED && it.day == selectedDay) }
+        .sortedWith(compareBy<Place>({ it.status == PlaceStatus.CANDIDATE }, { it.day ?: Int.MAX_VALUE }, { it.orderInDay ?: Int.MAX_VALUE }, { it.id }))
 
     /** 하루의 시작 · 끝 바꾸기 (여행 상세와 같은 저장). 장소를 고르면 그 장소가 처음 · 마지막에 오게 순서도 저장 */
     fun setEndpoint(start: Boolean, value: com.tripplanner.data.Endpoint) = viewModelScope.launch {
@@ -113,7 +116,7 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         repo.updateTrip(updated)
         trip = updated
         val today = dayPlaces()
-        val ordered = DayEndpoints.of(updated, selectedDay, lodgings, today).pin(today)
+        val ordered = DayEndpoints.of(updated, selectedDay, lodgings, today, places).pin(today)
         if (ordered.map { it.id } != today.map { it.id }) {
             repo.updatePlaces(ordered.mapIndexed { i, p -> p.copy(orderInDay = i + 1) })
             places = repo.getPlaces(tripId).sortedWith(compareBy<Place>({ it.orderInDay == null }, { it.orderInDay }, { it.id }))
@@ -234,7 +237,7 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         val notes = todays.filterNot { it.hasLocation }.map { ctx.getString(R.string.note_no_location, it.name) }
 
         // 하루의 시작 · 끝: 고른 숙소 · 장소, 없으면 그날 묵는 숙소
-        val endpoints = DayEndpoints.of(t, day, lodgings, todays)
+        val endpoints = DayEndpoints.of(t, day, lodgings, todays, places)
         val ends = endpoints.ends
 
         if (withLoc.isEmpty()) {

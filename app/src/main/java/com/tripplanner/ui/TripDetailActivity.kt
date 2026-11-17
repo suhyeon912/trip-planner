@@ -197,7 +197,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             }
             detailMap.render(places, candidates, day, lodgings, viewModel.tripCoords(),
                 startMinutes = trip?.startMinutes ?: com.tripplanner.route.RoutePlanner.DEFAULT_START, legTime = legTime,
-                ends = e)
+                ends = e, endSpots = ends?.spots.orEmpty())
             toolbar.subtitle = mapSubtitle()
         }
         fun updateBottom() {
@@ -298,10 +298,10 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
 
     override fun onOpenTravel() = openTravelInfo()
 
-    /** 하루의 시작 · 끝 줄 → 숙소 · 이 날 장소 · 정하지 않음 */
+    /** 하루의 시작 · 끝 줄 → 숙소 · 이 날 장소 · 다른 장소 · 정하지 않음 */
     override fun onPickEndpoint(day: Int, start: Boolean, anchor: View) {
         val ends = viewModel.endpoints(day)
-        showEndpointMenu(anchor, start, if (start) ends.start else ends.end, viewModel.allLodgings(), viewModel.dayPlaces(day)) {
+        showEndpointMenu(anchor, start, if (start) ends.start else ends.end, viewModel.allLodgings(), viewModel.dayPlaces(day), viewModel.otherPlaces(day)) {
             Haptics.confirm(anchor)
             viewModel.setEndpoint(day, start, it)
         }
