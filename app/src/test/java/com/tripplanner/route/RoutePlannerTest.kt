@@ -152,4 +152,49 @@ class RoutePlannerTest {
         assertEquals(630, sim.visits.single().arrive)
         assertEquals(690, sim.endTime)
     }
+
+    @Test fun ends_pinnedFirstAndLastPlace() {
+        // 처음 = 라멘집, 마지막 = 오사카성 → 모든 안에서 그 자리에 고정, 숙소 없이 시작 · 끝
+        val stops = listOf(castle, dotonbori, ramen, Stop(4, "우메다", 34.7053, 135.4896))
+        val e = Ends(start = null, end = null, firstId = 3, lastId = 1)
+        val options = RoutePlanner.plan(null, stops, emptyList(), startTime = 600, ends = e)
+        options.forEach { o ->
+            assertEquals(3L, o.visits.first().stop.id)
+            assertEquals(1L, o.visits.last().stop.id)
+        }
+        // 시작이 장소면 그 장소에 출발 시각 그대로 도착 (앞 이동 없음), 끝이 장소면 그 장소를 떠날 때 하루 끝
+        val o = options.first()
+        assertEquals(maxOf(600, 660), o.visits.first().arrive)   // 라멘집은 11:00 에 열어서 기다림
+        assertEquals(o.visits.last().leave, o.endTime)
+    }
+
+    @Test fun ends_differentLodgings() {
+        // 숙소를 옮기는 날: A 호텔에서 나가서 B 호텔로 들어감
+        val a = Anchor("A 호텔", 34.70, 135.49)
+        val b = Anchor("B 호텔", 34.66, 135.50)
+        val stops = listOf(castle, dotonbori)
+        val e = Ends(start = a, end = b)
+        val km = RoutePlanner.totalKm(e, stops)
+        val expected = RoutePlanner.legKm(a.lat, a.lng, castle.lat, castle.lng) +
+            RoutePlanner.legKm(castle.lat, castle.lng, dotonbori.lat, dotonbori.lng) +
+            RoutePlanner.legKm(dotonbori.lat, dotonbori.lng, b.lat, b.lng)
+        assertEquals(expected, km, 1e-9)
+        val shortest = RoutePlanner.plan(null, stops, emptyList(), ends = e).first { RouteKind.SHORTEST in it.kinds }
+        // 북쪽 A 에서 시작해 남쪽 B 로 끝나니 오사카성(북) → 도톤보리(남)
+        assertEquals(listOf(1L, 2L), shortest.visits.map { it.stop.id })
+    }
+
+    @Test fun ends_samePlaceForBoth_keepsOnlyStart() {
+        val e = Ends(start = null, end = null, firstId = 2, lastId = 2)
+        val o = RoutePlanner.plan(null, listOf(castle, dotonbori, ramen), emptyList(), ends = e)
+        o.forEach { assertEquals(2L, it.visits.first().stop.id) }
+    }
+
+    @Test fun boardings_realTransfers() {
+        // 실제 환승 수를 주면 그 합이 가장 적은 순서, 카드 이름에서 '(어림)'이 빠짐
+        val stops = listOf(castle, dotonbori, ramen)
+        val o = RoutePlanner.plan(hotel, stops, emptyList(), boardings = { f, t, _ -> if (f == 1L || t == 1L) 3 else 1 }, transferEstimated = false)
+        val f = o.first { RouteKind.FEWER_TRANSFERS in it.kinds }
+        assertTrue(f.kindTitles.contains("환승 적은 순"))
+    }
 }

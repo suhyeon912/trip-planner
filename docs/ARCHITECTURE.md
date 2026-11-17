@@ -37,7 +37,8 @@ app/src/main/java/com/tripplanner/
 │  ├─ TripDao.kt              쿼리 모음
 │  ├─ AppDatabase.kt          DB 버전 · 마이그레이션
 │  ├─ TripRepository.kt       화면은 이것만 통해서 데이터 접근
-│  └─ SampleData.kt           예시 여행 (처음 실행 시)
+│  ├─ SampleData.kt           예시 여행 (처음 실행 시)
+│  └─ DayAnchors.kt           하루의 시작 · 끝 저장 형식
 ├─ route/
 │  ├─ RoutePlanner.kt         경로 안 6가지 계산 · 같은 순서 합치기 · 구간 이동 시간
 │  ├─ TimeUtil.kt             "11:00 ~ 21:00" 해석, 요일, 일차 날짜
@@ -57,6 +58,7 @@ app/src/main/java/com/tripplanner/
    │  ├─ AddPlaceActivity · PlaceSearch · PlaceSearchDialog · Geocoding  장소 추가·수정 · 검색 · 주소→좌표
    │  ├─ TravelInfoActivity · TravelInfoViewModel · TravelFormActivity   교통·숙소
    │  ├─ RouteActivity · RouteViewModel · RouteAdapter · LegModes        경로 제안 · 구간 이동 수단
+   │  ├─ Directions · DayEndsUi                                         길찾기 (Routes API) · 하루의 시작 · 끝
    │  ├─ ActivityLogActivity · ShareDialogs                              활동 기록 · 공유·초대 팝업
    │  └─ SettingsActivity · TypeEditor · TypeIcons · AppPrefs            설정 · 내가 만든 종류 · 아이콘 120개
    ├─ 지도
@@ -103,6 +105,7 @@ app/src/main/java/com/tripplanner/
 | 7 | 숙소 도착 목표 시각 |
 | 8 | 관련 링크 · 내가 만든 종류 · Google 장소 id, 종류 · 자료 표 |
 | 9 | 자료 짧은 설명 |
+| 10 | 일차별 하루의 시작 · 끝 장소 |
 
 DB 구조를 바꾸면 `version`을 1 올리고 `MIGRATION_n_n+1`을 추가하세요. 기존 데이터는 지우지 않습니다.
 
@@ -112,9 +115,19 @@ DB 구조를 바꾸면 `version`을 1 올리고 `MIGRATION_n_n+1`을 추가하�
 
 `route/RoutePlanner.kt`
 
+**하루의 시작 · 끝** (`data/DayAnchors.kt`, `ui/DayEndsUi.kt`)
+- 일차마다 시작 · 끝을 따로 고릅니다: 숙소(아무 숙소나) · 그날 장소 · 정하지 않음. 고르지 않으면 그날 묵는 숙소입니다.
+- 숙소면 출발점 · 도착점, 장소면 그 장소를 처음 · 마지막에 들르고(순서 고정) 숙소로 가거나 오지 않습니다.
+- `Trip.dayAnchors`에 이름으로 저장해서 공유됩니다. 장소 이름을 바꾸면 같이 바뀌고, 없어진 숙소 · 장소는 기본(그날 숙소)으로 돌아갑니다.
+
 **거리 · 시간**
-- 길찾기 API 없이 **직선거리 × 1.3**으로 거리를 어림합니다.
-- 이동 시간은 구간마다 수단별로 어림합니다.
+- 기본은 **직선거리 × 1.3**으로 거리를 어림합니다.
+- **Google Routes API** (`ui/Directions.kt`)를 켜면 구간마다 실제 이동 시간 · 거리 · 노선 이름 · 타는 횟수를 받아 씁니다.
+  - 순서 비교에 쓰는 구간(시작점 · 장소 · 도착점 사이, 장소 7곳까지)과 화면에 보이는 구간을 받아 오고, 받으면 다시 계산합니다.
+  - 결과는 기기에 30일 저장해서 같은 구간을 다시 묻지 않습니다. 길이 없거나 지원하지 않는 곳(예: 한국의 도보 · 차)은 하루 동안 '없음'으로 저장하고 어림값을 씁니다.
+  - 대중교통 시간표는 여행 날이 30일 안이면 그날, 아니면 가장 가까운 같은 요일 기준입니다.
+  - 경로 화면 부제에 기준이 보입니다: 'Google 길찾기 기준' · '일부 구간은 어림' · '직선거리 기반 추정치'.
+- 받지 못한 구간은 수단별로 어림합니다.
 
   | 수단 | 시간 |
   |---|---|
@@ -132,7 +145,7 @@ DB 구조를 바꾸면 `version`을 1 올리고 `MIGRATION_n_n+1`을 추가하�
 |---|---|
 | 이동 거리 우선 | 총 거리가 가장 짧은 순서 (8곳 이하는 모든 순서 비교) |
 | 가까운 곳부터 | 숙소에서 가장 가까운 곳 → 거기서 또 가장 가까운 곳 … |
-| 환승 적은 순(어림) | 대중교통으로 타는 구간이 가장 적은 순서 |
+| 환승 적은 순 | 버스 · 지하철을 타는 횟수가 가장 적은 순서 (길찾기를 못 받은 구간이 있으면 '(어림)') |
 | 지금 순서 그대로 | 여행 상세에서 정한 순서 |
 | 시간 맞춤 | 경고가 적고 기다리는 시간이 짧은 순서 |
 | 후보 포함 | 최단 경로에서 3km 이내로 돌아가면 들를 수 있는 후보를 최대 2곳 추가 |

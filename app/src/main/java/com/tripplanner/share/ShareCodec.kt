@@ -47,6 +47,7 @@ object ShareCodec {
         "note" to s.trip.note,
         "startMinutes" to s.trip.startMinutes,
         "endMinutes" to s.trip.endMinutes,
+        "dayAnchors" to s.trip.dayAnchors,
         "places" to s.places.map { p ->
             mapOf(
                 "name" to p.name, "status" to p.status.name, "openingHours" to p.openingHours,
@@ -78,7 +79,8 @@ object ShareCodec {
             endDate = m.str("endDate") ?: base.endDate,
             note = m.str("note") ?: "",
             startMinutes = m.int("startMinutes") ?: 600,
-            endMinutes = m.int("endMinutes")
+            endMinutes = m.int("endMinutes"),
+            dayAnchors = m.str("dayAnchors") ?: ""
         )
         val places = m.list("places").map { p ->
             Place(

@@ -20,8 +20,10 @@ data class SummaryLine(val icon: Int, val text: String, val count: Int? = null)
 sealed class DetailItem {
     /** 일차 제목 "● 1일차 11월 20일 (금)" (+ '전체'에서는 오른쪽 '경로 제안') */
     data class Header(val title: String, val sub: String, val day: Int? = null, val routeLink: Boolean = false) : DetailItem()
-    /** 타임라인 맨 위·아래 숙소 (출발 / 도착) */
-    data class LodgingRow(val name: String, val start: Boolean) : DetailItem()
+    /** 타임라인 맨 위·아래 하루의 시작 / 끝: 숙소 · 장소 · 정하지 않음 (누르면 바꾸기) */
+    data class LodgingRow(val name: String, val start: Boolean, val day: Int = 0,
+                          val kind: EndKind = EndKind.LODGING, val place: Place? = null) : DetailItem()
+    enum class EndKind { LODGING, PLACE, NONE }
     /** 장소 카드. order = 방문 순서(경로 확정 전이면 null), timeline = 왼쪽 타임라인 열 표시 */
     data class PlaceRow(val place: Place, val order: String?, val isFirst: Boolean, val isLast: Boolean, val timeline: Boolean,
                         /** 붙은 예약·티켓 자료 수 ('티켓 n' 뱃지) */
@@ -51,6 +53,8 @@ class PlaceAdapter(
         fun onOpenTravel()
         fun onOpenNote()
         fun onEmptyAction(action: EmptyState.Action)
+        /** 하루의 시작(start) · 끝 줄을 눌렀을 때 */
+        fun onPickEndpoint(day: Int, start: Boolean, anchor: View)
     }
 
     companion object {
@@ -102,7 +106,7 @@ class PlaceAdapter(
     private fun sameItem(a: DetailItem, b: DetailItem) = when (a) {
         is DetailItem.PlaceRow -> b is DetailItem.PlaceRow && a.place.id == b.place.id
         is DetailItem.Header -> b is DetailItem.Header && (if (a.day != null) a.day == b.day else b.day == null && a.title == b.title)
-        is DetailItem.LodgingRow -> b is DetailItem.LodgingRow && a.start == b.start
+        is DetailItem.LodgingRow -> b is DetailItem.LodgingRow && a.start == b.start && a.day == b.day
         is DetailItem.Summary -> b is DetailItem.Summary
         is DetailItem.Memo -> b is DetailItem.Memo
         is DetailItem.Empty -> b is DetailItem.Empty && a.state == b.state
@@ -127,6 +131,9 @@ class PlaceAdapter(
         val route: Button = v.findViewById(R.id.btnHeaderRoute)
     }
     class LodgingHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val dot: ImageView = v.findViewById(R.id.ivEndDot)
+        val thumb: ImageView = v.findViewById(R.id.ivEndThumb)
+        val card: View = v.findViewById(R.id.endCard)
         val lineAbove: View = v.findViewById(R.id.lineAbove)
         val lineBelow: View = v.findViewById(R.id.lineBelow)
         val name: TextView = v.findViewById(R.id.tvLodgingName)
@@ -190,11 +197,45 @@ class PlaceAdapter(
                 }
             }
             is DetailItem.LodgingRow -> (holder as LodgingHolder).apply {
-                name.text = item.name
-                sub.setText(if (item.start) R.string.lodging_start else R.string.lodging_end)
+                val ctx = itemView.context
+                val d = ctx.resources.displayMetrics.density
                 lineAbove.visibility = if (item.start) View.INVISIBLE else View.VISIBLE
                 lineBelow.visibility = if (item.start) View.VISIBLE else View.INVISIBLE
-                itemView.setOnClickListener { listener.onOpenTravel() }
+                when (item.kind) {
+                    DetailItem.EndKind.LODGING -> {
+                        name.text = item.name
+                        sub.setText(if (item.start) R.string.lodging_start else R.string.lodging_end)
+                        dot.setImageResource(R.drawable.ic_hotel)
+                        dot.setBackgroundResource(R.drawable.bg_lodging_pin)
+                        dot.imageTintList = ColorStateList.valueOf(ctx.color(R.color.card_bg))
+                        thumb.visibility = View.VISIBLE
+                        thumb.setBackgroundResource(R.drawable.bg_thumb_neutral)
+                        thumb.setImageResource(R.drawable.ic_hotel)
+                        thumb.imageTintList = ColorStateList.valueOf(ctx.color(R.color.on_surface))
+                        thumb.setPadding((11 * d).toInt(), (11 * d).toInt(), (11 * d).toInt(), (11 * d).toInt())
+                    }
+                    DetailItem.EndKind.PLACE -> {
+                        name.text = item.name
+                        sub.setText(if (item.start) R.string.endpoint_place_start else R.string.endpoint_place_end)
+                        dot.setImageResource(R.drawable.ic_place)
+                        dot.setBackgroundResource(R.drawable.bg_lodging_pin)
+                        dot.imageTintList = ColorStateList.valueOf(ctx.color(R.color.card_bg))
+                        thumb.visibility = View.VISIBLE
+                        item.place?.let { Thumbs.bind(thumb, it) }
+                    }
+                    DetailItem.EndKind.NONE -> {
+                        name.setText(if (item.start) R.string.endpoint_unset_start else R.string.endpoint_unset_end)
+                        sub.setText(if (item.start) R.string.endpoint_none_start_sub else R.string.endpoint_none_end_sub)
+                        dot.setImageDrawable(null)
+                        dot.background = android.graphics.drawable.GradientDrawable().apply {
+                            shape = android.graphics.drawable.GradientDrawable.OVAL
+                            setColor(ctx.color(R.color.card_bg)); setStroke((2 * d).toInt(), ctx.color(R.color.outline))
+                        }
+                        thumb.visibility = View.GONE
+                    }
+                }
+                card.contentDescription = "${name.text}, ${sub.text}, " + ctx.getString(R.string.endpoint_change_a11y)
+                card.setOnClickListener { listener.onPickEndpoint(item.day, item.start, it) }
             }
             is DetailItem.Summary -> (holder as SummaryHolder).apply {
                 rows.removeAllViews()

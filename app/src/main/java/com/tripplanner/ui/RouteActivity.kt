@@ -101,7 +101,8 @@ class RouteActivity : AppCompatActivity() {
                 if (leave < visit.arrive) leave += 24 * 60
                 viewModel.setLeaveTime(visit.stop.id, visit.arrive, leave)
             }
-        }, legMode = { f, t, km -> viewModel.legMode(f, t, km) }) { leg, rest, km, pill -> showLegModes(pill, leg, rest, km) }
+        }, legInfo = { f, t, km -> viewModel.legInfo(f, t, km) },
+            onLeg = { leg, rest, km, pill -> showLegModes(pill, leg, rest, km) }) { start, row -> pickEndpoint(start, row) }
         findViewById<RecyclerView>(R.id.rvStops).apply {
             layoutManager = LinearLayoutManager(this@RouteActivity)
             adapter = stopAdapter
@@ -111,7 +112,12 @@ class RouteActivity : AppCompatActivity() {
             val s = viewModel.ui.value ?: return
             toolbar.title = getString(R.string.route_title, s.day)
             // 시각·거리는 직선거리로 어림한 값이라는 것을 늘 보이게
-            toolbar.subtitle = getString(R.string.route_subtitle_fmt, TimeUtil.format(s.startMinutes))
+            // 이동 시간을 어디서 얻었는지 (길찾기 · 일부 어림 · 직선거리 어림)
+            toolbar.subtitle = getString(when (s.source) {
+                RouteSource.API -> R.string.route_subtitle_api
+                RouteSource.PARTIAL -> R.string.route_subtitle_partial
+                RouteSource.ESTIMATE -> R.string.route_subtitle_fmt
+            }, TimeUtil.format(s.startMinutes))
             tvNotes.visibility = if (s.notes.isEmpty()) View.GONE else View.VISIBLE
             tvNotes.text = s.notes.joinToString("\n") { getString(R.string.route_note_bullet, it) }
 
@@ -123,8 +129,16 @@ class RouteActivity : AppCompatActivity() {
             mapCard.visibility = if (has) View.VISIBLE else View.GONE
 
             val option = viewModel.selectedOption()
-            optionAdapter.submit(s.options, option?.key, hasHome = s.anchor != null)
-            stopAdapter.submit(option, s.anchor, s.startMinutes)
+            optionAdapter.submit(s.options, option?.key, hasHome = s.endpoints.ends.end != null)
+            fun pick(r: com.tripplanner.data.DayAnchors.Resolved, start: Boolean): Pair<String, String>? = when (r) {
+                is com.tripplanner.data.DayAnchors.Resolved.AtPlace -> r.place.name to getString(if (start) R.string.endpoint_place_start else R.string.endpoint_place_end)
+                com.tripplanner.data.DayAnchors.Resolved.None -> getString(if (start) R.string.endpoint_unset_start else R.string.endpoint_unset_end) to
+                    getString(if (start) R.string.endpoint_none_start_sub else R.string.endpoint_none_end_sub)
+                is com.tripplanner.data.DayAnchors.Resolved.Lodge -> r.lodging.name to getString(R.string.endpoint_no_location)   // 위치 없는 숙소
+            }
+            stopAdapter.submit(option, s.endpoints.ends, s.startMinutes, pick(s.endpoints.start, true), pick(s.endpoints.end, false),
+                hollowStart = s.endpoints.start !is com.tripplanner.data.DayAnchors.Resolved.AtPlace,
+                hollowEnd = s.endpoints.end !is com.tripplanner.data.DayAnchors.Resolved.AtPlace)
             val startLabel = TimeUtil.format(s.startMinutes)
             tvStartTime.setTextFading(startLabel)
             btnStartTime.contentDescription = getString(R.string.start_time_a11y, startLabel)
@@ -197,7 +211,9 @@ class RouteActivity : AppCompatActivity() {
                     setTextAppearance(R.style.TextAppearance_TripPlanner_TitleSmall)
                     setTextColor(color(if (sel) R.color.on_primary_container else R.color.on_surface))
                 })
-                val about = getString(R.string.leg_about, minutesLabel(com.tripplanner.route.RoutePlanner.modeMinutes(mode, km)))
+                // '약 n분' (+ 받아 둔 노선: '약 10분 · 도부 스카이트리선')
+                val (mins, lines) = viewModel.modeMinutes(leg.first, leg.second, km, mode)
+                val about = getString(R.string.leg_about, minutesLabel(mins)) + (lines?.let { getString(R.string.list_separator) + it } ?: "")
                 addView(TextView(context).apply {
                     text = about
                     setTextAppearance(R.style.TextAppearance_TripPlanner_BodySmall)
@@ -253,14 +269,24 @@ class RouteActivity : AppCompatActivity() {
         popup.showAsDropDown(anchor, 0, dp(4))
     }
 
-    /** 선택한 안을 지도에: 숙소(집 모양) → 번호 점 → 숙소, C안에서 추가된 후보는 청록색 */
+    /** 하루의 시작 · 끝 바꾸기: 숙소 · 이 날 장소 · 정하지 않음 */
+    private fun pickEndpoint(start: Boolean, row: View) {
+        val e = viewModel.ui.value?.endpoints ?: return
+        showEndpointMenu(row, start, if (start) e.start else e.end, viewModel.allLodgings(), viewModel.dayPlaces()) {
+            Haptics.confirm(row); viewModel.setEndpoint(start, it)
+        }
+    }
+
+    /** 선택한 안을 지도에: 시작 숙소(집 모양) → 번호 점 → 끝 숙소, 후보 포함에서 추가된 후보는 청록색 */
     private fun renderRouteMap(option: RouteOption) {
-        val anchor = viewModel.ui.value?.anchor
+        val ends = viewModel.ui.value?.endpoints?.ends
         val primary = ContextCompat.getColor(this, R.color.primary)
         val added = ContextCompat.getColor(this, R.color.tertiary)
         val pins = mutableListOf<MapPin>()
-        if (anchor != null) pins += MapPin(-1, anchor.lat, anchor.lng, "", ContextCompat.getColor(this, R.color.on_surface),
-            MapPin.Style.LODGING, anchor.name)
+        ends?.start?.let { pins += MapPin(-1, it.lat, it.lng, "", ContextCompat.getColor(this, R.color.on_surface), MapPin.Style.LODGING, it.name) }
+        ends?.end?.takeIf { it != ends.start }?.let {
+            pins += MapPin(-2, it.lat, it.lng, "", ContextCompat.getColor(this, R.color.on_surface), MapPin.Style.LODGING, it.name)
+        }
         option.visits.forEachIndexed { i, v ->
             pins += MapPin(i.toLong(), v.stop.lat, v.stop.lng, (i + 1).toString(),
                 if (v.stop.isCandidate) added else primary, MapPin.Style.FILLED, v.stop.name)
@@ -279,7 +305,8 @@ class RouteActivity : AppCompatActivity() {
         val option = mapOption
         val text = when {
             key == null || option == null -> null
-            key < 0 -> viewModel.ui.value?.anchor?.name
+            key == -1L -> viewModel.ui.value?.endpoints?.ends?.start?.name
+            key < 0 -> viewModel.ui.value?.endpoints?.ends?.end?.name
             else -> option.visits.getOrNull(key.toInt())?.let { v ->
                 "${key + 1}. ${v.stop.name}" + getString(R.string.list_separator) +
                     getString(R.string.stop_arrive_end, TimeUtil.format(v.arrive))
@@ -291,11 +318,9 @@ class RouteActivity : AppCompatActivity() {
 
     /** 숙소 → 방문 순서 → 숙소 를 지도에 넘길 지점 목록으로 */
     private fun pointsOf(option: RouteOption): List<MapPoint> {
-        val anchor = viewModel.ui.value?.anchor
+        val ends = viewModel.ui.value?.endpoints?.ends
         val stops = option.visits.map { MapPoint(it.stop.name, it.stop.lat, it.stop.lng) }
-        return if (anchor != null) {
-            val home = MapPoint(anchor.name, anchor.lat, anchor.lng)
-            listOf(home) + stops + home
-        } else stops
+        return listOfNotNull(ends?.start?.let { MapPoint(it.name, it.lat, it.lng) }) + stops +
+            listOfNotNull(ends?.end?.let { MapPoint(it.name, it.lat, it.lng) })
     }
 }

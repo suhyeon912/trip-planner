@@ -70,7 +70,7 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
         h.key.setTextColor(ctx.color(if (selected) R.color.on_primary else R.color.on_surface))
         // 순서가 같은 기준이 셋 이상 합쳐지면 두 개만 쓰고 '외 n' (화면 읽기에는 전부)
         val shortTitle = if (o.kinds.size > 2) ctx.getString(R.string.option_kinds_more,
-            o.kinds[0].title, o.kinds[1].title, o.kinds.size - 2) else o.title
+            o.kindTitles[0], o.kindTitles[1], o.kinds.size - 2) else o.title
         h.name.text = ctx.getString(R.string.option_name, shortTitle, o.totalKm)
         val seq = o.visits.joinToString(" → ") { it.stop.name }
         val stats = ctx.getString(if (hasHome) R.string.option_seq else R.string.option_seq_no_home, seq, TimeUtil.format(o.endTime))
@@ -113,6 +113,9 @@ class RouteOptionAdapter(private val onSelect: (String) -> Unit) : RecyclerView.
     override fun getItemCount() = options.size
 }
 
+/** 시간표 구간 한 줄: 수단 · 분 · km · 노선 이름(길찾기로 받았을 때) */
+data class LegInfo(val mode: LegMode, val minutes: Int, val km: Double, val lines: String? = null)
+
 /** 수단 이름 · 아이콘 */
 val LegMode.labelRes: Int get() = when (this) {
     LegMode.WALK -> R.string.leg_walk; LegMode.TRANSIT -> R.string.leg_transit; LegMode.TAXI -> R.string.leg_taxi
@@ -126,35 +129,48 @@ val LegMode.iconRes: Int get() = when (this) {
 class RouteStopAdapter(
     private val placeOf: (Long) -> Place?,
     private val onLeave: (Visit, View) -> Unit = { _, _ -> },
-    /** 구간 (출발 id, 도착 id, km) → 수단 */
-    private val legMode: (Long, Long, Double) -> LegMode = { _, _, km -> RoutePlanner.defaultMode(km) },
+    /** 구간 (출발 id, 도착 id, 어림 km) → 수단 · 시간 · 거리 · 노선 */
+    private val legInfo: (Long, Long, Double) -> LegInfo = { _, _, km ->
+        RoutePlanner.defaultMode(km).let { LegInfo(it, RoutePlanner.modeMinutes(it, km), km) } },
     /** 구간 알약을 누르면: 이 구간 · 이 구간부터 끝까지 · 누른 알약 */
-    private val onLeg: (leg: Pair<Long, Long>, rest: List<Pair<Long, Long>>, km: Double, View) -> Unit = { _, _, _, _ -> }
+    private val onLeg: (leg: Pair<Long, Long>, rest: List<Pair<Long, Long>>, km: Double, View) -> Unit = { _, _, _, _ -> },
+    /** 시작(start) · 끝 줄을 누르면 바꾸기 */
+    private val onEndpoint: (start: Boolean, View) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private sealed class Row {
-        data class Home(val name: String, val time: Int) : Row()
+        data class Home(val name: String, val time: Int, val start: Boolean) : Row()
+        /** 숙소가 아닌 시작 · 끝 (장소에서 시작 / 정하지 않음) — 시각 없이 이름 · 설명 */
+        data class Pick(val start: Boolean, val title: String, val sub: String, val hollow: Boolean) : Row()
         data class Stop(val visit: Visit) : Row()
         data class Leg(val from: Long, val to: Long, val km: Double) : Row()
     }
 
     private var rows: List<Row> = emptyList()
 
-    fun submit(option: RouteOption?, anchor: Anchor?, startMinutes: Int = RoutePlanner.DEFAULT_START) {
+    /**
+     * @param ends 하루의 시작 · 끝 (숙소면 시각이 있는 줄)
+     * @param startPick · endPick 숙소가 아닐 때 보일 (제목, 설명) — 장소에서 시작 · 정하지 않음
+     */
+    fun submit(option: RouteOption?, ends: com.tripplanner.route.Ends, startMinutes: Int = RoutePlanner.DEFAULT_START,
+               startPick: Pair<String, String>? = null, endPick: Pair<String, String>? = null, hollowStart: Boolean = false, hollowEnd: Boolean = false) {
+        val start = ends.start; val end = ends.end
         rows = if (option == null) emptyList() else buildList {
-            var prev: Pair<Double, Double>? = anchor?.let { it.lat to it.lng }
+            var prev: Pair<Double, Double>? = start?.let { it.lat to it.lng }
             var prevId = RoutePlanner.ANCHOR_ID
             fun leg(toId: Long, to: Pair<Double, Double>) {
                 val from = prev ?: return
                 add(Row.Leg(prevId, toId, RoutePlanner.legKm(from.first, from.second, to.first, to.second)))
             }
-            if (anchor != null) add(Row.Home(anchor.name, startMinutes))
+            if (start != null) add(Row.Home(start.name, startMinutes, true))
+            else startPick?.let { add(Row.Pick(true, it.first, it.second, hollowStart)) }
             option.visits.forEach { v ->
                 leg(v.stop.id, v.stop.lat to v.stop.lng)
                 add(Row.Stop(v))
                 prev = v.stop.lat to v.stop.lng; prevId = v.stop.id
             }
-            if (anchor != null) { leg(RoutePlanner.ANCHOR_ID, anchor.lat to anchor.lng); add(Row.Home(anchor.name, option.endTime)) }
+            if (end != null) { leg(RoutePlanner.ANCHOR_ID, end.lat to end.lng); add(Row.Home(end.name, option.endTime, false)) }
+            else endPick?.let { add(Row.Pick(false, it.first, it.second, hollowEnd)) }
         }
         notifyDataSetChanged()
     }
@@ -179,7 +195,8 @@ class RouteStopAdapter(
 
     /** 같은 줄(같은 장소·숙소)이 다시 그려질 때만 시각을 흐려졌다 바꿈 */
     private fun rowKey(position: Int, row: Row): String = when (row) {
-        is Row.Home -> if (position == 0) "home-start" else "home-end"
+        is Row.Home -> if (row.start) "home-start" else "home-end"
+        is Row.Pick -> if (row.start) "pick-start" else "pick-end"
         is Row.Stop -> "stop-${row.visit.stop.id}"
         is Row.Leg -> "leg-${row.from}-${row.to}"
     }
@@ -193,9 +210,11 @@ class RouteStopAdapter(
         when (val row = rows[position]) {
             is Row.Leg -> (holder as LegHolder).text.apply {
                 // "🚶 도보 · 18분 · 1.4km ⌄" — 누르면 수단 고르기
-                val mode = legMode(row.from, row.to, row.km)
-                val label = ctx.getString(mode.labelRes)
-                val line = ctx.getString(R.string.leg_mode_line, label, ctx.minutesLabel(RoutePlanner.modeMinutes(mode, row.km)), row.km)
+                val info = legInfo(row.from, row.to, row.km)
+                val mode = info.mode
+                // 노선 이름을 알면 수단 이름 대신 (예: 도부 스카이트리선 · 10분 · 2.6km)
+                val label = info.lines ?: ctx.getString(mode.labelRes)
+                val line = ctx.getString(R.string.leg_mode_line, label, ctx.minutesLabel(info.minutes), info.km)
                 if (same) setTextFading(line) else setTextNow(line)
                 val s = (16 * ctx.resources.displayMetrics.density).toInt()
                 val d = ContextCompat.getDrawable(ctx, mode.iconRes)?.mutate()?.apply { setBounds(0, 0, s, s); setTint(ctx.color(R.color.on_surface)) }
@@ -218,7 +237,29 @@ class RouteStopAdapter(
                 sub.visibility = View.GONE
                 warn.visibility = View.GONE
                 itemView.background = null
-                itemView.contentDescription = "${TimeUtil.format(row.time)} ${row.name}"
+                itemView.contentDescription = "${TimeUtil.format(row.time)} ${row.name}, " + ctx.getString(R.string.endpoint_change_a11y)
+                itemView.setOnClickListener { onEndpoint(row.start, it) }
+            }
+            is Row.Pick -> (holder as StopHolder).apply {
+                arrive.setTextNow("")
+                leave.visibility = View.GONE
+                leave.setOnClickListener(null)
+                icon.setImageResource(if (row.hollow) 0 else R.drawable.ic_place)
+                icon.setPadding(6.dp(ctx), 6.dp(ctx), 6.dp(ctx), 6.dp(ctx))
+                icon.background = if (row.hollow) android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.OVAL
+                    setColor(ctx.color(R.color.card_bg)); setStroke(2.dp(ctx), ctx.color(R.color.outline))
+                } else ContextCompat.getDrawable(ctx, R.drawable.bg_lodging_pin)
+                icon.imageTintList = ColorStateList.valueOf(ctx.color(R.color.card_bg))
+                name.text = row.title
+                sub.visibility = View.VISIBLE
+                sub.text = row.sub
+                sub.setTextColor(ctx.color(R.color.text_sub))
+                warn.visibility = View.GONE
+                arrive.setTextColor(ctx.color(R.color.on_surface))
+                itemView.background = null
+                itemView.contentDescription = "${row.title}, ${row.sub}, " + ctx.getString(R.string.endpoint_change_a11y)
+                itemView.setOnClickListener { onEndpoint(row.start, it) }
             }
             is Row.Stop -> (holder as StopHolder).apply {
                 val v = row.visit
@@ -243,6 +284,7 @@ class RouteStopAdapter(
                 itemView.background = if (v.warning != null) ContextCompat.getDrawable(ctx, R.drawable.bg_stop_warn) else null
                 itemView.contentDescription = listOfNotNull(
                     ctx.getString(R.string.stop_meta, TimeUtil.format(v.arrive), v.stop.stayMinutes), v.stop.name, subText).joinToString(", ")
+                itemView.setOnClickListener(null); itemView.isClickable = false
             }
         }
     }

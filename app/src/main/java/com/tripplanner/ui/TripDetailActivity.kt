@@ -178,11 +178,26 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
                 return
             }
             val day = viewModel.selectedDay.value ?: TripDetailViewModel.DAY_ALL
-            val lodgings = if (day > 0) listOfNotNull(viewModel.lodgingFor(day)) else viewModel.lodgings.value.orEmpty()
+            // n일차: 그날 시작 · 끝 숙소만 (장소를 시작 · 끝으로 정했으면 숙소 없이)
+            val ends = if (day > 0) viewModel.endpoints(day) else null
+            val lodgings = if (ends != null) listOfNotNull(ends.start, ends.end)
+                    .mapNotNull { (it as? com.tripplanner.data.DayAnchors.Resolved.Lodge)?.lodging }.distinctBy { it.id }
+                else viewModel.lodgings.value.orEmpty()
             val (places, candidates) = viewModel.mapPlaces()
             legModes.reload()   // 경로 제안에서 바꿨을 수 있음
+            // 구간 시간: 경로 제안에서 받아 둔 길찾기 결과가 있으면 그것 (같은 시각이 보이게), 없으면 어림
+            val e = ends?.ends
+            val pts = places.associate { it.id to Directions.Point(it.lat, it.lng) }
+            val legTime: com.tripplanner.route.LegTime = { f, t, km ->
+                val mode = legModes.mode(f, t, km)
+                val a = if (f == com.tripplanner.route.RoutePlanner.ANCHOR_ID) e?.start?.let { Directions.Point(it.lat, it.lng) } else pts[f]
+                val b = if (t == com.tripplanner.route.RoutePlanner.ANCHOR_ID) e?.end?.let { Directions.Point(it.lat, it.lng) } else pts[t]
+                val api = if (a != null && b != null) (Directions.cached(this, mode, a, b) as? Directions.Cached.Hit)?.leg else null
+                api?.minutes ?: com.tripplanner.route.RoutePlanner.modeMinutes(mode, km)
+            }
             detailMap.render(places, candidates, day, lodgings, viewModel.tripCoords(),
-                startMinutes = trip?.startMinutes ?: com.tripplanner.route.RoutePlanner.DEFAULT_START, legTime = legModes.legTime)
+                startMinutes = trip?.startMinutes ?: com.tripplanner.route.RoutePlanner.DEFAULT_START, legTime = legTime,
+                ends = e)
             toolbar.subtitle = mapSubtitle()
         }
         fun updateBottom() {
@@ -282,6 +297,15 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
     }
 
     override fun onOpenTravel() = openTravelInfo()
+
+    /** 하루의 시작 · 끝 줄 → 숙소 · 이 날 장소 · 정하지 않음 */
+    override fun onPickEndpoint(day: Int, start: Boolean, anchor: View) {
+        val ends = viewModel.endpoints(day)
+        showEndpointMenu(anchor, start, if (start) ends.start else ends.end, viewModel.allLodgings(), viewModel.dayPlaces(day)) {
+            Haptics.confirm(anchor)
+            viewModel.setEndpoint(day, start, it)
+        }
+    }
     override fun onOpenNote() = showTripNoteDialog()
     override fun onEmptyAction(action: EmptyState.Action) {
         when (action) {

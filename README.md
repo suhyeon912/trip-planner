@@ -83,6 +83,7 @@ git clone https://github.com/suhyeon912/trip-planner.git
 - 일정 / 후보 탭, 일차 칩
 - '전체'의 교통 · 숙소 · 예약·티켓 요약
 - 장소 순서 끌어서 바꾸기 (손잡이 ⠿)
+- 하루의 시작 · 끝 장소 고르기: 숙소 · 그날 장소 · 정하지 않음 (숙소를 옮기는 날, 공항에서 시작하는 날 등)
 - 목록 ↔ 지도 전환: n일차는 점마다 도착–떠남 시각
 
 **장소**
@@ -96,7 +97,7 @@ git clone https://github.com/suhyeon912/trip-planner.git
 **경로 제안**
 - 6가지 안 비교: 이동 거리 우선 · 가까운 곳부터 · 환승 적은 순 · 지금 순서 그대로 · 시간 맞춤 · 후보 포함
 - 출발 시각, 숙소 도착 목표 시각 (늦으면 알림)
-- 구간마다 이동 수단 (도보 · 대중교통 · 택시·차)
+- 구간마다 이동 수단 (도보 · 대중교통 · 택시·차), Google 길찾기로 실제 이동 시간 · 노선 이름 · 환승 수 (Routes API를 켰을 때)
 - 떠나는 시각을 고르면 머무는 시간 저장, 확정 저장, 지도 앱 길찾기
 
 **공유 · 초대**
@@ -115,9 +116,9 @@ git clone https://github.com/suhyeon912/trip-planner.git
 |---|---|
 | 언어 · UI | Kotlin, XML Views (AppCompat) + 자체 컴포넌트 `ui/widget` (Material 컴포넌트 사용 안 함) |
 | 구조 | MVVM: Activity → ViewModel (LiveData) → Repository → Room DAO |
-| DB | Room (KSP), DB 버전 9, 마이그레이션 포함 |
+| DB | Room (KSP), DB 버전 10, 마이그레이션 포함 |
 | 지도 | 카카오맵 SDK v2 · Google Maps SDK · osmdroid (OpenStreetMap) |
-| 검색 | 카카오 로컬 API (국내) · Google Places API (New) (해외) |
+| 검색 · 길찾기 | 카카오 로컬 API (국내 검색) · Google Places API (New) (해외 검색) · Google Routes API (이동 시간 · 노선) |
 | 공유 | Firebase Authentication (익명) + Cloud Firestore |
 | 빌드 | AGP 8.7.3 · Kotlin 2.0.21 · Gradle 8.9 · JVM target 11 |
 | SDK | minSdk 26 · targetSdk 35 · compileSdk 35 · 패키지 `com.tripplanner` |
@@ -156,7 +157,9 @@ trip-planner/
 
 | 파일 | 개수 | 확인하는 것 |
 |---|---:|---|
-| `route/RoutePlannerTest.kt` | 14 | 경로 안 6가지 · 같은 순서 합치기 · 구간 이동 수단 |
+| `route/RoutePlannerTest.kt` | 18 | 경로 안 6가지 · 같은 순서 합치기 · 구간 이동 수단 · 하루의 시작 · 끝 |
+| `data/DayAnchorsTest.kt` | 3 | 하루의 시작 · 끝 저장 · 이름 바뀜 · 없어진 숙소 처리 |
+| `ui/DirectionsTest.kt` | 3 | 길찾기 응답 해석 (시간 · 노선 · 환승) · 시간표 날짜 |
 | `route/RegionTest.kt` | 2 | 국내 / 해외 판별 |
 | `share/ShareCodecTest.kt` | 6 | 공유 문서 변환 (링크 · 내가 만든 종류 포함) |
 | `share/ActivityLogTest.kt` | 4 | 활동 기록: 바뀐 것 찾기 · 문서 변환 · 100개 제한 |
@@ -182,7 +185,9 @@ trip-planner/
 
 ## 남은 일
 
-- [ ] 길찾기 API 연결 (실제 이동 시간 · 노선 이름 · 환승 수) — 해외는 Google Routes API, 국내는 ODsay 등
+- [x] 길찾기 API 연결 (Google Routes API: 실제 이동 시간 · 노선 이름 · 환승 수, 안 되는 구간은 어림)
+- [ ] 국내 도보 · 차 길찾기 (Google이 한국은 지원하지 않음 → 필요하면 TMAP · 카카오모빌리티 등)
+- [x] 하루의 시작 · 끝 장소 고르기
 - [ ] 예약·티켓 파일 공유 (Firebase Storage, Blaze 요금제 필요) — 지금은 기기에만 저장
 - [ ] LLM API로 경로 설명 · 추천
 - [x] 디자인 시안 반영 (화면 · 컴포넌트 · 모션)

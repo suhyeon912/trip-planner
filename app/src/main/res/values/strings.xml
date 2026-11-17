@@ -133,6 +133,8 @@
 
     <!-- 경로 제안 -->
     <string name="route_subtitle_fmt">직선거리 기반 추정치 · %1$s 출발 기준</string>
+    <string name="route_subtitle_api">Google 길찾기 기준 · %1$s 출발</string>
+    <string name="route_subtitle_partial">일부 구간은 어림 · %1$s 출발 기준</string>
     <string name="start_time_a11y">출발 시각 %1$s, 바꾸기</string>
     <string name="category_info_a11y">종류 도움말 보기</string>
     <string name="category_info_title">종류는 설정에서 바꿔요</string>
@@ -472,4 +474,22 @@
     <string name="leg_mode_title">이동 수단</string>
     <string name="map_card_times">%1$s 도착 · %2$s 떠남</string>
     <string name="count_items">%1$d개</string>
+    <!-- 하루의 시작 · 끝 -->
+    <string name="endpoint_lodgings">숙소</string>
+    <string name="endpoint_places">이 날 장소</string>
+    <string name="endpoint_none_start">정하지 않음 (첫 장소에서 출발)</string>
+    <string name="endpoint_none_end">정하지 않음 (마지막 장소에서 끝)</string>
+    <string name="endpoint_place_start">장소 · 출발</string>
+    <string name="endpoint_place_end">장소 · 도착</string>
+    <string name="endpoint_unset_start">출발 장소 정하기</string>
+    <string name="endpoint_unset_end">도착 장소 정하기</string>
+    <string name="endpoint_none_start_sub">첫 장소에서 출발</string>
+    <string name="endpoint_none_end_sub">마지막 장소에서 하루 끝</string>
+    <string name="endpoint_change_a11y">눌러서 바꾸기</string>
+    <string name="endpoint_title_start">출발 장소</string>
+    <string name="endpoint_title_end">도착 장소</string>
+    <string name="map_depart_at">%1$s 출발</string>
+    <string name="map_arrive_at">%1$s 도착</string>
+    <string name="endpoint_no_location">숙소 위치가 없어요 · 눌러서 바꾸기</string>
+    <string name="note_routes_off">Google Cloud 에서 Routes API 를 켜면 실제 이동 시간 · 노선으로 계산해요</string>
 </resources>

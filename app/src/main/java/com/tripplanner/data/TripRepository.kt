@@ -39,7 +39,19 @@ class TripRepository(private val db: AppDatabase) {
     fun observePlaces(tripId: Long) = dao.observePlaces(tripId)
     suspend fun getPlaces(tripId: Long) = dao.getPlaces(tripId)
     suspend fun getPlace(id: Long) = dao.getPlace(id)
-    suspend fun savePlace(p: Place) { if (p.id == 0L) dao.insertPlace(p) else dao.updatePlace(p); changed(p.tripId) }
+    suspend fun savePlace(p: Place) {
+        if (p.id == 0L) dao.insertPlace(p)
+        else {
+            // 이름을 바꾸면 하루의 시작 · 끝에 적힌 이름도 같이
+            val old = dao.getPlace(p.id)
+            dao.updatePlace(p)
+            if (old != null && old.name != p.name) dao.getTrip(p.tripId)?.let { t ->
+                val renamed = DayAnchors.renamePlace(t.dayAnchors, old.name, p.name)
+                if (renamed != t.dayAnchors) dao.updateTrip(t.copy(dayAnchors = renamed))
+            }
+        }
+        changed(p.tripId)
+    }
     suspend fun updatePlaces(list: List<Place>) { dao.updatePlaces(list); list.map { it.tripId }.distinct().forEach { changed(it) } }
     suspend fun deletePlace(p: Place) {
         // 장소에 붙은 자료(파일)도 함께 지움

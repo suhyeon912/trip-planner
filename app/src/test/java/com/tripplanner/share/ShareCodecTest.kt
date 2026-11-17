@@ -52,6 +52,8 @@ class ShareCodecTest {
         assertEquals(listOf(com.tripplanner.data.PlaceLink("공식 홈페이지", "https://a.jp/x"), com.tripplanner.data.PlaceLink("예약", "https://b.jp")),
             com.tripplanner.data.PlaceLinks.parse(p.links))
         assertEquals("ChIJ123", p.sourceId)
+        val t = ShareCodec.fromMap(ShareCodec.toMap(s.copy(trip = s.trip.copy(dayAnchors = "1\tP:츠지한\tN"))), trip).trip
+        assertEquals("1\tP:츠지한\tN", t.dayAnchors)
         assertNull(p.typeId)                                    // id 는 기기마다 달라서 받는 쪽이 이름으로 연결
         assertEquals("야경", back.remoteTypes.single()?.name); assertEquals(6, back.remoteTypes.single()?.color)
         // 종류 없는 장소

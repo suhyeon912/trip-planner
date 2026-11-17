@@ -17,7 +17,7 @@ data class Stop(
 enum class RouteKind(val title: String, val description: String) {
     SHORTEST("이동 거리 우선", "총 이동거리가 가장 짧은 순서"),
     NEAREST("가까운 곳부터", "숙소에서 가까운 곳부터 차례로"),
-    FEWER_TRANSFERS("환승 적은 순(어림)", "대중교통을 타는 구간이 가장 적은 순서 — 1.2km 넘는 구간을 대중교통으로 어림"),
+    FEWER_TRANSFERS("환승 적은 순", "버스·지하철을 타는 횟수가 가장 적은 순서"),
     CURRENT("지금 순서 그대로", "여행 상세에서 정한 순서 그대로"),
     TIME("시간 맞춤", "브레이크 타임·운영시간을 피하는 순서"),
     CANDIDATES("후보 포함", "가는 길에 들를 수 있는 후보 추가")
@@ -35,6 +35,15 @@ typealias LegTime = (from: Long, to: Long, km: Double) -> Int
 /** 출발·도착 지점 (보통 숙소) */
 data class Anchor(val name: String, val lat: Double, val lng: Double)
 
+/**
+ * 하루의 시작 · 끝.
+ *  start / end: 숙소처럼 들르지 않는 출발점 · 도착점 (없으면 첫 장소에서 시작 / 마지막 장소에서 끝)
+ *  first / last: 반드시 처음 / 마지막에 들르는 장소 (장소를 시작 · 끝으로 정했을 때)
+ */
+data class Ends(val start: Anchor?, val end: Anchor?, val firstId: Long? = null, val lastId: Long? = null) {
+    companion object { fun of(anchor: Anchor?) = Ends(anchor, anchor) }
+}
+
 data class Visit(val stop: Stop, val arrive: Int, val leave: Int, val warning: String?, val waitMinutes: Int = 0)
 
 data class RouteOption(
@@ -48,7 +57,9 @@ data class RouteOption(
     val added: List<Stop> = emptyList(),  // C안에서 새로 넣은 후보
     val endLimit: Int? = null,       // 숙소 도착 목표 시각 (null = 자유)
     /** 이 카드가 어떤 기준(들)의 순서인지 — 순서가 같은 기준은 한 카드로 합쳐짐 */
-    val kinds: List<RouteKind> = emptyList()
+    val kinds: List<RouteKind> = emptyList(),
+    /** 카드에 쓰는 기준 이름 (kinds 와 같은 순서, 어림이면 '(어림)' 붙음) */
+    val kindTitles: List<String> = kinds.map { it.title }
 ) {
     /** 목표보다 늦게 도착하는 분 (늦지 않으면 0) */
     val lateMinutes: Int get() = endLimit?.let { maxOf(0, endTime - it) } ?: 0
@@ -72,8 +83,16 @@ object RoutePlanner {
     private const val DETOUR_FACTOR = 1.3  // 직선거리 → 실제 이동거리 보정
     private const val SPEED_KMH = 15.0     // 도보+대중교통 평균 속도 가정
     private const val MAX_EXACT = 8        // 이 개수까지는 모든 순서를 다 비교
-    const val MAX_DETOUR_KM = 3.0          // C안: 이만큼 이하로 돌아가는 후보만 추가
+    const val MAX_DETOUR_KM = 3.0          // 후보 포함: 이만큼 이하로 돌아가는 후보만 추가
 
+    const val ANCHOR_ID = -1L
+    val DEFAULT_LEG: LegTime = { _, _, km -> legMinutes(km) }
+
+    /**
+     * @param anchor 숙소 (시작 · 끝이 같을 때). 시작 · 끝을 따로 정했으면 ends 를 씀
+     * @param boardings 구간에서 버스·지하철을 타는 횟수 ('환승 적은 순'). null 이면 isTransit 으로 어림
+     * @param transferEstimated '환승 적은 순'이 어림값인지 (카드 이름에 '(어림)')
+     */
     fun plan(
         anchor: Anchor?,
         stops: List<Stop>,
@@ -82,52 +101,56 @@ object RoutePlanner {
         endLimit: Int? = null,
         legTime: LegTime = DEFAULT_LEG,
         /** 구간을 대중교통으로 타는지 ('환승 적은 순'용, 기본: 1.2km 넘으면 대중교통) */
-        isTransit: (from: Long, to: Long, km: Double) -> Boolean = { _, _, km -> defaultMode(km) == LegMode.TRANSIT }
+        isTransit: (from: Long, to: Long, km: Double) -> Boolean = { _, _, km -> defaultMode(km) == LegMode.TRANSIT },
+        ends: Ends = Ends.of(anchor),
+        boardings: ((from: Long, to: Long, km: Double) -> Int)? = null,
+        transferEstimated: Boolean = true
     ): List<RouteOption> {
         if (stops.isEmpty()) return emptyList()
-        fun build(kind: RouteKind, order: List<Stop>, added: List<Stop> = emptyList()) =
-            build("", kind.title, kind.description, anchor, order, startTime, added, endLimit, legTime).copy(kinds = listOf(kind))
-
+        val e = normalize(ends, stops)
+        val mid = stops.filter { it.id != e.firstId && it.id != e.lastId }
+        val board = boardings ?: { f, t, km -> if (isTransit(f, t, km)) 1 else 0 }
+        fun title(k: RouteKind) = if (k == RouteKind.FEWER_TRANSFERS && transferEstimated) k.title + "(어림)" else k.title
+        fun build(kind: RouteKind, order: List<Stop>, added: List<Stop> = emptyList()): RouteOption {
+            val sim = simulate(e, order, startTime, legTime)
+            return RouteOption("", title(kind), kind.description, sim.visits, totalKm(e, order), sim.moveMinutes, sim.endTime,
+                added, endLimit, kinds = listOf(kind), kindTitles = listOf(title(kind)))
+        }
+        val shortest = wrap(e, stops, shortestMid(e, stops, mid))
         val all = mutableListOf(
-            build(RouteKind.SHORTEST, shortestOrder(anchor, stops)),
-            build(RouteKind.NEAREST, nearestNeighbor(anchor, stops)),
-            build(RouteKind.FEWER_TRANSFERS, fewerTransitOrder(anchor, stops, isTransit)),
-            build(RouteKind.CURRENT, stops),
-            build(RouteKind.TIME, timeAwareOrder(anchor, stops, startTime, legTime))
+            build(RouteKind.SHORTEST, shortest),
+            build(RouteKind.NEAREST, wrap(e, stops, nearestMid(e, stops, mid))),
+            build(RouteKind.FEWER_TRANSFERS, wrap(e, stops, fewerTransitMid(e, stops, mid, board))),
+            build(RouteKind.CURRENT, wrap(e, stops, mid)),
+            build(RouteKind.TIME, wrap(e, stops, timeAwareMid(e, stops, mid, startTime, legTime)))
         )
-        val (orderC, added) = insertCandidates(anchor, shortestOrder(anchor, stops), candidates)
+        val (orderC, added) = insertCandidates(e, stops, shortest, candidates)
         if (added.isNotEmpty()) all += build(RouteKind.CANDIDATES, orderC, added)
         return merge(all)
     }
 
-    /** 순서(와 추가된 후보)가 같은 안은 카드 하나로 합치고, 앞에서부터 A · B · C … */
+    /** 처음 · 마지막 장소가 목록에 없거나 같으면 풀어 줌 */
+    private fun normalize(e: Ends, stops: List<Stop>): Ends {
+        val ids = stops.map { it.id }.toSet()
+        val first = e.firstId?.takeIf { it in ids }
+        val last = e.lastId?.takeIf { it in ids && it != first }
+        return e.copy(firstId = first, lastId = last)
+    }
+
+    /** 가운데 순서 → 처음 · 마지막 장소를 붙인 전체 순서 */
+    private fun wrap(e: Ends, stops: List<Stop>, mid: List<Stop>): List<Stop> =
+        listOfNotNull(stops.firstOrNull { it.id == e.firstId }) + mid + listOfNotNull(stops.firstOrNull { it.id == e.lastId })
+
+    /** 순서가 같은 안(과 추가된 후보)은 카드 하나로 합치고, 앞에서부터 A · B · C … */
     fun merge(options: List<RouteOption>): List<RouteOption> {
         val groups = LinkedHashMap<List<Long>, MutableList<RouteOption>>()
         options.forEach { o -> groups.getOrPut(o.visits.map { it.stop.id } + listOf(-1L) + o.added.map { it.id }) { mutableListOf() } += o }
         return groups.values.mapIndexed { i, g ->
             val kinds = g.flatMap { it.kinds }
-            g.first().copy(key = ('A' + i).toString(), title = kinds.joinToString(" · ") { it.title },
-                description = g.first().description, kinds = kinds)
+            val titles = g.flatMap { it.kindTitles }
+            g.first().copy(key = ('A' + i).toString(), title = titles.joinToString(" · "),
+                description = g.first().description, kinds = kinds, kindTitles = titles)
         }
-    }
-
-    /** 대중교통 구간이 가장 적은 순서 (같으면 거리가 짧은 순서) */
-    fun fewerTransitOrder(anchor: Anchor?, stops: List<Stop>, isTransit: (Long, Long, Double) -> Boolean): List<Stop> {
-        fun transitLegs(order: List<Stop>): Int {
-            var n = 0
-            var prev: Stop? = null
-            for (s in order) {
-                val from = prev
-                if (from != null) { if (isTransit(from.id, s.id, legKm(from.lat, from.lng, s.lat, s.lng))) n++ }
-                else if (anchor != null && isTransit(ANCHOR_ID, s.id, legKm(anchor.lat, anchor.lng, s.lat, s.lng))) n++
-                prev = s
-            }
-            if (anchor != null && prev != null && isTransit(prev.id, ANCHOR_ID, legKm(prev.lat, prev.lng, anchor.lat, anchor.lng))) n++
-            return n
-        }
-        val candidates = if (stops.size <= MAX_EXACT) permutations(stops).toList()
-                         else listOf(shortestOrder(anchor, stops), nearestNeighbor(anchor, stops))
-        return candidates.minWith(compareBy<List<Stop>>({ transitLegs(it) }, { totalKm(anchor, it) }))
     }
 
     // ------------------------------------------------------------------
@@ -135,9 +158,6 @@ object RoutePlanner {
         Geo.distanceKm(aLat, aLng, bLat, bLng) * DETOUR_FACTOR
 
     fun legMinutes(km: Double): Int = if (km < 0.05) 0 else maxOf(5, Math.round(km / SPEED_KMH * 60).toInt())
-
-    const val ANCHOR_ID = -1L
-    val DEFAULT_LEG: LegTime = { _, _, km -> legMinutes(km) }
 
     /** 고르지 않은 구간의 수단: 1.2km 까지는 도보, 그보다 멀면 대중교통 */
     fun defaultMode(km: Double) = if (km <= 1.2) LegMode.WALK else LegMode.TRANSIT
@@ -152,43 +172,94 @@ object RoutePlanner {
         LegMode.TAXI -> 3 + Math.round(km / 24.0 * 60).toInt()
     }
 
-    /** 숙소 → 장소들 → 숙소 총 거리. 숙소가 없으면 첫 장소에서 출발해 마지막 장소에서 끝 */
-    fun totalKm(anchor: Anchor?, order: List<Stop>): Double {
-        if (order.isEmpty()) return 0.0
-        var km = 0.0
-        for (i in 0 until order.size - 1) km += legKm(order[i].lat, order[i].lng, order[i + 1].lat, order[i + 1].lng)
-        if (anchor != null) {
-            km += legKm(anchor.lat, anchor.lng, order.first().lat, order.first().lng)
-            km += legKm(order.last().lat, order.last().lng, anchor.lat, anchor.lng)
-        }
-        return km
+    /** 구간들 (출발 id, 도착 id, km): 시작점 → 장소들 → 도착점 */
+    fun legs(e: Ends, order: List<Stop>): List<Triple<Long, Long, Double>> {
+        if (order.isEmpty()) return emptyList()
+        val out = mutableListOf<Triple<Long, Long, Double>>()
+        e.start?.let { out += Triple(ANCHOR_ID, order.first().id, legKm(it.lat, it.lng, order.first().lat, order.first().lng)) }
+        for (i in 0 until order.size - 1) out += Triple(order[i].id, order[i + 1].id, legKm(order[i].lat, order[i].lng, order[i + 1].lat, order[i + 1].lng))
+        e.end?.let { out += Triple(order.last().id, ANCHOR_ID, legKm(order.last().lat, order.last().lng, it.lat, it.lng)) }
+        return out
     }
 
-    fun shortestOrder(anchor: Anchor?, stops: List<Stop>): List<Stop> =
-        if (stops.size <= MAX_EXACT) permutations(stops).minBy { totalKm(anchor, it) }
-        else twoOpt(anchor, nearestNeighbor(anchor, stops))
+    /** 시작점 → 장소들 → 도착점 총 거리 */
+    fun totalKm(e: Ends, order: List<Stop>): Double = legs(e, order).sumOf { it.third }
+    fun totalKm(anchor: Anchor?, order: List<Stop>): Double = totalKm(Ends.of(anchor), order)
 
-    fun timeAwareOrder(anchor: Anchor?, stops: List<Stop>, startTime: Int, legTime: LegTime = DEFAULT_LEG): List<Stop> {
-        val candidates = if (stops.size <= MAX_EXACT) permutations(stops).toList()
-                         else listOf(shortestOrder(anchor, stops))
-        return candidates.minBy { order ->
-            val sim = simulate(anchor, order, startTime, legTime)
-            sim.penalty * 1000 + sim.waitMinutes * 2 + totalKm(anchor, order)
+    // ---------- 순서 만들기 (가운데 장소들만 움직이고, 처음 · 마지막 장소는 고정) ----------
+    private fun candidatesOf(e: Ends, stops: List<Stop>, mid: List<Stop>): List<List<Stop>> =
+        if (mid.size <= MAX_EXACT) permutations(mid).toList()
+        else listOf(shortestMid(e, stops, mid), nearestMid(e, stops, mid))
+
+    private fun shortestMid(e: Ends, stops: List<Stop>, mid: List<Stop>): List<Stop> =
+        if (mid.size <= MAX_EXACT) permutations(mid).minBy { totalKm(e, wrap(e, stops, it)) }
+        else twoOpt(e, stops, nearestMid(e, stops, mid))
+
+    private fun nearestMid(e: Ends, stops: List<Stop>, mid: List<Stop>): List<Stop> {
+        if (mid.isEmpty()) return mid
+        val left = mid.toMutableList()
+        val out = mutableListOf<Stop>()
+        val first = stops.firstOrNull { it.id == e.firstId }
+        var lat = first?.lat ?: e.start?.lat ?: left.first().lat
+        var lng = first?.lng ?: e.start?.lng ?: left.first().lng
+        while (left.isNotEmpty()) {
+            val next = left.minBy { Geo.distanceKm(lat, lng, it.lat, it.lng) }
+            out += next; left -= next
+            lat = next.lat; lng = next.lng
         }
+        return out
     }
 
-    /** A 순서에 후보를 하나씩, 가장 덜 돌아가는 자리에 끼워 넣음 (최대 2곳) */
-    fun insertCandidates(anchor: Anchor?, base: List<Stop>, candidates: List<Stop>): Pair<List<Stop>, List<Stop>> {
+    private fun fewerTransitMid(e: Ends, stops: List<Stop>, mid: List<Stop>, board: (Long, Long, Double) -> Int): List<Stop> =
+        candidatesOf(e, stops, mid).minWith(compareBy<List<Stop>>(
+            { o -> legs(e, wrap(e, stops, o)).sumOf { (f, t, km) -> board(f, t, km) } }, { totalKm(e, wrap(e, stops, it)) }))
+
+    private fun timeAwareMid(e: Ends, stops: List<Stop>, mid: List<Stop>, startTime: Int, legTime: LegTime): List<Stop> =
+        candidatesOf(e, stops, mid).minBy { o ->
+            val full = wrap(e, stops, o)
+            val sim = simulate(e, full, startTime, legTime)
+            sim.penalty * 1000 + sim.waitMinutes * 2 + totalKm(e, full)
+        }
+
+    private fun twoOpt(e: Ends, stops: List<Stop>, start: List<Stop>): List<Stop> {
+        var best = start
+        fun cost(o: List<Stop>) = totalKm(e, wrap(e, stops, o))
+        var improved = true
+        while (improved) {
+            improved = false
+            for (i in 0 until best.size - 1) for (j in i + 1 until best.size) {
+                val trial = best.subList(0, i) + best.subList(i, j + 1).reversed() + best.subList(j + 1, best.size)
+                if (cost(trial) + 1e-9 < cost(best)) { best = trial; improved = true }
+            }
+        }
+        return best
+    }
+
+    // ---------- 예전 모양 (숙소 하나로 시작 · 끝) — 테스트 · 지도에서 씀 ----------
+    fun shortestOrder(anchor: Anchor?, stops: List<Stop>): List<Stop> = shortestMid(Ends.of(anchor), stops, stops)
+    fun nearestNeighbor(anchor: Anchor?, stops: List<Stop>): List<Stop> = nearestMid(Ends.of(anchor), stops, stops)
+    fun fewerTransitOrder(anchor: Anchor?, stops: List<Stop>, isTransit: (Long, Long, Double) -> Boolean): List<Stop> =
+        fewerTransitMid(Ends.of(anchor), stops, stops) { f, t, km -> if (isTransit(f, t, km)) 1 else 0 }
+    fun timeAwareOrder(anchor: Anchor?, stops: List<Stop>, startTime: Int, legTime: LegTime = DEFAULT_LEG): List<Stop> =
+        timeAwareMid(Ends.of(anchor), stops, stops, startTime, legTime)
+
+    /** 최단 순서에 후보를 하나씩, 가장 덜 돌아가는 자리에 끼워 넣음 (최대 2곳, 처음 · 마지막 장소 자리는 그대로) */
+    fun insertCandidates(anchor: Anchor?, base: List<Stop>, candidates: List<Stop>): Pair<List<Stop>, List<Stop>> =
+        insertCandidates(Ends.of(anchor), base, base, candidates)
+
+    private fun insertCandidates(e: Ends, stops: List<Stop>, base: List<Stop>, candidates: List<Stop>): Pair<List<Stop>, List<Stop>> {
         var order = base
         val added = mutableListOf<Stop>()
         val pool = candidates.toMutableList()
         repeat(2) {
-            val baseKm = totalKm(anchor, order)
+            val baseKm = totalKm(e, order)
+            val lo = if (e.firstId != null) 1 else 0
+            val hi = order.size - if (e.lastId != null) 1 else 0
             var best: Triple<Stop, List<Stop>, Double>? = null
             for (c in pool) {
-                for (pos in 0..order.size) {
+                for (pos in lo..hi) {
                     val trial = order.toMutableList().apply { add(pos, c) }
-                    val extra = totalKm(anchor, trial) - baseKm
+                    val extra = totalKm(e, trial) - baseKm
                     if (best == null || extra < best.third) best = Triple(c, trial, extra)
                 }
             }
@@ -205,14 +276,17 @@ object RoutePlanner {
     data class Simulation(val visits: List<Visit>, val penalty: Int, val waitMinutes: Int,
                           val moveMinutes: Int, val endTime: Int)
 
+    fun simulate(anchor: Anchor?, order: List<Stop>, startTime: Int, legTime: LegTime = DEFAULT_LEG): Simulation =
+        simulate(Ends.of(anchor), order, startTime, legTime)
+
     /** 출발 시각부터 차례로 이동·체류하며 도착 시각과 문제(경고)를 계산 */
-    fun simulate(anchor: Anchor?, order: List<Stop>, startTime: Int, legTime: LegTime = DEFAULT_LEG): Simulation {
+    fun simulate(e: Ends, order: List<Stop>, startTime: Int, legTime: LegTime = DEFAULT_LEG): Simulation {
         var t = startTime
         var penalty = 0
         var wait = 0
         var move = 0
-        var prevLat = anchor?.lat
-        var prevLng = anchor?.lng
+        var prevLat = e.start?.lat
+        var prevLng = e.start?.lng
         var prevId = ANCHOR_ID
         val visits = mutableListOf<Visit>()
 
@@ -245,52 +319,19 @@ object RoutePlanner {
             t = leave
             prevLat = s.lat; prevLng = s.lng; prevId = s.id
         }
-        if (anchor != null && order.isNotEmpty()) {
-            val m = legTime(order.last().id, ANCHOR_ID, legKm(order.last().lat, order.last().lng, anchor.lat, anchor.lng))
+        val end = e.end
+        if (end != null && order.isNotEmpty()) {
+            val m = legTime(order.last().id, ANCHOR_ID, legKm(order.last().lat, order.last().lng, end.lat, end.lng))
             t += m; move += m
         }
         return Simulation(visits, penalty, wait, move, t)
     }
 
-    private fun build(key: String, title: String, desc: String, anchor: Anchor?, order: List<Stop>,
-                      startTime: Int, added: List<Stop>, endLimit: Int?, legTime: LegTime): RouteOption {
-        val sim = simulate(anchor, order, startTime, legTime)
-        return RouteOption(key, title, desc, sim.visits, totalKm(anchor, order), sim.moveMinutes, sim.endTime, added, endLimit)
-    }
-
-    // ---------- 순서 만들기 ----------
     fun <T> permutations(list: List<T>): Sequence<List<T>> = sequence {
         if (list.size <= 1) { yield(list); return@sequence }
         for (i in list.indices) {
             val rest = list.toMutableList().apply { removeAt(i) }
             for (p in permutations(rest)) yield(listOf(list[i]) + p)
         }
-    }
-
-    /** 가까운 곳부터: 숙소(없으면 첫 장소)에서 가장 가까운 곳 → 거기서 또 가장 가까운 곳 … */
-    fun nearestNeighbor(anchor: Anchor?, stops: List<Stop>): List<Stop> {
-        val left = stops.toMutableList()
-        val out = mutableListOf<Stop>()
-        var lat = anchor?.lat ?: left.first().lat
-        var lng = anchor?.lng ?: left.first().lng
-        while (left.isNotEmpty()) {
-            val next = left.minBy { Geo.distanceKm(lat, lng, it.lat, it.lng) }
-            out += next; left -= next
-            lat = next.lat; lng = next.lng
-        }
-        return out
-    }
-
-    private fun twoOpt(anchor: Anchor?, start: List<Stop>): List<Stop> {
-        var best = start
-        var improved = true
-        while (improved) {
-            improved = false
-            for (i in 0 until best.size - 1) for (j in i + 1 until best.size) {
-                val trial = best.subList(0, i) + best.subList(i, j + 1).reversed() + best.subList(j + 1, best.size)
-                if (totalKm(anchor, trial) + 1e-9 < totalKm(anchor, best)) { best = trial; improved = true }
-            }
-        }
-        return best
     }
 }

@@ -200,7 +200,7 @@ object PlaceSearch {
     }
 
     // ---------------- 공통 ----------------
-    private fun http(url: URL, method: String, headers: Map<String, String>, body: String?): String {
+    internal fun http(url: URL, method: String, headers: Map<String, String>, body: String?): String {
         val c = url.openConnection() as HttpURLConnection
         c.requestMethod = method
         c.connectTimeout = 8000; c.readTimeout = 8000
@@ -220,7 +220,7 @@ object PlaceSearch {
 
     /** 앱 서명 SHA-1 (대문자 16진수, 콜론 없음) — 구글 키의 Android 앱 제한 통과용 */
     @Suppress("DEPRECATION")
-    private fun certSha1(context: Context): String? = runCatching {
+    internal fun certSha1(context: Context): String? = runCatching {
         val pm = context.packageManager
         val sig = if (Build.VERSION.SDK_INT >= 28)
             pm.getPackageInfo(context.packageName, PackageManager.GET_SIGNING_CERTIFICATES).signingInfo?.apkContentsSigners?.firstOrNull()

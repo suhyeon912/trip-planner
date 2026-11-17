@@ -84,25 +84,32 @@ class TripDetailMap(
      */
     fun render(places: List<Place>, candidates: List<Place>, selectedDay: Int, lodgings: List<Lodging>,
                tripCoords: List<Pair<Double, Double>>, startMinutes: Int = com.tripplanner.route.RoutePlanner.DEFAULT_START,
-               legTime: com.tripplanner.route.LegTime = com.tripplanner.route.RoutePlanner.DEFAULT_LEG) {
+               legTime: com.tripplanner.route.LegTime = com.tripplanner.route.RoutePlanner.DEFAULT_LEG,
+               /** n일차의 시작 · 끝 (없으면 그날 숙소 하나로 시작 · 끝) */
+               ends: com.tripplanner.route.Ends? = null) {
         shown = places + candidates
         labels.clear()
         times.clear()
         // n일차: 지금 순서대로 숙소 출발 → 장소마다 도착·떠남 → 숙소 도착 (경로 제안과 같은 계산)
-        var homeCaption: String? = null
+        val homeCaptions = HashMap<String, String>()   // 숙소 이름 → 이름표
+        val dayEnds = ends ?: lodgings.singleOrNull { it.lat != 0.0 || it.lng != 0.0 }
+            ?.let { com.tripplanner.route.Ends.of(com.tripplanner.route.Anchor(it.name, it.lat, it.lng)) } ?: com.tripplanner.route.Ends(null, null)
         if (selectedDay > 0) {
             val todays = places.filter { it.hasLocation && it.day == selectedDay }
-            val home = lodgings.singleOrNull { it.lat != 0.0 || it.lng != 0.0 }
             if (todays.isNotEmpty()) {
-                val anchor = home?.let { com.tripplanner.route.Anchor(it.name, it.lat, it.lng) }
                 val stops = todays.map { p ->
                     com.tripplanner.route.Stop(p.id, p.name, p.lat, p.lng,
                         open = com.tripplanner.route.TimeUtil.parseRange(p.openingHours),
                         breakTime = com.tripplanner.route.TimeUtil.parseRange(p.breakTime), stayMinutes = p.stayMinutes)
                 }
-                val sim = com.tripplanner.route.RoutePlanner.simulate(anchor, stops, startMinutes, legTime)
+                val sim = com.tripplanner.route.RoutePlanner.simulate(dayEnds, stops, startMinutes, legTime)
                 sim.visits.forEach { v -> times[v.stop.id] = v.arrive to v.leave }
-                if (anchor != null) homeCaption = range(startMinutes, sim.endTime)
+                val s = dayEnds.start; val e = dayEnds.end
+                if (s != null && e != null && s.name == e.name) homeCaptions[s.name] = range(startMinutes, sim.endTime)
+                else {
+                    s?.let { homeCaptions[it.name] = ctx.getString(R.string.map_depart_at, com.tripplanner.route.TimeUtil.format(startMinutes)) }
+                    e?.let { homeCaptions[it.name] = ctx.getString(R.string.map_arrive_at, com.tripplanner.route.TimeUtil.format(sim.endTime)) }
+                }
             }
         }
         val located = places.filter { it.hasLocation }
@@ -115,7 +122,7 @@ class TripDetailMap(
         homes.forEach { l ->
             pins += MapPin(-1, l.lat, l.lng, "", ContextCompat.getColor(ctx, R.color.on_surface), MapPin.Style.LODGING,
                 ctx.getString(R.string.map_pin_a11y, ctx.getString(R.string.map_lodging), l.name) +
-                    (homeCaption?.let { ", $it" } ?: ""), caption = homeCaption)
+                    (homeCaptions[l.name]?.let { ", $it" } ?: ""), caption = homeCaptions[l.name])
         }
         // 일차별로 묶어서 순서대로 선 + 번호 점
         located.groupBy { it.day }.forEach { (day, group) ->
@@ -130,10 +137,10 @@ class TripDetailMap(
             }
             if (day != null) {
                 val line = group.map { it.lat to it.lng }.toMutableList()
-                // 고른 일차면 숙소에서 출발해 숙소로 돌아오는 선
-                if (selectedDay == day && homes.size == 1) {
-                    val h = homes[0]
-                    line.add(0, h.lat to h.lng); line.add(h.lat to h.lng)
+                // 고른 일차면 시작점에서 출발해 도착점으로 가는 선 (장소를 시작 · 끝으로 정했으면 그 장소에서)
+                if (selectedDay == day) {
+                    dayEnds.start?.let { line.add(0, it.lat to it.lng) }
+                    dayEnds.end?.let { line.add(it.lat to it.lng) }
                 }
                 paths += MapPath(line, color)
             }

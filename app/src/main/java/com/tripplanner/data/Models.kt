@@ -54,7 +54,9 @@ data class Trip(
     @ColumnInfo(defaultValue = "0.5") val coverY: Float = 0.5f,
     @ColumnInfo(defaultValue = "1.0") val coverScale: Float = 1f,
     /** 경로 제안의 숙소 도착 목표 시각 (분, null = 자유) — DB 7 */
-    val endMinutes: Int? = null
+    val endMinutes: Int? = null,
+    /** 일차별 하루의 시작 · 끝 장소 (DayAnchors 형식, 비면 모두 그날 숙소) — DB 10 */
+    @ColumnInfo(defaultValue = "") val dayAnchors: String = ""
 ) {
     /** 함께 보는 다른 사람 목록 */
     val members: List<String> get() = memberNames.split(", ").filter { it.isNotBlank() }

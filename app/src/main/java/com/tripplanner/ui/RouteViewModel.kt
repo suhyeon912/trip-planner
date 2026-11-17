@@ -25,13 +25,18 @@ import kotlinx.coroutines.withContext
 data class RouteUiState(
     val day: Int,
     val dateLabel: String,
-    val anchor: Anchor?,
+    /** 하루의 시작 · 끝 (숙소 · 장소 · 정하지 않음) */
+    val endpoints: DayEndpoints,
     val options: List<RouteOption>,
     val empty: EmptyState?,        // 경로를 못 만들 때 빈 상태
     val notes: List<String>,       // 위치 없음으로 빠진 장소 등
     val startMinutes: Int = 600,   // 그날 숙소 출발 시각
-    val endMinutes: Int? = null    // 숙소 도착 목표 시각 (null = 자유)
+    val endMinutes: Int? = null,   // 숙소 도착 목표 시각 (null = 자유)
+    /** 이동 시간을 어디서 얻었는지: 모두 길찾기 · 일부 · 어림 */
+    val source: RouteSource = RouteSource.ESTIMATE
 )
+
+enum class RouteSource { API, PARTIAL, ESTIMATE }
 
 class RouteViewModel(app: Application, private val state: SavedStateHandle) : AndroidViewModel(app) {
 
@@ -98,11 +103,99 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
 
     fun selectOption(key: String) { selectedKey.value = key }
 
+    fun allLodgings(): List<Lodging> = lodgings
+    fun dayPlaces(): List<Place> = places.filter { it.status == PlaceStatus.CONFIRMED && it.day == selectedDay }
+
+    /** 하루의 시작 · 끝 바꾸기 (여행 상세와 같은 저장). 장소를 고르면 그 장소가 처음 · 마지막에 오게 순서도 저장 */
+    fun setEndpoint(start: Boolean, value: com.tripplanner.data.Endpoint) = viewModelScope.launch {
+        val t = trip ?: return@launch
+        val updated = t.copy(dayAnchors = com.tripplanner.data.DayAnchors.with(t.dayAnchors, selectedDay, start, value))
+        repo.updateTrip(updated)
+        trip = updated
+        val today = dayPlaces()
+        val ordered = DayEndpoints.of(updated, selectedDay, lodgings, today).pin(today)
+        if (ordered.map { it.id } != today.map { it.id }) {
+            repo.updatePlaces(ordered.mapIndexed { i, p -> p.copy(orderInDay = i + 1) })
+            places = repo.getPlaces(tripId).sortedWith(compareBy<Place>({ it.orderInDay == null }, { it.orderInDay }, { it.id }))
+        }
+        compute()
+    }
+
     // ---------------- 구간 이동 수단 (기기에 여행마다 저장) ----------------
     private val legModes = LegModes(app, tripId)
 
     /** 이 구간의 수단 (고르지 않았으면 거리로 정함) */
     fun legMode(from: Long, to: Long, km: Double): LegMode = legModes.mode(from, to, km)
+
+    /** 시간표 한 줄: 수단 · 시간 · 거리 · 노선 (길찾기 결과가 있으면 그것) */
+    fun legInfo(from: Long, to: Long, km: Double): LegInfo {
+        val mode = legModes.mode(from, to, km)
+        val api = apiLeg(from, to, km, mode)
+        return if (api == null) LegInfo(mode, com.tripplanner.route.RoutePlanner.modeMinutes(mode, km), km)
+        else LegInfo(mode, api.minutes, if (api.meters > 0) api.meters / 1000.0 else km,
+            if (mode == LegMode.TRANSIT) Directions.linesLabel(api.lines) else null)
+    }
+
+    /** 수단 메뉴의 '약 n분': 받아 둔 길찾기 결과가 있으면 그 값 */
+    fun modeMinutes(from: Long, to: Long, km: Double, mode: LegMode): Pair<Int, String?> {
+        val api = apiLeg(from, to, km, mode)
+        return (api?.minutes ?: com.tripplanner.route.RoutePlanner.modeMinutes(mode, km)) to
+            (if (mode == LegMode.TRANSIT) api?.let { Directions.linesLabel(it.lines) } else null)
+    }
+
+    // ---------------- 길찾기 (Google Routes API) ----------------
+    private var currentEnds = com.tripplanner.route.Ends(null, null)
+    private var coords: Map<Long, Directions.Point> = emptyMap()
+    /** Routes API 를 쓸 수 없음 (꺼져 있거나 키 제한) — 이번 화면에서는 다시 묻지 않음 */
+    private var routesOff = false
+    private var fetching = false
+
+    /** 구간 끝점 좌표: 숙소 id(-1)는 출발이면 시작점, 도착이면 도착점 */
+    private fun point(id: Long, asDestination: Boolean): Directions.Point? =
+        if (id == com.tripplanner.route.RoutePlanner.ANCHOR_ID)
+            (if (asDestination) currentEnds.end else currentEnds.start)?.let { Directions.Point(it.lat, it.lng) }
+        else coords[id]
+
+    private fun apiLeg(from: Long, to: Long, km: Double, mode: LegMode = legModes.mode(from, to, km)): Directions.Leg? {
+        val a = point(from, false) ?: return null
+        val b = point(to, true) ?: return null
+        return (Directions.cached(ctx, mode, a, b) as? Directions.Cached.Hit)?.leg
+    }
+
+    /** 구간 시간: 길찾기 결과, 없으면 수단별 어림 */
+    private val legTime: com.tripplanner.route.LegTime = { f, to, km ->
+        val mode = legModes.mode(f, to, km)
+        apiLeg(f, to, km, mode)?.minutes ?: com.tripplanner.route.RoutePlanner.modeMinutes(mode, km)
+    }
+
+    /** 순서 비교에 쓰는 구간: 장소 사이 모든 방향 + 시작점 → 장소 + 장소 → 도착점 (장소가 많으면 생략) */
+    private fun corePairs(e: com.tripplanner.route.Ends, stops: List<com.tripplanner.route.Stop>): List<Triple<Long, Long, Double>> {
+        if (stops.size > 7) return emptyList()
+        val out = mutableListOf<Triple<Long, Long, Double>>()
+        for (a in stops) for (b in stops) if (a.id != b.id) out += Triple(a.id, b.id, com.tripplanner.route.RoutePlanner.legKm(a.lat, a.lng, b.lat, b.lng))
+        e.start?.let { s -> stops.forEach { out += Triple(com.tripplanner.route.RoutePlanner.ANCHOR_ID, it.id, com.tripplanner.route.RoutePlanner.legKm(s.lat, s.lng, it.lat, it.lng)) } }
+        e.end?.let { d -> stops.forEach { out += Triple(it.id, com.tripplanner.route.RoutePlanner.ANCHOR_ID, com.tripplanner.route.RoutePlanner.legKm(it.lat, it.lng, d.lat, d.lng)) } }
+        return out
+    }
+
+    private fun fetchMissing(date: java.time.LocalDate?, startMinutes: Int, pairs: List<Triple<Long, Long, Double>>) {
+        if (routesOff || fetching || !Directions.available()) return
+        val req = pairs.mapNotNull { (f, to, km) ->
+            val a = point(f, false) ?: return@mapNotNull null
+            val b = point(to, true) ?: return@mapNotNull null
+            Triple(legModes.mode(f, to, km), a, b)
+        }.filter { (m, a, b) -> Directions.cached(ctx, m, a, b) is Directions.Cached.Miss }
+        if (req.isEmpty()) return
+        fetching = true
+        viewModelScope.launch {
+            val got = try {
+                Directions.fetchAll(ctx, req, Directions.departureDate(date), startMinutes)
+            } catch (e: Directions.Unavailable) { routesOff = true; 0 }
+            catch (e: Exception) { 0 }
+            fetching = false
+            if (got > 0 || routesOff) compute()
+        }
+    }
 
     /** 구간 수단 고르기. legs = 바꿀 구간들 (남은 구간도 같게면 이 구간부터 끝까지) */
     fun setLegMode(legs: List<Pair<Long, Long>>, mode: LegMode) = viewModelScope.launch {
@@ -140,12 +233,9 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         val withLoc = todays.filter { it.hasLocation }
         val notes = todays.filterNot { it.hasLocation }.map { ctx.getString(R.string.note_no_location, it.name) }
 
-        // 그날 묵는 숙소를 출발점으로 (없으면 위치 있는 첫 숙소)
-        val dateStr = date?.toString()
-        val lodging = lodgings.firstOrNull { l ->
-            l.lat != 0.0 && dateStr != null && l.checkIn <= dateStr && dateStr < l.checkOut
-        } ?: lodgings.firstOrNull { it.lat != 0.0 || it.lng != 0.0 }
-        val anchor = lodging?.let { Anchor(it.name, it.lat, it.lng) }
+        // 하루의 시작 · 끝: 고른 숙소 · 장소, 없으면 그날 묵는 숙소
+        val endpoints = DayEndpoints.of(t, day, lodgings, todays)
+        val ends = endpoints.ends
 
         if (withLoc.isEmpty()) {
             val empty = if (todays.isEmpty())
@@ -153,21 +243,42 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
                     ctx.getString(R.string.empty_route_day_action), EmptyState.Action.GO_BACK)
             else EmptyState(ctx.getString(R.string.empty_route_loc_title), ctx.getString(R.string.empty_route_loc_body),
                     ctx.getString(R.string.back_to_detail), EmptyState.Action.GO_BACK)
-            ui.value = RouteUiState(day, dateLabel, anchor, emptyList(), empty, notes, t.startMinutes, t.endMinutes)
+            ui.value = RouteUiState(day, dateLabel, endpoints, emptyList(), empty, notes, t.startMinutes, t.endMinutes)
             return
         }
 
         val stops = withLoc.map { it.toStop(date, false) }
         val candidates = places.filter { it.status == PlaceStatus.CANDIDATE && it.hasLocation }
             .map { it.toStop(date, true) }
+        currentEnds = ends
+        coords = (stops + candidates).associate { it.id to Directions.Point(it.lat, it.lng) }
+
+        // 순서 비교에 쓸 구간들 (시작점 · 장소 · 도착점 사이 모든 방향, 후보 구간은 어림)
+        val core = corePairs(ends, stops)
+        val transferEstimated = core.any { (f, to, km) -> legModes.mode(f, to, km) == LegMode.TRANSIT && apiLeg(f, to, km) == null }
 
         // 순서 비교는 계산이 많으니 백그라운드에서
         loading.value = true
-        val options = withContext(Dispatchers.Default) { RoutePlanner.plan(anchor, stops, candidates, t.startMinutes, t.endMinutes, legModes.legTime,
-            isTransit = { f, to, km -> legModes.mode(f, to, km) == LegMode.TRANSIT }) }
+        val options = withContext(Dispatchers.Default) { RoutePlanner.plan(null, stops, candidates, t.startMinutes, t.endMinutes, legTime,
+            isTransit = { f, to, km -> legModes.mode(f, to, km) == LegMode.TRANSIT }, ends = ends,
+            boardings = { f, to, km -> if (legModes.mode(f, to, km) == LegMode.TRANSIT) apiLeg(f, to, km)?.boardings ?: 1 else 0 },
+            transferEstimated = transferEstimated) }
         loading.value = false
-        ui.value = RouteUiState(day, dateLabel, anchor, options, null,
-            notes + if (anchor == null) listOf(ctx.getString(R.string.note_no_anchor)) else emptyList(), t.startMinutes, t.endMinutes)
+
+        // 화면에 보이는 구간이 모두 길찾기 결과인지
+        val shownLegs = options.flatMap { o -> RoutePlanner.legs(ends, o.visits.map { it.stop }) }.distinct()
+        val known = shownLegs.count { (f, to, km) -> apiLeg(f, to, km) != null }
+        val source = when { shownLegs.isEmpty() || known == shownLegs.size -> if (known > 0) RouteSource.API else RouteSource.ESTIMATE
+            known == 0 -> RouteSource.ESTIMATE; else -> RouteSource.PARTIAL }
+        // 아직 모르는 구간을 길찾기로 받아 오고, 새로 받은 게 있으면 다시 계산
+        fetchMissing(date, t.startMinutes, (core + shownLegs).distinct())
+        // 숙소가 하나도 없거나 위치가 없어서 시작 · 끝이 비었을 때만 안내 (직접 '정하지 않음'을 고른 건 안내 안 함)
+        val noLodging = lodgings.none { it.lat != 0.0 || it.lng != 0.0 } &&
+            com.tripplanner.data.DayAnchors.parse(t.dayAnchors)[day] == null
+        ui.value = RouteUiState(day, dateLabel, endpoints, options, null,
+            notes + (if (noLodging) listOf(ctx.getString(R.string.note_no_anchor)) else emptyList()) +
+                (if (routesOff) listOf(ctx.getString(R.string.note_routes_off)) else emptyList()),
+            t.startMinutes, t.endMinutes, source)
     }
 
     /** 선택한 경로의 순서를 저장. C안이면 추가된 후보도 그날 확정으로 옮김 */

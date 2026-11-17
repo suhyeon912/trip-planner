@@ -78,9 +78,10 @@ Android Studio 오른쪽 **Gradle** 창 → `trip-planner > app > Tasks > androi
 2. API 및 서비스 → 라이브러리에서 사용 설정
    - **Maps SDK for Android** (앱 안 지도)
    - **Places API (New)** (장소 검색 · 운영 정보 다시 가져오기)
+   - **Routes API** (경로 제안의 실제 이동 시간 · 노선 이름 · 환승 수) — 꺼져 있으면 어림값으로 계산하고 경로 화면에 안내가 나와요
 3. 사용자 인증 정보 → API 키 만들기 → (권장) 키 제한
    - 애플리케이션 제한: Android 앱 → 패키지 `com.tripplanner` + **팀원 모두의 SHA-1**
-   - API 제한: 위 두 API
+   - API 제한: 위 세 API
 4. Google Play 서비스가 있는 기기 · 에뮬레이터(Google APIs 이미지)에서만 지도가 보입니다.
 
 > 요금은 API마다 무료 사용량이 다릅니다. 콘솔의 사용량 · 요금 페이지에서 확인하세요.
@@ -125,6 +126,8 @@ Android Studio 오른쪽 **Gradle** 창 → `trip-planner > app > Tasks > androi
 | 카카오 지도 자리에 키 해시가 보임 | 그 키 해시를 카카오 콘솔 → 플랫폼 → Android에 추가 |
 | Google 지도가 빈 화면 | 키 제한에 내 PC의 SHA-1이 있는지, Maps SDK for Android를 켰는지 |
 | 해외 검색이 "권한 없음" | Places API (New)를 켰는지, 키 API 제한에 들어 있는지 |
+| 경로 화면에 "Routes API 를 켜면…" 안내 | Routes API를 켰는지, 키 API 제한에 들어 있는지 → 경로 화면을 다시 열기 |
+| 경로 부제가 "일부 구간은 어림" | 그 구간은 Google이 길을 주지 않은 곳 (예: 한국의 도보 · 차). 정상이에요 |
 | 공유 메뉴가 '설정 필요' | `app/google-services.json`이 있는지 → 넣은 뒤 Sync |
 | 코드로 참여가 안 됨 | Firebase 익명 로그인을 켰는지, `firestore.rules`를 게시했는지 |
 | 키를 넣었는데 그대로 | Sync Now 후 앱을 다시 설치 (▶ 다시 실행) |
