@@ -38,7 +38,7 @@ app/src/main/java/com/tripplanner/
 │  ├─ AppDatabase.kt          DB 버전 · 마이그레이션
 │  ├─ TripRepository.kt       화면은 이것만 통해서 데이터 접근
 │  ├─ SampleData.kt           예시 여행 (처음 실행 시)
-│  └─ DayAnchors.kt           하루의 시작 · 끝 저장 형식
+│  └─ DayAnchors.kt           (예전 기능) 하루의 시작 · 끝 저장 형식 — 지금은 읽기만
 ├─ route/
 │  ├─ RoutePlanner.kt         경로 안 6가지 계산 · 같은 순서 합치기 · 구간 이동 시간
 │  ├─ TimeUtil.kt             "11:00 ~ 21:00" 해석, 요일, 일차 날짜
@@ -58,7 +58,7 @@ app/src/main/java/com/tripplanner/
    │  ├─ AddPlaceActivity · PlaceSearch · PlaceSearchDialog · Geocoding  장소 추가·수정 · 검색 · 주소→좌표
    │  ├─ TravelInfoActivity · TravelInfoViewModel · TravelFormActivity   교통·숙소
    │  ├─ RouteActivity · RouteViewModel · RouteAdapter · LegModes        경로 제안 · 구간 이동 수단
-   │  ├─ Directions · DayEndsUi                                         길찾기 (Routes API) · 하루의 시작 · 끝
+   │  ├─ Directions · DayEndsUi                                         길찾기 (Routes API) · 하루의 출발 · 도착
    │  ├─ ActivityLogActivity · ShareDialogs                              활동 기록 · 공유·초대 팝업
    │  └─ SettingsActivity · TypeEditor · TypeIcons · AppPrefs            설정 · 내가 만든 종류 · 아이콘 120개
    ├─ 지도
@@ -105,7 +105,7 @@ app/src/main/java/com/tripplanner/
 | 7 | 숙소 도착 목표 시각 |
 | 8 | 관련 링크 · 내가 만든 종류 · Google 장소 id, 종류 · 자료 표 |
 | 9 | 자료 짧은 설명 |
-| 10 | 일차별 하루의 시작 · 끝 장소 |
+| 10 | 일차별 하루의 시작 · 끝 장소 (지금은 쓰지 않음, 칸만 남김) |
 
 DB 구조를 바꾸면 `version`을 1 올리고 `MIGRATION_n_n+1`을 추가하세요. 기존 데이터는 지우지 않습니다.
 
@@ -115,11 +115,12 @@ DB 구조를 바꾸면 `version`을 1 올리고 `MIGRATION_n_n+1`을 추가하�
 
 `route/RoutePlanner.kt`
 
-**하루의 시작 · 끝** (`data/DayAnchors.kt`, `ui/DayEndsUi.kt`)
-- 일차마다 시작 · 끝을 따로 고릅니다: 숙소(아무 숙소나) · 이 날 장소 · 다른 장소(다른 날 · 일차 미정 · 후보, 위치 있는 것) · 정하지 않음. 고르지 않으면 그날 묵는 숙소입니다.
-- 고를 수 있는 건 여행에 넣은 장소뿐입니다. 공항 · 역처럼 새 곳이면 먼저 장소로 추가(후보로 두어도 됨)한 뒤 고릅니다.
-- 숙소 · 다른 장소(`Resolved.Lodge` · `Resolved.Spot`)는 출발점 · 도착점이 되고 들르는 장소로 세지 않습니다. 이 날 장소(`Resolved.AtPlace`)는 그 장소를 처음 · 마지막에 들릅니다(순서 고정).
-- `Trip.dayAnchors`에 이름으로 저장해서 공유됩니다. 장소 이름을 바꾸면 같이 바뀌고, 없어진 숙소 · 장소는 기본(그날 숙소)으로 돌아갑니다.
+**하루의 출발 · 도착** (`ui/DayEndsUi.kt`)
+- 그날 넣은 순서의 첫 장소에서 출발해 마지막 장소에서 끝납니다. 따로 고르는 메뉴는 없습니다.
+- 숙소에서 출발해 숙소로 돌아오는 날은 숙소를 장소로 1번 · 마지막에 넣습니다 (같은 숙소를 두 번 넣어도 됨).
+- 경로 안은 첫 · 마지막 장소를 그 자리에 두고 가운데 장소들의 순서만 바꿔 비교합니다 (`Ends.firstId` · `lastId`).
+- 첫 · 마지막 장소가 숙소(등록한 숙소와 이름이 같거나 약 100m 안)면 머무는 시간을 0으로 계산합니다: 출발 시각에 바로 떠나고, 도착하면 하루가 끝납니다.
+- 예전 버전의 `Trip.dayAnchors`(일차별 시작 · 끝 고르기)는 칸만 남아 있고 쓰지 않습니다.
 
 **거리 · 시간**
 - 기본은 **직선거리 × 1.3**으로 거리를 어림합니다.

@@ -87,8 +87,8 @@ class TripDetailMap(
                legTime: com.tripplanner.route.LegTime = com.tripplanner.route.RoutePlanner.DEFAULT_LEG,
                /** n일차의 시작 · 끝 (없으면 그날 숙소 하나로 시작 · 끝) */
                ends: com.tripplanner.route.Ends? = null,
-               /** 그날 일정 밖인데 시작 · 끝으로 정한 장소 (공항 · 역 등) — 숙소처럼 점 + 시각 이름표 */
-               endSpots: List<Place> = emptyList()) {
+               /** 머무는 시간을 0으로 볼 장소 (첫 · 마지막 장소가 숙소일 때) */
+               zeroStay: Set<Long> = emptySet()) {
         shown = places + candidates
         labels.clear()
         times.clear()
@@ -102,7 +102,7 @@ class TripDetailMap(
                 val stops = todays.map { p ->
                     com.tripplanner.route.Stop(p.id, p.name, p.lat, p.lng,
                         open = com.tripplanner.route.TimeUtil.parseRange(p.openingHours),
-                        breakTime = com.tripplanner.route.TimeUtil.parseRange(p.breakTime), stayMinutes = p.stayMinutes)
+                        breakTime = com.tripplanner.route.TimeUtil.parseRange(p.breakTime), stayMinutes = if (p.id in zeroStay) 0 else p.stayMinutes)
                 }
                 val sim = com.tripplanner.route.RoutePlanner.simulate(dayEnds, stops, startMinutes, legTime)
                 sim.visits.forEach { v -> times[v.stop.id] = v.arrive to v.leave }
@@ -126,18 +126,18 @@ class TripDetailMap(
                 ctx.getString(R.string.map_pin_a11y, ctx.getString(R.string.map_lodging), l.name) +
                     (homeCaptions[l.name]?.let { ", $it" } ?: ""), caption = homeCaptions[l.name])
         }
-        endSpots.filter { it.hasLocation }.forEach { p ->
-            val cap = homeCaptions[p.name] ?: p.name
-            pins += MapPin(-1, p.lat, p.lng, "", ContextCompat.getColor(ctx, R.color.on_surface), MapPin.Style.SPOT,
-                if (cap == p.name) p.name else "${p.name}, $cap", caption = cap)
-        }
         // 일차별로 묶어서 순서대로 선 + 번호 점
         located.groupBy { it.day }.forEach { (day, group) ->
             val color = if (day == null) gray else PinIcons.dayColor(day)
             group.forEachIndexed { i, p ->
                 val label = if (day == null) "" else (p.orderInDay ?: (i + 1)).toString()
                 labels[p.id] = label
-                val caption = times[p.id]?.let { (a, b) -> range(a, b) }
+                // 숙소에서 출발 · 숙소에 도착: 시각 하나만 ("10:00 출발" / "17:26 도착")
+                val caption = times[p.id]?.let { (a, b) ->
+                    if (p.id in zeroStay && a == b) ctx.getString(if (i == 0) R.string.map_depart_at else R.string.map_arrive_at,
+                        com.tripplanner.route.TimeUtil.format(a))
+                    else range(a, b)
+                }
                 pins += MapPin(p.id, p.lat, p.lng, label, color, MapPin.Style.FILLED,
                     ctx.getString(R.string.map_pin_a11y, day?.let { ctx.dayLabel(it) } ?: ctx.getString(R.string.day_none), p.name) +
                         (caption?.let { ", $it" } ?: ""), caption = caption)

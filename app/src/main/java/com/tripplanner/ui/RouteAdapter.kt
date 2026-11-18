@@ -271,7 +271,8 @@ class RouteStopAdapter(
             is Row.Stop -> (holder as StopHolder).apply {
                 val v = row.visit
                 arrive.time(TimeUtil.format(v.arrive))
-                leave.visibility = View.VISIBLE
+                // 머무는 시간이 0이면 (숙소에서 출발 · 숙소에 도착) 떠나는 시각 상자 없이 시각 하나만
+                leave.visibility = if (v.leave == v.arrive) View.GONE else View.VISIBLE
                 leave.time(TimeUtil.format(v.leave))
                 leave.contentDescription = ctx.getString(R.string.leave_a11y, TimeUtil.format(v.leave))
                 leave.setOnClickListener { onLeave(v, it) }

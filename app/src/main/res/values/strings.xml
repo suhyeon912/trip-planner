@@ -174,7 +174,6 @@
     <string name="stop_wait">문 열 때까지 %1$s 기다려요</string>
     <string name="added_from_candidates">후보에서 추가</string>
     <string name="note_no_location">%1$s: 위치(위도·경도)가 없어 제외</string>
-    <string name="note_no_anchor">숙소 위치가 없어 첫 장소에서 출발하는 것으로 계산</string>
     <string name="empty_route_day_title">%1$d일차에 확정된 장소가 없어요</string>
     <string name="empty_route_day_body">여행 상세에서 장소를 확정하고 일차를 정해 주세요</string>
     <string name="empty_route_day_action">장소 확정하러 가기</string>
@@ -256,8 +255,6 @@
     <string name="day_header_date">%1$d월 %2$d일 (%3$s)</string>
     <string name="route_link">경로 제안</string>
     <string name="route_link_a11y">%1$d일차 경로 제안</string>
-    <string name="lodging_start">숙소 · 출발</string>
-    <string name="lodging_end">숙소 · 도착</string>
     <string name="summary_transport">교통 · %1$s</string>
     <string name="summary_lodging">숙소 · %1$s</string>
     <string name="summary_travel_empty">교통 · 숙소</string>
@@ -346,8 +343,7 @@
     <string name="option_kinds_more">%1$s · %2$s 외 %3$d</string>
     <string name="option_seq">%1$s · %2$s 숙소 도착</string>
     <string name="option_seq_spot">%1$s · %2$s %3$s 도착</string>
-    <string name="option_seq_no_home">%1$s · %2$s 끝</string>
-    <string name="timetable_title">%1$s 경로 시간표</string>
+    <string name="option_seq_no_home">%1$s · %2$s 도착</string>
     <string name="timetable_title_plain">시간표</string>
     <string name="route_detail_title">%1$s안 · %2$s</string>
     <string name="option_open_a11y">눌러서 시간표 보기</string>
@@ -479,25 +475,8 @@
     <string name="map_card_times">%1$s 도착 · %2$s 떠남</string>
     <string name="count_items">%1$d개</string>
     <!-- 하루의 시작 · 끝 -->
-    <string name="endpoint_lodgings">숙소</string>
-    <string name="endpoint_places">이 날 장소</string>
-    <string name="endpoint_other_places">다른 장소</string>
-    <string name="endpoint_other_option">%1$s · %2$s</string>
-    <string name="endpoint_spot_start">출발</string>
-    <string name="endpoint_spot_end">도착</string>
-    <string name="endpoint_none_start">정하지 않음 (첫 장소에서 출발)</string>
-    <string name="endpoint_none_end">정하지 않음 (마지막 장소에서 끝)</string>
-    <string name="endpoint_place_start">장소 · 출발</string>
-    <string name="endpoint_place_end">장소 · 도착</string>
-    <string name="endpoint_unset_start">출발 장소 정하기</string>
-    <string name="endpoint_unset_end">도착 장소 정하기</string>
-    <string name="endpoint_none_start_sub">첫 장소에서 출발</string>
-    <string name="endpoint_none_end_sub">마지막 장소에서 하루 끝</string>
     <string name="endpoint_change_a11y">눌러서 바꾸기</string>
-    <string name="endpoint_title_start">출발 장소</string>
-    <string name="endpoint_title_end">도착 장소</string>
     <string name="map_depart_at">%1$s 출발</string>
     <string name="map_arrive_at">%1$s 도착</string>
-    <string name="endpoint_no_location">숙소 위치가 없어요 · 눌러서 바꾸기</string>
     <string name="note_routes_off">Google Cloud 에서 Routes API 를 켜면 실제 이동 시간 · 노선으로 계산해요</string>
 </resources>

@@ -54,7 +54,7 @@ data class RouteOption(
     val visits: List<Visit>,
     val totalKm: Double,
     val moveMinutes: Int,
-    val endTime: Int,                // 숙소 도착(또는 마지막 장소 출발) 시각
+    val endTime: Int,                // 하루 끝 시각 (도착점이 있으면 그 도착, 없으면 마지막 장소 떠남 · 숙소면 도착)
     val added: List<Stop> = emptyList(),  // C안에서 새로 넣은 후보
     val endLimit: Int? = null,       // 숙소 도착 목표 시각 (null = 자유)
     /** 이 카드가 어떤 기준(들)의 순서인지 — 순서가 같은 기준은 한 카드로 합쳐짐 */
@@ -65,7 +65,7 @@ data class RouteOption(
     /** 목표보다 늦게 도착하는 분 (늦지 않으면 0) */
     val lateMinutes: Int get() = endLimit?.let { maxOf(0, endTime - it) } ?: 0
     val warnings: List<String> get() = visits.mapNotNull { it.warning?.let { w -> "${it.stop.name}: $w" } } +
-        if (lateMinutes > 0) listOf("숙소 도착 ${TimeUtil.format(endTime)} · 목표 ${TimeUtil.format(endLimit!!)}보다 ${lateMinutes}분 늦음") else emptyList()
+        if (lateMinutes > 0) listOf("도착 ${TimeUtil.format(endTime)} · 목표 ${TimeUtil.format(endLimit!!)}보다 ${lateMinutes}분 늦음") else emptyList()
 }
 
 /**

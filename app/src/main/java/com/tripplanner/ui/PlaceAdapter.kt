@@ -20,10 +20,6 @@ data class SummaryLine(val icon: Int, val text: String, val count: Int? = null)
 sealed class DetailItem {
     /** 일차 제목 "● 1일차 11월 20일 (금)" (+ '전체'에서는 오른쪽 '경로 제안') */
     data class Header(val title: String, val sub: String, val day: Int? = null, val routeLink: Boolean = false) : DetailItem()
-    /** 타임라인 맨 위·아래 하루의 시작 / 끝: 숙소 · 장소 · 정하지 않음 (누르면 바꾸기) */
-    data class LodgingRow(val name: String, val start: Boolean, val day: Int = 0,
-                          val kind: EndKind = EndKind.LODGING, val place: Place? = null) : DetailItem()
-    enum class EndKind { LODGING, PLACE, SPOT, NONE }
     /** 장소 카드. order = 방문 순서(경로 확정 전이면 null), timeline = 왼쪽 타임라인 열 표시 */
     data class PlaceRow(val place: Place, val order: String?, val isFirst: Boolean, val isLast: Boolean, val timeline: Boolean,
                         /** 붙은 예약·티켓 자료 수 ('티켓 n' 뱃지) */
@@ -53,15 +49,14 @@ class PlaceAdapter(
         fun onOpenTravel()
         fun onOpenNote()
         fun onEmptyAction(action: EmptyState.Action)
-        /** 하루의 시작(start) · 끝 줄을 눌렀을 때 */
-        fun onPickEndpoint(day: Int, start: Boolean, anchor: View)
     }
 
     companion object {
         /** 끌기 중 순서 점만 다시 그릴 때 */
         const val PAYLOAD_TIMELINE = "timeline"
+        /** 끌기 손잡이만 다시 그릴 때 */
+        private const val PAYLOAD_DRAG = "drag"
         private const val TYPE_HEADER = 0
-        private const val TYPE_LODGING = 1
         private const val TYPE_PLACE = 2
         private const val TYPE_SUMMARY = 3
         private const val TYPE_MEMO = 4
@@ -71,8 +66,10 @@ class PlaceAdapter(
     }
 
     private var items: List<DetailItem> = emptyList()
-    /** 일차 하나를 보고 있을 때만 순서 끌기 가능 */
+    /** 일차 하나를 보고 있을 때만 순서 끌기 가능 (바뀌면 다음 submit 에서 모든 줄의 손잡이를 다시 그림) */
     var dragEnabled = false
+        set(v) { if (field != v) { field = v; dragChanged = true } }
+    private var dragChanged = false
     /** 손잡이를 누르면 Activity 의 ItemTouchHelper 가 끌기를 시작 */
     var onStartDrag: ((RecyclerView.ViewHolder) -> Unit)? = null
 
@@ -101,12 +98,13 @@ class PlaceAdapter(
         val old = items
         items = newList
         ListDiff.dispatch(this, old, newList, ::sameItem)
+        // '전체' → 일차로 바꿨을 때 내용이 같은 줄도 손잡이를 보이게 (내용이 같으면 다시 그리지 않아서)
+        if (dragChanged) { dragChanged = false; if (newList.isNotEmpty()) notifyItemRangeChanged(0, newList.size, PAYLOAD_DRAG) }
     }
 
     private fun sameItem(a: DetailItem, b: DetailItem) = when (a) {
         is DetailItem.PlaceRow -> b is DetailItem.PlaceRow && a.place.id == b.place.id
         is DetailItem.Header -> b is DetailItem.Header && (if (a.day != null) a.day == b.day else b.day == null && a.title == b.title)
-        is DetailItem.LodgingRow -> b is DetailItem.LodgingRow && a.start == b.start && a.day == b.day
         is DetailItem.Summary -> b is DetailItem.Summary
         is DetailItem.Memo -> b is DetailItem.Memo
         is DetailItem.Empty -> b is DetailItem.Empty && a.state == b.state
@@ -114,7 +112,6 @@ class PlaceAdapter(
 
     override fun getItemViewType(position: Int) = when (items[position]) {
         is DetailItem.Header -> TYPE_HEADER
-        is DetailItem.LodgingRow -> TYPE_LODGING
         is DetailItem.PlaceRow -> TYPE_PLACE
         is DetailItem.Summary -> TYPE_SUMMARY
         is DetailItem.Memo -> TYPE_MEMO
@@ -129,15 +126,6 @@ class PlaceAdapter(
         val title: TextView = v.findViewById(R.id.tvHeaderTitle)
         val sub: TextView = v.findViewById(R.id.tvHeaderSub)
         val route: Button = v.findViewById(R.id.btnHeaderRoute)
-    }
-    class LodgingHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val dot: ImageView = v.findViewById(R.id.ivEndDot)
-        val thumb: ImageView = v.findViewById(R.id.ivEndThumb)
-        val card: View = v.findViewById(R.id.endCard)
-        val lineAbove: View = v.findViewById(R.id.lineAbove)
-        val lineBelow: View = v.findViewById(R.id.lineBelow)
-        val name: TextView = v.findViewById(R.id.tvLodgingName)
-        val sub: TextView = v.findViewById(R.id.tvLodgingSub)
     }
     class PlaceHolder(v: View) : RecyclerView.ViewHolder(v) {
         val timeline: View = v.findViewById(R.id.timeline)
@@ -164,7 +152,6 @@ class PlaceAdapter(
         val inf = LayoutInflater.from(parent.context)
         return when (viewType) {
             TYPE_HEADER -> HeaderHolder(inf.inflate(R.layout.item_day_header, parent, false))
-            TYPE_LODGING -> LodgingHolder(inf.inflate(R.layout.item_timeline_lodging, parent, false))
             TYPE_SUMMARY -> SummaryHolder(inf.inflate(R.layout.item_detail_summary, parent, false).also { Motion.clipRoundedCard(it) })
             TYPE_MEMO -> MemoHolder(inf.inflate(R.layout.item_detail_memo, parent, false))
             TYPE_EMPTY -> EmptyHolder(inf.inflate(R.layout.view_empty_state, parent, false).apply {
@@ -179,6 +166,10 @@ class PlaceAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
         val row = items.getOrNull(position)
         if (PAYLOAD_TIMELINE in payloads && holder is PlaceHolder && row is DetailItem.PlaceRow) bindTimeline(holder, row)
+        else if (payloads.isNotEmpty() && payloads.all { it == PAYLOAD_DRAG }) {
+            if (holder is PlaceHolder && row is DetailItem.PlaceRow) holder.drag.visibility =
+                if (dragEnabled && row.timeline && row.place.status == PlaceStatus.CONFIRMED) View.VISIBLE else View.GONE
+        }
         else super.onBindViewHolder(holder, position, payloads)
     }
 
@@ -195,51 +186,6 @@ class PlaceAdapter(
                     route.contentDescription = route.context.getString(R.string.route_link_a11y, item.day)
                     route.setOnClickListener { onRouteCta(item.day) }
                 }
-            }
-            is DetailItem.LodgingRow -> (holder as LodgingHolder).apply {
-                val ctx = itemView.context
-                val d = ctx.resources.displayMetrics.density
-                lineAbove.visibility = if (item.start) View.INVISIBLE else View.VISIBLE
-                lineBelow.visibility = if (item.start) View.VISIBLE else View.INVISIBLE
-                when (item.kind) {
-                    DetailItem.EndKind.LODGING -> {
-                        name.text = item.name
-                        sub.setText(if (item.start) R.string.lodging_start else R.string.lodging_end)
-                        dot.setImageResource(R.drawable.ic_hotel)
-                        dot.setBackgroundResource(R.drawable.bg_lodging_pin)
-                        dot.imageTintList = ColorStateList.valueOf(ctx.color(R.color.card_bg))
-                        thumb.visibility = View.VISIBLE
-                        thumb.setBackgroundResource(R.drawable.bg_thumb_neutral)
-                        thumb.setImageResource(R.drawable.ic_hotel)
-                        thumb.imageTintList = ColorStateList.valueOf(ctx.color(R.color.on_surface))
-                        thumb.setPadding((11 * d).toInt(), (11 * d).toInt(), (11 * d).toInt(), (11 * d).toInt())
-                    }
-                    DetailItem.EndKind.PLACE, DetailItem.EndKind.SPOT -> {
-                        name.text = item.name
-                        sub.setText(when {
-                            item.kind == DetailItem.EndKind.SPOT -> if (item.start) R.string.endpoint_spot_start else R.string.endpoint_spot_end
-                            item.start -> R.string.endpoint_place_start
-                            else -> R.string.endpoint_place_end
-                        })
-                        dot.setImageResource(R.drawable.ic_place)
-                        dot.setBackgroundResource(R.drawable.bg_lodging_pin)
-                        dot.imageTintList = ColorStateList.valueOf(ctx.color(R.color.card_bg))
-                        thumb.visibility = View.VISIBLE
-                        item.place?.let { Thumbs.bind(thumb, it) }
-                    }
-                    DetailItem.EndKind.NONE -> {
-                        name.setText(if (item.start) R.string.endpoint_unset_start else R.string.endpoint_unset_end)
-                        sub.setText(if (item.start) R.string.endpoint_none_start_sub else R.string.endpoint_none_end_sub)
-                        dot.setImageDrawable(null)
-                        dot.background = android.graphics.drawable.GradientDrawable().apply {
-                            shape = android.graphics.drawable.GradientDrawable.OVAL
-                            setColor(ctx.color(R.color.card_bg)); setStroke((2 * d).toInt(), ctx.color(R.color.outline))
-                        }
-                        thumb.visibility = View.GONE
-                    }
-                }
-                card.contentDescription = "${name.text}, ${sub.text}, " + ctx.getString(R.string.endpoint_change_a11y)
-                card.setOnClickListener { listener.onPickEndpoint(item.day, item.start, it) }
             }
             is DetailItem.Summary -> (holder as SummaryHolder).apply {
                 rows.removeAllViews()

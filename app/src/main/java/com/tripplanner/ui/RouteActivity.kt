@@ -107,7 +107,7 @@ class RouteActivity : AppCompatActivity() {
                 viewModel.setLeaveTime(visit.stop.id, visit.arrive, leave)
             }
         }, legInfo = { f, t, km -> viewModel.legInfo(f, t, km) },
-            onLeg = { leg, rest, km, pill -> showLegModes(pill, leg, rest, km) }) { start, row -> pickEndpoint(start, row) }
+            onLeg = { leg, rest, km, pill -> showLegModes(pill, leg, rest, km) })
         findViewById<RecyclerView>(R.id.rvStops).apply {
             layoutManager = LinearLayoutManager(this@RouteActivity)
             adapter = stopAdapter
@@ -164,18 +164,9 @@ class RouteActivity : AppCompatActivity() {
             mapCard.visibility = if (has) View.VISIBLE else View.GONE
 
             val option = viewModel.selectedOption()
-            optionAdapter.submit(s.options, option?.key, hasHome = s.endpoints.ends.end != null,
-                endSpot = s.endpoints.ends.end?.takeIf { !it.lodging }?.name)
-            fun pick(r: com.tripplanner.data.DayAnchors.Resolved, start: Boolean): Pair<String, String>? = when (r) {
-                is com.tripplanner.data.DayAnchors.Resolved.AtPlace -> r.place.name to getString(if (start) R.string.endpoint_place_start else R.string.endpoint_place_end)
-                com.tripplanner.data.DayAnchors.Resolved.None -> getString(if (start) R.string.endpoint_unset_start else R.string.endpoint_unset_end) to
-                    getString(if (start) R.string.endpoint_none_start_sub else R.string.endpoint_none_end_sub)
-                is com.tripplanner.data.DayAnchors.Resolved.Lodge -> r.lodging.name to getString(R.string.endpoint_no_location)   // 위치 없는 숙소
-                is com.tripplanner.data.DayAnchors.Resolved.Spot -> null   // 출발 · 도착점 줄(시각 있음)로 보임
-            }
-            stopAdapter.submit(option, s.endpoints.ends, s.startMinutes, pick(s.endpoints.start, true), pick(s.endpoints.end, false),
-                hollowStart = s.endpoints.start !is com.tripplanner.data.DayAnchors.Resolved.AtPlace,
-                hollowEnd = s.endpoints.end !is com.tripplanner.data.DayAnchors.Resolved.AtPlace)
+            // 출발 · 도착은 첫 · 마지막 장소 (따로 숙소 줄 없음)
+            optionAdapter.submit(s.options, option?.key, hasHome = false)
+            stopAdapter.submit(option, s.endpoints.ends, s.startMinutes)
             val startLabel = TimeUtil.format(s.startMinutes)
             tvStartTime.setTextFading(startLabel)
             btnStartTime.contentDescription = getString(R.string.start_time_a11y, startLabel)
@@ -317,14 +308,6 @@ class RouteActivity : AppCompatActivity() {
         popup.animationStyle = R.style.Animation_TripPlanner_Popover
         popup.isOutsideTouchable = true
         popup.showAsDropDown(anchor, 0, dp(4))
-    }
-
-    /** 하루의 시작 · 끝 바꾸기: 숙소 · 이 날 장소 · 정하지 않음 */
-    private fun pickEndpoint(start: Boolean, row: View) {
-        val e = viewModel.ui.value?.endpoints ?: return
-        showEndpointMenu(row, start, if (start) e.start else e.end, viewModel.allLodgings(), viewModel.dayPlaces(), viewModel.otherPlaces()) {
-            Haptics.confirm(row); viewModel.setEndpoint(start, it)
-        }
     }
 
     /** 선택한 안을 지도에: 시작 숙소(집 모양) → 번호 점 → 끝 숙소, 후보 포함에서 추가된 후보는 청록색 */

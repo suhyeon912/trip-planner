@@ -132,7 +132,7 @@ class RoutePlannerTest {
         val far = Stop(1, "먼 곳", 35.2, 135.0, stayMinutes = 600)
         val late = RoutePlanner.plan(home, listOf(far), emptyList(), startTime = 600, endLimit = 18 * 60).first()
         assertTrue(late.lateMinutes > 0)
-        assertTrue(late.warnings.any { it.startsWith("숙소 도착") })
+        assertTrue(late.warnings.any { it.startsWith("도착") })
         val free = RoutePlanner.plan(home, listOf(far), emptyList(), startTime = 600).first()
         assertEquals(0, free.lateMinutes)
         assertTrue(free.warnings.isEmpty())

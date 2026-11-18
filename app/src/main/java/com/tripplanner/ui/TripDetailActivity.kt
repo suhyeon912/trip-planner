@@ -178,11 +178,9 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
                 return
             }
             val day = viewModel.selectedDay.value ?: TripDetailViewModel.DAY_ALL
-            // n일차: 그날 시작 · 끝 숙소만 (장소를 시작 · 끝으로 정했으면 숙소 없이)
+            // n일차: 그날 장소만 (숙소에서 출발하는 날은 숙소도 장소로 들어 있음) / 전체: 숙소도 점으로
             val ends = if (day > 0) viewModel.endpoints(day) else null
-            val lodgings = if (ends != null) listOfNotNull(ends.start, ends.end)
-                    .mapNotNull { (it as? com.tripplanner.data.DayAnchors.Resolved.Lodge)?.lodging }.distinctBy { it.id }
-                else viewModel.lodgings.value.orEmpty()
+            val lodgings = if (ends != null) emptyList() else viewModel.lodgings.value.orEmpty()
             val (places, candidates) = viewModel.mapPlaces()
             legModes.reload()   // 경로 제안에서 바꿨을 수 있음
             // 구간 시간: 경로 제안에서 받아 둔 길찾기 결과가 있으면 그것 (같은 시각이 보이게), 없으면 어림
@@ -197,7 +195,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             }
             detailMap.render(places, candidates, day, lodgings, viewModel.tripCoords(),
                 startMinutes = trip?.startMinutes ?: com.tripplanner.route.RoutePlanner.DEFAULT_START, legTime = legTime,
-                ends = e, endSpots = ends?.spots.orEmpty())
+                ends = e, zeroStay = if (day > 0) viewModel.zeroStayIds(day) else emptySet())
             toolbar.subtitle = mapSubtitle()
         }
         fun updateBottom() {
@@ -298,14 +296,6 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
 
     override fun onOpenTravel() = openTravelInfo()
 
-    /** 하루의 시작 · 끝 줄 → 숙소 · 이 날 장소 · 다른 장소 · 정하지 않음 */
-    override fun onPickEndpoint(day: Int, start: Boolean, anchor: View) {
-        val ends = viewModel.endpoints(day)
-        showEndpointMenu(anchor, start, if (start) ends.start else ends.end, viewModel.allLodgings(), viewModel.dayPlaces(day), viewModel.otherPlaces(day)) {
-            Haptics.confirm(anchor)
-            viewModel.setEndpoint(day, start, it)
-        }
-    }
     override fun onOpenNote() = showTripNoteDialog()
     override fun onEmptyAction(action: EmptyState.Action) {
         when (action) {

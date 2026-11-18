@@ -100,7 +100,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         return when (val sel = selectedDay.value ?: DAY_ALL) {
             DAY_ALL -> confirmed to all.filter { it.status == PlaceStatus.CANDIDATE }
             DAY_NONE -> confirmed.filter { it.day == null } to emptyList()
-            else -> endpoints(sel).pin(confirmed.filter { it.day == sel }) to emptyList()
+            else -> confirmed.filter { it.day == sel } to emptyList()
         }
     }
 
@@ -126,10 +126,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     fun reorderDay(orderedIds: List<Long>) = viewModelScope.launch {
         val byId = places.value.orEmpty().associateBy { it.id }
         val list = orderedIds.mapNotNull { byId[it] }
-        // 시작 · 끝으로 정한 장소는 처음 · 마지막 자리 그대로
-        val day = list.firstOrNull()?.day
-        val pinned = if (day != null) endpoints(day).pin(list) else list
-        val updated = pinned.mapIndexed { i, p -> p.copy(orderInDay = i + 1) }
+        val updated = list.mapIndexed { i, p -> p.copy(orderInDay = i + 1) }
         if (updated.isNotEmpty()) repo.updatePlaces(updated)
     }
 
@@ -209,33 +206,11 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         return DetailUi(items, empty, chips, confirmed.size, candidates.size)
     }
 
-    /** 그날 시작 · 끝 (고른 값, 없으면 그날 숙소) */
-    fun endpoints(day: Int): DayEndpoints = DayEndpoints.of(trip.value, day, lodgings.value.orEmpty(),
-        places.value.orEmpty().filter { it.status == PlaceStatus.CONFIRMED && it.day == day }, places.value.orEmpty())
+    /** 그날 출발 · 도착 = 그날 순서의 첫 · 마지막 장소 */
+    fun endpoints(day: Int): DayEndpoints = DayEndpoints.of(dayPlaces(day))
 
-    /** 그날 타임라인: 시작(숙소 · 장소 · 정하지 않음) → 장소들 → 끝 */
-    private fun dayTimeline(day: Int, list: List<Place>): List<DetailItem> {
-        val ends = endpoints(day)
-        fun row(r: com.tripplanner.data.DayAnchors.Resolved, start: Boolean) = when (r) {
-            is com.tripplanner.data.DayAnchors.Resolved.Lodge -> DetailItem.LodgingRow(r.lodging.name, start, day)
-            is com.tripplanner.data.DayAnchors.Resolved.AtPlace -> DetailItem.LodgingRow(r.place.name, start, day, DetailItem.EndKind.PLACE, r.place)
-            is com.tripplanner.data.DayAnchors.Resolved.Spot -> DetailItem.LodgingRow(r.place.name, start, day, DetailItem.EndKind.SPOT, r.place)
-            com.tripplanner.data.DayAnchors.Resolved.None -> DetailItem.LodgingRow("", start, day, DetailItem.EndKind.NONE)
-        }
-        return listOf(row(ends.start, true)) + rows(ends.pin(list), timeline = true, edgesOpen = true) + row(ends.end, false)
-    }
-
-    /** 하루의 시작 · 끝 바꾸기. 장소를 고르면 그 장소가 처음 · 마지막에 오게 순서도 저장 */
-    fun setEndpoint(day: Int, start: Boolean, value: com.tripplanner.data.Endpoint) = viewModelScope.launch {
-        val t = trip.value ?: return@launch
-        val updated = t.copy(dayAnchors = com.tripplanner.data.DayAnchors.with(t.dayAnchors, day, start, value))
-        repo.updateTrip(updated)
-        val dayPlaces = places.value.orEmpty().filter { it.status == PlaceStatus.CONFIRMED && it.day == day }
-        val ends = DayEndpoints.of(updated, day, lodgings.value.orEmpty(), dayPlaces, places.value.orEmpty())
-        val ordered = ends.pin(dayPlaces)
-        if (ordered.map { it.id } != dayPlaces.map { it.id })
-            repo.updatePlaces(ordered.mapIndexed { i, p -> p.copy(orderInDay = i + 1) })
-    }
+    /** 그날 타임라인: 넣은 순서대로 (첫 장소에서 출발, 마지막 장소에서 끝) */
+    private fun dayTimeline(day: Int, list: List<Place>): List<DetailItem> = rows(list, timeline = true)
 
     /** "11월 20일 (금)" — 날짜를 못 읽으면 빈 글자 */
     private fun headerDate(day: Int): String {
@@ -264,11 +239,10 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         return out
     }
 
-    private fun rows(list: List<Place>, timeline: Boolean, edgesOpen: Boolean = false) = list.mapIndexed { i, p ->
-        // 방문 순서가 아직 없으면 목록 순서로 번호 (경로 확정·끌어서 바꾸면 저장된 순서)
-        // 타임라인 번호 = 보이는 순서 (시작 · 끝 장소를 고정해도 번호가 순서와 맞게)
+    private fun rows(list: List<Place>, timeline: Boolean) = list.mapIndexed { i, p ->
+        // 타임라인 번호 = 보이는 순서 (넣은 순서 · 끌어서 바꾼 순서 · 경로 적용 순서)
         DetailItem.PlaceRow(p, order = if (timeline && p.day != null) (i + 1).toString() else null,
-            isFirst = i == 0 && !edgesOpen, isLast = i == list.lastIndex && !edgesOpen, timeline = timeline,
+            isFirst = i == 0, isLast = i == list.lastIndex, timeline = timeline,
             files = attachments.value.orEmpty().count { it.placeId == p.id })
     }
 
@@ -305,8 +279,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     fun lodgingFor(day: Int): Lodging? = DayEndpoints.lodgingFor(trip.value, day, lodgings.value.orEmpty())
 
     fun allLodgings(): List<Lodging> = lodgings.value.orEmpty()
+    /** 첫 · 마지막 장소가 숙소면 머무는 시간 0 (지도 시각 계산용) */
+    fun zeroStayIds(day: Int): Set<Long> = DayEndpoints.zeroStayIds(dayPlaces(day), lodgings.value.orEmpty())
     fun dayPlaces(day: Int): List<Place> = places.value.orEmpty().filter { it.status == PlaceStatus.CONFIRMED && it.day == day }
-    /** 시작 · 끝으로 고를 수 있는 그날 밖 장소: 다른 날 (일차 순) → 일차 미정 → 후보 */
-    fun otherPlaces(day: Int): List<Place> = places.value.orEmpty().filter { !(it.status == PlaceStatus.CONFIRMED && it.day == day) }
-        .sortedWith(compareBy<Place>({ it.status == PlaceStatus.CANDIDATE }, { it.day ?: Int.MAX_VALUE }, { it.orderInDay ?: Int.MAX_VALUE }, { it.id }))
 }

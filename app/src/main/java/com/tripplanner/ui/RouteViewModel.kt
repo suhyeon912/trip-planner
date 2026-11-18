@@ -25,13 +25,13 @@ import kotlinx.coroutines.withContext
 data class RouteUiState(
     val day: Int,
     val dateLabel: String,
-    /** 하루의 시작 · 끝 (숙소 · 장소 · 정하지 않음) */
+    /** 하루의 출발 · 도착 = 그날 순서의 첫 · 마지막 장소 */
     val endpoints: DayEndpoints,
     val options: List<RouteOption>,
     val empty: EmptyState?,        // 경로를 못 만들 때 빈 상태
     val notes: List<String>,       // 위치 없음으로 빠진 장소 등
-    val startMinutes: Int = 600,   // 그날 숙소 출발 시각
-    val endMinutes: Int? = null,   // 숙소 도착 목표 시각 (null = 자유)
+    val startMinutes: Int = 600,   // 그날 첫 장소 출발 시각
+    val endMinutes: Int? = null,   // 마지막 장소 도착 목표 시각 (null = 자유)
     /** 이동 시간을 어디서 얻었는지: 모두 길찾기 · 일부 · 어림 */
     val source: RouteSource = RouteSource.ESTIMATE
 )
@@ -105,24 +105,6 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
 
     fun allLodgings(): List<Lodging> = lodgings
     fun dayPlaces(): List<Place> = places.filter { it.status == PlaceStatus.CONFIRMED && it.day == selectedDay }
-    /** 시작 · 끝으로 고를 수 있는 그날 밖 장소: 다른 날 (일차 순) → 일차 미정 → 후보 */
-    fun otherPlaces(): List<Place> = places.filter { !(it.status == PlaceStatus.CONFIRMED && it.day == selectedDay) }
-        .sortedWith(compareBy<Place>({ it.status == PlaceStatus.CANDIDATE }, { it.day ?: Int.MAX_VALUE }, { it.orderInDay ?: Int.MAX_VALUE }, { it.id }))
-
-    /** 하루의 시작 · 끝 바꾸기 (여행 상세와 같은 저장). 장소를 고르면 그 장소가 처음 · 마지막에 오게 순서도 저장 */
-    fun setEndpoint(start: Boolean, value: com.tripplanner.data.Endpoint) = viewModelScope.launch {
-        val t = trip ?: return@launch
-        val updated = t.copy(dayAnchors = com.tripplanner.data.DayAnchors.with(t.dayAnchors, selectedDay, start, value))
-        repo.updateTrip(updated)
-        trip = updated
-        val today = dayPlaces()
-        val ordered = DayEndpoints.of(updated, selectedDay, lodgings, today, places).pin(today)
-        if (ordered.map { it.id } != today.map { it.id }) {
-            repo.updatePlaces(ordered.mapIndexed { i, p -> p.copy(orderInDay = i + 1) })
-            places = repo.getPlaces(tripId).sortedWith(compareBy<Place>({ it.orderInDay == null }, { it.orderInDay }, { it.id }))
-        }
-        compute()
-    }
 
     // ---------------- 구간 이동 수단 (기기에 여행마다 저장) ----------------
     private val legModes = LegModes(app, tripId)
@@ -236,8 +218,8 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
         val withLoc = todays.filter { it.hasLocation }
         val notes = todays.filterNot { it.hasLocation }.map { ctx.getString(R.string.note_no_location, it.name) }
 
-        // 하루의 시작 · 끝: 고른 숙소 · 장소, 없으면 그날 묵는 숙소
-        val endpoints = DayEndpoints.of(t, day, lodgings, todays, places)
+        // 하루의 출발 · 도착: 그날 순서의 첫 · 마지막 장소 (경로 안은 가운데 순서만 바꿈)
+        val endpoints = DayEndpoints.of(todays)
         val ends = endpoints.ends
 
         if (withLoc.isEmpty()) {
@@ -250,7 +232,9 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
             return
         }
 
-        val stops = withLoc.map { it.toStop(date, false) }
+        // 첫 · 마지막 장소가 숙소면 머무는 시간 0 (출발 시각에 바로 떠남 · 도착하면 하루 끝)
+        val zeroStay = DayEndpoints.zeroStayIds(todays, lodgings)
+        val stops = withLoc.map { it.toStop(date, false).let { s -> if (s.id in zeroStay) s.copy(stayMinutes = 0) else s } }
         val candidates = places.filter { it.status == PlaceStatus.CANDIDATE && it.hasLocation }
             .map { it.toStop(date, true) }
         currentEnds = ends
@@ -275,12 +259,8 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
             known == 0 -> RouteSource.ESTIMATE; else -> RouteSource.PARTIAL }
         // 아직 모르는 구간을 길찾기로 받아 오고, 새로 받은 게 있으면 다시 계산
         fetchMissing(date, t.startMinutes, (core + shownLegs).distinct())
-        // 숙소가 하나도 없거나 위치가 없어서 시작 · 끝이 비었을 때만 안내 (직접 '정하지 않음'을 고른 건 안내 안 함)
-        val noLodging = lodgings.none { it.lat != 0.0 || it.lng != 0.0 } &&
-            com.tripplanner.data.DayAnchors.parse(t.dayAnchors)[day] == null
         ui.value = RouteUiState(day, dateLabel, endpoints, options, null,
-            notes + (if (noLodging) listOf(ctx.getString(R.string.note_no_anchor)) else emptyList()) +
-                (if (routesOff) listOf(ctx.getString(R.string.note_routes_off)) else emptyList()),
+            notes + (if (routesOff) listOf(ctx.getString(R.string.note_routes_off)) else emptyList()),
             t.startMinutes, t.endMinutes, source)
     }
 
