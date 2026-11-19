@@ -203,6 +203,7 @@
     <string name="join_not_found">이 코드의 여행을 찾을 수 없어요</string>
     <string name="join_failed">참여하지 못했어요: %1$s</string>
     <string name="working">잠시만요…</string>
+    <string name="share_timeout">서버 응답이 없어요. 인터넷 연결을 확인하고 다시 해 주세요</string>
     <string name="shared_subtitle">공유 중 · 코드 %1$s</string>
 
     <!-- 앱 안 지도 -->

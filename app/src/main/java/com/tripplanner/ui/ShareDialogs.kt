@@ -38,8 +38,28 @@ private fun AppCompatActivity.notConfigured() {
         .show()
 }
 
-private fun AppCompatActivity.progressDialog(): TpDialog =
-    TpDialog.Builder(this).setMessage(R.string.working).setCancelable(false).show()
+/** 기다리는 중: "잠시만요…" + 움직이는 막대 (버튼 없음) */
+private fun AppCompatActivity.progressDialog(): TpDialog {
+    val d = resources.displayMetrics.density
+    val box = android.widget.LinearLayout(this).apply {
+        orientation = android.widget.LinearLayout.VERTICAL
+        setPadding((24 * d).toInt(), 0, (24 * d).toInt(), 0)
+        addView(TextView(context).apply {
+            setText(R.string.working)
+            setTextAppearance(R.style.TextAppearance_TripPlanner_BodyLarge)
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.on_surface))
+        })
+        addView(com.tripplanner.ui.widget.TpProgressBar(context).apply {
+            visibility = View.VISIBLE
+        }, android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = (16 * d).toInt() })
+        accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+    }
+    return TpDialog.Builder(this).setView(box).setCancelable(false).show()
+}
+
+/** 서버 응답이 너무 늦으면 (인터넷 · 설정 문제) 기다리지 않고 알림 */
+private const val SHARE_TIMEOUT_MS = 20_000L
 
 /** 팝업 안 입력 칸 하나 (라벨은 칸 위) → (칸 묶음, 입력칸, 오류 표시용 칸) */
 private fun AppCompatActivity.labeledField(label: String, value: String): Triple<View, EditText, TpTextField> {
@@ -82,9 +102,10 @@ fun AppCompatActivity.openShareDialog(tripId: Long) {
                     dialog.dismiss()
                     val wait = progressDialog()
                     lifecycleScope.launch {
-                        runCatching { share.share(tripId) }
+                        runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.share(tripId) } }
                             .onSuccess { wait.dismiss(); showCode(trip.title, it, tripId) }
-                            .onFailure { wait.dismiss(); toast(getString(R.string.share_failed, it.message ?: it.javaClass.simpleName)) }
+                            .onFailure { wait.dismiss(); toast(if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
+                    else getString(R.string.share_failed, it.message ?: it.javaClass.simpleName)) }
                     }
                 }
             }
@@ -175,11 +196,12 @@ fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
             share.nickname = name
             val wait = progressDialog()
             lifecycleScope.launch {
-                runCatching { share.join(code) }
+                runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.join(code) } }
                     .onSuccess { wait.dismiss(); dialog.dismiss(); onJoined(it) }
                     .onFailure {
                         wait.dismiss()
                         layout.error = if (it is ShareManager.NotFoundException) getString(R.string.join_not_found)
+                                       else if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
                                        else getString(R.string.join_failed, it.message ?: it.javaClass.simpleName)
                     }
             }

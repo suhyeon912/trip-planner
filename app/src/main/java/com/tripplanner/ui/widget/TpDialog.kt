@@ -91,6 +91,10 @@ class TpDialog private constructor(context: Context, private val b: Builder) :
         bind(DialogInterface.BUTTON_NEUTRAL, R.id.dlgNeutral, b.neutral)
         val any = b.positive != null || b.negative != null || b.neutral != null
         root.findViewById<View>(R.id.dlgButtons).visibility = if (any) View.VISIBLE else View.GONE
+        // 버튼이 없는 팝업(기다리는 중 등)도 아래 여백 24 (버튼 줄이 주던 여백)
+        if (!any) (root.findViewById<ScrollView>(R.id.dlgScroll).getChildAt(0)).let {
+            it.setPadding(it.paddingLeft, it.paddingTop, it.paddingRight, (24 * context.resources.displayMetrics.density).toInt())
+        }
     }
 
     class Builder(private val context: Context, internal val danger: Boolean = false) {
