@@ -145,11 +145,11 @@ class PlaceViewActivity : AppCompatActivity() {
             if (p.status == PlaceStatus.CONFIRMED) R.color.on_primary else R.color.text_sub)
         if (p.isReservationRequired) badge(getString(R.string.reservation_required), R.color.error_container, R.color.on_error_container)
 
-        // 지도 버튼: 국내 = 카카오맵 공식 아이콘 + 글자, 해외 = 글자만
+        // 지도 버튼: 글자만 ("카카오맵에서 보기" / "Google Maps에서 보기")
         val domestic = isDomestic(p, all, lodgingCoords)
         findViewById<TpButton>(R.id.btnOpenMap).apply {
             text = getString(R.string.open_in_map, MapLauncher.mapName(this@PlaceViewActivity, domestic))
-            icon = if (domestic) ContextCompat.getDrawable(this@PlaceViewActivity, R.drawable.ic_kakaomap) else null
+            icon = null
             setOnClickListener {
                 val point = if (p.hasLocation) MapPoint(p.name, p.lat, p.lng) else null
                 MapLauncher.openPlace(this@PlaceViewActivity, p.name, point, domestic)

@@ -231,9 +231,9 @@ class TripDetailMap(
             if (!confirmed) ctx.getString(R.string.status_candidate) else day?.let { ctx.dayLabel(it) } ?: ctx.getString(R.string.day_none),
             hours.takeIf { it.isNotEmpty() }?.let { ctx.getString(R.string.opening_hours_line, it) }
         ).joinToString(ctx.getString(R.string.list_separator))
-        // 지도 앱: 국내 = 카카오맵 아이콘 + 글자, 해외 = 글자만
+        // 지도 앱: 글자만 ("카카오맵에서 보기" / "Google Maps에서 보기")
         cardMap.text = listener.mapLabel(place)
-        cardMap.icon = if (listener.isDomestic(place)) ContextCompat.getDrawable(ctx, R.drawable.ic_kakaomap) else null
+        cardMap.icon = null   // 지도 앱 버튼은 글자만 (장소 정보와 같음)
         cardMap.setOnClickListener { listener.onOpenMap(place) }
         cardView.setOnClickListener { listener.onOpen(place) }
         cardEdit.setOnClickListener { listener.onEdit(place) }
