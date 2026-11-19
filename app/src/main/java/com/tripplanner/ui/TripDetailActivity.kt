@@ -248,6 +248,11 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             rvPlaces.setPadding(rvPlaces.paddingLeft, ((if (onSchedule) 4 else 11) * resources.displayMetrics.density).toInt(),
                 rvPlaces.paddingRight, rvPlaces.paddingBottom)
             chipAdapter.submit(ui.chips)
+            // 고른 일차 칩이 화면 밖이면 보이게 밀어 줌 (일차가 많을 때)
+            ui.chips.indexOfFirst { it.selected }.takeIf { it >= 0 }?.let { i ->
+                val lm = rvDays.layoutManager as LinearLayoutManager
+                if (i < lm.findFirstCompletelyVisibleItemPosition() || i > lm.findLastCompletelyVisibleItemPosition()) rvDays.smoothScrollToPosition(i)
+            }
             adapter.dragEnabled = onSchedule && (viewModel.selectedDay.value ?: 0) > 0
             adapter.submit(ui.items)
             renderMap(); updateBottom()
