@@ -363,6 +363,8 @@
     <string name="stay_default_hint">기본 %1$s</string>
     <string name="placeholder_hours">모름</string>
     <string name="placeholder_break">없음</string>
+    <string name="closed_day_on">휴무</string>
+    <string name="closed_day_off">영업</string>
     <string name="pick_time">시간 고르기</string>
     <string name="range_set_option">시간 정하기</string>
     <string name="hours_none_option">모름</string>

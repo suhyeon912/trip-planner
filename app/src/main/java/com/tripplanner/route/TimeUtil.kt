@@ -43,10 +43,10 @@ object TimeUtil {
     fun dateOfDay(startDate: String, day: Int): LocalDate? =
         runCatching { LocalDate.parse(startDate).plusDays((day - 1).toLong()) }.getOrNull()
 
-    /** 여행 기간이 며칠인지 (날짜를 못 읽으면 7일로 가정) */
+    /** 여행 기간이 며칠인지 (날짜를 못 읽으면 7일로 가정, 길어도 1년까지) */
     fun dayCount(startDate: String, endDate: String): Int = runCatching {
         val s = LocalDate.parse(startDate)
         val e = LocalDate.parse(endDate)
-        (java.time.temporal.ChronoUnit.DAYS.between(s, e) + 1).toInt().coerceIn(1, 30)
+        (java.time.temporal.ChronoUnit.DAYS.between(s, e) + 1).toInt().coerceIn(1, 366)
     }.getOrDefault(7)
 }

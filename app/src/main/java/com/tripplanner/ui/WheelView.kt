@@ -44,6 +44,7 @@ class WheelView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     init {
         layoutManager = lm
         overScrollMode = OVER_SCROLL_NEVER
+        defaultFocusHighlightEnabled = false   // 팝오버가 열릴 때 첫 휠에 회색 포커스 칸이 생기지 않게
         clipToPadding = false
         val pad = itemH * (VISIBLE / 2)
         setPadding(0, pad, 0, pad)
@@ -51,10 +52,22 @@ class WheelView @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         adapter = WheelAdapter()
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
         addOnScrollListener(object : OnScrollListener() {
-            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) { restyle(); updateSelected(fromUser = true) }
+            // 손으로 돌리는 중(끌기 · 멈추는 중)에만 값을 바꿈. 화면 크기가 바뀌며 생기는 스크롤로는 바꾸지 않음
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                restyle(); if (scrollState != SCROLL_STATE_IDLE) updateSelected(fromUser = true)
+            }
+            override fun onScrollStateChanged(rv: RecyclerView, newState: Int) {
+                if (newState == SCROLL_STATE_IDLE) updateSelected(fromUser = false)
+            }
         })
         ViewCompat.replaceAccessibilityAction(this, AccessibilityActionCompat.ACTION_SCROLL_FORWARD, null) { _, _ -> step(1) }
         ViewCompat.replaceAccessibilityAction(this, AccessibilityActionCompat.ACTION_SCROLL_BACKWARD, null) { _, _ -> step(-1) }
+    }
+
+    /** 크기가 바뀌면 (팝오버가 다시 놓일 때) 고른 칸을 다시 가운데로 */
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        if (oldh != 0 && scrollState == SCROLL_STATE_IDLE) post { select(selectedIndex) }
     }
 
     override fun onMeasure(widthSpec: Int, heightSpec: Int) =

@@ -179,7 +179,20 @@ object WheelPopup {
         }
         setFree(isFree)
 
-        // 화면 좌우 16 안쪽 가득, 누른 것 바로 아래 4 (아래가 모자라면 위)
+        // 키보드가 떠 있으면 먼저 내리고 (입력칸 포커스도 풀기), 화면 크기가 자리 잡은 뒤에 띄움.
+        // 키보드가 열린 채로 띄우면 팝오버가 키보드를 내리며 화면이 줄었다 늘면서 흔들리고, 닫을 때 다시 키보드가 뜸.
+        val imeShown = androidx.core.view.ViewCompat.getRootWindowInsets(anchor)
+            ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == true
+        anchor.rootView.findFocus()?.let { f -> if (f is android.widget.EditText) f.clearFocus() }
+        (ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
+            .hideSoftInputFromWindow(anchor.windowToken, 0)
+        if (imeShown) anchor.postDelayed({ if (anchor.isAttachedToWindow) place(anchor, content, apply) { isFree } }, 250)
+        else place(anchor, content, apply) { isFree }
+    }
+
+    /** 화면 좌우 16 안쪽 가득, 누른 것 바로 아래 4 */
+    private fun place(anchor: View, content: View, apply: (Boolean) -> Unit, isFree: () -> Boolean) {
+        val d = anchor.resources.displayMetrics.density
         val frame = Rect().also { anchor.rootView.getWindowVisibleDisplayFrame(it) }
         val margin = (16 * d).toInt()
         val width = minOf(frame.width() - margin * 2, (480 * d).toInt())
@@ -189,7 +202,7 @@ object WheelPopup {
         popup.animationStyle = R.style.Animation_TripPlanner_Popover
         popup.isOutsideTouchable = true
         content.findViewById<View>(R.id.btnWheelCancel).setOnClickListener { popup.dismiss() }
-        content.findViewById<View>(R.id.btnWheelApply).setOnClickListener { apply(isFree); popup.dismiss() }
+        content.findViewById<View>(R.id.btnWheelApply).setOnClickListener { apply(isFree()); popup.dismiss() }
 
         val loc = IntArray(2).also { anchor.getLocationOnScreen(it) }
         val xOff = (frame.left + (frame.width() - width) / 2) - loc[0]

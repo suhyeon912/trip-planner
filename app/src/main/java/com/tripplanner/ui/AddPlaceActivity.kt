@@ -110,6 +110,7 @@ class AddPlaceActivity : AppCompatActivity() {
         }
         findViewById<View>(R.id.btnRefreshHours).setOnClickListener { refreshHours(it) }
         setupTimeFields()
+        setupClosedChips()
 
 
         // ---------- 사진: 비었으면 고르기, 있으면 바꾸기 / 빼기 ----------
@@ -320,6 +321,51 @@ class AddPlaceActivity : AppCompatActivity() {
     }
 
     /**
+     * 휴무일: 월 ~ 일 요일 칩 (여러 개). 값은 숨은 칸(etClosed)에 "월요일, 화요일" 로 — 저장 · 검색 자동 입력 · 공유 형식 그대로.
+     * Google 이 준 '일부' 같은 설명이 있으면 요일을 바꾸기 전까지 그대로 둠.
+     */
+    private fun setupClosedChips() {
+        val et = field(R.id.etClosed)
+        val row = findViewById<android.widget.LinearLayout>(R.id.closedChips)
+        val names = listOf("월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일")
+        val d = resources.displayMetrics.density
+        val chips = names.map { full ->
+            TextView(this).apply {
+                text = full.take(1)
+                gravity = android.view.Gravity.CENTER
+                minHeight = (44 * d).toInt()
+                setTextAppearance(R.style.TextAppearance_TripPlanner_LabelLarge)
+                foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_r16)
+                isClickable = true; isFocusable = true
+                setOnClickListener { v ->
+                    val cur = names.filter { et.text?.toString().orEmpty().contains(it) }.toMutableSet()
+                    if (full in cur) cur -= full else cur += full
+                    et.setText(names.filter { it in cur }.joinToString(", "))
+                    Haptics.confirm(v)
+                }
+            }.also { c ->
+                row.addView(c, android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+                    if (row.childCount > 0) marginStart = (6 * d).toInt()
+                })
+            }
+        }
+        fun render() {
+            val text = et.text?.toString().orEmpty()
+            chips.forEachIndexed { i, c ->
+                val on = text.contains(names[i])
+                c.setBackgroundResource(if (on) R.drawable.bg_day_chip_selected else R.drawable.bg_day_chip)
+                c.setTextColor(androidx.core.content.ContextCompat.getColor(this, if (on) R.color.on_primary else R.color.on_surface))
+                c.isSelected = on
+                c.contentDescription = names[i]
+                androidx.core.view.ViewCompat.setStateDescription(c, getString(if (on) R.string.closed_day_on else R.string.closed_day_off))
+            }
+            row.contentDescription = null
+        }
+        et.doAfterTextChanged { render() }
+        render()
+    }
+
+    /**
      * 운영시간 · 브레이크 타임 · 머무는 시간: 직접 타자 대신 휠로 고르기 (경로 제안 · 교통편과 같은 휠 팝오버).
      * 칸을 누르면 바로 아래에 휠이 뜨고, '적용'을 눌러야 바뀜.
      */
@@ -328,6 +374,8 @@ class AddPlaceActivity : AppCompatActivity() {
             val et = field(id)
             et.isFocusable = false; et.isFocusableInTouchMode = false; et.isCursorVisible = false
             et.isLongClickable = false; et.keyListener = null
+            // 값 · 안내 글자는 한 줄 (좁은 칸에서 "기본 1시간 30분" 이 줄바꿈되지 않게)
+            et.maxLines = 1; et.setHorizontallyScrolling(false); et.ellipsize = android.text.TextUtils.TruncateAt.END
             et.setOnClickListener { open(et) }
             // 끝의 시계 아이콘도 같은 동작
             generateSequence(et.parent) { it.parent }.filterIsInstance<TpTextField>().firstOrNull()?.let { til ->

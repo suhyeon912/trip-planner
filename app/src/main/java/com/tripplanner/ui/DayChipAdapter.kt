@@ -72,8 +72,8 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
         holder.itemView.minimumWidth = if (wide) 0 else (76 * d).toInt()
         // 한 줄인 '전체'도 두 줄 일차 칩과 같은 높이
         holder.itemView.minimumHeight = if (compact) (48 * d).toInt() else (54 * d).toInt()
-        (holder.itemView as android.widget.LinearLayout).gravity =
-            if (wide) android.view.Gravity.CENTER else android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
+        // 글자는 칩 가운데
+        (holder.itemView as android.widget.LinearLayout).gravity = android.view.Gravity.CENTER
         (holder.itemView.layoutParams as? ViewGroup.MarginLayoutParams)?.marginEnd = (8 * d).toInt()
     }
 
