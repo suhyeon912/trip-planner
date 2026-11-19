@@ -36,7 +36,7 @@ fun showPlaceSearch(activity: AppCompatActivity, initialQuery: String, domesticD
     val dialog = TpDialog.Builder(activity)
         .setTitle(R.string.search_place)
         .setView(view)
-        .setNegativeButton(R.string.action_cancel, null)
+        .setCloseButton()   // 아래 '취소' 대신 오른쪽 위 X
         .create()
 
     val adapter = HitAdapter { hit -> dialog.dismiss(); onPick(hit) }
@@ -60,8 +60,15 @@ fun showPlaceSearch(activity: AppCompatActivity, initialQuery: String, domesticD
             }.onFailure { e ->
                 adapter.submit(emptyList())
                 msg.visibility = View.VISIBLE
-                msg.text = if (e is PlaceSearch.NoKeyException) activity.getString(e.messageRes)
-                           else activity.getString(R.string.search_failed, e.message ?: e.javaClass.simpleName)
+                val raw = e.message.orEmpty()
+                msg.text = when {
+                    e is PlaceSearch.NoKeyException -> activity.getString(e.messageRes)
+                    // Google 콘솔 설정 문제: API 꺼짐 · 키 제한
+                    raw.contains("Permission denied", true) || raw.contains("PERMISSION_DENIED") || raw.contains("not authorized", true) ||
+                        raw.contains("has not been used", true) || raw.contains("disabled", true) ->
+                        activity.getString(if (toggle.checkedButtonId == R.id.btnDomestic) R.string.search_denied_kakao else R.string.search_denied_google)
+                    else -> activity.getString(R.string.search_failed, raw.ifBlank { e.javaClass.simpleName })
+                }
             }
         }
     }

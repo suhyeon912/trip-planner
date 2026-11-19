@@ -207,6 +207,9 @@ class PlaceAdapter(
             is DetailItem.Memo -> (holder as MemoHolder).apply {
                 note.text = item.note.trim()
                 note.visibility = if (item.note.isBlank()) View.GONE else View.VISIBLE
+                // 메모가 없으면 제목 줄만 (아래 여백 없이 '교통 · 숙소' 카드와 같은 높이)
+                itemView.setPadding(itemView.paddingLeft, itemView.paddingTop, itemView.paddingRight,
+                    if (item.note.isBlank()) 0 else itemView.resources.getDimensionPixelSize(R.dimen.space_m))
                 itemView.setOnClickListener { v -> v.jumpDrawablesToCurrentState(); listener.onOpenNote() }  // 팝업 뒤에 눌림 색이 남지 않게
             }
             is DetailItem.Empty -> bindEmptyState(holder.itemView, item.state) { listener.onEmptyAction(it) }

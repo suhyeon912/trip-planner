@@ -83,6 +83,8 @@
     <string name="search_no_kakao_key">카카오 REST API 키가 없어요 (local.properties 의 KAKAO_REST_API_KEY)</string>
     <string name="search_no_google_key">구글 키가 없어요 (local.properties 의 MAPS_API_KEY, Places API (New) 사용 설정)</string>
     <string name="search_failed">검색에 실패했어요: %1$s</string>
+    <string name="search_denied_google">Google 검색 권한이 없어요. Google Cloud 콘솔에서 Places API (New)를 켜고, API 키 제한 목록에 넣어 주세요</string>
+    <string name="search_denied_kakao">카카오 검색 권한이 없어요. 카카오 개발자 콘솔에서 카카오맵(로컬) 사용 설정을 켜 주세요</string>
     <string name="search_filled">%1$s 정보를 채웠어요</string>
     <string name="pick_photo">사진 고르기</string>
     <string name="change_photo">사진 바꾸기</string>

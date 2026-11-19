@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 맨 아래 여행 메모 카드 (누르면 메모 팝업) -->
+<!-- 맨 아래 여행 메모 카드 (누르면 메모 팝업). 아래 여백 12 는 메모가 있을 때만 (PlaceAdapter) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"

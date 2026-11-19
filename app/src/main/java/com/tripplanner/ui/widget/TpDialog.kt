@@ -52,6 +52,13 @@ class TpDialog private constructor(context: Context, private val b: Builder) :
 
         val title = root.findViewById<TextView>(R.id.dlgTitle)
         title.text = b.title; title.visibility = if (b.title.isNullOrEmpty()) View.GONE else View.VISIBLE
+        // 오른쪽 위 X (취소 버튼 대신, 검색처럼 결과를 고르면 닫히는 팝업)
+        root.findViewById<View>(R.id.dlgClose).apply {
+            visibility = if (b.closeButton) View.VISIBLE else View.GONE
+            setOnClickListener { dismiss() }
+        }
+        root.findViewById<View>(R.id.dlgTitleRow).visibility =
+            if (b.title.isNullOrEmpty() && !b.closeButton) View.GONE else View.VISIBLE
         val msg = root.findViewById<TextView>(R.id.dlgMessage)
         msg.text = b.message; msg.visibility = if (b.message.isNullOrEmpty()) View.GONE else View.VISIBLE
         if (b.title.isNullOrEmpty() && !b.message.isNullOrEmpty()) msg.setTextColor(ContextCompat.getColor(context, R.color.on_surface))
@@ -108,6 +115,7 @@ class TpDialog private constructor(context: Context, private val b: Builder) :
         internal var negative: ButtonSpec? = null
         internal var neutral: ButtonSpec? = null
         internal var cancelable = true
+        internal var closeButton = false
         internal var onDismiss: DialogInterface.OnDismissListener? = null
 
         fun setTitle(t: CharSequence?) = apply { title = t }
@@ -123,6 +131,8 @@ class TpDialog private constructor(context: Context, private val b: Builder) :
         fun setNeutralButton(text: CharSequence, onClick: ((DialogInterface, Int) -> Unit)?) = apply { neutral = ButtonSpec(text, onClick) }
         fun setNeutralButton(res: Int, onClick: ((DialogInterface, Int) -> Unit)?) = setNeutralButton(context.getString(res), onClick)
         fun setCancelable(c: Boolean) = apply { cancelable = c }
+        /** 오른쪽 위 X 닫기 버튼 */
+        fun setCloseButton(show: Boolean = true) = apply { closeButton = show }
         fun setOnDismissListener(l: DialogInterface.OnDismissListener?) = apply { onDismiss = l }
         fun create() = TpDialog(context, this)
         fun show() = create().also { it.show() }
