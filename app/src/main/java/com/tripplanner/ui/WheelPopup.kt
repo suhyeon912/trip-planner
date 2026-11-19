@@ -1,14 +1,11 @@
 package com.tripplanner.ui
 
-import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.tripplanner.R
@@ -193,30 +190,64 @@ object WheelPopup {
         else place(anchor, content, apply) { isFree }
     }
 
-    /** 화면 좌우 16 안쪽 가득, 누른 것 바로 아래 4 */
+    /**
+     * 화면 좌우 16 안쪽 가득, 누른 것 바로 아래 4 (아래가 모자라면 위).
+     * 따로 창(PopupWindow)을 띄우지 않고 지금 화면 위에 한 겹 얹음: 창을 쓰면 기기에 따라
+     * 열고 닫을 때 창 위치를 다시 잡으며 좌우로 튀어 보여서. 바깥 · 뒤로 · 취소 = 닫기.
+     */
     private fun place(anchor: View, content: View, apply: (Boolean) -> Unit, isFree: () -> Boolean) {
+        val ctx = anchor.context
         val d = anchor.resources.displayMetrics.density
-        val frame = Rect().also { anchor.rootView.getWindowVisibleDisplayFrame(it) }
+        val root = anchor.rootView.findViewById<android.widget.FrameLayout>(android.R.id.content) ?: return
         val margin = (16 * d).toInt()
-        val width = minOf(frame.width() - margin * 2, (480 * d).toInt())
-        val popup = PopupWindow(content, width, ViewGroup.LayoutParams.WRAP_CONTENT, true)
-        popup.setBackgroundDrawable(ColorDrawable(0))
-        popup.elevation = 12 * d
-        popup.animationStyle = R.style.Animation_TripPlanner_Popover
-        popup.isOutsideTouchable = true
-        content.findViewById<View>(R.id.btnWheelCancel).setOnClickListener { popup.dismiss() }
-        content.findViewById<View>(R.id.btnWheelApply).setOnClickListener { apply(isFree()); popup.dismiss() }
+        val width = minOf(root.width - margin * 2, (480 * d).toInt())
 
-        // 화면 좌표에 바로 놓기: 누른 칸에 붙여 두면(드롭다운) 화면이 다시 그려질 때마다 위치를 다시 계산하며 좌우로 흔들림.
-        // 아래 자리가 모자라면 칸 위에.
+        // 바깥: 투명한 판 (누르면 닫힘)
+        val scrim = android.widget.FrameLayout(ctx).apply {
+            isClickable = true
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        content.elevation = 12 * d
+        content.isClickable = true   // 팝오버 안을 눌러도 닫히지 않게
         content.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
         val h = content.measuredHeight
-        val loc = IntArray(2).also { anchor.getLocationOnScreen(it) }
+        val a = IntArray(2).also { anchor.getLocationInWindow(it) }
+        val r = IntArray(2).also { root.getLocationInWindow(it) }
+        val ax = a[0] - r[0]; val ay = a[1] - r[1]
         val gap = (4 * d).toInt()
-        val below = loc[1] + anchor.height + gap
-        val y = if (below + h <= frame.bottom - margin) below else maxOf(frame.top + margin, loc[1] - gap - h)
-        val x = frame.left + (frame.width() - width) / 2
-        popup.showAtLocation(anchor.rootView, android.view.Gravity.TOP or android.view.Gravity.START, x, y)
+        val below = ay + anchor.height + gap
+        val y = if (below + h <= root.height - margin) below else maxOf(margin, ay - gap - h)
+        scrim.addView(content, android.widget.FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            leftMargin = (root.width - width) / 2; topMargin = y
+        })
+        root.addView(scrim, android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+        var back: androidx.activity.OnBackPressedCallback? = null
+        var closing = false
+        fun close() {
+            if (closing) return
+            closing = true
+            back?.remove()
+            content.animate().alpha(0f).setDuration(anchor.resources.getInteger(R.integer.motion_press_exit).toLong())
+                .withEndAction { root.removeView(scrim) }.start()
+            anchor.sendAccessibilityEvent(android.view.accessibility.AccessibilityEvent.TYPE_VIEW_FOCUSED)
+        }
+        scrim.setOnClickListener { close() }
+        content.findViewById<View>(R.id.btnWheelCancel).setOnClickListener { close() }
+        content.findViewById<View>(R.id.btnWheelApply).setOnClickListener { apply(isFree()); close() }
+        (generateSequence(ctx) { (it as? android.content.ContextWrapper)?.baseContext }
+            .filterIsInstance<androidx.activity.ComponentActivity>().firstOrNull())?.let { act ->
+            back = object : androidx.activity.OnBackPressedCallback(true) { override fun handleOnBackPressed() = close() }
+            act.onBackPressedDispatcher.addCallback(back!!)
+        }
+
+        // 나타남: 위쪽 가운데에서 0.96 → 1 로 커지며 (시안 팝오버, 150ms)
+        content.pivotX = width / 2f; content.pivotY = 0f
+        content.alpha = 0f; content.scaleX = 0.96f; content.scaleY = 0.96f
+        content.animate().alpha(1f).scaleX(1f).scaleY(1f)
+            .setDuration(anchor.resources.getInteger(R.integer.motion_short).toLong())
+            .setInterpolator(android.view.animation.AnimationUtils.loadInterpolator(ctx, R.interpolator.motion_decelerate)).start()
+        content.post { content.sendAccessibilityEvent(android.view.accessibility.AccessibilityEvent.TYPE_VIEW_FOCUSED) }
     }
 }
