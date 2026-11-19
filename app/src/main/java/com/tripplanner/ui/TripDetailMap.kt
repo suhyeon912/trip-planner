@@ -70,7 +70,7 @@ class TripDetailMap(
     /** n일차 보기: 장소 id → (도착, 떠남) 분 */
     private val times = HashMap<Long, Pair<Int, Int>>()
 
-    private fun range(a: Int, b: Int) = "${com.tripplanner.route.TimeUtil.format(a)} – ${com.tripplanner.route.TimeUtil.format(b)}"
+    private fun range(a: Int, b: Int) = "${com.tripplanner.route.TimeUtil.format(a)} ~ ${com.tripplanner.route.TimeUtil.format(b)}"
 
     init {
         card.findViewById<View>(R.id.btnCardClose).setOnClickListener { select(null) }
@@ -223,7 +223,7 @@ class TripDetailMap(
         cardOrder.text = label
         cardOrder.backgroundTintList = ColorStateList.valueOf(color)
         cardName.text = place.name
-        val hours = place.openingHours.trim().replace(" ~ ", "–")
+        val hours = com.tripplanner.route.TimeUtil.displayRange(place.openingHours.trim())
         val visit = times[place.id]
         cardSub.text = if (visit != null) ctx.getString(R.string.map_card_times,
             com.tripplanner.route.TimeUtil.format(visit.first), com.tripplanner.route.TimeUtil.format(visit.second))

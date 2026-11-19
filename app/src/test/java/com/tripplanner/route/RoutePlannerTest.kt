@@ -31,6 +31,9 @@ class RoutePlannerTest {
         assertFalse(TimeUtil.isClosedOn("일부 가게 화요일", tue))
         assertEquals(4, TimeUtil.dayCount("2026-12-20", "2026-12-23"))
         assertEquals(73, TimeUtil.dayCount("2026-10-07", "2026-12-18"))   // 30일 넘는 긴 여행도 그대로
+        // 시간 범위 표기는 화면에서 "~" 하나로
+        assertEquals("10:00 ~ 21:00", TimeUtil.displayRange("10:00–21:00"))
+        assertEquals("영업 9:30 ~ 18:00 (주말)", TimeUtil.displayRange("영업 9:30~18:00 (주말)"))
     }
 
     @Test fun shortestIsReallyShortest() {

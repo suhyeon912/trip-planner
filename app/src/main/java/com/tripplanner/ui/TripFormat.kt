@@ -20,7 +20,7 @@ object TripFormat {
         val e = parse(trip.endDate) ?: return "${trip.startDate} ~ ${trip.endDate}"
         fun f(d: LocalDate) = "${d.monthValue}/${d.dayOfMonth}(${TimeUtil.koreanDayName(d).first()})"
         val days = TimeUtil.dayCount(trip.startDate, trip.endDate)
-        return "${f(s)} – ${f(e)} · ${days}일"
+        return "${f(s)} ~ ${f(e)} · ${days}일"
     }
 
     /**
@@ -32,7 +32,7 @@ object TripFormat {
         val e = parse(trip.endDate) ?: return "${trip.startDate} ~ ${trip.endDate}"
         fun day(d: LocalDate) = TimeUtil.koreanDayName(d).first()
         val end = if (e.year == s.year) "${e.monthValue}.${e.dayOfMonth}" else "${e.year}.${e.monthValue}.${e.dayOfMonth}"
-        return "${s.year}.${s.monthValue}.${s.dayOfMonth} (${day(s)}) – $end (${day(e)})"
+        return "${s.year}.${s.monthValue}.${s.dayOfMonth} (${day(s)}) ~ $end (${day(e)})"
     }
 
     /** "2026.11.20 (금) – 11.23 (월) · 4일" (여행 카드) */

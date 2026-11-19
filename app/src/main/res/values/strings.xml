@@ -149,7 +149,7 @@
     <string name="wheel_hour">시</string>
     <string name="wheel_minute">분</string>
     <string name="wheel_date">날짜</string>
-    <string name="range_label">시작일 – 종료일</string>
+    <string name="range_label">시작일 ~ 종료일</string>
     <string name="date_label">날짜</string>
     <string name="cal_start">시작일</string>
     <string name="cal_end">종료일</string>
@@ -253,7 +253,7 @@
     <!-- 3단계: 새 여행 · 여행 수정 (전체 화면) -->
     <string name="label_trip_name">여행 이름 *</string>
     <string name="label_trip_period">기간 *</string>
-    <string name="placeholder_trip_period">시작일 – 종료일</string>
+    <string name="placeholder_trip_period">시작일 ~ 종료일</string>
     <string name="pick_period_title">기간 고르기</string>
     <string name="error_trip_period">기간을 골라 주세요</string>
     <!-- 3단계: 여행 상세 · 장소 정보 -->

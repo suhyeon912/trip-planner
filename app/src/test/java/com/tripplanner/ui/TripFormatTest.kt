@@ -19,13 +19,13 @@ class TripFormatTest {
     }
 
     @Test fun dateRange() {
-        assertEquals("2/12(금) – 2/14(일) · 3일", TripFormat.dateRange(trip))
+        assertEquals("2/12(금) ~ 2/14(일) · 3일", TripFormat.dateRange(trip))
         assertEquals("2/12 ~ 2027-02-14", TripFormat.dateRange(trip.copy(startDate = "2/12")))
     }
 
     @Test fun fullRange() {
-        assertEquals("2027.2.12 (금) – 2.14 (일)", TripFormat.fullRange(trip))
-        assertEquals("2026.12.30 (수) – 2027.1.2 (토)",
+        assertEquals("2027.2.12 (금) ~ 2.14 (일)", TripFormat.fullRange(trip))
+        assertEquals("2026.12.30 (수) ~ 2027.1.2 (토)",
             TripFormat.fullRange(trip.copy(startDate = "2026-12-30", endDate = "2027-01-02")))
     }
 

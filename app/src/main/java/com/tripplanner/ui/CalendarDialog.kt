@@ -121,7 +121,7 @@ class CalendarDialog private constructor(
         value.text = when {
             s == null -> context.getString(if (range) R.string.range_label else R.string.date_label)
             !range -> fmt(s)
-            e == null -> "${fmt(s)} – "
+            e == null -> "${fmt(s)} ~ "
             else -> TripFormat.fullRange(Trip(title = "", startDate = s.toString(), endDate = e.toString()))
         }
         value.setTextColor(context.color(if (s == null) R.color.text_sub else R.color.on_surface))

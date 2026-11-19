@@ -244,7 +244,7 @@ class PlaceAdapter(
         bindTimeline(h, row)
 
         h.name.text = place.name
-        val hours = place.openingHours.trim().replace(" ~ ", "–")
+        val hours = com.tripplanner.route.TimeUtil.displayRange(place.openingHours.trim())
         // 후보 카드(시안 DetailCandidates): 예약필수는 뱃지 대신 '영업 … · 예약필수' 한 줄, 글자 13
         val inlineReservation = !confirmed && place.isReservationRequired
         h.summary.text = listOfNotNull(hours.takeIf { it.isNotEmpty() }?.let { ctx.getString(R.string.opening_hours_line, it) },
@@ -279,7 +279,7 @@ class PlaceAdapter(
     private fun badges(ctx: android.content.Context, place: Place, files: Int = 0) = listOfNotNull(
         if (place.isReservationRequired) B(ctx.getString(R.string.reservation_required), R.color.error_container, R.color.on_error_container) else null,
         if (files > 0) B(ctx.getString(R.string.badge_tickets, files), R.color.primary_light, R.color.on_primary_container) else null,
-        place.breakTime?.let { B(ctx.getString(R.string.break_badge, it.replace(" ~ ", "–")), R.color.surface_container, R.color.text_sub) },
+        place.breakTime?.let { B(ctx.getString(R.string.break_badge, com.tripplanner.route.TimeUtil.displayRange(it)), R.color.surface_container, R.color.text_sub) },
         if (!place.hasLocation) B(ctx.getString(R.string.badge_no_location), R.color.warn_bg, R.color.warn_text) else null
     )
 

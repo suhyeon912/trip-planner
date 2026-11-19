@@ -174,8 +174,8 @@ class PlaceViewActivity : AppCompatActivity() {
             v.findViewById<TextView>(R.id.tvValue).text = value
             rows.addView(v)
         }
-        row(R.drawable.ic_schedule, R.string.info_hours, p.openingHours.replace("~", "–"))
-        p.breakTime?.let { row(R.drawable.ic_schedule, R.string.info_break, it.replace("~", "–")) }
+        row(R.drawable.ic_schedule, R.string.info_hours, com.tripplanner.route.TimeUtil.displayRange(p.openingHours))
+        p.breakTime?.let { row(R.drawable.ic_schedule, R.string.info_break, com.tripplanner.route.TimeUtil.displayRange(it)) }
         row(R.drawable.ic_event, R.string.info_closed, p.closedDays ?: getString(R.string.closed_none))
         row(R.drawable.ic_schedule, R.string.info_stay, getString(R.string.stay_about, p.stayMinutes))
         val addr = listOf(p.address, p.addressDetail).filter { it.isNotBlank() }.joinToString(" ")

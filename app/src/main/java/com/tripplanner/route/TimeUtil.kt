@@ -19,6 +19,10 @@ object TimeUtil {
         return start..end
     }
 
+    /** 화면에 보일 때 시간 범위 표기를 하나로: "10:00~21:00" · "10:00–21:00" → "10:00 ~ 21:00" */
+    fun displayRange(text: String): String =
+        text.replace(Regex("""(\d{1,2}:\d{2})\s*[~–\-]\s*(\d{1,2}:\d{2})"""), "$1 ~ $2")
+
     fun format(minutes: Int): String {
         val m = ((minutes % 1440) + 1440) % 1440
         return "%02d:%02d".format(m / 60, m % 60)

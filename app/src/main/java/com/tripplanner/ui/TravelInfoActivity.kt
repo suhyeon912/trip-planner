@@ -41,7 +41,7 @@ class TravelInfoActivity : AppCompatActivity() {
         )
         val lodgingAdapter = SimpleAdapter<Lodging>(
             title = { it.name },
-            subtitle = { "${TripFormat.shortDate(it.checkIn)} – ${TripFormat.shortDate(it.checkOut)}" +
+            subtitle = { "${TripFormat.shortDate(it.checkIn)} ~ ${TripFormat.shortDate(it.checkOut)}" +
                     getString(if (it.lat == 0.0 && it.lng == 0.0) R.string.lodging_no_location else R.string.lodging_has_location) },
             onClick = { openForm(TravelFormActivity.KIND_LODGING, it.id) },
             onMenu = { l, anchor -> rowMenu(anchor, { openForm(TravelFormActivity.KIND_LODGING, l.id) }) {
