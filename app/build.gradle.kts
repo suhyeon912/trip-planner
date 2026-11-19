@@ -9,6 +9,11 @@ plugins {
 // 공유·초대(Firebase): app/google-services.json 이 있을 때만 켬 → 없어도 빌드·실행은 됨 (공유 메뉴만 '설정 필요' 안내)
 val hasFirebaseConfig = file("google-services.json").exists()
 if (hasFirebaseConfig) apply(plugin = "com.google.gms.google-services")
+// 개발 버전(com.tripplanner.dev)을 Firebase 프로젝트에 아직 안 넣었으면 그 버전만 Firebase 없이 빌드 (공유 메뉴는 '설정 필요')
+val devInFirebase = hasFirebaseConfig && file("google-services.json").readText().contains("\"com.tripplanner.dev\"")
+if (hasFirebaseConfig && !devInFirebase) tasks.configureEach {
+    if (name.startsWith("processDev") && name.endsWith("GoogleServices")) enabled = false
+}
 
 // 지도 키는 local.properties 에서 읽음 (깃에 올리지 않는 파일). 없으면 빈 값 → OpenStreetMap 으로 표시
 val localProps = Properties().apply {
@@ -37,6 +42,28 @@ android {
     }
     buildFeatures {
         buildConfig = true
+    }
+
+    /*
+     * 두 버전 (한 폰에 같이 설치 가능)
+     *  · real: 실제 여행용. 패키지 com.tripplanner (지금 키 · 콘솔 등록 그대로), 예시 여행 없이 빈 목록으로 시작
+     *  · dev : 개발 · 시연용. 패키지 com.tripplanner.dev, 이름 '여행 플래너 개발', 처음 열면 예시 여행 4개
+     * Android Studio 왼쪽 아래 Build Variants 에서 realDebug / devDebug 를 고름
+     */
+    flavorDimensions += "use"
+    productFlavors {
+        create("real") {
+            dimension = "use"
+            buildConfigField("boolean", "SAMPLE_DATA", "false")
+            resValue("string", "app_name", "여행 플래너")
+        }
+        create("dev") {
+            dimension = "use"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            buildConfigField("boolean", "SAMPLE_DATA", "true")
+            resValue("string", "app_name", "여행 플래너 개발")
+        }
     }
     packaging {
         // 카카오맵 엔진(.so)을 설치 시 풀어서 저장 → x86 에뮬레이터의 ARM 변환이 파일을 찾을 수 있게 함

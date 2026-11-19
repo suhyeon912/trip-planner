@@ -43,13 +43,17 @@ git clone https://github.com/suhyeon912/trip-planner.git
 
 1. Android Studio → **Open** → 클론한 `trip-planner` 폴더 선택
 2. Gradle 동기화가 끝날 때까지 기다리기
-3. 에뮬레이터나 폰을 고르고 ▶ 실행
+3. 왼쪽 아래 **Build Variants**에서 버전 고르기
+   - `devDebug`: 개발 · 시연용 (앱 이름 '여행 플래너 개발', 예시 여행 4개)
+   - `realDebug`: 실제 여행용 (앱 이름 '여행 플래너', 빈 목록에서 시작)
+   - 두 버전은 패키지가 달라서 한 폰에 같이 설치돼요. 자세한 건 [`docs/SETUP.md`](docs/SETUP.md#두-버전-실사용--개발)
+4. 에뮬레이터나 폰을 고르고 ▶ 실행
 
 **키가 하나도 없어도 앱 전체가 동작합니다.**
 
 - 지도는 OpenStreetMap으로 대신 보여요.
 - 공유 메뉴는 '설정 필요' 안내가 나와요.
-- 처음 실행하면 시안과 같은 예시 여행 4개(도쿄 · 타이베이 · 부산 · 지난 여행 오사카)가 들어가요.
+- 개발 버전은 처음 실행하면 시안과 같은 예시 여행 4개(도쿄 · 타이베이 · 부산 · 지난 여행 오사카)가 들어가요. 실사용 버전은 빈 목록이에요.
 
 카카오 · Google 지도, 장소 검색, 공유까지 쓰려면 [`docs/SETUP.md`](docs/SETUP.md)를 따라 키를 넣으세요.
 
@@ -153,7 +157,7 @@ trip-planner/
 ## 테스트
 
 ```bash
-./gradlew test        # Windows: gradlew.bat test
+./gradlew test        # Windows: gradlew.bat test (두 버전 모두)
 ```
 
 | 파일 | 개수 | 확인하는 것 |

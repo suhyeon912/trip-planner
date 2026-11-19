@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">여행 플래너</string>
 
     <!-- 공통 -->
     <string name="action_save">저장</string>

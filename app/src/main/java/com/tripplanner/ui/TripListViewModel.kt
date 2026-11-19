@@ -16,7 +16,8 @@ class TripListViewModel(app: Application) : AndroidViewModel(app) {
     val trips = repo.observeTripsWithCounts()
 
     init {
-        viewModelScope.launch {
+        // 예시 여행은 개발 버전에서만 (실사용 버전은 빈 목록으로 시작, 여행을 다 지워도 다시 생기지 않음)
+        if (com.tripplanner.BuildConfig.SAMPLE_DATA) viewModelScope.launch {
             repo.seedIfEmpty { asset -> Photos.importAsset(getApplication(), asset) }
         }
     }

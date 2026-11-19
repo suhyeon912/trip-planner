@@ -9,8 +9,9 @@
 3. [카카오 (국내 지도 · 검색)](#카카오-국내-지도--검색)
 4. [Google (해외 지도 · 검색)](#google-해외-지도--검색)
 5. [Firebase (공유 · 초대)](#firebase-공유--초대)
-6. [에뮬레이터](#에뮬레이터)
-7. [문제 해결](#문제-해결)
+6. [두 버전 (실사용 · 개발)](#두-버전-실사용--개발)
+7. [에뮬레이터](#에뮬레이터)
+8. [문제 해결](#문제-해결)
 
 ---
 
@@ -104,6 +105,27 @@ Android Studio 오른쪽 **Gradle** 창 → `trip-planner > app > Tasks > androi
 > `firestore.rules`가 바뀌면 콘솔에 다시 붙여 넣고 게시해야 합니다. 예전 규칙이면 닉네임 없이 참여만 됩니다.
 
 팀원은 팀장에게 `google-services.json`을 받아 `app/` 폴더에 넣기만 하면 됩니다. 콘솔을 같이 보려면 팀장이 Firebase 프로젝트 설정 → 사용자 및 권한에서 팀원을 추가해 주세요.
+
+---
+
+## 두 버전 (실사용 · 개발)
+
+| | 실사용 `real` | 개발 `dev` |
+|---|---|---|
+| 앱 이름 | 여행 플래너 | 여행 플래너 개발 |
+| 패키지 | `com.tripplanner` | `com.tripplanner.dev` |
+| 처음 열면 | 빈 목록 (여행을 다 지워도 예시가 다시 생기지 않음) | 예시 여행 4개 |
+| APK 위치 | `app/build/outputs/apk/real/debug/app-real-debug.apk` | `app/build/outputs/apk/dev/debug/app-dev-debug.apk` |
+
+- Android Studio 왼쪽 아래 **Build Variants** 창에서 `realDebug` / `devDebug`를 고른 뒤 ▶ 실행 또는 **Build → Generate App Bundles or APKs → Generate APKs**.
+- 터미널: `./gradlew assembleRealDebug` · `./gradlew assembleDevDebug` (Windows는 `gradlew.bat`)
+- 패키지가 달라서 한 폰에 둘 다 설치되고, 데이터도 따로예요.
+- **실사용 버전은 지금 콘솔 설정 그대로** 동작해요 (패키지가 예전과 같음).
+- **개발 버전도 지도 · 검색 · 길찾기 · 공유를 쓰려면** 콘솔에 패키지 `com.tripplanner.dev`를 하나 더 등록해요:
+  - Google Cloud: API 키 → Android 앱 제한에 `com.tripplanner.dev` + 같은 SHA-1 추가
+  - 카카오: 플랫폼 → Android 패키지명에 `com.tripplanner.dev` 추가 (키 해시는 같음)
+  - Firebase: Android 앱 추가 → `com.tripplanner.dev` → **`google-services.json`을 다시 내려받아** `app/`에 덮어쓰기 (두 패키지가 한 파일에 들어 있음). 안 하면 개발 버전만 공유 메뉴가 '설정 필요'예요 (빌드는 됨)
+- 예전에 설치한 앱(`com.tripplanner`)에 예시 여행이 남아 있으면 실사용 버전을 덮어 설치해도 그대로 남아요. 직접 지우거나, 앱을 삭제한 뒤 실사용 버전을 설치하세요.
 
 ---
 
