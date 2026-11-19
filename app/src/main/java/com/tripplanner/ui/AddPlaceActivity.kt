@@ -382,7 +382,10 @@ class AddPlaceActivity : AppCompatActivity() {
                 til.setEndIconOnClickListener { open(et) }
             }
             fun describe() { et.contentDescription = getString(R.string.time_field_a11y, label,
-                et.text?.toString()?.ifBlank { et.hint?.toString().orEmpty() }.orEmpty()) }
+                et.text?.toString()?.ifBlank {
+                    // 빈 칸: "--:--" 대신 "선택 안 함"으로 읽음 (머무는 시간은 "기본 1시간 30분")
+                    et.hint?.toString()?.takeIf { it != getString(R.string.time_placeholder) } ?: getString(R.string.time_clear)
+                }.orEmpty()) }
             describe()
             et.doAfterTextChanged { describe() }
         }

@@ -362,12 +362,12 @@
     <string name="stay_default_hint">기본 %1$s</string>
     <string name="closed_day_on">휴무</string>
     <string name="closed_day_off">영업</string>
-    <string name="time_from">시작</string>
-    <string name="time_to">끝</string>
+    <!-- 시간 칸이 비었을 때: 글자 대신 시각 모양 (위 라벨이 뜻을 알려 줌, 화면 읽기는 "운영시간 시작/종료") -->
+    <string name="time_placeholder">--:--</string>
     <string name="time_from_a11y">%1$s 시작</string>
-    <string name="time_to_a11y">%1$s 끝</string>
+    <string name="time_to_a11y">%1$s 종료</string>
     <string name="time_clear">선택 안 함</string>
-    <string name="error_time_pair">시작과 끝을 함께 골라 주세요</string>
+    <string name="error_time_pair">시작과 종료를 함께 골라 주세요</string>
     <string name="pick_time">시간 고르기</string>
     <string name="wheel_hours">시간</string>
     <string name="duration_hours">%1$d시간</string>

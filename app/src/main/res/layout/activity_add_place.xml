@@ -242,7 +242,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:tpCompact="true"
-                    app:tpPlaceholder="@string/time_from"
+                    app:tpPlaceholder="@string/time_placeholder"
                     app:tpEndIcon="@drawable/ic_schedule"
                     app:tpEndIconDescription="@string/pick_time">
 
@@ -267,7 +267,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:tpCompact="true"
-                    app:tpPlaceholder="@string/time_to"
+                    app:tpPlaceholder="@string/time_placeholder"
                     app:tpEndIcon="@drawable/ic_schedule"
                     app:tpEndIconDescription="@string/pick_time">
 
@@ -304,7 +304,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:tpCompact="true"
-                    app:tpPlaceholder="@string/time_from"
+                    app:tpPlaceholder="@string/time_placeholder"
                     app:tpEndIcon="@drawable/ic_schedule"
                     app:tpEndIconDescription="@string/pick_time">
 
@@ -329,7 +329,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:tpCompact="true"
-                    app:tpPlaceholder="@string/time_to"
+                    app:tpPlaceholder="@string/time_placeholder"
                     app:tpEndIcon="@drawable/ic_schedule"
                     app:tpEndIconDescription="@string/pick_time">
 
