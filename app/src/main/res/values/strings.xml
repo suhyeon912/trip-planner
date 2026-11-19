@@ -470,7 +470,7 @@
     <string name="activity_date">%1$d.%2$02d (%3$s)</string>
     <string name="activity_subject">"님이 "</string>
     <string name="activity_join">여행에 참여했어요</string>
-    <string name="activity_travel">교통·숙소를 바꿨어요</string>
+    <string name="activity_travel">교통·숙소를 변경했어요</string>
     <string name="activity_file">" 올렸어요"</string>
     <string name="activity_add_candidate">후보에 추가했어요</string>
     <string name="activity_add_day">%1$s에 추가했어요</string>
@@ -478,8 +478,8 @@
     <string name="activity_confirm_undated">일정으로 확정했어요</string>
     <string name="activity_move">%1$s %2$d번째로 옮겼어요</string>
     <string name="activity_move_undated">일차 미정으로 옮겼어요</string>
-    <string name="activity_hours">운영시간을 바꿨어요</string>
-    <string name="activity_edit">정보를 바꿨어요</string>
+    <string name="activity_hours">운영시간을 변경했어요</string>
+    <string name="activity_edit">정보를 변경했어요</string>
     <string name="activity_delete">삭제했어요</string>
     <!-- 경로 구간 이동 수단 -->
     <string name="leg_walk">도보</string>

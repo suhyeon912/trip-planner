@@ -131,11 +131,8 @@ class ActivityLogActivity : AppCompatActivity() {
                 setBackgroundResource(R.drawable.bg_card)
                 clipToOutline = true
             }
-            list.forEachIndexed { i, e ->
-                if (i > 0) card.addView(View(this).apply { setBackgroundColor(color(R.color.outline_variant)) },
-                    LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1))
-                card.addView(row(e))
-            }
+            // 기록 사이 구분선 없이 (줄 높이 · 여백으로 구분)
+            list.forEach { e -> card.addView(row(e)) }
             content.addView(card)
         }
     }

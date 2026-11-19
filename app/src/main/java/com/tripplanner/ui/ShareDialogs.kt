@@ -147,17 +147,15 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
             }
         }
     }
-    view.findViewById<View>(R.id.btnActivity).setOnClickListener {
-        startActivity(Intent(this, ActivityLogActivity::class.java).putExtra(TripDetailActivity.EXTRA_TRIP_ID, tripId))
-    }
     view.findViewById<View>(R.id.btnCopy).setOnClickListener {
         (getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("code", code))
         toast(getString(R.string.share_copied))
     }
 
-    // 버튼: 왼쪽 '공유 중지'(빨간 글자) · 오른쪽 '코드 보내기'(채움)
-    TpDialog.Builder(this)
+    // 버튼: 왼쪽 '공유 중지'(빨간 글자) · 오른쪽 '코드 보내기'(채움) · 오른쪽 위 X
+    val dialog = TpDialog.Builder(this)
         .setTitle(R.string.share_code_title)
+        .setCloseButton()
         .setView(view)
         .setPositiveButton(R.string.share_send) { _, _ ->
             startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
@@ -170,6 +168,11 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
                 positive = R.string.share_stop) { lifecycleScope.launch { share.stop(tripId) } }
         }
         .show()
+    // 활동 기록으로 가면 이 팝업은 닫음 (뒤로 오면 여행 화면 그대로)
+    view.findViewById<View>(R.id.btnActivity).setOnClickListener {
+        dialog.dismiss()
+        startActivity(Intent(this, ActivityLogActivity::class.java).putExtra(TripDetailActivity.EXTRA_TRIP_ID, tripId))
+    }
 }
 
 fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {

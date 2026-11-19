@@ -358,7 +358,8 @@
         <item name="android:minWidth">56dp</item>
         <item name="android:paddingStart">16dp</item>
         <item name="android:paddingEnd">20dp</item>
-        <item name="android:elevation">6dp</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
         <item name="tpIconSize">24dp</item>
         <item name="tpIconPadding">12dp</item>
     </style>
