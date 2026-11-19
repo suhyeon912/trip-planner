@@ -20,6 +20,9 @@ object TpSnackbar {
 
     private const val TAG = "tp_snackbar"
 
+    /** 화면 아래 고정 바 (스타일 Widget.TripPlanner.BottomBar 의 tag) */
+    private const val BOTTOM_BAR_TAG = "bottomBar"
+
     fun show(activity: Activity, message: CharSequence, above: View? = null,
              action: CharSequence? = null, onAction: (() -> Unit)? = null) {
         val content = activity.findViewById<FrameLayout>(android.R.id.content) ?: return
@@ -33,6 +36,8 @@ object TpSnackbar {
             btn.setOnClickListener { onAction?.invoke(); hide(content, bar) }
         }
         val d = activity.resources.displayMetrics.density
+        // 따로 정하지 않으면 화면 아래 고정 바(저장 · 적용 버튼 줄) 위에
+        val above = above ?: content.findViewWithTag<View>(BOTTOM_BAR_TAG)?.takeIf { it.isShown }
         val lp = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
         val side = (16 * d).toInt()
         lp.setMargins(side, 0, side, if (above != null && above.isShown) aboveOffset(content, above) + (8 * d).toInt() else (24 * d).toInt())

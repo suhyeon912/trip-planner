@@ -204,6 +204,8 @@
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:background">@drawable/bg_bottom_bar</item>
+        <!-- 스낵바가 이 바 위에 뜨도록 찾는 표시 (TpSnackbar) -->
+        <item name="android:tag">bottomBar</item>
         <item name="android:paddingStart">@dimen/screen_margin</item>
         <item name="android:paddingEnd">@dimen/screen_margin</item>
         <item name="android:paddingTop">12dp</item>
