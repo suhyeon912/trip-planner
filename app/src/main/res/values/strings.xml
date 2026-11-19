@@ -84,6 +84,10 @@
     <string name="search_no_google_key">구글 키가 없어요 (local.properties 의 MAPS_API_KEY, Places API (New) 사용 설정)</string>
     <string name="search_failed">검색에 실패했어요: %1$s</string>
     <string name="search_denied_google">Google 검색 권한이 없어요. Google Cloud 콘솔에서 Places API (New)를 켜고, API 키 제한 목록에 넣어 주세요</string>
+    <string name="search_denied_app">이 앱이 Google 키의 Android 앱 제한에 없어요. 키의 애플리케이션 제한에 패키지 이름과 이 PC의 SHA-1을 넣어 주세요 (%1$s)</string>
+    <string name="search_denied_api">Google 키의 API 제한 목록에 Places API (New)가 없어요 (%1$s)</string>
+    <string name="search_denied_disabled">이 프로젝트에서 Places API (New)가 꺼져 있어요. 키가 다른 프로젝트 것인지도 확인해 주세요 (%1$s)</string>
+    <string name="search_denied_billing">Google 프로젝트에 결제 계정이 연결되어 있지 않아요 (%1$s)</string>
     <string name="search_denied_kakao">카카오 검색 권한이 없어요. 카카오 개발자 콘솔에서 카카오맵(로컬) 사용 설정을 켜 주세요</string>
     <string name="search_filled">%1$s 정보를 채웠어요</string>
     <string name="pick_photo">사진 고르기</string>

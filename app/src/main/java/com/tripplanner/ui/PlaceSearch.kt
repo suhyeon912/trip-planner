@@ -211,7 +211,12 @@ object PlaceSearch {
         if (code !in 200..299) {
             val msg = runCatching {
                 val o = JSONObject(text)
-                o.optJSONObject("error")?.optString("message") ?: o.optString("message")
+                val err = o.optJSONObject("error")
+                val m = err?.optString("message") ?: o.optString("message")
+                // Google 오류 이유 (예: API_KEY_ANDROID_APP_BLOCKED) — 콘솔에서 무엇을 고칠지 알려 주려고 붙임
+                val details = err?.optJSONArray("details")
+                val reason = (0 until (details?.length() ?: 0)).mapNotNull { details!!.optJSONObject(it)?.optString("reason")?.takeIf { r -> r.isNotBlank() } }.firstOrNull()
+                if (reason != null) "$m [$reason]" else m
             }.getOrNull()?.takeIf { it.isNotBlank() } ?: "HTTP $code"
             throw IllegalStateException(msg)
         }

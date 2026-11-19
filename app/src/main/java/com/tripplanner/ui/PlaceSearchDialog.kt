@@ -61,8 +61,15 @@ fun showPlaceSearch(activity: AppCompatActivity, initialQuery: String, domesticD
                 adapter.submit(emptyList())
                 msg.visibility = View.VISIBLE
                 val raw = e.message.orEmpty()
+                val reason = Regex("""\[([A-Z_]+)]""").find(raw)?.groupValues?.get(1)
                 msg.text = when {
                     e is PlaceSearch.NoKeyException -> activity.getString(e.messageRes)
+                    // Google 오류 이유별 안내 (끝에 이유 코드도 함께)
+                    reason == "API_KEY_ANDROID_APP_BLOCKED" -> activity.getString(R.string.search_denied_app, reason)
+                    reason == "API_KEY_SERVICE_BLOCKED" -> activity.getString(R.string.search_denied_api, reason)
+                    reason == "SERVICE_DISABLED" || reason == "ACCESS_NOT_CONFIGURED" -> activity.getString(R.string.search_denied_disabled, reason)
+                    reason == "BILLING_DISABLED" -> activity.getString(R.string.search_denied_billing, reason)
+                    reason != null -> activity.getString(R.string.search_failed, raw)
                     // Google 콘솔 설정 문제: API 꺼짐 · 키 제한
                     raw.contains("Permission denied", true) || raw.contains("PERMISSION_DENIED") || raw.contains("not authorized", true) ||
                         raw.contains("has not been used", true) || raw.contains("disabled", true) ->
