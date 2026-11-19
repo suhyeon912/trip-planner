@@ -70,6 +70,8 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
         val h = (16 * d).toInt()
         holder.itemView.setPaddingRelative(h, ((if (compact) 6 else 8) * d).toInt(), h, ((if (compact) 6 else 8) * d).toInt())
         holder.itemView.minimumWidth = if (wide) 0 else (76 * d).toInt()
+        // 한 줄인 '전체'도 두 줄 일차 칩과 같은 높이
+        holder.itemView.minimumHeight = if (compact) (48 * d).toInt() else (54 * d).toInt()
         (holder.itemView as android.widget.LinearLayout).gravity =
             if (wide) android.view.Gravity.CENTER else android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
         (holder.itemView.layoutParams as? ViewGroup.MarginLayoutParams)?.marginEnd = (8 * d).toInt()

@@ -48,9 +48,7 @@
             android:orientation="horizontal"
             android:paddingHorizontal="@dimen/screen_margin"
             android:paddingTop="@dimen/space_m"
-            android:paddingBottom="@dimen/space_xs"
-            android:requiresFadingEdge="horizontal"
-            android:fadingEdgeLength="32dp" />
+            android:paddingBottom="@dimen/space_xs" />
     </com.tripplanner.ui.widget.TopBarLayout>
 
     <!-- 상단 바 아래 내용 (목록 + 위에 뜨는 버튼) -->
