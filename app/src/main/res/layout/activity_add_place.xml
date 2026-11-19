@@ -244,13 +244,15 @@
                         app:tpCompact="true"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:tpPlaceholder="@string/placeholder_hours">
+                        app:tpPlaceholder="@string/placeholder_hours"
+                        app:tpEndIcon="@drawable/ic_schedule"
+                        app:tpEndIconDescription="@string/pick_time">
 
                         <EditText
                             android:id="@+id/etHours"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text" />
+                            android:inputType="none" />
                     </com.tripplanner.ui.widget.TpTextField>
                 </LinearLayout>
 
@@ -267,13 +269,15 @@
                         app:tpCompact="true"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:tpPlaceholder="@string/placeholder_break">
+                        app:tpPlaceholder="@string/placeholder_break"
+                        app:tpEndIcon="@drawable/ic_schedule"
+                        app:tpEndIconDescription="@string/pick_time">
 
                         <EditText
                             android:id="@+id/etBreak"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text" />
+                            android:inputType="none" />
                     </com.tripplanner.ui.widget.TpTextField>
                 </LinearLayout>
             </LinearLayout>
@@ -321,13 +325,15 @@
                         app:tpCompact="true"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:tpPlaceholder="60">
+                        app:tpPlaceholder="60"
+                        app:tpEndIcon="@drawable/ic_schedule"
+                        app:tpEndIconDescription="@string/pick_time">
 
                         <EditText
                             android:id="@+id/etStay"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="number" />
+                            android:inputType="none" />
                     </com.tripplanner.ui.widget.TpTextField>
                 </LinearLayout>
             </LinearLayout>

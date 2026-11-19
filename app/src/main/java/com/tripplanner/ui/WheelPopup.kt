@@ -22,6 +22,8 @@ import java.time.LocalDateTime
  *  · '적용'을 누르기 전까지 값이 바뀌지 않음, 바깥을 누르면 닫힘
  *  · 도착 시각은 '시간 자유 / 시각 정하기' — 시간 자유면 휠이 흐려지고 못 움직임
  *  · 교통편은 날짜 · 시 · 분 세 줄
+ *  · 운영시간 · 브레이크 타임은 '시작 시:분 ~ 끝 시:분' 네 줄 (+ '모름' / '없음')
+ *  · 머무는 시간은 '시간 · 분' 두 줄
  */
 object WheelPopup {
 
@@ -45,6 +47,60 @@ object WheelPopup {
             listOf(hourWheel, minWheel)
         }) { free ->
             onApply(if (free) null else hours[hourWheel.selectedIndex] * 60 + mins[minWheel.selectedIndex])
+        }
+    }
+
+    /**
+     * 시간 범위 고르기 (운영시간 · 브레이크 타임): 시작 시:분 ~ 끝 시:분.
+     * current = "HH:MM ~ HH:MM" 형식 (읽을 수 없으면 defaultStart ~ defaultEnd 에서 시작).
+     * noneLabel 이 있으면 '없음 / 시간 정하기' 가 보이고, '없음'으로 적용하면 null.
+     * 끝이 시작보다 이르면 다음 날까지 (예: 18:00 ~ 02:00), 같으면 24시간.
+     */
+    fun range(anchor: View, title: String, current: String?, noneLabel: String?, defaultStart: Int, defaultEnd: Int,
+              onApply: (String?) -> Unit) {
+        val r = TimeUtil.parseRange(current)
+        val s = r?.first ?: defaultStart
+        val e = (r?.last ?: defaultEnd) % (24 * 60)
+        val hours = (0..23).toList()
+        val sMins = stepMinutes(s % 60); val eMins = stepMinutes(e % 60)
+        lateinit var sh: WheelView; lateinit var sm: WheelView; lateinit var eh: WheelView; lateinit var em: WheelView
+        show(anchor, title, allowFree = noneLabel != null, free = noneLabel != null && r == null,
+            freeLabels = noneLabel?.let { it to anchor.context.getString(R.string.range_set_option) }, build = { box ->
+            sh = wheel(box, R.string.wheel_start_hour, hours.map { "%02d".format(it) }, s / 60 % 24)
+            colon(box)
+            sm = wheel(box, R.string.wheel_start_minute, sMins.map { "%02d".format(it) }, sMins.indexOf(s % 60))
+            sep(box, "~")
+            eh = wheel(box, R.string.wheel_end_hour, hours.map { "%02d".format(it) }, e / 60)
+            colon(box)
+            em = wheel(box, R.string.wheel_end_minute, eMins.map { "%02d".format(it) }, eMins.indexOf(e % 60))
+            listOf(sh, sm, eh, em)
+        }) { none ->
+            onApply(if (none) null else "%02d:%02d ~ %02d:%02d".format(hours[sh.selectedIndex], sMins[sm.selectedIndex],
+                hours[eh.selectedIndex], eMins[em.selectedIndex]))
+        }
+    }
+
+    /** 머무는 시간 고르기: 시간(0~12) · 분(5분 단위). 10분보다 짧으면 10분으로 */
+    fun duration(anchor: View, title: String, minutes: Int, onApply: (Int) -> Unit) {
+        val hours = (0..12).toList()
+        val mins = stepMinutes(minutes % 60)
+        lateinit var hw: WheelView; lateinit var mw: WheelView
+        show(anchor, title, allowFree = false, free = false, build = { box ->
+            hw = wheel(box, R.string.wheel_hours, hours.map { box.context.getString(R.string.duration_hours, it) }, (minutes / 60).coerceIn(0, 12))
+            mw = wheel(box, R.string.wheel_minute, mins.map { box.context.getString(R.string.duration_minutes, it) }, mins.indexOf(minutes % 60))
+            listOf(hw, mw)
+        }) {
+            onApply((hours[hw.selectedIndex] * 60 + mins[mw.selectedIndex]).coerceIn(10, 12 * 60))
+        }
+    }
+
+    /** "1시간 30분" / "45분" */
+    fun durationLabel(ctx: android.content.Context, minutes: Int): String {
+        val h = minutes / 60; val m = minutes % 60
+        return when {
+            h == 0 -> ctx.getString(R.string.duration_minutes, m)
+            m == 0 -> ctx.getString(R.string.duration_hours, h)
+            else -> ctx.getString(R.string.duration_hm, h, m)
         }
     }
 
@@ -80,9 +136,11 @@ object WheelPopup {
         return w
     }
 
-    private fun colon(box: LinearLayout) {
+    private fun colon(box: LinearLayout) = sep(box, ":")
+
+    private fun sep(box: LinearLayout, mark: String) {
         box.addView(TextView(box.context).apply {
-            text = ":"
+            text = mark
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
             typeface = ResourcesCompat.getFont(context, R.font.pretendard_bold)
             setTextColor(context.color(R.color.on_surface))
@@ -92,6 +150,7 @@ object WheelPopup {
     }
 
     private fun show(anchor: View, title: String, allowFree: Boolean, free: Boolean,
+                     freeLabels: Pair<String, String>? = null,
                      build: (LinearLayout) -> List<WheelView>, apply: (Boolean) -> Unit) {
         val ctx = anchor.context
         val d = ctx.resources.displayMetrics.density
@@ -110,6 +169,11 @@ object WheelPopup {
         }
         if (allowFree) {
             seg.visibility = View.VISIBLE
+            // 기본은 '시간 자유 / 시각 정하기', 범위는 '모름(없음) / 시간 정하기'
+            freeLabels?.let { (a, b) ->
+                content.findViewById<TextView>(R.id.btnFree).text = a
+                content.findViewById<TextView>(R.id.btnSetTime).text = b
+            }
             seg.check(if (free) R.id.btnFree else R.id.btnSetTime)
             seg.addOnButtonCheckedListener { _, id, checked -> if (checked) setFree(id == R.id.btnFree) }
         }

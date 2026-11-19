@@ -109,6 +109,7 @@ class AddPlaceActivity : AppCompatActivity() {
             else PlaceCategory.entries.getOrNull(id - 1000)?.let { typeId = null; category = it; refreshPhoto(); refreshStayHint() }
         }
         findViewById<View>(R.id.btnRefreshHours).setOnClickListener { refreshHours(it) }
+        setupTimeFields()
 
 
         // ---------- 사진: 비었으면 고르기, 있으면 바꾸기 / 빼기 ----------
@@ -176,11 +177,11 @@ class AddPlaceActivity : AppCompatActivity() {
                 editing = p
                 if (savedInstanceState == null) {
                     field(R.id.etName).setText(p.name)
-                    field(R.id.etHours).setText(p.openingHours)
+                    field(R.id.etHours).setText(p.openingHours.takeIf { it != getString(R.string.hours_unknown) }.orEmpty())
                     field(R.id.etBreak).setText(p.breakTime ?: "")
                     field(R.id.etClosed).setText(p.closedDays ?: "")
                     switchReservation.isChecked = p.isReservationRequired
-                    field(R.id.etStay).setText(p.stayMinutes.toString())
+                    field(R.id.etStay).setText(WheelPopup.durationLabel(this@AddPlaceActivity, p.stayMinutes))
                     field(R.id.etMemo).setText(p.memo)
                     photoPath = p.photoUri
                     lat = p.lat; lng = p.lng
@@ -304,7 +305,52 @@ class AddPlaceActivity : AppCompatActivity() {
 
     /** 머무는 시간을 비워 두면 종류별 기본값 (관광 90 · 맛집 60 · 카페 60 · 쇼핑 120 · 체험 120 · 기타 60) */
     private fun refreshStayHint() {
-        findViewById<TpTextField>(R.id.tilStay).placeholderText = category.defaultStay.toString()
+        findViewById<TpTextField>(R.id.tilStay).placeholderText =
+            getString(R.string.stay_default_hint, WheelPopup.durationLabel(this, category.defaultStay))
+    }
+
+    /** 칸에 보이는 "1시간 30분" → 분 (비었으면 null = 종류별 기본값) */
+    private fun stayMinutes(): Int? {
+        val t = field(R.id.etStay).text?.toString().orEmpty()
+        if (t.isBlank()) return null
+        t.trim().toIntOrNull()?.let { return it.coerceIn(10, 720) }   // 예전처럼 숫자만 있으면 분
+        val h = Regex("""(\d+)\s*시간""").find(t)?.groupValues?.get(1)?.toInt() ?: 0
+        val m = Regex("""(\d+)\s*분""").find(t)?.groupValues?.get(1)?.toInt() ?: 0
+        return (h * 60 + m).takeIf { it > 0 }?.coerceIn(10, 720)
+    }
+
+    /**
+     * 운영시간 · 브레이크 타임 · 머무는 시간: 직접 타자 대신 휠로 고르기 (경로 제안 · 교통편과 같은 휠 팝오버).
+     * 칸을 누르면 바로 아래에 휠이 뜨고, '적용'을 눌러야 바뀜.
+     */
+    private fun setupTimeFields() {
+        fun pickerField(id: Int, labelRes: Int, open: (EditText) -> Unit) {
+            val et = field(id)
+            et.isFocusable = false; et.isFocusableInTouchMode = false; et.isCursorVisible = false
+            et.isLongClickable = false; et.keyListener = null
+            et.setOnClickListener { open(et) }
+            // 끝의 시계 아이콘도 같은 동작
+            generateSequence(et.parent) { it.parent }.filterIsInstance<TpTextField>().firstOrNull()?.let { til ->
+                til.setEndIconOnClickListener { open(et) }
+            }
+            fun describe() { et.contentDescription = getString(R.string.time_field_a11y, getString(labelRes),
+                et.text?.toString()?.ifBlank { et.hint?.toString().orEmpty() }.orEmpty()) }
+            describe()
+            et.doAfterTextChanged { describe() }
+        }
+        pickerField(R.id.etHours, R.string.info_hours) { et ->
+            WheelPopup.range(et, getString(R.string.info_hours), et.text?.toString(), getString(R.string.hours_none_option),
+                10 * 60, 21 * 60) { et.setText(it.orEmpty()) }
+        }
+        pickerField(R.id.etBreak, R.string.label_break) { et ->
+            WheelPopup.range(et, getString(R.string.label_break), et.text?.toString(), getString(R.string.break_none_option),
+                15 * 60, 17 * 60) { et.setText(it.orEmpty()) }
+        }
+        pickerField(R.id.etStay, R.string.label_stay) { et ->
+            WheelPopup.duration(et, getString(R.string.label_stay), stayMinutes() ?: category.defaultStay) {
+                et.setText(WheelPopup.durationLabel(this, it))
+            }
+        }
     }
 
     private fun confirmed() = toggle.checkedButtonId == R.id.btnConfirmed
@@ -442,7 +488,7 @@ class AddPlaceActivity : AppCompatActivity() {
             day = if (confirmed) d else null,
             // 일차가 그대로면 기존 방문 순서 유지
             orderInDay = if (confirmed && old?.day == d) old?.orderInDay else null,
-            stayMinutes = field(R.id.etStay).text.toString().toIntOrNull()?.coerceIn(10, 720) ?: category.defaultStay,
+            stayMinutes = stayMinutes() ?: category.defaultStay,
             category = category,
             photoUri = photoPath,
             typeId = typeId,
