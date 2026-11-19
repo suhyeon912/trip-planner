@@ -155,7 +155,10 @@ object WheelPopup {
         val ctx = anchor.context
         val d = ctx.resources.displayMetrics.density
         val content = LayoutInflater.from(ctx).inflate(R.layout.view_wheel_popup, null)
-        content.findViewById<TextView>(R.id.tvWheelTitle).text = title
+        // 제목 줄은 보이지 않게 (누른 칸 바로 아래라 무엇을 고르는지 이미 보임) — 화면 읽기에는 제목을 알려 줌
+        content.findViewById<TextView>(R.id.tvWheelTitle).apply { text = title; visibility = View.GONE }
+        content.contentDescription = title
+        if (android.os.Build.VERSION.SDK_INT >= 28) content.accessibilityPaneTitle = title
         val wheels = build(content.findViewById(R.id.wheels))
         val band = content.findViewById<View>(R.id.wheelBand)
 
@@ -204,8 +207,16 @@ object WheelPopup {
         content.findViewById<View>(R.id.btnWheelCancel).setOnClickListener { popup.dismiss() }
         content.findViewById<View>(R.id.btnWheelApply).setOnClickListener { apply(isFree()); popup.dismiss() }
 
+        // 화면 좌표에 바로 놓기: 누른 칸에 붙여 두면(드롭다운) 화면이 다시 그려질 때마다 위치를 다시 계산하며 좌우로 흔들림.
+        // 아래 자리가 모자라면 칸 위에.
+        content.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        val h = content.measuredHeight
         val loc = IntArray(2).also { anchor.getLocationOnScreen(it) }
-        val xOff = (frame.left + (frame.width() - width) / 2) - loc[0]
-        popup.showAsDropDown(anchor, xOff, (4 * d).toInt())
+        val gap = (4 * d).toInt()
+        val below = loc[1] + anchor.height + gap
+        val y = if (below + h <= frame.bottom - margin) below else maxOf(frame.top + margin, loc[1] - gap - h)
+        val x = frame.left + (frame.width() - width) / 2
+        popup.showAtLocation(anchor.rootView, android.view.Gravity.TOP or android.view.Gravity.START, x, y)
     }
 }
