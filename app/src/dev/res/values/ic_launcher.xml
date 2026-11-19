@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 개발 버전 아이콘 바탕: 회색 (한 폰에 실사용 버전과 같이 깔아도 바로 구분) -->
+    <color name="ic_launcher_background">#475569</color>
+</resources>

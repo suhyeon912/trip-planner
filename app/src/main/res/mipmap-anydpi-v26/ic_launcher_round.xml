@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 앱 아이콘 (적응형): 파랑 바탕 + 흰 종이비행기 · 점선 경로 · 지도 핀. 기기마다 원 · 둥근 사각형으로 잘림 -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+    <!-- Android 13 '테마 아이콘': 같은 그림을 배경화면 색으로 -->
+    <monochrome android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>
