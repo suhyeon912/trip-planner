@@ -370,7 +370,7 @@ class AddPlaceActivity : AppCompatActivity() {
      * 칸을 누르면 바로 아래에 휠이 뜨고, '적용'을 눌러야 바뀜.
      */
     private fun setupTimeFields() {
-        fun pickerField(id: Int, labelRes: Int, open: (EditText) -> Unit) {
+        fun pickerField(id: Int, label: String, open: (EditText) -> Unit) {
             val et = field(id)
             et.isFocusable = false; et.isFocusableInTouchMode = false; et.isCursorVisible = false
             et.isLongClickable = false; et.keyListener = null
@@ -381,20 +381,53 @@ class AddPlaceActivity : AppCompatActivity() {
             generateSequence(et.parent) { it.parent }.filterIsInstance<TpTextField>().firstOrNull()?.let { til ->
                 til.setEndIconOnClickListener { open(et) }
             }
-            fun describe() { et.contentDescription = getString(R.string.time_field_a11y, getString(labelRes),
+            fun describe() { et.contentDescription = getString(R.string.time_field_a11y, label,
                 et.text?.toString()?.ifBlank { et.hint?.toString().orEmpty() }.orEmpty()) }
             describe()
             et.doAfterTextChanged { describe() }
         }
-        pickerField(R.id.etHours, R.string.info_hours) { et ->
-            WheelPopup.range(et, getString(R.string.info_hours), et.text?.toString(), getString(R.string.hours_none_option),
-                10 * 60, 21 * 60) { et.setText(it.orEmpty()) }
+
+        /**
+         * 시작 · 끝 두 칸 ↔ 숨은 칸("11:00 ~ 21:00", 저장 · 검색 자동 입력 형식).
+         * 두 칸이 다 차면 숨은 칸에 범위, 둘 다 비면 빈 값. 하나만 찬 건 저장할 때 알려 줌.
+         */
+        fun rangeFields(hiddenId: Int, fromId: Int, toId: Int, labelRes: Int, defFrom: Int, defTo: Int) {
+            val hidden = field(hiddenId); val from = field(fromId); val to = field(toId)
+            var syncing = false
+            fun fromHidden() {
+                if (syncing) return
+                val r = TimeUtil.parseRange(hidden.text?.toString())
+                // 숨은 칸이 비었는데 두 칸 중 하나만 차 있으면 (고르는 중) 그대로 둠
+                if (r == null && from.text.isNullOrBlank() != to.text.isNullOrBlank()) return
+                syncing = true
+                from.setText(r?.let { TimeUtil.format(it.first) }.orEmpty())
+                to.setText(r?.let { TimeUtil.format(it.last) }.orEmpty())
+                syncing = false
+            }
+            fun toHidden() {
+                if (syncing) return
+                val a = from.text?.toString().orEmpty(); val b = to.text?.toString().orEmpty()
+                syncing = true
+                hidden.setText(if (a.isNotBlank() && b.isNotBlank()) "$a ~ $b" else "")
+                syncing = false
+                rangeError(fromId, toId, null)
+            }
+            hidden.doAfterTextChanged { fromHidden() }
+            fromHidden()
+            fun minutesOf(et: EditText) = TimeUtil.parseRange("${et.text} ~ ${et.text}")?.first
+            val label = getString(labelRes)
+            pickerField(fromId, getString(R.string.time_from_a11y, label)) { et ->
+                WheelPopup.time(et, label, minutesOf(et), clearLabel = getString(R.string.time_clear),
+                    defaultMinutes = defFrom) { m -> et.setText(m?.let { TimeUtil.format(it) }.orEmpty()); toHidden() }
+            }
+            pickerField(toId, getString(R.string.time_to_a11y, label)) { et ->
+                WheelPopup.time(et, label, minutesOf(et), clearLabel = getString(R.string.time_clear),
+                    defaultMinutes = defTo) { m -> et.setText(m?.let { TimeUtil.format(it) }.orEmpty()); toHidden() }
+            }
         }
-        pickerField(R.id.etBreak, R.string.label_break) { et ->
-            WheelPopup.range(et, getString(R.string.label_break), et.text?.toString(), getString(R.string.break_none_option),
-                15 * 60, 17 * 60) { et.setText(it.orEmpty()) }
-        }
-        pickerField(R.id.etStay, R.string.label_stay) { et ->
+        rangeFields(R.id.etHours, R.id.etHoursFrom, R.id.etHoursTo, R.string.info_hours, 10 * 60, 21 * 60)
+        rangeFields(R.id.etBreak, R.id.etBreakFrom, R.id.etBreakTo, R.string.label_break, 15 * 60, 17 * 60)
+        pickerField(R.id.etStay, getString(R.string.label_stay)) { et ->
             WheelPopup.duration(et, getString(R.string.label_stay), stayMinutes() ?: category.defaultStay) {
                 et.setText(WheelPopup.durationLabel(this, it))
             }
@@ -507,7 +540,33 @@ class AddPlaceActivity : AppCompatActivity() {
         }
     }
 
+    /** 시작 · 끝 중 하나만 고른 칸에 오류 표시 (msg = null 이면 지움) */
+    private fun rangeError(fromId: Int, toId: Int, msg: String?) {
+        listOf(fromId, toId).forEach { id ->
+            generateSequence(field(id).parent) { it.parent }.filterIsInstance<TpTextField>().firstOrNull()?.error =
+                if (msg != null && field(id).text.isNullOrBlank()) msg else null
+        }
+    }
+
+    /** 시작 · 끝 중 하나만 고른 범위가 있으면 알리고 false */
+    private fun rangesComplete(): Boolean {
+        var ok = true
+        for ((f, t) in listOf(R.id.etHoursFrom to R.id.etHoursTo, R.id.etBreakFrom to R.id.etBreakTo)) {
+            if (field(f).text.isNullOrBlank() != field(t).text.isNullOrBlank()) {
+                if (ok) {   // 첫 번째 칸이 보이게
+                    val sv = findViewById<NestedScrollView>(R.id.scroll)
+                    val rect = android.graphics.Rect().also { field(f).getDrawingRect(it) }
+                    sv.offsetDescendantRectToMyCoords(field(f), rect)
+                    sv.smoothScrollTo(0, (rect.top - 80 * resources.displayMetrics.density).toInt().coerceAtLeast(0))
+                }
+                rangeError(f, t, getString(R.string.error_time_pair)); ok = false
+            }
+        }
+        return ok
+    }
+
     private fun save(reservation: Boolean) {
+        if (!rangesComplete()) return
         val name = field(R.id.etName).text.toString().trim()
         if (name.isBlank()) {
             tilName.error = getString(R.string.error_place_name)

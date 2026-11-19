@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  시안 TimePicker 팝오버: 누른 칩 아래 · 모서리 16 · 제목 · (도착: 시간 자유 / 시각 정하기) · 휠 5칸 · 취소 / 적용
+  시안 TimePicker 팝오버: 누른 칩 아래 · 모서리 16 · 휠 5칸 · (선택 안 함) … 취소 / 적용
   휠 칸은 WheelPopup.kt 가 넣음 (시 : 분, 또는 날짜 · 시 : 분)
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,30 +20,6 @@
         android:textAppearance="@style/TextAppearance.TripPlanner.BodyMedium"
         android:textColor="@color/text_sub" />
 
-    <com.tripplanner.ui.SegmentedGroup
-        android:id="@+id/segFree"
-        style="@style/Widget.TripPlanner.SegmentedGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:visibility="gone">
-
-        <com.tripplanner.ui.widget.TpButton
-            android:id="@+id/btnFree"
-            style="@style/Widget.TripPlanner.SegmentedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/end_free" />
-
-        <com.tripplanner.ui.widget.TpButton
-            android:id="@+id/btnSetTime"
-            style="@style/Widget.TripPlanner.SegmentedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/end_set_option" />
-    </com.tripplanner.ui.SegmentedGroup>
 
     <!-- 가운데 칸 표시 (값 줄) + 휠들 -->
     <FrameLayout
@@ -72,6 +48,20 @@
         android:layout_marginTop="@dimen/space_m"
         android:gravity="end|center_vertical"
         android:orientation="horizontal">
+
+        <!-- 왼쪽: 선택 안 함 (값을 비울 수 있는 칸만, 누르면 바로 비우고 닫힘) -->
+        <com.tripplanner.ui.widget.TpButton
+            android:id="@+id/btnWheelClear"
+            style="@style/Widget.TripPlanner.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-12dp"
+            android:visibility="gone" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
 
         <com.tripplanner.ui.widget.TpButton
             android:id="@+id/btnWheelCancel"

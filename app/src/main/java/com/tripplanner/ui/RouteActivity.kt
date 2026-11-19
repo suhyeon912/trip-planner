@@ -66,7 +66,7 @@ class RouteActivity : AppCompatActivity() {
         // 숙소 도착 목표: 시간 자유 / 시각 정하기 + 휠 (늦으면 경로에 알림)
         btnEndTime.setOnClickListener { chip ->
             val cur = viewModel.ui.value?.endMinutes
-            WheelPopup.time(chip, getString(R.string.title_end_time), cur, allowFree = true, defaultMinutes = 19 * 60) {
+            WheelPopup.time(chip, getString(R.string.title_end_time), cur, clearLabel = getString(R.string.end_free), defaultMinutes = 19 * 60) {
                 viewModel.setEndTime(it)
             }
         }

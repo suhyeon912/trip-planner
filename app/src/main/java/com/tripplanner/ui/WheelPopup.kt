@@ -17,63 +17,31 @@ import java.time.LocalDateTime
  * 시안 TimePicker: 누른 칩·칸 바로 아래에 뜨는 휠 팝오버 (MaterialTimePicker 대신).
  *  · 시·분 휠, 5분 단위, 24시간, 가운데 줄이 값
  *  · '적용'을 누르기 전까지 값이 바뀌지 않음, 바깥을 누르면 닫힘
- *  · 도착 시각은 '시간 자유 / 시각 정하기' — 시간 자유면 휠이 흐려지고 못 움직임
- *  · 교통편은 날짜 · 시 · 분 세 줄
- *  · 운영시간 · 브레이크 타임은 '시작 시:분 ~ 끝 시:분' 네 줄 (+ '모름' / '없음')
- *  · 머무는 시간은 '시간 · 분' 두 줄
+ *  · 값을 비울 수 있는 칸은 왼쪽 아래 글자 버튼 ('선택 안 함', 경로 도착은 '시간 자유') — 누르면 바로 비우고 닫힘
+ *  · 교통편은 날짜 · 시 · 분 세 줄, 머무는 시간은 '시간 · 분' 두 줄
  */
 object WheelPopup {
 
     private const val STEP = 5
 
     /**
-     * 시각 고르기. minutes = 하루 안의 분(0~1439), null 이면 '시간 자유'.
-     * allowFree = true 면 '시간 자유 / 시각 정하기' 가 보이고, 결과가 null 일 수 있음.
+     * 시각 고르기. minutes = 하루 안의 분(0~1439), null 이면 아직 없음 (defaultMinutes 에서 시작).
+     * clearLabel 이 있으면 왼쪽 아래에 그 글자 버튼 → 누르면 onApply(null).
      */
-    fun time(anchor: View, title: String, minutes: Int?, allowFree: Boolean = false,
+    fun time(anchor: View, title: String, minutes: Int?, clearLabel: String? = null,
              defaultMinutes: Int = 10 * 60, onApply: (Int?) -> Unit) {
         val base = minutes ?: defaultMinutes
         val hours = (0..23).toList()
         val mins = stepMinutes(base % 60)
         lateinit var hourWheel: WheelView
         lateinit var minWheel: WheelView
-        show(anchor, title, allowFree, free = allowFree && minutes == null, build = { box ->
+        show(anchor, title, clearLabel, onClear = { onApply(null) }, build = { box ->
             hourWheel = wheel(box, R.string.wheel_hour, hours.map { "%02d".format(it) }, hours.indexOf(base / 60 % 24))
             colon(box)
             minWheel = wheel(box, R.string.wheel_minute, mins.map { "%02d".format(it) }, mins.indexOf(base % 60))
             listOf(hourWheel, minWheel)
-        }) { free ->
-            onApply(if (free) null else hours[hourWheel.selectedIndex] * 60 + mins[minWheel.selectedIndex])
-        }
-    }
-
-    /**
-     * 시간 범위 고르기 (운영시간 · 브레이크 타임): 시작 시:분 ~ 끝 시:분.
-     * current = "HH:MM ~ HH:MM" 형식 (읽을 수 없으면 defaultStart ~ defaultEnd 에서 시작).
-     * noneLabel 이 있으면 '없음 / 시간 정하기' 가 보이고, '없음'으로 적용하면 null.
-     * 끝이 시작보다 이르면 다음 날까지 (예: 18:00 ~ 02:00), 같으면 24시간.
-     */
-    fun range(anchor: View, title: String, current: String?, noneLabel: String?, defaultStart: Int, defaultEnd: Int,
-              onApply: (String?) -> Unit) {
-        val r = TimeUtil.parseRange(current)
-        val s = r?.first ?: defaultStart
-        val e = (r?.last ?: defaultEnd) % (24 * 60)
-        val hours = (0..23).toList()
-        val sMins = stepMinutes(s % 60); val eMins = stepMinutes(e % 60)
-        lateinit var sh: WheelView; lateinit var sm: WheelView; lateinit var eh: WheelView; lateinit var em: WheelView
-        show(anchor, title, allowFree = noneLabel != null, free = noneLabel != null && r == null,
-            freeLabels = noneLabel?.let { it to anchor.context.getString(R.string.range_set_option) }, build = { box ->
-            sh = wheel(box, R.string.wheel_start_hour, hours.map { "%02d".format(it) }, s / 60 % 24)
-            colon(box)
-            sm = wheel(box, R.string.wheel_start_minute, sMins.map { "%02d".format(it) }, sMins.indexOf(s % 60))
-            sep(box, "~")
-            eh = wheel(box, R.string.wheel_end_hour, hours.map { "%02d".format(it) }, e / 60)
-            colon(box)
-            em = wheel(box, R.string.wheel_end_minute, eMins.map { "%02d".format(it) }, eMins.indexOf(e % 60))
-            listOf(sh, sm, eh, em)
-        }) { none ->
-            onApply(if (none) null else "%02d:%02d ~ %02d:%02d".format(hours[sh.selectedIndex], sMins[sm.selectedIndex],
-                hours[eh.selectedIndex], eMins[em.selectedIndex]))
+        }) {
+            onApply(hours[hourWheel.selectedIndex] * 60 + mins[minWheel.selectedIndex])
         }
     }
 
@@ -82,7 +50,7 @@ object WheelPopup {
         val hours = (0..12).toList()
         val mins = stepMinutes(minutes % 60)
         lateinit var hw: WheelView; lateinit var mw: WheelView
-        show(anchor, title, allowFree = false, free = false, build = { box ->
+        show(anchor, title, null, null, build = { box ->
             hw = wheel(box, R.string.wheel_hours, hours.map { box.context.getString(R.string.duration_hours, it) }, (minutes / 60).coerceIn(0, 12))
             mw = wheel(box, R.string.wheel_minute, mins.map { box.context.getString(R.string.duration_minutes, it) }, mins.indexOf(minutes % 60))
             listOf(hw, mw)
@@ -109,7 +77,7 @@ object WheelPopup {
         lateinit var dayWheel: WheelView
         lateinit var hourWheel: WheelView
         lateinit var minWheel: WheelView
-        show(anchor, title, allowFree = false, free = false, build = { box ->
+        show(anchor, title, null, null, build = { box ->
             dayWheel = wheel(box, R.string.wheel_date, days.map { dayLabel(it) }, 60, weight = 1.7f)
             hourWheel = wheel(box, R.string.wheel_hour, hours.map { "%02d".format(it) }, current.hour)
             colon(box)
@@ -146,9 +114,8 @@ object WheelPopup {
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
     }
 
-    private fun show(anchor: View, title: String, allowFree: Boolean, free: Boolean,
-                     freeLabels: Pair<String, String>? = null,
-                     build: (LinearLayout) -> List<WheelView>, apply: (Boolean) -> Unit) {
+    private fun show(anchor: View, title: String, clearLabel: String?, onClear: (() -> Unit)?,
+                     build: (LinearLayout) -> List<WheelView>, apply: () -> Unit) {
         val ctx = anchor.context
         val d = ctx.resources.displayMetrics.density
         val content = LayoutInflater.from(ctx).inflate(R.layout.view_wheel_popup, null)
@@ -156,28 +123,12 @@ object WheelPopup {
         content.findViewById<TextView>(R.id.tvWheelTitle).apply { text = title; visibility = View.GONE }
         content.contentDescription = title
         if (android.os.Build.VERSION.SDK_INT >= 28) content.accessibilityPaneTitle = title
-        val wheels = build(content.findViewById(R.id.wheels))
-        val band = content.findViewById<View>(R.id.wheelBand)
-
-        // 도착: 시간 자유 / 시각 정하기
-        val seg = content.findViewById<SegmentedGroup>(R.id.segFree)
-        var isFree = free
-        fun setFree(f: Boolean) {
-            isFree = f
-            wheels.forEach { it.isEnabled = !f }
-            band.alpha = if (f) 0.35f else 1f
+        build(content.findViewById(R.id.wheels))
+        // 왼쪽 아래 '선택 안 함' (값을 비울 수 있는 칸만)
+        content.findViewById<TextView>(R.id.btnWheelClear).apply {
+            visibility = if (clearLabel != null) View.VISIBLE else View.GONE
+            text = clearLabel
         }
-        if (allowFree) {
-            seg.visibility = View.VISIBLE
-            // 기본은 '시간 자유 / 시각 정하기', 범위는 '모름(없음) / 시간 정하기'
-            freeLabels?.let { (a, b) ->
-                content.findViewById<TextView>(R.id.btnFree).text = a
-                content.findViewById<TextView>(R.id.btnSetTime).text = b
-            }
-            seg.check(if (free) R.id.btnFree else R.id.btnSetTime)
-            seg.addOnButtonCheckedListener { _, id, checked -> if (checked) setFree(id == R.id.btnFree) }
-        }
-        setFree(isFree)
 
         // 키보드가 떠 있으면 먼저 내리고 (입력칸 포커스도 풀기), 화면 크기가 자리 잡은 뒤에 띄움.
         // 키보드가 열린 채로 띄우면 팝오버가 키보드를 내리며 화면이 줄었다 늘면서 흔들리고, 닫을 때 다시 키보드가 뜸.
@@ -186,8 +137,8 @@ object WheelPopup {
         anchor.rootView.findFocus()?.let { f -> if (f is android.widget.EditText) f.clearFocus() }
         (ctx.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
             .hideSoftInputFromWindow(anchor.windowToken, 0)
-        if (imeShown) anchor.postDelayed({ if (anchor.isAttachedToWindow) place(anchor, content, apply) { isFree } }, 250)
-        else place(anchor, content, apply) { isFree }
+        if (imeShown) anchor.postDelayed({ if (anchor.isAttachedToWindow) place(anchor, content, apply, onClear) }, 250)
+        else place(anchor, content, apply, onClear)
     }
 
     /**
@@ -195,7 +146,7 @@ object WheelPopup {
      * 따로 창(PopupWindow)을 띄우지 않고 지금 화면 위에 한 겹 얹음: 창을 쓰면 기기에 따라
      * 열고 닫을 때 창 위치를 다시 잡으며 좌우로 튀어 보여서. 바깥 · 뒤로 · 취소 = 닫기.
      */
-    private fun place(anchor: View, content: View, apply: (Boolean) -> Unit, isFree: () -> Boolean) {
+    private fun place(anchor: View, content: View, apply: () -> Unit, onClear: (() -> Unit)?) {
         val ctx = anchor.context
         val d = anchor.resources.displayMetrics.density
         val root = anchor.rootView.findViewById<android.widget.FrameLayout>(android.R.id.content) ?: return
@@ -235,7 +186,8 @@ object WheelPopup {
         }
         scrim.setOnClickListener { close() }
         content.findViewById<View>(R.id.btnWheelCancel).setOnClickListener { close() }
-        content.findViewById<View>(R.id.btnWheelApply).setOnClickListener { apply(isFree()); close() }
+        content.findViewById<View>(R.id.btnWheelApply).setOnClickListener { apply(); close() }
+        content.findViewById<View>(R.id.btnWheelClear).setOnClickListener { onClear?.invoke(); close() }
         (generateSequence(ctx) { (it as? android.content.ContextWrapper)?.baseContext }
             .filterIsInstance<androidx.activity.ComponentActivity>().firstOrNull())?.let { act ->
             back = object : androidx.activity.OnBackPressedCallback(true) { override fun handleOnBackPressed() = close() }

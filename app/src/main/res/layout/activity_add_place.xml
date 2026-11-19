@@ -225,62 +225,130 @@
                     app:tpIconPadding="4dp" />
             </LinearLayout>
 
+            <!-- 운영시간 · 브레이크 타임: 시작 · 끝을 따로 누르면 시각 휠 하나씩 -->
+            <TextView
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:layout_marginTop="@dimen/space_s"
+                android:text="@string/info_hours" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_s"
-                android:baselineAligned="false"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <LinearLayout
+                <com.tripplanner.ui.widget.TpTextField
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    app:tpCompact="true"
+                    app:tpPlaceholder="@string/time_from"
+                    app:tpEndIcon="@drawable/ic_schedule"
+                    app:tpEndIconDescription="@string/pick_time">
 
-                    <TextView style="@style/Widget.TripPlanner.FieldLabel" android:labelFor="@id/etHours" android:text="@string/info_hours" />
-
-                    <com.tripplanner.ui.widget.TpTextField
-                        app:tpCompact="true"
+                    <EditText
+                        android:id="@+id/etHoursFrom"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:tpPlaceholder="@string/placeholder_hours"
-                        app:tpEndIcon="@drawable/ic_schedule"
-                        app:tpEndIconDescription="@string/pick_time">
+                        android:inputType="none" />
+                </com.tripplanner.ui.widget.TpTextField>
 
-                        <EditText
-                            android:id="@+id/etHours"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none" />
-                    </com.tripplanner.ui.widget.TpTextField>
-                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/space_s"
+                    android:importantForAccessibility="no"
+                    android:text="~"
+                    android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+                    android:textColor="@color/text_sub" />
 
-                <LinearLayout
+                <com.tripplanner.ui.widget.TpTextField
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_s"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    app:tpCompact="true"
+                    app:tpPlaceholder="@string/time_to"
+                    app:tpEndIcon="@drawable/ic_schedule"
+                    app:tpEndIconDescription="@string/pick_time">
 
-                    <TextView style="@style/Widget.TripPlanner.FieldLabel" android:labelFor="@id/etBreak" android:text="@string/label_break" />
-
-                    <com.tripplanner.ui.widget.TpTextField
-                        app:tpCompact="true"
+                    <EditText
+                        android:id="@+id/etHoursTo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:tpPlaceholder="@string/placeholder_break"
-                        app:tpEndIcon="@drawable/ic_schedule"
-                        app:tpEndIconDescription="@string/pick_time">
-
-                        <EditText
-                            android:id="@+id/etBreak"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none" />
-                    </com.tripplanner.ui.widget.TpTextField>
-                </LinearLayout>
+                        android:inputType="none" />
+                </com.tripplanner.ui.widget.TpTextField>
             </LinearLayout>
+
+            <!-- 저장 형식 "11:00 ~ 21:00" 은 숨은 칸에 (검색 자동 입력 · 다시 가져오기가 여기에 넣음) -->
+            <EditText
+                android:id="@+id/etHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAccessibility="no"
+                android:inputType="text"
+                android:visibility="gone" />
+
+            <TextView
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:layout_marginTop="@dimen/space_m"
+                android:text="@string/label_break" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.tripplanner.ui.widget.TpTextField
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:tpCompact="true"
+                    app:tpPlaceholder="@string/time_from"
+                    app:tpEndIcon="@drawable/ic_schedule"
+                    app:tpEndIconDescription="@string/pick_time">
+
+                    <EditText
+                        android:id="@+id/etBreakFrom"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.tripplanner.ui.widget.TpTextField>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/space_s"
+                    android:importantForAccessibility="no"
+                    android:text="~"
+                    android:textAppearance="@style/TextAppearance.TripPlanner.TitleSmall"
+                    android:textColor="@color/text_sub" />
+
+                <com.tripplanner.ui.widget.TpTextField
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:tpCompact="true"
+                    app:tpPlaceholder="@string/time_to"
+                    app:tpEndIcon="@drawable/ic_schedule"
+                    app:tpEndIconDescription="@string/pick_time">
+
+                    <EditText
+                        android:id="@+id/etBreakTo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.tripplanner.ui.widget.TpTextField>
+            </LinearLayout>
+
+            <!-- 저장 형식 "11:00 ~ 21:00" 은 숨은 칸에 (검색 자동 입력 · 다시 가져오기가 여기에 넣음) -->
+            <EditText
+                android:id="@+id/etBreak"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAccessibility="no"
+                android:inputType="text"
+                android:visibility="gone" />
 
             <!-- 휴무일: 월~일 요일 칩 (여러 개 고르기). 값은 아래 숨은 칸에 "월요일, 화요일" 로 (저장 형식 그대로) -->
             <TextView
