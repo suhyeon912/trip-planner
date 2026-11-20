@@ -165,10 +165,21 @@ object WheelPopup {
         val h = content.measuredHeight
         val a = IntArray(2).also { anchor.getLocationInWindow(it) }
         val r = IntArray(2).also { root.getLocationInWindow(it) }
-        val ax = a[0] - r[0]; val ay = a[1] - r[1]
+        val ay = a[1] - r[1]
         val gap = (4 * d).toInt()
+        // 상태 표시줄 · 내비게이션 바 · 키보드에 가리지 않는 범위 안에만 둔다.
+        // Android 15(targetSdk 35)부터는 화면이 시스템 바 밑까지 늘어나서, 아래쪽 칸(교통편 도착)을 누르면
+        // 팝오버의 '적용' 단추가 내비게이션 바 밑에 깔려 눌리지 않았음 (API 30 에뮬레이터에서는 안 보이던 문제)
+        val bars = androidx.core.view.ViewCompat.getRootWindowInsets(root)
+            ?.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars() or androidx.core.view.WindowInsetsCompat.Type.displayCutout())
+        val top = maxOf(margin, (bars?.top ?: 0) - r[1] + margin)
+        val bottom = root.height - maxOf(margin, (bars?.bottom ?: 0) + margin)
         val below = ay + anchor.height + gap
-        val y = if (below + h <= root.height - margin) below else maxOf(margin, ay - gap - h)
+        val y = when {
+            below + h <= bottom -> below
+            ay - gap - h >= top -> ay - gap - h
+            else -> maxOf(top, bottom - h)   // 위아래 모두 모자라면 가릴 수 없는 범위의 맨 아래에 맞춤
+        }
         scrim.addView(content, android.widget.FrameLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             leftMargin = (root.width - width) / 2; topMargin = y
         })
