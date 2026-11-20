@@ -14,14 +14,17 @@ class TripRepository(private val db: AppDatabase) {
     /** 여행 내용이 바뀌면 여행 id 로 알림 (공유 동기화가 듣고 있음) */
     var changeListener: ((Long) -> Unit)? = null
     private fun changed(tripId: Long) { changeListener?.invoke(tripId) }
+    /** 여행을 지우기 직전 알림 (서버 백업 · 공유에서도 빼려고) */
+    var deleteListener: ((Trip) -> Unit)? = null
 
     // 여행
     fun observeTripsWithCounts(): LiveData<List<TripWithCounts>> = dao.observeTripsWithCounts()
     fun observeTrip(id: Long): LiveData<Trip?> = dao.observeTrip(id)
     suspend fun getTrip(id: Long) = dao.getTrip(id)
-    suspend fun addTrip(trip: Trip) = dao.insertTrip(trip)
+    suspend fun addTrip(trip: Trip): Long = dao.insertTrip(trip).also { changed(it) }   // 새 여행도 백업
     suspend fun updateTrip(trip: Trip) { dao.updateTrip(trip); changed(trip.id) }
-    suspend fun deleteTrip(trip: Trip) = dao.deleteTrip(trip)
+    suspend fun deleteTrip(trip: Trip) { deleteListener?.invoke(trip); dao.deleteTrip(trip) }
+    suspend fun getAllTrips() = dao.getAllTrips()
 
     // 비행기
     fun observeFlights(tripId: Long) = dao.observeFlights(tripId)

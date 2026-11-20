@@ -87,6 +87,16 @@ Android Studio 오른쪽 **Gradle** 창 → `trip-planner > app > Tasks > androi
 
 > 요금은 API마다 무료 사용량이 다릅니다. 콘솔의 사용량 · 요금 페이지에서 확인하세요.
 
+### 사용량 상한 · 예산 알림 (권장)
+
+키가 새어 나가거나 앱이 잘못 반복 호출해도 요금이 크게 나오지 않게 막아 둡니다.
+
+- **요청 수 상한**: API 및 서비스 → 사용 설정된 API → **Routes API** (또는 **Places API (New)**) → **할당량 및 시스템 한도** 탭
+  → 하루(per day) 또는 분당(per minute) 항목의 ⋮ → **할당량 수정** → 값 입력 → 요청 제출
+  - 하루 항목이 없는 API는 분당 값을 낮게 둡니다 (예: 분당 60)
+  - 상한에 닿으면 그날은 길찾기 · 검색이 '어림값' · '검색 실패'로 바뀔 뿐 앱은 멈추지 않습니다
+- **예산 알림**: 결제 → **예산 및 알림** → 예산 만들기 → 금액(예: 1만 원)과 50% · 90% · 100% 알림 → 메일로 받음 (알림만 오고 자동으로 막지는 않음)
+
 ---
 
 ## Firebase (공유 · 초대)
@@ -98,7 +108,7 @@ Android Studio 오른쪽 **Gradle** 창 → `trip-planner > app > Tasks > androi
    - 패키지 `com.tripplanner`, 디버그 SHA-1
    - **`google-services.json`을 내려받아 `app/` 폴더에** 넣기
    - 팀원 SHA-1도 프로젝트 설정 → 내 앱 → SHA 인증서 지문에 추가
-3. Authentication → Sign-in method → **익명(Anonymous)** 사용
+3. Authentication → Sign-in method → **익명(Anonymous)** 사용, **이메일/비밀번호** 사용 (복구 코드용, '이메일 링크'는 끄기)
 4. Firestore Database 만들기 (서울 `asia-northeast3`, 프로덕션 모드)
 5. Firestore → **규칙** 탭에 저장소의 [`firestore.rules`](../firestore.rules) 내용을 그대로 붙여 넣고 **게시**
 
@@ -148,6 +158,8 @@ Android Studio 오른쪽 **Gradle** 창 → `trip-planner > app > Tasks > androi
 | 카카오 지도 자리에 키 해시가 보임 | 그 키 해시를 카카오 콘솔 → 플랫폼 → Android에 추가 |
 | Google 지도가 빈 화면 | 키 제한에 내 PC의 SHA-1이 있는지, Maps SDK for Android를 켰는지 |
 | 해외 검색이 "권한 없음" | Places API (New)를 켰는지, 키 API 제한에 들어 있는지 |
+| 복구 코드 "쓸 수 없어요" | Firebase Authentication에서 이메일/비밀번호 로그인을 켰는지 |
+| 복구 코드로 불러오기가 0개 | `firestore.rules`를 다시 게시했는지 (목록 읽기 규칙이 새로 생김) |
 | 경로 화면에 "Routes API 를 켜면…" 안내 | Routes API를 켰는지, 키 API 제한에 들어 있는지 → 경로 화면을 다시 열기 |
 | 경로 부제가 "일부 구간은 어림" | 그 구간은 Google이 길을 주지 않은 곳 (예: 한국의 도보 · 차). 정상이에요 |
 | 공유 메뉴가 '설정 필요' | `app/google-services.json`이 있는지 → 넣은 뒤 Sync |

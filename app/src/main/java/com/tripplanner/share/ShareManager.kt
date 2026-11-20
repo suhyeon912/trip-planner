@@ -3,6 +3,7 @@ package com.tripplanner.share
 import android.content.Context
 import android.util.Log
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -26,6 +27,9 @@ import kotlinx.coroutines.tasks.await
  *  - 참여하기: 코드를 입력하면 그 문서를 받아 내 기기에 여행을 만들고 members 에 내 id 추가
  *  - 동기화: 공유 중인 여행은 서로 실시간으로 받음. 내가 바꾸면 1초 뒤 전체를 다시 올림
  *    (여행 단위 '마지막 저장 우선' — 발표 범위에 맞춘 단순한 방식)
+ *  - 백업: 내가 만든 여행은 공유하지 않아도 모두 서버에 올려 둠 (문서 하나 = 여행 하나, 멤버는 나뿐)
+ *  - 복구 코드: 익명 계정에 'XXXX-XXXX-XXXX' 코드(이메일 · 비밀번호 로그인)를 연결해 두면,
+ *    앱을 지웠다 깔거나 폰을 바꿔도 그 코드로 같은 계정에 들어가 내 여행을 모두 다시 받음
  *
  * app/google-services.json 이 없으면 isConfigured = false → 화면에서 '설정 필요' 안내만 보여 줌.
  */
@@ -69,6 +73,7 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
     fun start() {
         if (!isConfigured) return
         repo.changeListener = { tripId -> schedulePush(tripId) }
+        repo.deleteListener = { trip -> scope.launch { forget(trip) } }
         // 자료 파일은 올리지 않지만 '올렸어요' 기록은 남김
         repo.attachmentListener = { a ->
             scope.launch {
@@ -84,6 +89,138 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         scope.launch {
             runCatching { repo.getSharedTrips().forEach { listen(it) } }
                 .onFailure { Log.w(TAG, "공유 여행 불러오기 실패", it) }
+            backupAll()
+        }
+    }
+
+    // ---------------- 백업 · 복구 ----------------
+
+    /** 아직 서버에 없는 내가 만든 여행을 모두 올림 (앱 시작 · 복구 뒤) */
+    private suspend fun backupAll() {
+        runCatching {
+            repo.getAllTrips().filter { it.shareCode == null && it.ownedByMe }.forEach { t ->
+                runCatching { share(t.id) }.onFailure { Log.w(TAG, "백업 실패 ${t.id}", it) }
+            }
+        }
+    }
+
+    /** 여행을 지우면: 나만 있는 여행은 서버 문서도 지우고, 함께 보는 여행은 나만 빠짐 (지운 여행이 복구로 돌아오지 않게) */
+    private suspend fun forget(trip: Trip) {
+        val code = trip.shareCode ?: return
+        listeners.remove(trip.id)?.remove()
+        runCatching {
+            val me = uid()
+            val ref = db.collection(COLLECTION).document(code)
+            val doc = ref.get().await()
+            val members = (doc.get("members") as? List<*>).orEmpty()
+            if (doc.getString("ownerUid") == me && members.all { it == me }) ref.delete().await()
+            else ref.update(mapOf("members" to FieldValue.arrayRemove(me), "names.$me" to FieldValue.delete())).await()
+        }.onFailure { Log.w(TAG, "서버에서 지우기 실패", it) }
+    }
+
+    /** 복구 코드가 없는 상태 (아직 안 만들었거나 Firebase 콘솔에서 이메일 로그인이 꺼져 있음) */
+    class RecoveryNotAllowedException : Exception()
+    /** 잘못된 복구 코드 */
+    class BadRecoveryCodeException : Exception()
+
+    private val profile get() = context.getSharedPreferences("profile", Context.MODE_PRIVATE)
+
+    /** 이 기기에 저장된 복구 코드 (없으면 null) */
+    val savedRecoveryCode: String? get() = profile.getString("recovery_code", null)
+
+    /**
+     * 내 복구 코드. 처음이면 새로 만들어 지금 계정(익명)에 연결함 — 계정 id 가 그대로라 여행 · 공유가 그대로 이어짐.
+     * Firebase 콘솔에서 '이메일/비밀번호' 로그인을 켜 두어야 함 (꺼져 있으면 RecoveryNotAllowedException)
+     */
+    suspend fun recoveryCode(): String {
+        uid()
+        val user = auth.currentUser!!
+        savedRecoveryCode?.let { saved ->
+            if (user.email == RecoveryCode.email(saved)) return saved
+        }
+        if (!user.isAnonymous) throw RecoveryNotAllowedException()   // 다른 방법으로 로그인된 계정 (생기지 않음)
+        val code = RecoveryCode.newCode()
+        try {
+            user.linkWithCredential(EmailAuthProvider.getCredential(RecoveryCode.email(code), RecoveryCode.password(code))).await()
+        } catch (e: Exception) {
+            if (e.message.orEmpty().contains("OPERATION_NOT_ALLOWED", true) || e.message.orEmpty().contains("not enabled", true) ||
+                e.message.orEmpty().contains("disabled", true)) throw RecoveryNotAllowedException()
+            throw e
+        }
+        profile.edit().putString("recovery_code", code).apply()
+        return code
+    }
+
+    /**
+     * 복구 코드로 불러오기 → 새로 받은 여행 수.
+     *  1. 코드가 맞는지 따로 확인 (틀리면 지금 계정은 그대로)
+     *  2. 그 계정으로 로그인 → 이 기기의 여행은 그대로 두고 새 계정 아래로 다시 올림 (함께 보는 여행은 새 계정으로 다시 참여)
+     *  3. 그 계정이 멤버인 여행 중 이 기기에 없는 것을 모두 받음
+     */
+    suspend fun restore(rawCode: String): Int {
+        if (!isConfigured) throw NotConfiguredException()
+        val code = RecoveryCode.normalize(rawCode) ?: throw BadRecoveryCodeException()
+        val email = RecoveryCode.email(code); val pw = RecoveryCode.password(code)
+        // 1. 지금 로그인을 버리기 전에 코드가 맞는지 확인 (보조 Firebase 앱에서)
+        val probe = FirebaseApp.getApps(context).firstOrNull { it.name == "restore-check" }
+            ?: FirebaseApp.initializeApp(context, FirebaseApp.getInstance().options, "restore-check")
+        val probeAuth = FirebaseAuth.getInstance(probe)
+        try { probeAuth.signInWithEmailAndPassword(email, pw).await() }
+        catch (e: Exception) {
+            if (e.message.orEmpty().contains("OPERATION_NOT_ALLOWED", true)) throw RecoveryNotAllowedException()
+            throw BadRecoveryCodeException()
+        } finally { probeAuth.signOut() }
+
+        // 2. 계정 바꾸기
+        val oldUid = auth.currentUser?.uid
+        auth.signInWithEmailAndPassword(email, pw).await()
+        val me = auth.currentUser!!.uid
+        profile.edit().putString("recovery_code", code).apply()
+        if (oldUid != me) {
+            listeners.values.forEach { it.remove() }; listeners.clear()
+            baseline.clear(); serverActivity.clear()
+            repo.getSharedTrips().forEach { t ->
+                val c = t.shareCode ?: return@forEach
+                if (t.ownedByMe && t.members.isEmpty()) {
+                    repo.setShareCode(t, null)   // 나만 보던 여행: 새 계정 아래 새 문서로 다시 올림
+                } else runCatching {          // 함께 보는 여행: 새 계정으로 다시 참여
+                    db.collection(COLLECTION).document(c)
+                        .update(mapOf("members" to FieldValue.arrayUnion(me), "names.$me" to nickname)).await()
+                }.onFailure { Log.w(TAG, "다시 참여 실패 $c", it) }
+            }
+        }
+
+        // 3. 그 계정의 여행 받기
+        var added = 0
+        val docs = db.collection(COLLECTION).whereArrayContains("members", me).get().await()
+        for (doc in docs.documents) {
+            if (repo.getTripByShareCode(doc.id) != null) continue
+            val data = doc.data ?: continue
+            val owned = doc.getString("ownerUid") == me
+            val (inviter, others) = ShareCodec.memberInfo(data, me)
+            val base = Trip(title = "", startDate = "", endDate = "", shareCode = doc.id,
+                ownedByMe = owned, inviterName = if (owned) "" else inviter, memberNames = others.joinToString(", "))
+            val s = ShareCodec.fromMap(data, base)
+            val id = repo.insertSharedTrip(s.trip, withLocalTypes(s), s.flights, s.lodgings)
+            baseline[id] = s
+            serverActivity[id] = ActivityLog.fromList(data["activity"])
+            added++
+        }
+        repo.getSharedTrips().forEach { listen(it) }
+        backupAll()
+        return added
+    }
+
+    /** 닉네임을 바꾸면 내가 들어 있는 여행 문서의 내 이름도 바꿈 */
+    fun updateMyName() {
+        if (!isConfigured) return
+        scope.launch {
+            runCatching {
+                val me = uid()
+                repo.getSharedTrips().forEach { t ->
+                    runCatching { db.collection(COLLECTION).document(t.shareCode!!).update("names.$me", nickname).await() }
+                }
+            }
         }
     }
 
@@ -95,21 +232,30 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
     /** 여행을 공유 → 초대 코드 */
     suspend fun share(tripId: Long): String {
         val me = uid()
-        val trip = repo.getTrip(tripId) ?: throw NotFoundException()
-        trip.shareCode?.let { return it }
-        // 겹치지 않는 코드 찾기
-        var code: String
-        do { code = ShareCodec.newCode() } while (db.collection(COLLECTION).document(code).get().await().exists())
-        val data = ShareCodec.toMap(snapshot(trip)) + mapOf(
-            "ownerUid" to me, "members" to listOf(me), "names" to mapOf(me to nickname),
-            "updatedBy" to me, "updatedAt" to FieldValue.serverTimestamp()
-        )
-        db.collection(COLLECTION).document(code).set(data).await()
-        baseline[tripId] = snapshot(trip)
-        repo.setShareCode(trip, code)
-        listen(trip.copy(shareCode = code))
-        return code
+        repo.getTrip(tripId)?.shareCode?.let { return it }
+        // 같은 여행을 두 번 올리지 않게 (백업 · 공유 버튼이 겹칠 때)
+        if (!creating.add(tripId)) throw IllegalStateException("busy")
+        try {
+            // 올리는 중에 다른 작업이 취소돼도 끝까지 (중간에 끊기면 코드만 다른 문서가 또 생길 수 있어서)
+            return kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+                val trip = repo.getTrip(tripId) ?: throw NotFoundException()
+                trip.shareCode?.let { return@withContext it }
+                // 겹치지 않는 코드 찾기
+                var code: String
+                do { code = ShareCodec.newCode() } while (db.collection(COLLECTION).document(code).get().await().exists())
+                val data = ShareCodec.toMap(snapshot(trip)) + mapOf(
+                    "ownerUid" to me, "members" to listOf(me), "names" to mapOf(me to nickname),
+                    "updatedBy" to me, "updatedAt" to FieldValue.serverTimestamp()
+                )
+                db.collection(COLLECTION).document(code).set(data).await()
+                baseline[tripId] = snapshot(trip)
+                repo.setShareCode(trip, code)
+                listen(trip.copy(shareCode = code))
+                code
+            }
+        } finally { creating.remove(tripId) }
     }
+    private val creating = mutableSetOf<Long>()
 
     /** 초대 코드로 참여 → 내 기기의 여행 id (이미 있으면 그 여행) */
     suspend fun join(rawCode: String): Long {
@@ -226,7 +372,12 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         pushJobs[tripId] = scope.launch {
             delay(1000)   // 연달아 바꾸면 마지막 것만 올림
             val trip = repo.getTrip(tripId) ?: return@launch
-            val code = trip.shareCode ?: return@launch
+            // 아직 서버에 없는 내 여행 (새로 만든 여행 등): 백업으로 올림
+            if (trip.shareCode == null) {
+                if (trip.ownedByMe) runCatching { share(tripId) }.onFailure { Log.w(TAG, "백업 실패 $tripId", it) }
+                return@launch
+            }
+            val code = trip.shareCode
             runCatching {
                 val me = uid()
                 val now = snapshot(trip)

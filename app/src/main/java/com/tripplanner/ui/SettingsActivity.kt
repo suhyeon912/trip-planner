@@ -128,6 +128,23 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java).putExtra(EXTRA_PAGE, PAGE_CATEGORIES))
         }
 
+        // 백업 · 복구: 모든 여행은 서버에 백업됨. 복구 코드로 다른 폰 · 다시 설치한 앱에서 불러오기
+        val backup = section(R.string.settings_backup)
+        lateinit var codeRow: View
+        val codeValue = { (application as com.tripplanner.TripPlannerApp).share.savedRecoveryCode
+            ?.let { com.tripplanner.share.RecoveryCode.display(it) } ?: getString(R.string.recovery_make) }
+        codeRow = row(backup, R.drawable.ic_lock, getString(R.string.recovery_title), codeValue()) {
+            openRecoveryCode { codeRow.findViewById<TextView>(R.id.tvValue).text = codeValue() }
+        }
+        row(backup, R.drawable.ic_sync, getString(R.string.restore_title)) { openRestore() }
+        content.addView(TextView(this).apply {
+            setText(R.string.backup_note)
+            setTextAppearance(R.style.TextAppearance_TripPlanner_BodySmall)
+            setTextColor(color(R.color.text_sub))
+            val d = resources.displayMetrics.density
+            setPadding((4 * d).toInt(), (8 * d).toInt(), (4 * d).toInt(), 0)
+        })
+
         // 테마: 세그먼트 (기기 설정 / 밝게 / 어둡게)
         val screen = section(R.string.settings_screen)
         val themeBox = LayoutInflater.from(this).inflate(R.layout.item_setting_theme, screen, false)

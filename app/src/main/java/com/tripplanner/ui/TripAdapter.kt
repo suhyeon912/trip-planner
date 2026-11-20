@@ -140,8 +140,8 @@ class TripAdapter(
     private fun tripBadges(ctx: android.content.Context, t: Trip): List<Triple<Int, String, Boolean>> = buildList {
         if (t.ownedByMe) {
             add(Triple(R.drawable.ic_person, ctx.getString(R.string.badge_mine), false))
-            if (t.shareCode != null) add(Triple(0,
-                if (t.members.isEmpty()) ctx.getString(R.string.shared_badge) else ctx.getString(R.string.badge_shared_n, t.members.size), true))
+            // 혼자 쓰는 여행도 백업용 코드가 있으니, 함께 보는 사람이 있을 때만
+            if (t.shareCode != null && t.members.isNotEmpty()) add(Triple(0, ctx.getString(R.string.badge_shared_n, t.members.size), true))
         } else {
             add(Triple(R.drawable.ic_group_add,
                 if (t.inviterName.isBlank()) ctx.getString(R.string.badge_invited) else ctx.getString(R.string.badge_invited_by, t.inviterName), true))

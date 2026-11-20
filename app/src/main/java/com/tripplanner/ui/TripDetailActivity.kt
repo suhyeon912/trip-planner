@@ -69,7 +69,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
         viewModel.trip.observe(this) { trip ->
             if (trip == null) return@observe
             toolbar.title = trip.title
-            if (viewModel.mapMode.value != true) toolbar.subtitle = trip.shareCode?.let { getString(R.string.shared_subtitle, it) }
+            if (viewModel.mapMode.value != true) toolbar.subtitle = sharedSubtitle(trip)
         }
 
         // ---------- 탭 ----------
@@ -174,7 +174,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             bottom.visibility = if (mapOn) View.GONE else View.VISIBLE
             val trip = viewModel.trip.value
             if (!mapOn) {
-                toolbar.subtitle = trip?.shareCode?.let { getString(R.string.shared_subtitle, it) }
+                toolbar.subtitle = trip?.let { sharedSubtitle(it) }
                 return
             }
             val day = viewModel.selectedDay.value ?: TripDetailViewModel.DAY_ALL
@@ -337,4 +337,8 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             true
         }
     }
+
+    /** '공유 중 · 코드' 는 다른 사람과 함께 볼 때만 (혼자 쓰는 여행도 백업용 코드가 있어서) */
+    private fun sharedSubtitle(t: com.tripplanner.data.Trip): String? =
+        t.shareCode?.takeIf { !t.ownedByMe || t.members.isNotEmpty() }?.let { getString(R.string.shared_subtitle, it) }
 }

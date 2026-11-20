@@ -84,7 +84,8 @@ fun AppCompatActivity.openShareDialog(tripId: Long) {
     lifecycleScope.launch {
         val trip = repo.getTrip(tripId) ?: return@launch
         val code = trip.shareCode
-        if (code == null) {
+        // 모든 여행이 백업으로 이미 코드를 갖고 있을 수 있음 → 닉네임이 없을 때만 먼저 물어봄
+        if (code == null || share.nickname.isBlank()) {
             // 여행 공유: 내 닉네임 (함께 보는 사람에게 보이는 이름) → 공유 시작
             val (row, input, layout) = labeledField(getString(R.string.label_nickname), share.nickname)
             val dialog = TpDialog.Builder(this@openShareDialog)
@@ -99,6 +100,7 @@ fun AppCompatActivity.openShareDialog(tripId: Long) {
                     val name = input.text?.toString()?.trim().orEmpty()
                     if (name.isEmpty()) { layout.error = getString(R.string.error_nickname); return@setOnClickListener }
                     share.nickname = name
+                    share.updateMyName()
                     dialog.dismiss()
                     val wait = progressDialog()
                     lifecycleScope.launch {
@@ -214,3 +216,75 @@ fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
 }
 
 private fun AppCompatActivity.toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+
+// ---------------- 백업 · 복구 코드 (설정) ----------------
+
+private fun AppCompatActivity.recoveryError(e: Throwable): String = when (e) {
+    is ShareManager.RecoveryNotAllowedException -> getString(R.string.recovery_not_allowed)
+    is ShareManager.BadRecoveryCodeException -> getString(R.string.recovery_bad_code)
+    is kotlinx.coroutines.TimeoutCancellationException -> getString(R.string.share_timeout)
+    else -> getString(R.string.share_failed, e.message ?: e.javaClass.simpleName)
+}
+
+/** 내 복구 코드 보기 (처음이면 만들어서 계정에 연결) → onShown(코드) */
+fun AppCompatActivity.openRecoveryCode(onShown: (String) -> Unit = {}) {
+    if (!share.isConfigured) { notConfigured(); return }
+    val wait = progressDialog()
+    lifecycleScope.launch {
+        val result = runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.recoveryCode() } }
+        wait.dismiss()
+        result.onFailure { toast(recoveryError(it)); return@launch }
+        val code = result.getOrThrow()
+        onShown(code)
+        val view = LayoutInflater.from(this@openRecoveryCode).inflate(R.layout.view_share_code, null)
+        val shown = com.tripplanner.share.RecoveryCode.display(code)
+        view.findViewById<TextView>(R.id.tvCode).apply {
+            text = shown; textSize = 20f; letterSpacing = 0.06f
+            contentDescription = code.toCharArray().joinToString(" ")
+        }
+        (view.findViewById<View>(R.id.avatars).parent as View).visibility = View.GONE   // 함께 보는 사람 줄은 없음
+        view.findViewById<View>(R.id.btnCopy).setOnClickListener {
+            (getSystemService(android.content.Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("code", shown))
+            toast(getString(R.string.recovery_copied))
+        }
+        TpDialog.Builder(this@openRecoveryCode)
+            .setTitle(R.string.recovery_title)
+            .setMessage(R.string.recovery_intro)
+            .setCloseButton()
+            .setView(view)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+}
+
+/** 복구 코드로 불러오기: 코드 입력 → 그 계정의 여행을 이 기기로 */
+fun AppCompatActivity.openRestore(onDone: (Int) -> Unit = {}) {
+    if (!share.isConfigured) { notConfigured(); return }
+    val (row, input, layout) = labeledField(getString(R.string.recovery_label), "")
+    input.hint = "ABCD-EFGH-JKLM"
+    input.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or
+        android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+    val dialog = TpDialog.Builder(this)
+        .setTitle(R.string.restore_title)
+        .setMessage(R.string.restore_intro)
+        .setView(dialogBox(row))
+        .setPositiveButton(R.string.restore_button, null)
+        .setNegativeButton(R.string.action_cancel, null)
+        .create()
+    dialog.setOnShowListener {
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE)!!.setOnClickListener {
+            if (com.tripplanner.share.RecoveryCode.normalize(input.text?.toString().orEmpty()) == null) {
+                layout.error = getString(R.string.recovery_bad_code); return@setOnClickListener
+            }
+            layout.error = null
+            val wait = progressDialog()
+            lifecycleScope.launch {
+                val result = runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS * 2) { share.restore(input.text.toString()) } }
+                wait.dismiss()
+                result.onSuccess { n -> dialog.dismiss(); toast(getString(R.string.restore_done, n)); onDone(n) }
+                    .onFailure { layout.error = recoveryError(it) }
+            }
+        }
+    }
+    dialog.show()
+}

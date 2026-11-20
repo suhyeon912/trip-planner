@@ -34,6 +34,9 @@ interface TripDao {
     @Query("SELECT COUNT(*) FROM trips")
     suspend fun countTrips(): Int
 
+    @Query("SELECT * FROM trips")
+    suspend fun getAllTrips(): List<Trip>
+
     @Insert suspend fun insertTrip(trip: Trip): Long
     @Update suspend fun updateTrip(trip: Trip)
     @Delete suspend fun deleteTrip(trip: Trip)
