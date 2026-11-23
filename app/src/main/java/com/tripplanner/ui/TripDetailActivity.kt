@@ -62,7 +62,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_view_mode -> viewModel.toggleMapMode()
-                R.id.action_share -> openShareDialog(viewModel.tripId)
+                R.id.action_share -> openShareMenu(findViewById(R.id.action_share) ?: toolbar, viewModel.tripId)
             }
             true
         }

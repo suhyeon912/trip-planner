@@ -159,6 +159,7 @@ Android Studio 오른쪽 **Gradle** 창 → `trip-planner > app > Tasks > androi
 | Google 지도가 빈 화면 | 키 제한에 내 PC의 SHA-1이 있는지, Maps SDK for Android를 켰는지 |
 | 해외 검색이 "권한 없음" | Places API (New)를 켰는지, 키 API 제한에 들어 있는지 |
 | 복구 코드 "쓸 수 없어요" | Firebase Authentication에서 이메일/비밀번호 로그인을 켰는지 |
+| 복사본 코드 만들기가 "권한 없음" | `firestore.rules`를 다시 게시했는지 (`copies` 규칙이 새로 생김) |
 | 복구 코드로 불러오기가 0개 | `firestore.rules`를 다시 게시했는지 (목록 읽기 규칙이 새로 생김) |
 | 경로 화면에 "Routes API 를 켜면…" 안내 | Routes API를 켰는지, 키 API 제한에 들어 있는지 → 경로 화면을 다시 열기 |
 | 경로 부제가 "일부 구간은 어림" | 그 구간은 Google이 길을 주지 않은 곳 (예: 한국의 도보 · 차). 정상이에요 |

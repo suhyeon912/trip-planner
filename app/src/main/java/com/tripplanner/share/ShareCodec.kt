@@ -40,6 +40,34 @@ object ShareCodec {
 
     fun isValidCode(code: String) = code.length == 6 && code.all { it in CODE_CHARS }
 
+    /** 복사본 코드: 8자리 (초대 코드 6자리와 길이로 구분) */
+    fun newCopyCode(random: kotlin.random.Random = kotlin.random.Random): String =
+        (1..8).map { CODE_CHARS[random.nextInt(CODE_CHARS.length)] }.joinToString("")
+
+    fun isCopyCode(code: String) = code.length == 8 && code.all { it in CODE_CHARS }
+
+    /**
+     * 복사본으로 내보낼 내용 고르기. 장소는 늘 포함.
+     *  - schedule = false: 모든 장소를 후보로 (일차 · 순서 · 하루 시작/끝 빼고)
+     *  - transport / lodging = false: 교통편 / 숙소 빼고
+     *  - memos = false: 여행 메모 · 장소 메모 빼고
+     */
+    fun forExport(s: TripSnapshot, schedule: Boolean, transport: Boolean, lodging: Boolean, memos: Boolean): TripSnapshot {
+        val trip = s.trip.copy(
+            note = if (memos) s.trip.note else "",
+            dayAnchors = if (schedule) s.trip.dayAnchors else ""
+        )
+        val places = s.places.map { p ->
+            var q = p
+            if (!schedule) q = q.copy(status = PlaceStatus.CANDIDATE, day = null, orderInDay = null)
+            if (!memos) q = q.copy(memo = "")
+            q
+        }
+        return s.copy(trip = trip, places = places,
+            flights = if (transport) s.flights else emptyList(),
+            lodgings = if (lodging) s.lodgings else emptyList())
+    }
+
     fun toMap(s: TripSnapshot): Map<String, Any?> = mapOf(
         "title" to s.trip.title,
         "startDate" to s.trip.startDate,

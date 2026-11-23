@@ -38,6 +38,8 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
     companion object {
         private const val TAG = "ShareManager"
         private const val COLLECTION = "trips"
+        /** 복사본 (내보내기): copies/{8자리 코드} — 받는 사람 앱에 새 여행으로 복사, 이후 서로 연결 없음 */
+        private const val COPIES = "copies"
     }
 
     class NotConfiguredException : Exception()
@@ -280,6 +282,34 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         pendingEvents.getOrPut(id) { mutableListOf() } += ActivityEvent(me, nickname, ActivityEvent.Type.JOIN, at = System.currentTimeMillis())
         repo.getTrip(id)?.let { listen(it) }
         schedulePush(id)
+        return id
+    }
+
+    // ---------------- 복사본 내보내기 · 가져오기 ----------------
+
+    /** 지금 내용을 복사본으로 올림 → 8자리 코드 (사진 · 자료 파일은 기기에만 있어 빠짐) */
+    suspend fun exportCopy(tripId: Long, schedule: Boolean, transport: Boolean, lodging: Boolean, memos: Boolean): String {
+        val me = uid()
+        val trip = repo.getTrip(tripId) ?: throw NotFoundException()
+        val s = ShareCodec.forExport(snapshot(trip), schedule, transport, lodging, memos)
+        var code: String
+        do { code = ShareCodec.newCopyCode() } while (db.collection(COPIES).document(code).get().await().exists())
+        val data = ShareCodec.toMap(s) + mapOf("ownerUid" to me, "fromName" to nickname, "createdAt" to FieldValue.serverTimestamp())
+        db.collection(COPIES).document(code).set(data).await()
+        return code
+    }
+
+    /** 복사본 코드로 가져오기 → 내 기기에 새로 만든 여행 id (내가 만든 여행이라 백업도 됨) */
+    suspend fun importCopy(rawCode: String): Long {
+        val code = ShareCodec.normalize(rawCode)
+        uid()
+        val doc = db.collection(COPIES).document(code).get().await()
+        if (!doc.exists()) throw NotFoundException()
+        val base = Trip(title = "", startDate = "", endDate = "")
+        val s = ShareCodec.fromMap(doc.data ?: emptyMap(), base)
+        val id = repo.insertSharedTrip(s.trip.copy(shareCode = null, ownedByMe = true, updatedAt = System.currentTimeMillis()),
+            withLocalTypes(s), s.flights, s.lodgings)
+        schedulePush(id)   // 새 여행 → 백업
         return id
     }
 

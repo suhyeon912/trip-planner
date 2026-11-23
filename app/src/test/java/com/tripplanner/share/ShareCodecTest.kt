@@ -89,4 +89,23 @@ class ShareCodecTest {
         // 옛 문서(이름 없음)
         assertEquals("" to emptyList<String>(), ShareCodec.memberInfo(mapOf("ownerUid" to "u1", "members" to listOf("u1", "u2")), me = "u2"))
     }
+
+    @Test fun copyCodes_eightChars_distinctFromInvite() {
+        val c = ShareCodec.newCopyCode(kotlin.random.Random(3))
+        assertTrue(ShareCodec.isCopyCode(c)); assertFalse(ShareCodec.isValidCode(c))
+        assertFalse(ShareCodec.isCopyCode(ShareCodec.newCode(kotlin.random.Random(3))))
+    }
+
+    @Test fun forExport_placesOnly() {
+        val e = ShareCodec.forExport(snap, schedule = false, transport = false, lodging = false, memos = false)
+        assertEquals(snap.places.size, e.places.size)
+        assertTrue(e.places.all { it.status == PlaceStatus.CANDIDATE && it.day == null && it.orderInDay == null && it.memo.isEmpty() })
+        assertTrue(e.flights.isEmpty()); assertTrue(e.lodgings.isEmpty())
+        assertEquals("", e.trip.note)
+    }
+
+    @Test fun forExport_everything_keepsSnapshot() {
+        val e = ShareCodec.forExport(snap, schedule = true, transport = true, lodging = true, memos = true)
+        assertEquals(snap, e)
+    }
 }
