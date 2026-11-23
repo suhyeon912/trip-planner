@@ -200,7 +200,10 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
                     empty = EmptyState(ctx.getString(R.string.empty_confirmed_title), ctx.getString(R.string.empty_confirmed_body),
                         ctx.getString(R.string.show_candidates), EmptyState.Action.SHOW_CANDIDATES, R.drawable.ic_event)
                 } else {
+                    // 일차 미정은 '일차 미정' 칩에서만 (전체에는 일차가 정해진 장소만). 모두 미정이면 그대로 보여 줌
+                    val datedOnly = confirmed.any { it.day != null }
                     confirmed.groupBy { it.day }.forEach { (day, group) ->
+                        if (day == null && datedOnly) return@forEach
                         if (day == null) {
                             items += DetailItem.Header(ctx.getString(R.string.day_none), ctx.getString(R.string.header_no_day_hint))
                             items += rows(group, timeline = false)
