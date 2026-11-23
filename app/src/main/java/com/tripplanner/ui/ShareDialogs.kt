@@ -23,10 +23,10 @@ import kotlinx.coroutines.launch
 
 /*
  * 공유 · 초대 화면들 (다이얼로그).
- *  - 여행 상세 툴바 → openShareMenu: '함께 편집하기'(openShareDialog) / '복사본 내보내기'(openExportDialog)
+ *  - 여행 상세 툴바 → openShareMenu: '초대하기'(openShareDialog) / '일정 내보내기'(openExportDialog)
  *  - openShareDialog: 코드 만들기 / 코드 보기·보내기·복사 / 그만두기
- *  - openExportDialog: 넣을 내용 고르기 → 8자리 복사본 코드 (받은 사람 앱에 새 여행으로 복사)
- *  - 여행 목록 툴바 → openJoinDialog: 코드 입력 → 6자리면 참여, 8자리면 복사본 가져오기 → 그 여행 열기
+ *  - openExportDialog: 일정(일차별 | 장소) · 교통 / 숙소 고르기 → 8자리 일정 코드 (받은 사람 앱에 새 여행으로 복사)
+ *  - 여행 목록 툴바 · 설정 → openJoinDialog: 코드 입력 → 6자리면 참여, 8자리면 일정 가져오기 → 그 여행 열기
  */
 
 private val AppCompatActivity.share: ShareManager get() = (application as TripPlannerApp).share
@@ -81,7 +81,7 @@ private fun AppCompatActivity.dialogBox(vararg rows: View) = android.widget.Line
     rows.forEach { addView(it) }
 }
 
-/** 공유 버튼 → 함께 편집하기 / 복사본 내보내기 */
+/** 공유 버튼 → 초대하기 / 일정 내보내기 */
 fun AppCompatActivity.openShareMenu(anchor: View, tripId: Long) {
     if (!share.isConfigured) { notConfigured(); return }
     showSelect(anchor, listOf(
@@ -90,52 +90,39 @@ fun AppCompatActivity.openShareMenu(anchor: View, tripId: Long) {
     ), widthDp = 200)
 }
 
-/** 복사본 내보내기: 넣을 내용(일차별 일정 · 교통편 · 숙소 · 메모) 고르기 → 코드 만들기 */
+/** 일정 내보내기: 일정(일차별 | 장소) · 교통 / 숙소 고르기 → 코드 만들기 (메모는 함께, 사진 · 자료 파일은 빠짐) */
 fun AppCompatActivity.openExportDialog(tripId: Long) {
     if (!share.isConfigured) { notConfigured(); return }
     lifecycleScope.launch {
         val trip = repo.getTrip(tripId) ?: return@launch
-        val places = repo.getPlaces(tripId)
-        val flights = repo.getFlights(tripId).size
-        val lodgings = repo.getLodgings(tripId).size
-        val d = resources.displayMetrics.density
-        fun option(label: String, on: Boolean, visible: Boolean = true) = com.tripplanner.ui.widget.TpSwitch(this@openExportDialog).apply {
-            text = label
-            setTextAppearance(R.style.TextAppearance_TripPlanner_BodyLarge)
-            setTextColor(color(R.color.on_surface))
-            isChecked = on
-            visibility = if (visible) View.VISIBLE else View.GONE
-            layoutParams = android.widget.LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+        val hasSchedule = repo.getPlaces(tripId).any { it.status == com.tripplanner.data.PlaceStatus.CONFIRMED }
+        val hasTravel = repo.getFlights(tripId).isNotEmpty() || repo.getLodgings(tripId).isNotEmpty()
+        val view = LayoutInflater.from(this@openExportDialog).inflate(R.layout.view_export_options, null)
+        val side = resources.getDimensionPixelSize(R.dimen.space_xl)
+        view.setPadding(side, view.paddingTop, side, 0)
+        val toggle = view.findViewById<SegmentedGroup>(R.id.toggleSchedule)
+        toggle.check(R.id.btnByDay)
+        view.findViewById<View>(R.id.rowSchedule).visibility = if (hasSchedule) View.VISIBLE else View.GONE
+        val swTravel = view.findViewById<com.tripplanner.ui.widget.TpSwitch>(R.id.swTravel).apply {
+            isChecked = true
+            visibility = if (hasTravel) View.VISIBLE else View.GONE
         }
-        val hasSchedule = places.any { it.status == com.tripplanner.data.PlaceStatus.CONFIRMED }
-        val hasMemo = trip.note.isNotBlank() || places.any { it.memo.isNotBlank() }
-        val swSchedule = option(getString(R.string.export_schedule), true, hasSchedule)
-        val swTransport = option(getString(R.string.export_transport, flights), true, flights > 0)
-        val swLodging = option(getString(R.string.export_lodging, lodgings), true, lodgings > 0)
-        val swMemo = option(getString(R.string.export_memo), false, hasMemo)
-        val placesLine = TextView(this@openExportDialog).apply {
-            text = getString(R.string.export_places, places.size)
-            setTextAppearance(R.style.TextAppearance_TripPlanner_BodyMedium)
-            setTextColor(color(R.color.text_sub))
-            setPadding(0, (4 * d).toInt(), 0, (4 * d).toInt())
-        }
-        val box = dialogBox(placesLine, swSchedule, swTransport, swLodging, swMemo)
         val dialog = TpDialog.Builder(this@openExportDialog)
             .setTitle(R.string.export_title)
             .setMessage(R.string.export_intro)
-            .setView(box)
+            .setView(view)
             .setPositiveButton(R.string.export_make, null)
             .setNegativeButton(R.string.action_cancel, null)
             .create()
         dialog.setOnShowListener {
             dialog.getButton(DialogInterface.BUTTON_POSITIVE)!!.setOnClickListener {
                 dialog.dismiss()
+                val byDay = hasSchedule && toggle.checkedButtonId == R.id.btnByDay
+                val travel = hasTravel && swTravel.isChecked
                 val wait = progressDialog()
                 lifecycleScope.launch {
                     runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) {
-                        share.exportCopy(tripId, schedule = hasSchedule && swSchedule.isChecked,
-                            transport = swTransport.isChecked, lodging = swLodging.isChecked, memos = hasMemo && swMemo.isChecked)
+                        share.exportCopy(tripId, schedule = byDay, transport = travel, lodging = travel, memos = true)
                     } }
                         .onSuccess { wait.dismiss(); showCopyCode(trip.title, it) }
                         .onFailure { wait.dismiss(); toast(if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
@@ -147,7 +134,7 @@ fun AppCompatActivity.openExportDialog(tripId: Long) {
     }
 }
 
-/** 만든 복사본 코드: 코드 + 복사 · 코드 보내기 */
+/** 만든 일정 코드: 코드 + 복사 · 코드 보내기 */
 private fun AppCompatActivity.showCopyCode(title: String, code: String) {
     val view = LayoutInflater.from(this).inflate(R.layout.view_share_code, null)
     view.findViewById<TextView>(R.id.tvCode).apply {
@@ -286,7 +273,7 @@ fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
         .setNegativeButton(R.string.action_cancel, null)
         .create()
     dialog.setOnShowListener {
-        // 8자리(복사본)면 닉네임이 필요 없고 버튼은 '가져오기'
+        // 8자리(일정 코드)면 닉네임이 필요 없고 버튼은 '가져오기'
         fun isCopy() = ShareCodec.isCopyCode(ShareCodec.normalize(input.text?.toString().orEmpty()))
         input.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}

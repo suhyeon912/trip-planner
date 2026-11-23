@@ -109,7 +109,7 @@ git clone https://github.com/suhyeon912/trip-planner.git
 **공유 · 초대**
 - 6자리 코드 만들기 · 보내기 · 코드로 참여
 - 실시간 함께 편집, 활동 기록 (누가 무엇을 변경했는지)
-- 복사본 내보내기: 8자리 코드로 다른 사람 앱에 새 여행으로 복사 (일차별 일정 · 교통편 · 숙소 · 메모를 넣을지 고르기)
+- 일정 내보내기: 8자리 일정 코드로 다른 사람 앱에 새 여행으로 복사 (일정은 일차별 / 장소만, 교통 · 숙소 포함 여부 고르기)
 
 **백업 · 복구**
 - 모든 여행을 서버에 자동 백업 (사진 · 예약·티켓 파일은 기기에만)
@@ -176,7 +176,7 @@ trip-planner/
 | `data/DayAnchorsTest.kt` | 2 | (예전 기능) 하루의 시작 · 끝 저장 형식 · 이름 바뀜 |
 | `ui/DirectionsTest.kt` | 3 | 길찾기 응답 해석 (시간 · 노선 · 환승) · 시간표 날짜 |
 | `route/RegionTest.kt` | 2 | 국내 / 해외 판별 |
-| `share/ShareCodecTest.kt` | 9 | 공유 문서 변환 (링크 · 내가 만든 종류 포함) · 복사본 코드 · 내보낼 내용 고르기 |
+| `share/ShareCodecTest.kt` | 9 | 공유 문서 변환 (링크 · 내가 만든 종류 포함) · 일정 코드 · 내보낼 내용 고르기 |
 | `share/RecoveryCodeTest.kt` | 3 | 복구 코드 만들기 · 읽기 · 로그인용 주소 |
 | `share/ActivityLogTest.kt` | 4 | 활동 기록: 바뀐 것 찾기 · 문서 변환 · 100개 제한 |
 | `ui/MapProviderTest.kt` | 4 | 카카오 / 구글 / OpenStreetMap 지도 고르기 |

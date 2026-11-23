@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 일정 내보내기: 일정(일차별 | 장소) 세그먼트 · 교통 / 숙소 스위치 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/space_s">
+
+    <LinearLayout
+        android:id="@+id/rowSchedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvScheduleLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@+id/toggleSchedule"
+            android:text="@string/export_schedule"
+            android:textAppearance="@style/TextAppearance.TripPlanner.BodyLarge"
+            android:textColor="@color/on_surface" />
+
+        <com.tripplanner.ui.SegmentedGroup
+            android:id="@+id/toggleSchedule"
+            style="@style/Widget.TripPlanner.SegmentedGroup"
+            android:layout_width="168dp"
+            android:layout_height="wrap_content">
+
+            <com.tripplanner.ui.widget.TpButton
+                android:id="@+id/btnByDay"
+                style="@style/Widget.TripPlanner.SegmentedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/export_by_day" />
+
+            <com.tripplanner.ui.widget.TpButton
+                android:id="@+id/btnPlacesOnly"
+                style="@style/Widget.TripPlanner.SegmentedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/export_places_only" />
+        </com.tripplanner.ui.SegmentedGroup>
+    </LinearLayout>
+
+    <com.tripplanner.ui.widget.TpSwitch
+        android:id="@+id/swTravel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:text="@string/export_travel"
+        android:textAppearance="@style/TextAppearance.TripPlanner.BodyLarge"
+        android:textColor="@color/on_surface" />
+</LinearLayout>

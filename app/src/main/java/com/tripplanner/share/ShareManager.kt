@@ -38,7 +38,7 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
     companion object {
         private const val TAG = "ShareManager"
         private const val COLLECTION = "trips"
-        /** 복사본 (내보내기): copies/{8자리 코드} — 받는 사람 앱에 새 여행으로 복사, 이후 서로 연결 없음 */
+        /** 일정 코드 (일정 내보내기): copies/{8자리 코드} — 받는 사람 앱에 새 여행으로 복사, 이후 서로 연결 없음 */
         private const val COPIES = "copies"
     }
 
@@ -285,9 +285,9 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         return id
     }
 
-    // ---------------- 복사본 내보내기 · 가져오기 ----------------
+    // ---------------- 일정 내보내기 · 가져오기 ----------------
 
-    /** 지금 내용을 복사본으로 올림 → 8자리 코드 (사진 · 자료 파일은 기기에만 있어 빠짐) */
+    /** 지금 내용을 일정 코드로 올림 → 8자리 코드 (사진 · 자료 파일은 기기에만 있어 빠짐) */
     suspend fun exportCopy(tripId: Long, schedule: Boolean, transport: Boolean, lodging: Boolean, memos: Boolean): String {
         val me = uid()
         val trip = repo.getTrip(tripId) ?: throw NotFoundException()
@@ -299,7 +299,7 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         return code
     }
 
-    /** 복사본 코드로 가져오기 → 내 기기에 새로 만든 여행 id (내가 만든 여행이라 백업도 됨) */
+    /** 일정 코드로 가져오기 → 내 기기에 새로 만든 여행 id (내가 만든 여행이라 백업도 됨) */
     suspend fun importCopy(rawCode: String): Long {
         val code = ShareCodec.normalize(rawCode)
         uid()
