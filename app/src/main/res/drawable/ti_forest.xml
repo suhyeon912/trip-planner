@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 종류 아이콘 · Material Symbols Rounded · forest (채움) · 굵기 400 (Apache 2.0) -->
+<!-- 종류 아이콘 · Phosphor · tree-evergreen · Regular (MIT) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp" android:height="24dp"
-    android:viewportWidth="960" android:viewportHeight="960"
-    android:tint="@color/on_surface">
-    <group android:translateY="960">
-        <path android:fillColor="@android:color/white" android:pathData="M543-110v-89h115v89q0 13-8.5 21.5T628-80h-55q-13 0-21.5-8.5T543-110Zm-240 0v-119H57q-18 0-27-16t2-31l157-227h-37q-18 0-27-16t2-31l208-295q5-6 11.5-9.5T360-858q7 0 13.5 3.5T385-845l208 295q11 15 2 31t-27 16h-36l157 227q11 15 2 31t-27 16H418v119q0 13-8.5 21.5T388-80h-55q-13 0-21.5-8.5T303-110Zm455-119L590-473h36q18 0 26.5-16t-2.5-31L499-737l76-108q5-6 11.5-9.5T600-858q7 0 13.5 3.5T625-845l208 295q11 15 2 31t-27 16h-36l156 227q11 15 2 31t-27 16H758Z" />
-    </group>
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="@color/on_surface"
+    android:viewportWidth="256" android:viewportHeight="256">
+    <path android:fillColor="@android:color/white" android:pathData="M230.32,187.09l-46-59.09H208a8,8,0,0,0,6.34-12.88l-80-104a8,8,0,0,0-12.68,0l-80,104A8,8,0,0,0,48,128H71.64l-46,59.09A8,8,0,0,0,32,200h88v40a8,8,0,0,0,16,0V200h88a8,8,0,0,0,6.32-12.91ZM48.36,184l46-59.09A8,8,0,0,0,88,112H64.25L128,29.12,191.75,112H168a8,8,0,0,0-6.31,12.91L207.64,184Z" />
 </vector>

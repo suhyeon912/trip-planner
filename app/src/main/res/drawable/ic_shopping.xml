@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Material Symbols Rounded · shopping_bag (채움) · 굵기 400 (Apache 2.0) -->
+<!-- Phosphor · shopping-bag · Regular (MIT) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp" android:height="24dp"
-    android:viewportWidth="960" android:viewportHeight="960"
-    android:tint="@color/text_sub">
-    <group android:translateY="960">
-        <path android:fillColor="@android:color/white" android:pathData="M220-80q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h110v-10q0-63 43.5-106.5T480-880q63 0 106.5 43.5T630-730v10h110q24 0 42 18t18 42v520q0 24-18 42t-42 18H220Zm170-640h180v-10q0-38-26-64t-64-26q-38 0-64 26t-26 64v10Zm210 180q13 0 21.5-8.5T630-570v-90h-60v90q0 13 8.5 21.5T600-540Zm-240 0q13 0 21.5-8.5T390-570v-90h-60v90q0 13 8.5 21.5T360-540Z" />
-    </group>
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="@color/text_sub"
+    android:viewportWidth="256" android:viewportHeight="256">
+    <path android:fillColor="@android:color/white" android:pathData="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z" />
 </vector>

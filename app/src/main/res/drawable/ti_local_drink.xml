@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 종류 아이콘 · Material Symbols Rounded · local_drink (채움) · 굵기 400 (Apache 2.0) -->
+<!-- 종류 아이콘 · Phosphor · orange-slice · Regular (MIT) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp" android:height="24dp"
-    android:viewportWidth="960" android:viewportHeight="960"
-    android:tint="@color/on_surface">
-    <group android:translateY="960">
-        <path android:fillColor="@android:color/white" android:pathData="M262-80q-23 0-40.5-15T202-133l-74-673q-3-30 17-52t50-22h570q30 0 50 22t17 52l-74 673q-2 23-19.5 38T698-80H262Zm-55-560h546l20-180H187l20 180Zm273 447q45 0 76.5-31t31.5-75q0-51-26.5-97T502-477q-5-5-10.5-7t-11.5-2q-6 0-11.5 2t-10.5 7q-33 35-59.5 81T372-299q0 44 31.5 75t76.5 31Z" />
-    </group>
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="@color/on_surface"
+    android:viewportWidth="256" android:viewportHeight="256">
+    <path android:fillColor="@android:color/white" android:pathData="M248,80H8a8,8,0,0,0-8,8,128,128,0,0,0,256,0A8,8,0,0,0,248,80ZM77.4,149.91l42.6-42.6V167.6A79.59,79.59,0,0,1,77.4,149.91ZM66.09,138.6A79.59,79.59,0,0,1,48.4,96h60.29ZM136,107.31l42.6,42.6A79.59,79.59,0,0,1,136,167.6Zm53.91,31.29L147.31,96H207.6A79.59,79.59,0,0,1,189.91,138.6ZM128,200A112.15,112.15,0,0,1,16.28,96H32.34a96,96,0,0,0,191.32,0h16.06A112.15,112.15,0,0,1,128,200Z" />
 </vector>

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 종류 아이콘 · Material Symbols Rounded · downhill_skiing (채움) · 굵기 400 (Apache 2.0) -->
+<!-- 종류 아이콘 · Phosphor · person-simple-ski · Regular (MIT) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp" android:height="24dp"
-    android:viewportWidth="960" android:viewportHeight="960"
-    android:tint="@color/on_surface">
-    <group android:translateY="960">
-        <path android:fillColor="@android:color/white" android:pathData="M741-40q-24 0-48-4t-47-11L99-254q-8-3-11.5-10.5T87-280q3-8 10.5-11.5t15.5-.5l270 98 70-181-159-166q-23-26-18-59t34-50l155-90q14-8 30-8.5t30 4.5q14 5 25.5 16t16.5 26l13 43q17 54 49.5 87t79.5 49l15-46q2-8 9-11.5t15-1.5q8 2 12 9.5t2 15.5l-33 102q-68-14-119-54t-78-108l-132 76 112 131q5 6 7 14.5t-1 16.5l-79 205 143 52 94-292q10 3 19 5.5t18 4.5l-94 296 41 14q19 7 39 10.5t42 3.5q24 0 46-3.5T830-95q8-3 16-.5T856-85q3 9-1.5 17T841-57q-24 8-49 12.5T741-40Zm-73-674q-30 0-51.5-21.5T595-787q0-30 21.5-51.5T668-860q30 0 51.5 21.5T741-787q0 30-21.5 51.5T668-714Z" />
-    </group>
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="@color/on_surface"
+    android:viewportWidth="256" android:viewportHeight="256">
+    <path android:fillColor="@android:color/white" android:pathData="M172,88a28,28,0,1,0-28-28A28,28,0,0,0,172,88Zm0-40a12,12,0,1,1-12,12A12,12,0,0,1,172,48ZM32.32,77.76a8,8,0,0,1,9.92-5.44L112,92.67l10.32-10.33a8,8,0,0,1,11.32,0L163.31,112H200a8,8,0,0,1,0,16H160a8,8,0,0,1-5.66-2.34L148.73,120l-111-32.36A8,8,0,0,1,32.32,77.76ZM236.44,204.24a69.78,69.78,0,0,1-58.37,8.95L21.77,167.67a8,8,0,1,1,4.47-15.36l76,22.13L128.73,148,85.8,135.69a8,8,0,0,1,4.4-15.39l56,16a8,8,0,0,1,3.46,13.35l-29.9,29.9,62.79,18.28a53.78,53.78,0,0,0,45-6.9,8,8,0,1,1,8.88,13.31Z" />
 </vector>

@@ -230,14 +230,14 @@ class AddPlaceActivity : AppCompatActivity() {
         if (typeId == null && category !in visible) {
             if (visible.isNotEmpty()) category = visible.first() else { typeId = custom.first().id; category = PlaceCategory.ETC }
         }
-        visible.forEach { c -> chips.addView(categoryChip(1000 + c.ordinal, c.label, c.icon, c.bgColor)) }
-        custom.forEachIndexed { i, t -> chips.addView(categoryChip(2000 + i, t.name, TypeIcons.res(t.icon), PlaceKinds.colorRes(t.color))) }
+        visible.forEach { c -> chips.addView(categoryChip(1000 + c.ordinal, c.label, c.icon, c.iconFill, c.bgColor)) }
+        custom.forEachIndexed { i, t -> chips.addView(categoryChip(2000 + i, t.name, TypeIcons.res(t.icon), TypeIcons.fillRes(t.icon), PlaceKinds.colorRes(t.color))) }
     }
 
     private fun kindChipId() = typeId?.let { t -> customChipTypes.indexOf(t).takeIf { it >= 0 }?.let { 2000 + it } } ?: (1000 + category.ordinal)
 
-    /** 종류 칩 (시안): 높이 36 · 모서리 10 · 바탕 = 종류 색 · 고르면 테두리 2 + 아이콘 자리에 ✓ + 굵게 */
-    private fun categoryChip(chipId: Int, label: String, iconRes: Int, bgRes: Int): com.tripplanner.ui.widget.TpButton {
+    /** 종류 칩 (시안): 높이 36 · 모서리 10 · 바탕 = 종류 색 · 고르면 테두리 2 + 채운 아이콘 + 굵게 */
+    private fun categoryChip(chipId: Int, label: String, iconRes: Int, fillRes: Int, bgRes: Int): com.tripplanner.ui.widget.TpButton {
         val d = resources.displayMetrics.density
         fun bg(checked: Boolean) = android.graphics.drawable.GradientDrawable().apply {
             setColor(color(bgRes)); cornerRadius = 10 * d
@@ -247,7 +247,7 @@ class AddPlaceActivity : AppCompatActivity() {
             override fun setChecked(checked: Boolean) {
                 super.setChecked(checked)
                 background = bg(checked)
-                setIconResource(if (checked) R.drawable.ic_check else iconRes)
+                setIconResource(if (checked) fillRes else iconRes)
                 typeface = androidx.core.content.res.ResourcesCompat.getFont(context,
                     if (checked) R.font.pretendard_bold else R.font.pretendard_semibold)
             }

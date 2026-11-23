@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 종류 아이콘 · Material Symbols Rounded · beach_access (채움) · 굵기 400 (Apache 2.0) -->
+<!-- 종류 아이콘 · Phosphor · umbrella · Regular (MIT) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp" android:height="24dp"
-    android:viewportWidth="960" android:viewportHeight="960"
-    android:tint="@color/on_surface">
-    <group android:translateY="960">
-        <path android:fillColor="@android:color/white" android:pathData="M772-151 555-368q-10-10-10-23t10-23q10-10 23-10t23 10l217 217q10 10 10 23t-10 23q-10 10-23 10t-23-10Zm-519-51q-12 12-27.5 11T200-205q-70-95-78.5-210.5T166-633q2 33 14.5 73.5T216-475q23 44 55 91t72 92l-90 90Zm131-131q-49-50-85-106.5t-54.5-109Q226-601 226-645t22-68q24-26 69.5-27T418-723q55 18 113 53.5T636-585L384-333Zm380-436q13 10 14 25.5T767-716l-90 90q-44-40-90.5-72t-92-54.5Q449-775 407-787t-76-13q103-55 220-47.5T764-769Z" />
-    </group>
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="@color/on_surface"
+    android:viewportWidth="256" android:viewportHeight="256">
+    <path android:fillColor="@android:color/white" android:pathData="M240,126.63A112.44,112.44,0,0,0,51.75,53.75a111.56,111.56,0,0,0-35.7,72.88A16,16,0,0,0,32,144h88v56a32,32,0,0,0,64,0,8,8,0,0,0-16,0,16,16,0,0,1-32,0V144h88a16,16,0,0,0,16-17.37ZM32,128l0,0a96.15,96.15,0,0,1,76.2-85.89C96.48,58,81.85,86.11,80.17,128Zm64.15,0c1.39-30.77,10.53-52.81,18.3-66.24A106.44,106.44,0,0,1,128,43.16a106.31,106.31,0,0,1,13.52,18.6C154.8,84.7,159,109.28,159.82,128Zm79.65,0c-1.68-41.89-16.31-70-28-85.94A96.07,96.07,0,0,1,224,128Z" />
 </vector>

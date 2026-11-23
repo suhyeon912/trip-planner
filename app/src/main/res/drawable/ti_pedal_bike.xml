@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 종류 아이콘 · Material Symbols Rounded · pedal_bike (채움) · 굵기 400 (Apache 2.0) -->
+<!-- 종류 아이콘 · Phosphor · bicycle · Regular (MIT) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp" android:height="24dp"
-    android:viewportWidth="960" android:viewportHeight="960"
-    android:tint="@color/on_surface">
-    <group android:translateY="960">
-        <path android:fillColor="@android:color/white" android:pathData="M194-160q-81 0-137.5-57T0-355q0-81 57-137.5T195-549q71 0 124.5 45.5T384-388h51l-82-232h-43q-13 0-21.5-8.5T280-650q0-13 8.5-21.5T310-680h128q13 0 21.5 8.5T468-650q0 13-8.5 21.5T438-620h-22l26 71h222l-71-191h-75q-13 0-21.5-8.5T488-770q0-13 8.5-21.5T518-800h69q24 0 40.5 11t24.5 33l76 207h38q81 0 137.5 56T960-357q0 81-56.5 139T766-160q-72 0-126-48t-66-120H384q-11 72-64.5 120T194-160Zm131-168v-60h-89q-13 0-21.5 8.5T206-358q0 13 8.5 21.5T236-328h89Zm174-60h76q4-23 15.5-51t31.5-50H463l36 101Zm191-81 33 86q5 11 15.5 16t22.5 1q12-4 17-15.5t1-22.5l-29-85-60 20Z" />
-    </group>
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="@color/on_surface"
+    android:viewportWidth="256" android:viewportHeight="256">
+    <path android:fillColor="@android:color/white" android:pathData="M208,112a47.81,47.81,0,0,0-16.93,3.09L165.93,72H192a8,8,0,0,1,8,8,8,8,0,0,0,16,0,24,24,0,0,0-24-24H152a8,8,0,0,0-6.91,12l11.65,20H99.26L82.91,60A8,8,0,0,0,76,56H48a8,8,0,0,0,0,16H71.41L85.12,95.51,69.41,117.06a48.13,48.13,0,1,0,12.92,9.44l11.59-15.9L125.09,164A8,8,0,1,0,138.91,156l-30.32-52h57.48l11.19,19.17A48,48,0,1,0,208,112ZM80,160a32,32,0,1,1-20.21-29.74l-18.25,25a8,8,0,1,0,12.92,9.42l18.25-25A31.88,31.88,0,0,1,80,160Zm128,32a32,32,0,0,1-22.51-54.72L201.09,164A8,8,0,1,0,214.91,156L199.3,129.21A32,32,0,1,1,208,192Z" />
 </vector>

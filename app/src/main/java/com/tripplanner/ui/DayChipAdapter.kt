@@ -17,7 +17,9 @@ data class DayChip(
     val a11y: String,       // 낭독용 "1일차, 2월 12일 금요일, 장소 3곳"
     val selected: Boolean,
     /** 아이콘 칩 (후보 탭 종류): 글자 대신 아이콘, title 은 낭독 · 말풍선용 */
-    val icon: Int? = null
+    val icon: Int? = null,
+    /** 고른 상태의 아이콘 (채움) */
+    val iconSelected: Int? = null
 )
 
 /** 가로로 늘어선 일차 칩 목록 (하나만 선택) */
@@ -60,7 +62,7 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
             shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(PinIcons.dayColor(chip.key))
             val px = (8 * ctx.resources.displayMetrics.density).toInt(); setSize(px, px)
         } else null
-        val iconD = chip.icon?.let { ContextCompat.getDrawable(ctx, it)?.mutate() }?.apply {
+        val iconD = (if (chip.selected) chip.iconSelected ?: chip.icon else chip.icon)?.let { ContextCompat.getDrawable(ctx, it)?.mutate() }?.apply {
             val px = (20 * ctx.resources.displayMetrics.density).toInt(); setBounds(0, 0, px, px)
             setTint(ContextCompat.getColor(ctx, if (chip.selected) R.color.on_primary else R.color.on_surface))
         }

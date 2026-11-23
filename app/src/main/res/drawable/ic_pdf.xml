@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Material Symbols Rounded · picture_as_pdf · 굵기 400 (Apache 2.0) -->
+<!-- Phosphor · file-pdf · Regular (MIT) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp" android:height="24dp"
-    android:viewportWidth="960" android:viewportHeight="960"
-    android:tint="@color/text_sub">
-    <group android:translateY="960">
-        <path android:fillColor="@android:color/white" android:pathData="M368-514h48q15.73 0 26.36-10.64Q453-535.28 453-551v-48q0-15.72-10.64-26.36Q431.73-636 416-636h-66q-7.6 0-13.3 5-5.7 5-5.7 13.41v168.18q0 8.41 5.7 13.41t13.3 5q8 0 13-5.7t5-13.3v-64Zm0-37v-48h48v48h-48Zm213 120q15 0 26-10.64 11-10.63 11-26.36v-131q0-15.72-11-26.36Q596-636 581-636h-65q-7.6 0-13.3 5-5.7 5-5.7 13.36v167.28q0 8.36 5.7 13.86T516-431h65Zm-47-37v-131h47v131h-47Zm170-46h32q8 0 13-5.7t5-13.3q0-8-5-13t-13-5h-32v-48h32q8 0 13-5.7t5-13.3q0-8-5-13t-13-5h-50q-7.6 0-13.3 5-5.7 5-5.7 13.41v168.18q0 8.41 5.7 13.41t13.3 5q8 0 13-5.7t5-13.3v-64ZM260-200q-24 0-42-18t-18-42v-560q0-24 18-42t42-18h560q24 0 42 18t18 42v560q0 24-18 42t-42 18H260Zm0-60h560v-560H260v560ZM140-80q-24 0-42-18t-18-42v-590q0-12.75 8.68-21.38 8.67-8.62 21.5-8.62 12.82 0 21.32 8.62 8.5 8.63 8.5 21.38v590h590q12.75 0 21.38 8.68 8.62 8.67 8.62 21.5 0 12.82-8.62 21.32Q742.75-80 730-80H140Zm120-740v560-560Z" />
-    </group>
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="@color/text_sub"
+    android:viewportWidth="256" android:viewportHeight="256">
+    <path android:fillColor="@android:color/white" android:pathData="M224,152a8,8,0,0,1-8,8H192v16h16a8,8,0,0,1,0,16H192v16a8,8,0,0,1-16,0V152a8,8,0,0,1,8-8h32A8,8,0,0,1,224,152ZM92,172a28,28,0,0,1-28,28H56v8a8,8,0,0,1-16,0V152a8,8,0,0,1,8-8H64A28,28,0,0,1,92,172Zm-16,0a12,12,0,0,0-12-12H56v24h8A12,12,0,0,0,76,172Zm88,8a36,36,0,0,1-36,36H112a8,8,0,0,1-8-8V152a8,8,0,0,1,8-8h16A36,36,0,0,1,164,180Zm-16,0a20,20,0,0,0-20-20h-8v40h8A20,20,0,0,0,148,180ZM40,112V40A16,16,0,0,1,56,24h96a8,8,0,0,1,5.66,2.34l56,56A8,8,0,0,1,216,88v24a8,8,0,0,1-16,0V96H152a8,8,0,0,1-8-8V40H56v72a8,8,0,0,1-16,0ZM160,80h28.69L160,51.31Z" />
 </vector>

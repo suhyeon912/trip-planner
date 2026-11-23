@@ -251,7 +251,7 @@ class TypeEditor(
             val item = shown[position]
             val v = h.itemView as ImageView
             val sel = item.key == icon
-            v.setImageResource(item.res)
+            v.setImageResource(if (sel) item.fill else item.res)   // 고른 아이콘은 채움
             v.imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.on_surface))
             v.background = GradientDrawable().apply {
                 cornerRadius = 12 * d

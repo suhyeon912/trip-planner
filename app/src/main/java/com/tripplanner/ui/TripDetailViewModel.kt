@@ -176,7 +176,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
                     groups.map { (key, list) ->
                         // 종류 칩은 아이콘만 (이름은 낭독 · 길게 누르면 말풍선)
                         val label = PlaceKinds.label(list.first())
-                        DayChip(key, label, "", label, kind == key, icon = PlaceKinds.icon(list.first()))
+                        DayChip(key, label, "", label, kind == key, icon = PlaceKinds.icon(list.first()), iconSelected = PlaceKinds.iconFill(list.first()))
                     }
             }
             val shown = if (kindChips.isEmpty() || kind == KIND_ALL) candidates else candidates.filter { kindKey(it) == kind }

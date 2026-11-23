@@ -22,6 +22,16 @@ val PlaceCategory.icon: Int get() = when (this) {
     PlaceCategory.ETC -> R.drawable.ic_place
 }
 
+/** 장소 종류 아이콘 · 고른 상태 (Phosphor Fill — 평소는 Regular 선, 고르면 채움) */
+val PlaceCategory.iconFill: Int get() = when (this) {
+    PlaceCategory.SIGHT -> R.drawable.ic_sight_fill
+    PlaceCategory.FOOD -> R.drawable.ic_food_fill
+    PlaceCategory.CAFE -> R.drawable.ic_cafe_fill
+    PlaceCategory.SHOPPING -> R.drawable.ic_shopping_fill
+    PlaceCategory.ACTIVITY -> R.drawable.ic_activity_fill
+    PlaceCategory.ETC -> R.drawable.ic_place_fill
+}
+
 /** 장소 종류 색 (아이콘 배경 / 글자) — 라이트·다크 모두 colors.xml 에서 정의 */
 val PlaceCategory.bgColor: Int get() = when (this) {
     PlaceCategory.SIGHT -> R.color.cat_sight_bg
@@ -55,6 +65,7 @@ object PlaceKinds {
     fun type(place: com.tripplanner.data.Place) = place.typeId?.let { types[it] }
     fun label(place: com.tripplanner.data.Place) = type(place)?.name ?: place.category.label
     fun icon(place: com.tripplanner.data.Place) = type(place)?.let { TypeIcons.res(it.icon) } ?: place.category.icon
+    fun iconFill(place: com.tripplanner.data.Place) = type(place)?.let { TypeIcons.fillRes(it.icon) } ?: place.category.iconFill
     fun bg(place: com.tripplanner.data.Place) = type(place)?.let { colorRes(it.color) } ?: place.category.bgColor
 }
 

@@ -138,6 +138,7 @@ git clone https://github.com/suhyeon912/trip-planner.git
 | 빌드 | AGP 8.7.3 · Kotlin 2.0.21 · Gradle 8.9 · JVM target 11 |
 | SDK | minSdk 26 · targetSdk 35 · compileSdk 35 · 패키지 `com.tripplanner` |
 | 글꼴 | Pretendard (SIL OFL 1.1), 가장 얇은 굵기는 Medium |
+| 아이콘 | Phosphor Icons (MIT) · 평소는 Regular 선, 고른 상태(종류 칩 · 아이콘 고르기)는 Fill |
 
 라이브러리 버전은 `gradle/libs.versions.toml`에 모여 있습니다.
 
