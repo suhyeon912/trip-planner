@@ -11,7 +11,7 @@ object TimeUtil {
     /** "11:00 ~ 21:00" → 660..1260. 못 읽으면(상시, 정보 없음 등) null = 언제나 열려 있다고 봄 */
     fun parseRange(text: String?): IntRange? {
         if (text.isNullOrBlank()) return null
-        val m = rangeRegex.find(text) ?: return null
+        val m = rangeRegex.find(text) ?: rangeRegex.find(loose(text) ?: return null) ?: return null
         val (h1, m1, h2, m2) = m.destructured
         val start = h1.toInt() * 60 + m1.toInt()
         var end = h2.toInt() * 60 + m2.toInt()
@@ -21,7 +21,18 @@ object TimeUtil {
 
     /** 화면에 보일 때 시간 범위 표기를 하나로: "10:00~21:00" · "10:00–21:00" → "10:00 ~ 21:00" */
     fun displayRange(text: String): String =
-        text.replace(Regex("""(\d{1,2}:\d{2})\s*[~–\-]\s*(\d{1,2}:\d{2})"""), "$1 ~ $2")
+        loose(text) ?: text.replace(Regex("""(\d{1,2}:\d{2})\s*[~–\-]\s*(\d{1,2}:\d{2})"""), "$1 ~ $2")
+
+    /** 콜론 · 물결 없이 적힌 범위 ("11 13", "11-13", "11시~13시", "1100 1300") → "11:00 ~ 13:00", 아니면 null */
+    private val looseRegex = Regex("""^\s*(\d{1,2})(?::?(\d{2}))?\s*시?\s*(?:[~–\-]|\s)\s*(\d{1,2})(?::?(\d{2}))?\s*시?\s*$""")
+    fun loose(text: String): String? {
+        if (rangeRegex.containsMatchIn(text)) return null
+        val m = looseRegex.find(text) ?: return null
+        val (h1, m1, h2, m2) = m.destructured
+        val a = h1.toInt(); val b = h2.toInt(); val am = m1.ifEmpty { "0" }.toInt(); val bm = m2.ifEmpty { "0" }.toInt()
+        if (a > 24 || b > 24 || am > 59 || bm > 59) return null
+        return "%02d:%02d ~ %02d:%02d".format(a, am, b, bm)
+    }
 
     fun format(minutes: Int): String {
         val m = ((minutes % 1440) + 1440) % 1440
