@@ -80,6 +80,16 @@ fun showSelect(anchor: View, rows: List<SelectRow>, widthDp: Int = 200) {
     val loc = IntArray(2).also { anchor.getLocationOnScreen(it) }
     val screenW = ctx.resources.displayMetrics.widthPixels
     if (loc[0] + anchor.width > screenW / 2) popup.setDropDownGravity(android.view.Gravity.END)
+    // 높이 고정: 목록이 화면 아래까지 넘치면 남은 칸에 맞춘 높이로 (안에서만 스크롤 · 창 자체는 움직이지 않게)
+    val d = ctx.resources.displayMetrics.density
+    val frame = android.graphics.Rect().also { anchor.getWindowVisibleDisplayFrame(it) }
+    val content = rows.sumOf { when (it) { is SelectRow.Option -> 48.0; is SelectRow.Header -> 32.0; SelectRow.Divider -> 9.0 } } * d + 16 * d
+    val below = frame.bottom - (loc[1] + anchor.height) - popup.verticalOffset - (16 * d).toInt()
+    val above = loc[1] - frame.top - popup.verticalOffset - (16 * d).toInt()
+    if (content > below) {
+        val h = if (below >= 48 * 4 * d || below >= above) below else above
+        popup.height = minOf(content.toInt(), h)
+    }
     popup.animationStyle = R.style.Animation_TripPlanner_Popover
     popup.isModal = true
     popup.setBackgroundDrawable(ContextCompat.getDrawable(ctx, R.drawable.bg_menu))
