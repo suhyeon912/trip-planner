@@ -23,7 +23,9 @@ data class DetailUi(
     val empty: EmptyState?,
     val chips: List<DayChip>,
     val confirmedCount: Int,
-    val candidateCount: Int
+    val candidateCount: Int,
+    /** 후보 탭: 종류 칩 ('전체 · 맛집 3 · 카페 2', 종류가 2가지 이상일 때만, 아니면 빈 목록) */
+    val kindChips: List<DayChip> = emptyList()
 )
 
 /**
@@ -39,6 +41,10 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     companion object {
         const val DAY_ALL = 0       // 일차 칩 '전체'
         const val DAY_NONE = -1     // 일차 칩 '일차 미정'
+        const val KIND_ALL = 0      // 종류 칩 '전체'
+
+        /** 종류 칩 key: 기본 종류 -(10 + 순서), 내가 만든 종류 -(1000 + id) */
+        fun kindKey(p: Place): Int = PlaceKinds.type(p)?.let { -(1000 + it.id.toInt()) } ?: -(10 + p.category.ordinal)
     }
 
     private val repo = (app as TripPlannerApp).repository
@@ -61,12 +67,18 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     val mapMode: MutableLiveData<Boolean> = state.getLiveData("map_mode", false)
     fun toggleMapMode() { mapMode.value = mapMode.value != true }
 
+    /** 후보 탭에서 고른 종류 (0 = 전체, kindKey) — 회전해도 유지 */
+    val candidateKind: MutableLiveData<Int> = state.getLiveData("candidate_kind", KIND_ALL)
+    fun selectKind(key: Int) { candidateKind.value = key }
+
     /** 장소 + 탭 + 일차 + 여행 날짜 + 숙소 → 화면 상태 */
     val ui: LiveData<DetailUi> = MediatorLiveData<DetailUi>().apply {
         fun update() { value = buildUi() }
         addSource(places) { update() }
         addSource(currentTab) { update() }
         addSource(selectedDay) { update() }
+        addSource(candidateKind) { update() }
+        addSource(mapMode) { update() }
         addSource(trip) { update() }
         addSource(lodgings) { update() }
         addSource(flights) { update() }
@@ -156,11 +168,26 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         val chips = buildChips(confirmed, days, hasUndated, sel)
 
         if (currentTab.value == PlaceStatus.CANDIDATE) {
-            val items = candidates.map { DetailItem.PlaceRow(it, order = null, isFirst = false, isLast = false, timeline = false) }
+            // 종류별로 보기: 후보에 있는 종류만 칩으로 (기본 종류 순서 → 내가 만든 종류 순서)
+            val groups = candidates.groupBy { kindKey(it) }.toList()
+                .sortedWith(compareBy({ if (it.first > -1000) 0 else 1 }, { -it.first }))
+            var kind = candidateKind.value ?: KIND_ALL
+            if (groups.none { it.first == kind }) kind = KIND_ALL
+            val kindChips = if (groups.size < 2 || mapMode.value == true) emptyList() else {
+                val all = ctx.getString(R.string.day_all)
+                listOf(DayChip(KIND_ALL, all, "", ctx.getString(R.string.chip_a11y, all, candidates.size), kind == KIND_ALL)) +
+                    groups.map { (key, list) ->
+                        val label = PlaceKinds.label(list.first())
+                        DayChip(key, ctx.getString(R.string.kind_chip, label, list.size), "",
+                            ctx.getString(R.string.chip_a11y, label, list.size), kind == key)
+                    }
+            }
+            val shown = if (kindChips.isEmpty() || kind == KIND_ALL) candidates else candidates.filter { kindKey(it) == kind }
+            val items = shown.map { DetailItem.PlaceRow(it, order = null, isFirst = false, isLast = false, timeline = false) }
             val empty = if (candidates.isEmpty())
                 EmptyState(ctx.getString(R.string.empty_candidates_title), ctx.getString(R.string.empty_candidates_body),
                     icon = R.drawable.ic_place) else null
-            return DetailUi(items + listOfNotNull(empty?.let { DetailItem.Empty(it) }), empty, chips, confirmed.size, candidates.size)
+            return DetailUi(items + listOfNotNull(empty?.let { DetailItem.Empty(it) }), empty, chips, confirmed.size, candidates.size, kindChips)
         }
 
         val items = mutableListOf<DetailItem>()

@@ -25,6 +25,10 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
     var compact = false
         set(v) { if (field != v) { field = v; notifyDataSetChanged() } }
 
+    /** 후보 탭 종류 칩: 한 줄 칩, 고른 '전체'도 일반 선택 색 */
+    var kindMode = false
+        set(v) { if (field != v) { field = v; notifyDataSetChanged() } }
+
     private var chips: List<DayChip> = emptyList()
 
     fun submit(list: List<DayChip>) {
@@ -48,9 +52,9 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
         holder.sub.visibility = if (chip.sub.isEmpty() || compact) View.GONE else View.VISIBLE
         holder.itemView.setBackgroundResource(if (chip.selected) R.drawable.bg_day_chip_selected else R.drawable.bg_day_chip)
         // 지도 보기: '전체'를 고르면 진한 바탕, 일차 칩 앞에 일차 색 점
-        val darkAll = compact && chip.selected && chip.key == 0
+        val darkAll = compact && !kindMode && chip.selected && chip.key == 0
         holder.itemView.backgroundTintList = if (darkAll) android.content.res.ColorStateList.valueOf(ctx.color(R.color.on_surface)) else null
-        val dot = if (compact && chip.key > 0 && !chip.selected) android.graphics.drawable.GradientDrawable().apply {
+        val dot = if (compact && !kindMode && chip.key > 0 && !chip.selected) android.graphics.drawable.GradientDrawable().apply {
             shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(PinIcons.dayColor(chip.key))
             val px = (8 * ctx.resources.displayMetrics.density).toInt(); setSize(px, px)
         } else null

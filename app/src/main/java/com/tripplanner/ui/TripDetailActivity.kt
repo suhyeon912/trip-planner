@@ -81,7 +81,8 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
 
         // ---------- 일차 칩 ----------
         val rvDays = findViewById<RecyclerView>(R.id.rvDays)
-        val chipAdapter = DayChipAdapter { key -> viewModel.selectDay(key) }
+        lateinit var chipAdapter: DayChipAdapter
+        chipAdapter = DayChipAdapter { key -> if (chipAdapter.kindMode) viewModel.selectKind(key) else viewModel.selectDay(key) }
         rvDays.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvDays.adapter = chipAdapter
 
@@ -169,7 +170,7 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             detailMap.container.visibility = if (mapOn) View.VISIBLE else View.GONE
             // 지도 보기: 탭 없이 일차 칩(한 줄 + 색 점)만, 아래 버튼 없음
             (tabs.parent as View).visibility = if (mapOn) View.GONE else View.VISIBLE
-            chipAdapter.compact = mapOn
+            chipAdapter.compact = mapOn || chipAdapter.kindMode
             if (mapOn) rvDays.visibility = View.VISIBLE
             bottom.visibility = if (mapOn) View.GONE else View.VISIBLE
             val trip = viewModel.trip.value
@@ -243,13 +244,19 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             tabs.setTabText(0, getString(R.string.tab_schedule_n, ui.confirmedCount))
             tabs.setTabText(1, getString(R.string.tab_candidates_n, ui.candidateCount))
             val onSchedule = viewModel.currentTab.value != PlaceStatus.CANDIDATE
-            rvDays.visibility = if (onSchedule || viewModel.mapMode.value == true) View.VISIBLE else View.GONE
+            val mapOn = viewModel.mapMode.value == true
+            // 후보 탭: 종류가 2가지 이상이면 종류 칩 줄 (전체 · 맛집 3 · 카페 2)
+            val kinds = !onSchedule && !mapOn && ui.kindChips.isNotEmpty()
+            chipAdapter.kindMode = kinds
+            chipAdapter.compact = mapOn || kinds
+            rvDays.visibility = if (onSchedule || mapOn || kinds) View.VISIBLE else View.GONE
             // 후보 탭: 탭 아래 16 띄우고 카드 시작 (카드 위아래 여백 5 포함, 시안 DetailCandidates)
-            rvPlaces.setPadding(rvPlaces.paddingLeft, ((if (onSchedule) 4 else 11) * resources.displayMetrics.density).toInt(),
+            rvPlaces.setPadding(rvPlaces.paddingLeft, ((if (onSchedule || kinds) 4 else 11) * resources.displayMetrics.density).toInt(),
                 rvPlaces.paddingRight, rvPlaces.paddingBottom)
-            chipAdapter.submit(ui.chips)
+            val shownChips = if (kinds) ui.kindChips else ui.chips
+            chipAdapter.submit(shownChips)
             // 고른 일차 칩이 화면 밖이면 보이게 밀어 줌 (일차가 많을 때)
-            ui.chips.indexOfFirst { it.selected }.takeIf { it >= 0 }?.let { i ->
+            shownChips.indexOfFirst { it.selected }.takeIf { it >= 0 }?.let { i ->
                 val lm = rvDays.layoutManager as LinearLayoutManager
                 if (i < lm.findFirstCompletelyVisibleItemPosition() || i > lm.findLastCompletelyVisibleItemPosition()) rvDays.smoothScrollToPosition(i)
             }
