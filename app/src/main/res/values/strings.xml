@@ -25,6 +25,8 @@
     <string name="chip_a11y_date">%1$d일차, %2$d월 %3$d일 %4$s, 장소 %5$d곳</string>
     <string name="chip_a11y">%1$s, 장소 %2$d곳</string>
     <string name="places_count">%1$d곳</string>
+    <string name="pick_day">일차 선택</string>
+    <string name="error_pick_day">확정하려면 일차를 골라 주세요. 날짜를 아직 안 정했으면 후보로 두세요</string>
     <string name="minutes">%1$d분</string>
     <string name="hours">%1$d시간</string>
     <string name="hours_minutes">%1$d시간 %2$d분</string>
@@ -53,7 +55,6 @@
     <string name="place_delete_confirm">위 장소를 삭제하시겠습니까?</string>
     <string name="pick_day_title">며칠째에 갈까요?</string>
     <string name="route_cta">%1$d일차 경로 제안 보기</string>
-    <string name="header_no_day_hint">일차를 정하면 경로를 만들 수 있어요</string>
     <string name="empty_candidates_title">후보 장소가 없어요</string>
     <string name="empty_candidates_body">가고 싶은 곳을 먼저 모아 두세요</string>
     <string name="empty_confirmed_title">확정된 장소가 없어요</string>

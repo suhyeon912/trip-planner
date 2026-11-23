@@ -113,7 +113,8 @@ object ShareCodec {
         val places = m.list("places").map { p ->
             Place(
                 tripId = base.id, name = p.str("name") ?: "",
-                status = enumOr(p.str("status"), PlaceStatus.CANDIDATE),
+                // 날짜 없는 확정(예전 버전의 '일차 미정')은 후보로
+                status = if (p.int("day") == null) PlaceStatus.CANDIDATE else enumOr(p.str("status"), PlaceStatus.CANDIDATE),
                 openingHours = p.str("openingHours") ?: "",
                 breakTime = p.str("breakTime"), closedDays = p.str("closedDays"),
                 isReservationRequired = p["reservation"] as? Boolean ?: false,

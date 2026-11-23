@@ -42,7 +42,9 @@ class TripRepository(private val db: AppDatabase) {
     fun observePlaces(tripId: Long) = dao.observePlaces(tripId)
     suspend fun getPlaces(tripId: Long) = dao.getPlaces(tripId)
     suspend fun getPlace(id: Long) = dao.getPlace(id)
-    suspend fun savePlace(p: Place) {
+    suspend fun savePlace(place: Place) {
+        // 날짜를 안 정했으면 후보 (확정은 늘 일차가 있음)
+        val p = if (place.status == PlaceStatus.CONFIRMED && place.day == null) place.copy(status = PlaceStatus.CANDIDATE, orderInDay = null) else place
         if (p.id == 0L) dao.insertPlace(p)
         else {
             // 이름을 바꾸면 하루의 시작 · 끝에 적힌 이름도 같이
@@ -55,6 +57,14 @@ class TripRepository(private val db: AppDatabase) {
         }
         changed(p.tripId)
     }
+    /** 예전 '일차 미정' 확정 장소 → 후보로 (앱 시작 때 한 번씩, 바뀐 여행은 공유 · 백업에도 반영) */
+    suspend fun undatedToCandidates() {
+        val fixed = dao.getAllTrips().flatMap { t -> dao.getPlaces(t.id) }
+            .filter { it.status == PlaceStatus.CONFIRMED && it.day == null }
+            .map { it.copy(status = PlaceStatus.CANDIDATE, orderInDay = null) }
+        if (fixed.isNotEmpty()) updatePlaces(fixed)
+    }
+
     suspend fun updatePlaces(list: List<Place>) { dao.updatePlaces(list); list.map { it.tripId }.distinct().forEach { changed(it) } }
     suspend fun deletePlace(p: Place) {
         // 장소에 붙은 자료(파일)도 함께 지움

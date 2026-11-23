@@ -40,7 +40,6 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
 
     companion object {
         const val DAY_ALL = 0       // 일차 칩 '전체'
-        const val DAY_NONE = -1     // 일차 칩 '일차 미정'
         const val KIND_ALL = 0      // 종류 칩 '전체'
 
         /** 종류 칩 key: 기본 종류 -(10 + 순서), 내가 만든 종류 -(1000 + id) */
@@ -111,7 +110,6 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         val confirmed = all.filter { it.status == PlaceStatus.CONFIRMED }
         return when (val sel = selectedDay.value ?: DAY_ALL) {
             DAY_ALL -> confirmed to all.filter { it.status == PlaceStatus.CANDIDATE }
-            DAY_NONE -> confirmed.filter { it.day == null } to emptyList()
             else -> confirmed.filter { it.day == sel } to emptyList()
         }
     }
@@ -159,13 +157,12 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         val confirmed = all.filter { it.status == PlaceStatus.CONFIRMED }   // DAO 가 일차·순서대로 정렬해 줌
         val candidates = all.filter { it.status == PlaceStatus.CANDIDATE }
         val days = dayCount()
-        val hasUndated = confirmed.any { it.day == null }
 
         // 날짜를 바꿔 고른 일차가 없어졌으면 전체로
         var sel = selectedDay.value ?: DAY_ALL
-        if (sel > days || (sel == DAY_NONE && !hasUndated)) sel = DAY_ALL
+        if (sel > days || sel < 0) sel = DAY_ALL
 
-        val chips = buildChips(confirmed, days, hasUndated, sel)
+        val chips = buildChips(confirmed, days, sel)
 
         if (currentTab.value == PlaceStatus.CANDIDATE) {
             // 종류별로 보기: 후보에 있는 종류만 칩으로 (기본 종류 순서 → 내가 만든 종류 순서)
@@ -200,23 +197,11 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
                     empty = EmptyState(ctx.getString(R.string.empty_confirmed_title), ctx.getString(R.string.empty_confirmed_body),
                         ctx.getString(R.string.show_candidates), EmptyState.Action.SHOW_CANDIDATES, R.drawable.ic_event)
                 } else {
-                    // 일차 미정은 '일차 미정' 칩에서만 (전체에는 일차가 정해진 장소만). 모두 미정이면 그대로 보여 줌
-                    val datedOnly = confirmed.any { it.day != null }
-                    confirmed.groupBy { it.day }.forEach { (day, group) ->
-                        if (day == null && datedOnly) return@forEach
-                        if (day == null) {
-                            items += DetailItem.Header(ctx.getString(R.string.day_none), ctx.getString(R.string.header_no_day_hint))
-                            items += rows(group, timeline = false)
-                        } else {
-                            items += DetailItem.Header(ctx.dayLabel(day), headerDate(day), day = day, routeLink = true)
-                            items += dayTimeline(day, group)
-                        }
+                    confirmed.filter { it.day != null }.groupBy { it.day!! }.forEach { (day, group) ->
+                        items += DetailItem.Header(ctx.dayLabel(day), headerDate(day), day = day, routeLink = true)
+                        items += dayTimeline(day, group)
                     }
                 }
-            }
-            DAY_NONE -> {
-                items += DetailItem.Header(ctx.getString(R.string.day_none), ctx.getString(R.string.header_no_day_hint))
-                items += rows(confirmed.filter { it.day == null }, timeline = false)
             }
             else -> {
                 val today = confirmed.filter { it.day == sel }
@@ -276,7 +261,7 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
             files = attachments.value.orEmpty().count { it.placeId == p.id })
     }
 
-    private fun buildChips(confirmed: List<Place>, days: Int, hasUndated: Boolean, sel: Int): List<DayChip> {
+    private fun buildChips(confirmed: List<Place>, days: Int, sel: Int): List<DayChip> {
         val all = ctx.getString(R.string.day_all)
         val chips = mutableListOf(DayChip(DAY_ALL, all, "",
             ctx.getString(R.string.chip_a11y, all, confirmed.size), sel == DAY_ALL))
@@ -285,11 +270,6 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
             val n = confirmed.count { it.day == d }
             val date: LocalDate? = start?.let { TimeUtil.dateOfDay(it, d) }
             chips += ctx.dayChip(d, date, n, sel == d)
-        }
-        if (hasUndated) {
-            val n = confirmed.count { it.day == null }
-            val none = ctx.getString(R.string.day_none)
-            chips += DayChip(DAY_NONE, none, ctx.getString(R.string.chip_sub, n), ctx.getString(R.string.chip_a11y, none, n), sel == DAY_NONE)
         }
         return chips
     }

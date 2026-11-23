@@ -296,13 +296,13 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
 
     override fun onEdit(place: Place) = openPlaceEditor(place)
 
-    /** 후보 '확정하기' → 누른 자리 아래 일차 select (● n일차 · 11.20 (금) · n곳 / 일차 미정) */
+    /** 후보 '확정하기' → 누른 자리 아래 일차 select (● n일차 · 11.20 (금) · n곳). 날짜를 안 정했으면 후보 그대로 */
     override fun onConfirmPick(place: Place, anchor: View) {
         val rows = viewModel.dayOptions().map { (day, date, count) ->
             SelectRow.Option(listOf(dayLabel(day), date, getString(R.string.places_count, count))
                 .filter { it.isNotEmpty() }.joinToString(getString(R.string.list_separator)),
                 dotColor = PinIcons.dayColor(day)) { Haptics.confirm(anchor); viewModel.confirm(place, day) }
-        } + SelectRow.Option(getString(R.string.day_none), hollowDot = true) { Haptics.confirm(anchor); viewModel.confirm(place, null) }
+        }
         showSelect(anchor, rows, widthDp = 220)
     }
 

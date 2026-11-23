@@ -133,6 +133,7 @@ class AddPlaceActivity : AppCompatActivity() {
         fieldDay.label = getString(R.string.label_day)
         fieldDay.setIcon(R.drawable.ic_event)
         fieldDay.setDropdown(true)
+        fieldDay.setPlaceholder(getString(R.string.pick_day))
         fieldDay.setOnClickListener { pickDay(it) }
         toggle.addOnButtonCheckedListener { _, _, _ -> render() }
 
@@ -450,18 +451,19 @@ class AddPlaceActivity : AppCompatActivity() {
         fieldDay.alpha = if (on) 1f else 0.38f
         fieldDay.isEnabled = on
         fieldDay.findViewById<View>(R.id.selectBox).isEnabled = on
-        fieldDay.setValue(if (!on) getString(R.string.day_none) else day?.let { dayLabel(it) } ?: getString(R.string.day_none))
+        fieldDay.setValue(if (!on) null else day?.let { dayLabel(it) })
+        if (on && day != null) fieldDay.setError(null)
         renderLocState()
         refreshPhoto()
     }
 
-    /** 일차 select: ● n일차 · 11.20 (금) · n곳 … / ○ 일차 미정 */
+    /** 일차 select: ● n일차 · 11.20 (금) · n곳 … (날짜를 안 정했으면 후보) */
     private fun pickDay(anchor: View) {
         if (!confirmed()) return
         val rows = (1..dayCount).map { d ->
             SelectRow.Option(dayText(d) + getString(R.string.list_separator) + getString(R.string.places_count, dayCounts[d] ?: 0),
                 selected = day == d, dotColor = PinIcons.dayColor(d)) { day = d; render() }
-        } + SelectRow.Option(getString(R.string.day_none), selected = day == null, hollowDot = true) { day = null; render() }
+        }
         showSelect(anchor, rows, widthDp = 240)
     }
 
@@ -579,6 +581,15 @@ class AddPlaceActivity : AppCompatActivity() {
         }
         val confirmed = confirmed()
         val d = day?.takeIf { it in 1..dayCount }
+        // 확정은 일차가 있어야 함 (날짜를 안 정했으면 후보)
+        if (confirmed && d == null) {
+            fieldDay.setError(getString(R.string.error_pick_day))
+            val sv = findViewById<NestedScrollView>(R.id.scroll)
+            val rect = android.graphics.Rect().also { fieldDay.getDrawingRect(it) }
+            sv.offsetDescendantRectToMyCoords(fieldDay, rect)
+            sv.smoothScrollTo(0, (rect.top - 80 * resources.displayMetrics.density).toInt().coerceAtLeast(0))
+            return
+        }
         val old = editing
         val place = Place(
             id = old?.id ?: 0,

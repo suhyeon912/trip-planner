@@ -176,7 +176,7 @@ trip-planner/
 | `data/DayAnchorsTest.kt` | 2 | (예전 기능) 하루의 시작 · 끝 저장 형식 · 이름 바뀜 |
 | `ui/DirectionsTest.kt` | 3 | 길찾기 응답 해석 (시간 · 노선 · 환승) · 시간표 날짜 |
 | `route/RegionTest.kt` | 2 | 국내 / 해외 판별 |
-| `share/ShareCodecTest.kt` | 9 | 공유 문서 변환 (링크 · 내가 만든 종류 포함) · 일정 코드 · 내보낼 내용 고르기 |
+| `share/ShareCodecTest.kt` | 10 | 공유 문서 변환 (링크 · 내가 만든 종류 포함) · 일정 코드 · 내보낼 내용 고르기 |
 | `share/RecoveryCodeTest.kt` | 3 | 복구 코드 만들기 · 읽기 · 로그인용 주소 |
 | `share/ActivityLogTest.kt` | 4 | 활동 기록: 바뀐 것 찾기 · 문서 변환 · 100개 제한 |
 | `ui/MapProviderTest.kt` | 4 | 카카오 / 구글 / OpenStreetMap 지도 고르기 |

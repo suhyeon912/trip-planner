@@ -108,4 +108,9 @@ class ShareCodecTest {
         val e = ShareCodec.forExport(snap, schedule = true, transport = true, lodging = true, memos = true)
         assertEquals(snap, e)
     }
+
+    @Test fun confirmedWithoutDay_readsAsCandidate() {
+        val m = ShareCodec.toMap(snap.copy(places = listOf(snap.places[0].copy(day = null, orderInDay = null))))
+        assertEquals(PlaceStatus.CANDIDATE, ShareCodec.fromMap(m, trip).places[0].status)
+    }
 }
