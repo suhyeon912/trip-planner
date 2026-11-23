@@ -175,11 +175,11 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
             if (groups.none { it.first == kind }) kind = KIND_ALL
             val kindChips = if (groups.size < 2 || mapMode.value == true) emptyList() else {
                 val all = ctx.getString(R.string.day_all)
-                listOf(DayChip(KIND_ALL, all, "", ctx.getString(R.string.chip_a11y, all, candidates.size), kind == KIND_ALL)) +
+                listOf(DayChip(KIND_ALL, all, "", all, kind == KIND_ALL)) +
                     groups.map { (key, list) ->
+                        // 종류 칩은 아이콘만 (이름은 낭독 · 길게 누르면 말풍선)
                         val label = PlaceKinds.label(list.first())
-                        DayChip(key, ctx.getString(R.string.kind_chip, label, list.size), "",
-                            ctx.getString(R.string.chip_a11y, label, list.size), kind == key)
+                        DayChip(key, label, "", label, kind == key, icon = PlaceKinds.icon(list.first()))
                     }
             }
             val shown = if (kindChips.isEmpty() || kind == KIND_ALL) candidates else candidates.filter { kindKey(it) == kind }

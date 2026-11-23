@@ -25,7 +25,6 @@
     <string name="chip_a11y_date">%1$d일차, %2$d월 %3$d일 %4$s, 장소 %5$d곳</string>
     <string name="chip_a11y">%1$s, 장소 %2$d곳</string>
     <string name="places_count">%1$d곳</string>
-    <string name="kind_chip">%1$s %2$d</string>
     <string name="minutes">%1$d분</string>
     <string name="hours">%1$d시간</string>
     <string name="hours_minutes">%1$d시간 %2$d분</string>

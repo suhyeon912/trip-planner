@@ -15,7 +15,9 @@ data class DayChip(
     val title: String,      // "1일차"
     val sub: String,        // "2/12 금 · 3곳"
     val a11y: String,       // 낭독용 "1일차, 2월 12일 금요일, 장소 3곳"
-    val selected: Boolean
+    val selected: Boolean,
+    /** 아이콘 칩 (후보 탭 종류): 글자 대신 아이콘, title 은 낭독 · 말풍선용 */
+    val icon: Int? = null
 )
 
 /** 가로로 늘어선 일차 칩 목록 (하나만 선택) */
@@ -58,8 +60,14 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
             shape = android.graphics.drawable.GradientDrawable.OVAL; setColor(PinIcons.dayColor(chip.key))
             val px = (8 * ctx.resources.displayMetrics.density).toInt(); setSize(px, px)
         } else null
-        holder.title.setCompoundDrawablesRelativeWithIntrinsicBounds(dot, null, null, null)
-        holder.title.compoundDrawablePadding = (6 * ctx.resources.displayMetrics.density).toInt()
+        val iconD = chip.icon?.let { ContextCompat.getDrawable(ctx, it)?.mutate() }?.apply {
+            val px = (20 * ctx.resources.displayMetrics.density).toInt(); setBounds(0, 0, px, px)
+            setTint(ContextCompat.getColor(ctx, if (chip.selected) R.color.on_primary else R.color.on_surface))
+        }
+        if (iconD != null) holder.title.text = ""
+        holder.title.setCompoundDrawablesRelative(iconD ?: dot?.apply { setBounds(0, 0, intrinsicWidth, intrinsicHeight) }, null, null, null)
+        androidx.appcompat.widget.TooltipCompat.setTooltipText(holder.itemView, if (iconD != null) chip.title else null)
+        holder.title.compoundDrawablePadding = if (iconD != null) 0 else (6 * ctx.resources.displayMetrics.density).toInt()
         val titleColor = if (darkAll) R.color.card_bg else if (chip.selected) R.color.on_primary else R.color.on_surface
         val subColor = if (chip.selected) R.color.day_chip_sub_selected else R.color.text_sub
         holder.title.setTextColor(ContextCompat.getColor(ctx, titleColor))
