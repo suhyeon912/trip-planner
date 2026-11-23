@@ -80,10 +80,12 @@ class DayChipAdapter(private val onSelect: (Int) -> Unit) : RecyclerView.Adapter
         val d = ctx.resources.displayMetrics.density
         val wide = compact || chip.key == 0
         val h = (16 * d).toInt()
-        holder.itemView.setPaddingRelative(h, ((if (compact) 6 else 8) * d).toInt(), h, ((if (compact) 6 else 8) * d).toInt())
+        val v = if (compact && !kindMode) 6 else 8
+        holder.itemView.setPaddingRelative(h, (v * d).toInt(), h, (v * d).toInt())
         holder.itemView.minimumWidth = if (wide) 0 else (76 * d).toInt()
         // 한 줄인 '전체'도 두 줄 일차 칩과 같은 높이
-        holder.itemView.minimumHeight = if (compact) (48 * d).toInt() else (54 * d).toInt()
+        // 후보 탭 종류 칩도 일정 탭 일차 칩과 같은 높이 54 (지도 보기 한 줄 칩만 48)
+        holder.itemView.minimumHeight = if (compact && !kindMode) (48 * d).toInt() else (54 * d).toInt()
         // 글자는 칩 가운데
         (holder.itemView as android.widget.LinearLayout).gravity = android.view.Gravity.CENTER
         (holder.itemView.layoutParams as? ViewGroup.MarginLayoutParams)?.marginEnd = (8 * d).toInt()
