@@ -25,6 +25,16 @@ object Pickers {
     fun date(activity: FragmentActivity, title: String, current: String, onPick: (String) -> Unit) =
         CalendarDialog.single(activity, title, parseDate(current)) { onPick(it.toString()) }
 
+    /** "yyyy-MM-dd[ HH:mm]" → 날짜 "yyyy-MM-dd" (없으면 null) */
+    fun dateOf(s: String): String? = parseDate(s)?.toString()
+
+    /** "yyyy-MM-dd HH:mm" → 분 (시각이 없으면 null) */
+    fun minutesOf(s: String): Int? = runCatching { LocalDateTime.parse(s.trim(), DT) }.getOrNull()?.let { it.hour * 60 + it.minute }
+
+    /** 날짜 + 시각(없으면 날짜만) → 저장 글자 */
+    fun join(date: String, minutes: Int?): String =
+        if (minutes == null) date else "%s %02d:%02d".format(date, minutes / 60, minutes % 60)
+
     /** 날짜 · 시각 고르기 (교통편 출발·도착) — anchor 바로 아래에 휠 */
     fun dateTime(anchor: View, title: String, current: String, onPick: (String) -> Unit) {
         val cur = runCatching { LocalDateTime.parse(current.trim(), DT) }.getOrNull()

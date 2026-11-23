@@ -55,11 +55,11 @@ object TripFormat {
 
     /** "2026-11-20 08:30" → "11.20 08:30" (못 읽으면 원문) */
     fun shortDateTime(s: String): String =
-        parseDateTime(s)?.let { "${it.monthValue}.${it.dayOfMonth} ${"%02d:%02d".format(it.hour, it.minute)}" } ?: s
+        parseDateTime(s)?.let { "${it.monthValue}.${it.dayOfMonth} ${"%02d:%02d".format(it.hour, it.minute)}" } ?: shortDate(s)
 
     /** "2026-11-20 08:30" → "11.20 (금) 08:30" (입력 칸 표시용, 못 읽으면 원문) */
     fun dateTimeWithDay(s: String): String =
-        parseDateTime(s)?.let { "${it.monthValue}.${it.dayOfMonth} (${TimeUtil.koreanDayName(it.toLocalDate()).first()}) ${"%02d:%02d".format(it.hour, it.minute)}" } ?: s
+        parseDateTime(s)?.let { "${it.monthValue}.${it.dayOfMonth} (${TimeUtil.koreanDayName(it.toLocalDate()).first()}) ${"%02d:%02d".format(it.hour, it.minute)}" } ?: dateWithDay(s)
 
     /** 도착 시각: 출발과 같은 날이면 시각만 ("10:50"), 다른 날이면 "11.21 01:10" */
     fun arriveShort(depart: String, arrive: String): String {

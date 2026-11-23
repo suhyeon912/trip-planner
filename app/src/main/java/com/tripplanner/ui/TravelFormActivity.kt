@@ -7,6 +7,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.tripplanner.ui.widget.TpButton
 import android.widget.EditText
+import android.widget.TextView
 import com.tripplanner.ui.widget.TpTextField
 import com.tripplanner.R
 import com.tripplanner.TripPlannerApp
@@ -49,8 +50,12 @@ class TravelFormActivity : AppCompatActivity() {
     private var address = ""
 
     private lateinit var fieldMode: SelectField
-    private lateinit var fieldDepart: SelectField
-    private lateinit var fieldArrive: SelectField
+    private lateinit var fieldDepartDate: SelectField
+    private lateinit var fieldDepartTime: SelectField
+    private lateinit var fieldArriveDate: SelectField
+    private lateinit var fieldArriveTime: SelectField
+    /** 여행 첫날 (날짜 없이 시각부터 고를 때 기본 날짜) */
+    private var tripStart: String = ""
     private lateinit var fieldLocation: SelectField
     private lateinit var fieldCheckIn: SelectField
     private lateinit var fieldCheckOut: SelectField
@@ -74,12 +79,15 @@ class TravelFormActivity : AppCompatActivity() {
         findViewById<View>(R.id.lodgingGroup).visibility = if (isFlight) View.GONE else View.VISIBLE
 
         fieldMode = findViewById(R.id.fieldMode)
-        fieldDepart = findViewById(R.id.fieldDepart)
-        fieldArrive = findViewById(R.id.fieldArrive)
+        fieldDepartDate = findViewById(R.id.fieldDepartDate)
+        fieldDepartTime = findViewById(R.id.fieldDepartTime)
+        fieldArriveDate = findViewById(R.id.fieldArriveDate)
+        fieldArriveTime = findViewById(R.id.fieldArriveTime)
         fieldLocation = findViewById(R.id.fieldLocation)
         fieldCheckIn = findViewById(R.id.fieldCheckIn)
         fieldCheckOut = findViewById(R.id.fieldCheckOut)
         setupFields()
+        lifecycleScope.launch { tripStart = repo.getTrip(tripId)?.startDate.orEmpty() }
 
         findViewById<TpButton>(R.id.btnCancel).setOnClickListener { finish() }
         findViewById<TpButton>(R.id.btnSave).setOnClickListener { save() }
@@ -113,14 +121,25 @@ class TravelFormActivity : AppCompatActivity() {
                 SelectRow.Option(m.label, selected = m == mode) { mode = m; render() }
             }, widthDp = v.width.coerceAtLeast(1).let { (it / resources.displayMetrics.density).toInt() })
         }
-        fieldDepart.label = getString(R.string.hint_depart_at)
-        fieldDepart.setIcon(R.drawable.ic_calendar)
-        fieldDepart.setPlaceholder(getString(R.string.placeholder_pick_datetime))
-        fieldDepart.setOnClickListener { Pickers.dateTime(fieldDepart, getString(R.string.hint_depart_at), departAt) { departAt = it; render() } }
-        fieldArrive.label = getString(R.string.hint_arrive_at)
-        fieldArrive.setIcon(R.drawable.ic_calendar)
-        fieldArrive.setPlaceholder(getString(R.string.placeholder_pick_datetime))
-        fieldArrive.setOnClickListener { Pickers.dateTime(fieldArrive, getString(R.string.hint_arrive_at), arriveAt.ifBlank { departAt }) { arriveAt = it; render() } }
+        // 출발 · 도착: 날짜는 달력, 시각은 휠 (따로 고르기). 저장 형식은 그대로 "yyyy-MM-dd HH:mm"
+        fun dateTimeFields(date: SelectField, time: SelectField, labelRes: Int, get: () -> String, set: (String) -> Unit, fallbackDate: () -> String) {
+            val label = getString(labelRes)
+            date.label = getString(R.string.date_of, label); date.setIcon(R.drawable.ic_calendar)
+            date.setPlaceholder(getString(R.string.placeholder_date))
+            time.label = getString(R.string.time_of, label); time.setIcon(R.drawable.ic_schedule)
+            time.setPlaceholder(getString(R.string.time_placeholder))
+            date.setOnClickListener {
+                Pickers.date(this, label, get().ifBlank { fallbackDate() }) { d -> set(Pickers.join(d, Pickers.minutesOf(get()))); render() }
+            }
+            time.setOnClickListener { v ->
+                WheelPopup.time(v, label, Pickers.minutesOf(get()), clearLabel = getString(R.string.time_clear), defaultMinutes = 9 * 60) { m ->
+                    val d = Pickers.dateOf(get()) ?: Pickers.dateOf(fallbackDate()) ?: java.time.LocalDate.now().toString()
+                    set(Pickers.join(d, m)); render()
+                }
+            }
+        }
+        dateTimeFields(fieldDepartDate, fieldDepartTime, R.string.label_depart, { departAt }, { departAt = it }, { tripStart })
+        dateTimeFields(fieldArriveDate, fieldArriveTime, R.string.label_arrive, { arriveAt }, { arriveAt = it }, { departAt.ifBlank { tripStart } })
 
         fieldLocation.label = getString(R.string.label_location)
         fieldLocation.setIcon(R.drawable.ic_place)
@@ -143,8 +162,16 @@ class TravelFormActivity : AppCompatActivity() {
         fieldMode.setIcon(mode.icon)
         fieldMode.setValue(mode.label)
         findViewById<View>(R.id.groupNumber).visibility = if (needsNumber(mode)) View.VISIBLE else View.GONE
-        fieldDepart.setValue(departAt.takeIf { it.isNotBlank() }?.let { TripFormat.dateTimeWithDay(it) })
-        fieldArrive.setValue(arriveAt.takeIf { it.isNotBlank() }?.let { TripFormat.dateTimeWithDay(it) })
+        fieldDepartDate.setValue(Pickers.dateOf(departAt)?.let { TripFormat.dateWithDay(it) })
+        fieldDepartTime.setValue(Pickers.minutesOf(departAt)?.let { com.tripplanner.route.TimeUtil.format(it) })
+        fieldArriveDate.setValue(Pickers.dateOf(arriveAt)?.let { TripFormat.dateWithDay(it) })
+        fieldArriveTime.setValue(Pickers.minutesOf(arriveAt)?.let { com.tripplanner.route.TimeUtil.format(it) })
+        // 교통 종류에 맞는 안내 글자 (출발지 · 도착지 · 번호)
+        val hints = ModeHints.of(mode)
+        findViewById<TextView>(R.id.labelNumber).setText(hints.numberLabel)
+        findViewById<TpTextField>(R.id.layoutNumber).placeholderText = getString(hints.number)
+        (input(R.id.inputFrom).parent.parent as? TpTextField ?: input(R.id.inputFrom).parent as? TpTextField)?.placeholderText = getString(hints.from)
+        (input(R.id.inputTo).parent.parent as? TpTextField ?: input(R.id.inputTo).parent as? TpTextField)?.placeholderText = getString(hints.to)
         fieldCheckIn.setValue(checkIn.takeIf { it.isNotBlank() }?.let { TripFormat.dateWithDay(it) })
         fieldCheckOut.setValue(checkOut.takeIf { it.isNotBlank() }?.let { TripFormat.dateWithDay(it) })
         val hasLoc = lat != 0.0 || lng != 0.0
@@ -225,5 +252,19 @@ class TravelFormActivity : AppCompatActivity() {
         departAt = b.getString("depart", ""); arriveAt = b.getString("arrive", "")
         checkIn = b.getString("in", ""); checkOut = b.getString("out", "")
         lat = b.getDouble("lat"); lng = b.getDouble("lng"); address = b.getString("address", "")
+    }
+}
+
+/** 교통 종류별 안내 글자 */
+private data class ModeHints(val from: Int, val to: Int, val numberLabel: Int, val number: Int) {
+    companion object {
+        fun of(mode: TransportMode) = when (mode) {
+            TransportMode.FLIGHT -> ModeHints(R.string.ph_from_flight, R.string.ph_to_flight, R.string.label_no_flight, R.string.ph_no_flight)
+            TransportMode.TRAIN -> ModeHints(R.string.ph_from_train, R.string.ph_to_train, R.string.label_no_train, R.string.ph_no_train)
+            TransportMode.BUS -> ModeHints(R.string.ph_from_bus, R.string.ph_to_bus, R.string.label_no_bus, R.string.ph_no_bus)
+            TransportMode.SHIP -> ModeHints(R.string.ph_from_ship, R.string.ph_to_ship, R.string.label_no_ship, R.string.ph_no_ship)
+            TransportMode.CAR -> ModeHints(R.string.ph_from_car, R.string.ph_to_car, R.string.label_no_flight, R.string.ph_no_flight)
+            TransportMode.ETC -> ModeHints(R.string.ph_from_etc, R.string.ph_to_etc, R.string.label_no_flight, R.string.ph_no_flight)
+        }
     }
 }

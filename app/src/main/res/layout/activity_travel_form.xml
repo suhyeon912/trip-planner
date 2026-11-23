@@ -57,6 +57,7 @@
                     <TextView
                         style="@style/Widget.TripPlanner.FieldLabel"
                         android:layout_marginTop="@dimen/space_l"
+                        android:id="@+id/labelNumber"
                         android:labelFor="@id/inputNumber"
                         android:text="@string/hint_flight_no" />
 
@@ -136,20 +137,50 @@
                     android:layout_marginTop="@dimen/space_l"
                     android:text="@string/hint_depart_at" />
 
-                <com.tripplanner.ui.SelectField
-                    android:id="@+id/fieldDepart"
+                <!-- 날짜(달력) · 시각(휠) 따로 고르기 -->
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.tripplanner.ui.SelectField
+                        android:id="@+id/fieldDepartDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.2" />
+
+                    <com.tripplanner.ui.SelectField
+                        android:id="@+id/fieldDepartTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:layout_weight="1" />
+                </LinearLayout>
 
                 <TextView
                     style="@style/Widget.TripPlanner.FieldLabel"
                     android:layout_marginTop="@dimen/space_l"
                     android:text="@string/hint_arrive_at" />
 
-                <com.tripplanner.ui.SelectField
-                    android:id="@+id/fieldArrive"
+                <!-- 날짜(달력) · 시각(휠) 따로 고르기 -->
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.tripplanner.ui.SelectField
+                        android:id="@+id/fieldArriveDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.2" />
+
+                    <com.tripplanner.ui.SelectField
+                        android:id="@+id/fieldArriveTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:layout_weight="1" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- ===== 숙소 ===== -->
