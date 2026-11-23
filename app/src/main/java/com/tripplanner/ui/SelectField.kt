@@ -54,7 +54,10 @@ class SelectField @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /** 끝 아이콘을 직접 (예: 위치 칸의 돋보기 = 누르면 검색) */
-    fun setEndIcon(res: Int) { end.setImageResource(res) }
+    fun setEndIcon(res: Int) { end.visibility = VISIBLE; end.setImageResource(res) }
+
+    /** 끝 아이콘 없이 (날짜 · 시각 칸: 앞의 달력 · 시계 아이콘으로 충분) */
+    fun hideEndIcon() { end.visibility = GONE }
 
     fun setPlaceholder(text: CharSequence) { placeholder = text; if (value.text.isNullOrEmpty() || value.tag == "ph") setValue(null) }
 

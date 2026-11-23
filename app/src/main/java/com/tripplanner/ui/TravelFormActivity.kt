@@ -127,6 +127,7 @@ class TravelFormActivity : AppCompatActivity() {
             date.label = getString(R.string.date_of, label); date.setIcon(R.drawable.ic_calendar)
             date.setPlaceholder(getString(R.string.placeholder_date))
             time.label = getString(R.string.time_of, label); time.setIcon(R.drawable.ic_schedule)
+            date.hideEndIcon(); time.hideEndIcon()
             time.setPlaceholder(getString(R.string.time_placeholder))
             date.setOnClickListener {
                 Pickers.date(this, label, get().ifBlank { fallbackDate() }) { d -> set(Pickers.join(d, Pickers.minutesOf(get()))); render() }
@@ -149,6 +150,7 @@ class TravelFormActivity : AppCompatActivity() {
         for ((f, label) in listOf(fieldCheckIn to R.string.hint_check_in, fieldCheckOut to R.string.hint_check_out)) {
             f.label = getString(label)
             f.setIcon(R.drawable.ic_calendar)
+            f.hideEndIcon()
             f.setPlaceholder(getString(R.string.placeholder_pick_date))
             f.setOnClickListener {
                 Pickers.dateRange(this, getString(R.string.add_lodging), checkIn, checkOut) { s, e -> checkIn = s; checkOut = e; render() }
