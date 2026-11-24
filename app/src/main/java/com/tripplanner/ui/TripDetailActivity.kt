@@ -119,8 +119,15 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             // 끄는 동안: 줄 전체가 아니라 카드만 손가락을 따라감
             override fun onChildDraw(c: android.graphics.Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
                                      dX: Float, dY: Float, actionState: Int, active: Boolean) {
-                if (vh is PlaceAdapter.PlaceHolder) vh.card.translationY = dY
-                else super.onChildDraw(c, rv, vh, dX, dY, actionState, active)
+                if (vh is PlaceAdapter.PlaceHolder) {
+                    // 그날 장소 카드들 사이에서만 (첫 카드 위 ~ 마지막 카드 아래를 넘지 않게, 한 곳뿐이면 제자리)
+                    val tops = (0 until rv.childCount).map { rv.getChildViewHolder(rv.getChildAt(it)) }
+                        .filterIsInstance<PlaceAdapter.PlaceHolder>().map { it.itemView.top + it.card.top }
+                    val mine = vh.itemView.top + vh.card.top
+                    val lo = (tops.minOrNull() ?: mine) - mine
+                    val hi = (tops.maxOrNull() ?: mine) - mine
+                    vh.card.translationY = dY.coerceIn(lo.toFloat(), hi.toFloat())
+                } else super.onChildDraw(c, rv, vh, dX, dY, actionState, active)
             }
             // 길게 누르기는 '장소 수정'이라 끌기는 손잡이로만 시작
             override fun isLongPressDragEnabled() = false
