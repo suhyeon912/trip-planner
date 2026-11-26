@@ -45,4 +45,11 @@ class TripFormatTest {
         assertEquals("10:50", TripFormat.arriveShort("2026-11-20 08:30", "2026-11-20 10:50"))
         assertEquals("11.21 01:10", TripFormat.arriveShort("2026-11-20 22:30", "2026-11-21 01:10"))
     }
+
+    @Test fun zoneOf_tripZoneOrDevice() {
+        val t = com.tripplanner.data.Trip(title = "파리", startDate = "2026-12-01", endDate = "2026-12-05", timeZone = "Europe/Paris")
+        org.junit.Assert.assertEquals("Europe/Paris", TripFormat.zoneOf(t).id)
+        org.junit.Assert.assertEquals(java.time.ZoneId.systemDefault(), TripFormat.zoneOf(t.copy(timeZone = "")))
+        org.junit.Assert.assertEquals(java.time.ZoneId.systemDefault(), TripFormat.zoneOf(t.copy(timeZone = "Nowhere/Zone")))
+    }
 }

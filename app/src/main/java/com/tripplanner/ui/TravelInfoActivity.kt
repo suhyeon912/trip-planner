@@ -34,7 +34,7 @@ class TravelInfoActivity : AppCompatActivity() {
             subtitle = { getString(R.string.flight_sub, TripFormat.shortDateTime(it.departAt), TripFormat.arriveShort(it.departAt, it.arriveAt)) },
             onClick = { openForm(TravelFormActivity.KIND_FLIGHT, it.id) },
             onMenu = { f, anchor -> rowMenu(anchor, { openForm(TravelFormActivity.KIND_FLIGHT, f.id) }) {
-                confirmDelete(this, flightTitle(f), getString(R.string.flight_delete_confirm)) { viewModel.deleteFlight(f) }
+                confirmDelete(this, flightTitle(f), getString(R.string.flight_delete_confirm)) { viewModel.deleteFlight(f) { showUndo(getString(R.string.flight_deleted), it) } }
             } },
             iconOf = { it.mode.icon },
             idOf = { it.id }
@@ -45,7 +45,7 @@ class TravelInfoActivity : AppCompatActivity() {
                     getString(if (it.lat == 0.0 && it.lng == 0.0) R.string.lodging_no_location else R.string.lodging_has_location) },
             onClick = { openForm(TravelFormActivity.KIND_LODGING, it.id) },
             onMenu = { l, anchor -> rowMenu(anchor, { openForm(TravelFormActivity.KIND_LODGING, l.id) }) {
-                confirmDelete(this, l.name, getString(R.string.lodging_delete_confirm)) { viewModel.deleteLodging(l) }
+                confirmDelete(this, l.name, getString(R.string.lodging_delete_confirm)) { viewModel.deleteLodging(l) { showUndo(getString(R.string.lodging_deleted, l.name), it) } }
             } },
             icon = R.drawable.ic_hotel,
             idOf = { it.id }

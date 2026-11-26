@@ -88,5 +88,5 @@ object ActivityLog {
 
     /** 순서·일차·상태·운영 정보·기기마다 다른 값을 뺀 장소 내용 */
     private fun contentOf(p: Place) = p.copy(id = 0, tripId = 0, status = PlaceStatus.CANDIDATE, day = null, orderInDay = null,
-        photoUri = null, typeId = null, openingHours = "", breakTime = null, closedDays = null)
+        photoUri = null, typeId = null, openingHours = "", breakTime = null, closedDays = null, syncId = "")
 }

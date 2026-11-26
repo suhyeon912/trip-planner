@@ -84,6 +84,8 @@ class MainActivity : AppCompatActivity() {
             val noTrips = list.isEmpty()
             viewRow.visibility = if (noTrips) View.GONE else View.VISIBLE
             (tabs.parent as View).visibility = if (noTrips) View.GONE else View.VISIBLE
+            // 내가 만든 여행이 생겼는데 복구 코드가 없으면 한 번 권함
+            if (list.any { it.trip.ownedByMe }) maybeSuggestRecoveryCode()
         }
         findViewById<View>(R.id.btnViewSettings).setOnClickListener { showViewSettings(it) }
 
@@ -150,7 +152,9 @@ class MainActivity : AppCompatActivity() {
         showSelect(anchor, listOf(
             SelectRow.Option(getString(R.string.action_edit)) { showTripForm(trip) },
             SelectRow.Option(getString(R.string.action_delete), danger = true) {
-                confirmDelete(this, trip.title, getString(R.string.trip_delete_confirm)) { viewModel.deleteTrip(trip) }
+                confirmDelete(this, trip.title, getString(R.string.trip_delete_confirm)) {
+                    viewModel.deleteTrip(trip) { undo -> showUndo(getString(R.string.trip_deleted, trip.title), undo) }
+                }
             }
         ), widthDp = 160)
     }

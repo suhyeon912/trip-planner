@@ -71,6 +71,11 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             toolbar.title = trip.title
             if (viewModel.mapMode.value != true) toolbar.subtitle = sharedSubtitle(trip)
         }
+        // 인터넷이 끊기거나 다시 연결되면 부제 갱신
+        NetworkState.online.observe(this) {
+            val trip = viewModel.trip.value ?: return@observe
+            if (viewModel.mapMode.value != true) toolbar.subtitle = sharedSubtitle(trip)
+        }
 
         // ---------- 탭 ----------
         tabs = findViewById(R.id.tabs)
@@ -353,6 +358,19 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
     }
 
     /** '공유 중 · 코드' 는 다른 사람과 함께 볼 때만 (혼자 쓰는 여행도 백업용 코드가 있어서) */
-    private fun sharedSubtitle(t: com.tripplanner.data.Trip): String? =
-        t.shareCode?.takeIf { !t.ownedByMe || t.members.isNotEmpty() }?.let { getString(R.string.shared_subtitle, it) }
+    override fun onResume() {
+        super.onResume()
+        PendingUndo.showIn(this)   // 장소 정보에서 지우고 돌아오면 '실행취소'
+    }
+
+    /** 부제: 공유 중이면 코드, 인터넷이 끊겼으면 '오프라인 · 마지막 동기화 11.20 10:20' (기기에는 그대로 저장됨) */
+    private fun sharedSubtitle(t: com.tripplanner.data.Trip): String? {
+        val share = (application as com.tripplanner.TripPlannerApp).share
+        if (NetworkState.online.value == false && share.isConfigured && t.shareCode != null) {
+            val at = share.lastSyncAt(t.id)
+            return if (at == 0L) getString(R.string.offline_subtitle_never)
+            else getString(R.string.offline_subtitle, java.text.SimpleDateFormat("M.d HH:mm", java.util.Locale.KOREA).format(java.util.Date(at)))
+        }
+        return t.shareCode?.takeIf { !t.ownedByMe || t.members.isNotEmpty() }?.let { getString(R.string.shared_subtitle, it) }
+    }
 }

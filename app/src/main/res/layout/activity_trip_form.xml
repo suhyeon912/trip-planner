@@ -95,6 +95,17 @@
                     tools:visibility="visible" />
             </FrameLayout>
 
+            <!-- 여행지 시간대: D-day · '여행 중'을 현지 날짜로 (비면 기기 시간대) -->
+            <TextView
+                style="@style/Widget.TripPlanner.FieldLabel"
+                android:layout_marginTop="@dimen/space_l"
+                android:text="@string/label_time_zone" />
+
+            <com.tripplanner.ui.SelectField
+                android:id="@+id/fieldZone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <!-- 표지 사진 (선택): 없으면 점선 '사진 업로드', 있으면 표지 미리보기 + 위치 조정 · 바꾸기 · 빼기 -->
             <TextView
                 style="@style/Widget.TripPlanner.FieldLabel"

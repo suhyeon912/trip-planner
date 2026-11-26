@@ -40,7 +40,8 @@ service cloud.firestore {
     }
     // 일정 코드 (일정 내보내기): 코드를 아는 로그인 사용자만 한 건씩 읽기 · 만든 사람만 만들기 · 지우기, 고치기 없음
     match /copies/{code} {
-      allow get: if request.auth != null;
+      // 기한(expiresAt, 30일)이 지난 코드는 읽을 수 없음 (예전 코드처럼 기한이 없으면 읽기 가능)
+      allow get: if request.auth != null && (!('expiresAt' in resource.data) || resource.data.expiresAt > request.time);
       allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerUid;
     }

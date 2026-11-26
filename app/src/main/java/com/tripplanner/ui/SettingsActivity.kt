@@ -163,6 +163,7 @@ class SettingsActivity : AppCompatActivity() {
                 finish()
             }
         }
+        row(share, R.drawable.ic_ticket, getString(R.string.exported_title)) { openExportedCodes() }
 
         val map = section(R.string.settings_map)
         val mapRow = row(map, R.drawable.ic_map, getString(R.string.settings_map_service), chevron = false) { showMapInfo(it) }

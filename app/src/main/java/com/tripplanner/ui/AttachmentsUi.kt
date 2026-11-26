@@ -76,7 +76,8 @@ class AttachmentsUi(
                 val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.files", f)
                 runCatching { takePhoto.launch(uri) }.onFailure { activity.showSnack(activity.getString(R.string.photo_failed)) }
             }
-        showSelect(anchor, rows, widthDp = 200)
+        // 맨 아래 안내: 파일은 서버에 백업되지 않음
+        showSelect(anchor, rows + SelectRow.Divider + SelectRow.Header(activity.getString(R.string.attach_device_only)), widthDp = 240)
     }
 
     private fun import(uri: Uri, forcedName: String?) {

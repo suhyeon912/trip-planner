@@ -18,6 +18,8 @@ class TravelInfoViewModel(app: Application, state: SavedStateHandle) : AndroidVi
     val flights = repo.observeFlights(tripId)
     val lodgings = repo.observeLodgings(tripId)
 
-    fun deleteFlight(f: Flight) = viewModelScope.launch { repo.deleteFlight(f) }
-    fun deleteLodging(l: Lodging) = viewModelScope.launch { repo.deleteLodging(l) }
+    fun deleteFlight(f: Flight, onDeleted: (com.tripplanner.data.TripRepository.Undo) -> Unit = {}) =
+        viewModelScope.launch { onDeleted(repo.deleteFlightUndoable(f)) }
+    fun deleteLodging(l: Lodging, onDeleted: (com.tripplanner.data.TripRepository.Undo) -> Unit = {}) =
+        viewModelScope.launch { onDeleted(repo.deleteLodgingUndoable(l)) }
 }

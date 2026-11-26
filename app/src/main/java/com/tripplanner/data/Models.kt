@@ -56,7 +56,9 @@ data class Trip(
     /** 경로 제안의 숙소 도착 목표 시각 (분, null = 자유) — DB 7 */
     val endMinutes: Int? = null,
     /** 일차별 하루의 시작 · 끝 장소 (DayAnchors 형식, 비면 모두 그날 숙소) — DB 10 */
-    @ColumnInfo(defaultValue = "") val dayAnchors: String = ""
+    @ColumnInfo(defaultValue = "") val dayAnchors: String = "",
+    /** 여행지 시간대 (IANA, 예: Europe/Paris). 비면 기기 시간대 — DB 11 */
+    @ColumnInfo(defaultValue = "") val timeZone: String = ""
 ) {
     /** 함께 보는 다른 사람 목록 */
     val members: List<String> get() = memberNames.split(", ").filter { it.isNotBlank() }
@@ -133,7 +135,9 @@ data class Place(
     /** 내가 만든 장소 종류 (place_types.id, 없으면 기본 종류 category) — DB 8 */
     val typeId: Long? = null,
     /** 검색으로 채운 장소의 Google 장소 id ('다시 가져오기'용, 모르면 빈 글자) — DB 8 */
-    @ColumnInfo(defaultValue = "") val sourceId: String = ""
+    @ColumnInfo(defaultValue = "") val sourceId: String = "",
+    /** 기기마다 같은 장소를 알아보는 id (공유 동기화에서 장소 단위로 합칠 때) — DB 11 */
+    @ColumnInfo(defaultValue = "") val syncId: String = ""
 ) {
     val hasLocation: Boolean get() = lat != 0.0 || lng != 0.0
 }

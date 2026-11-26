@@ -75,7 +75,12 @@ object TripFormat {
     fun shortDate(s: String): String = parse(s)?.let { "${it.monthValue}.${it.dayOfMonth}" } ?: s
 
     /** D-n / D-day / 여행 중 / 지난 여행 (날짜를 못 읽으면 null) */
-    fun dday(trip: Trip, today: LocalDate = LocalDate.now()): Dday? {
+    /** 여행지 시간대 (비었거나 모르는 이름이면 기기 시간대) */
+    fun zoneOf(trip: Trip): java.time.ZoneId =
+        trip.timeZone.takeIf { it.isNotBlank() }?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() } ?: java.time.ZoneId.systemDefault()
+
+    /** 오늘 = 여행지 시간대의 날짜 */
+    fun dday(trip: Trip, today: LocalDate = LocalDate.now(zoneOf(trip))): Dday? {
         val s = parse(trip.startDate) ?: return null
         val e = parse(trip.endDate) ?: return null
         return when {

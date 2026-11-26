@@ -76,6 +76,7 @@ object ShareCodec {
         "startMinutes" to s.trip.startMinutes,
         "endMinutes" to s.trip.endMinutes,
         "dayAnchors" to s.trip.dayAnchors,
+        "timeZone" to s.trip.timeZone,
         "places" to s.places.map { p ->
             mapOf(
                 "name" to p.name, "status" to p.status.name, "openingHours" to p.openingHours,
@@ -85,7 +86,7 @@ object ShareCodec {
                 "stay" to p.stayMinutes, "category" to p.category.name,
                 "address" to p.address, "addressDetail" to p.addressDetail, "locMemo" to p.locationMemo,
                 "links" to PlaceLinks.parse(p.links).map { mapOf("name" to it.name, "url" to it.url) },
-                "source" to p.sourceId,
+                "source" to p.sourceId, "sid" to p.syncId,
                 "type" to p.typeId?.let { s.types[it] }?.let { mapOf("name" to it.name, "icon" to it.icon, "color" to it.color) }
             )
         },
@@ -108,7 +109,8 @@ object ShareCodec {
             note = m.str("note") ?: "",
             startMinutes = m.int("startMinutes") ?: 600,
             endMinutes = m.int("endMinutes"),
-            dayAnchors = m.str("dayAnchors") ?: ""
+            dayAnchors = m.str("dayAnchors") ?: "",
+            timeZone = m.str("timeZone") ?: base.timeZone
         )
         val places = m.list("places").map { p ->
             Place(
@@ -127,7 +129,8 @@ object ShareCodec {
                 locationMemo = p.str("locMemo") ?: "",
                 links = PlaceLinks.encode(p.list("links").map { PlaceLink(it.str("name") ?: "", it.str("url") ?: "") }
                     .filter { it.url.isNotBlank() }),
-                sourceId = p.str("source") ?: ""
+                sourceId = p.str("source") ?: "",
+                syncId = p.str("sid") ?: ""
             )
         }
         @Suppress("UNCHECKED_CAST")

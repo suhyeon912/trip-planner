@@ -54,6 +54,12 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
     private val baseline = mutableMapOf<Long, TripSnapshot>()
     private val serverActivity = mutableMapOf<Long, List<ActivityEvent>>()
     private val pendingEvents = mutableMapOf<Long, MutableList<ActivityEvent>>()
+    /** 합치기 기준: 마지막으로 서버와 맞춘 문서 내용 (ShareCodec.toMap 모양) */
+    private val baseMap = mutableMapOf<Long, Map<String, Any?>>()
+
+    /** 마지막으로 서버와 맞춘 시각 (여행 id → 밀리초, 기기에 저장) — 오프라인 표시용 */
+    fun lastSyncAt(tripId: Long): Long = profile.getLong("sync_$tripId", 0L)
+    private fun markSynced(tripId: Long) { profile.edit().putLong("sync_$tripId", System.currentTimeMillis()).apply() }
 
     val isConfigured: Boolean by lazy {
         BuildConfig.HAS_FIREBASE && runCatching {
@@ -180,7 +186,7 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         profile.edit().putString("recovery_code", code).apply()
         if (oldUid != me) {
             listeners.values.forEach { it.remove() }; listeners.clear()
-            baseline.clear(); serverActivity.clear()
+            baseline.clear(); serverActivity.clear(); baseMap.clear()
             repo.getSharedTrips().forEach { t ->
                 val c = t.shareCode ?: return@forEach
                 if (t.ownedByMe && t.members.isEmpty()) {
@@ -205,6 +211,8 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
             val s = ShareCodec.fromMap(data, base)
             val id = repo.insertSharedTrip(s.trip, withLocalTypes(s), s.flights, s.lodgings)
             baseline[id] = s
+            baseMap[id] = data
+            markSynced(id)
             serverActivity[id] = ActivityLog.fromList(data["activity"])
             added++
         }
@@ -251,6 +259,8 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
                 )
                 db.collection(COLLECTION).document(code).set(data).await()
                 baseline[tripId] = snapshot(trip)
+                baseMap[tripId] = ShareCodec.toMap(snapshot(trip))
+                markSynced(tripId)
                 repo.setShareCode(trip, code)
                 listen(trip.copy(shareCode = code))
                 code
@@ -277,6 +287,8 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         val s = ShareCodec.fromMap(data, base)
         val id = repo.insertSharedTrip(s.trip, withLocalTypes(s), s.flights, s.lodgings)
         baseline[id] = s
+        baseMap[id] = data
+        markSynced(id)
         serverActivity[id] = ActivityLog.fromList(data["activity"])
         // '여행에 참여했어요' 기록 (참여 규칙은 멤버만 바꿀 수 있어서 내용 올리기와 함께)
         pendingEvents.getOrPut(id) { mutableListOf() } += ActivityEvent(me, nickname, ActivityEvent.Type.JOIN, at = System.currentTimeMillis())
@@ -287,15 +299,45 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
 
     // ---------------- 일정 내보내기 · 가져오기 ----------------
 
-    /** 지금 내용을 일정 코드로 올림 → 8자리 코드 (사진 · 자료 파일은 기기에만 있어 빠짐) */
+    /** 일정 코드가 유효한 기간 */
+    private val COPY_DAYS = 30L
+    class ExpiredException : Exception()
+
+    /** 내가 만든 일정 코드 (기기에 기록 · 설정 › 내보낸 일정 코드에서 보고 지우기) */
+    data class ExportedCode(val code: String, val title: String, val createdAt: Long, val expiresAt: Long)
+
+    fun exportedCodes(): List<ExportedCode> = runCatching {
+        val arr = org.json.JSONArray(profile.getString("exported_codes", "[]"))
+        (0 until arr.length()).map { i -> arr.getJSONObject(i).let {
+            ExportedCode(it.getString("code"), it.optString("title"), it.optLong("created"), it.optLong("expires")) } }
+    }.getOrDefault(emptyList()).filter { it.expiresAt > System.currentTimeMillis() }.sortedByDescending { it.createdAt }
+
+    private fun saveExported(list: List<ExportedCode>) {
+        val arr = org.json.JSONArray()
+        list.forEach { arr.put(org.json.JSONObject().put("code", it.code).put("title", it.title).put("created", it.createdAt).put("expires", it.expiresAt)) }
+        profile.edit().putString("exported_codes", arr.toString()).apply()
+    }
+
+    /** 일정 코드 지우기 → 그 코드로는 더 이상 가져올 수 없음 */
+    suspend fun deleteCopy(code: String) {
+        uid()
+        db.collection(COPIES).document(code).delete().await()
+        saveExported(exportedCodes().filter { it.code != code })
+    }
+
+    /** 지금 내용을 일정 코드로 올림 → 8자리 코드 (사진 · 자료 파일은 기기에만 있어 빠짐, 30일 동안 유효) */
     suspend fun exportCopy(tripId: Long, schedule: Boolean, transport: Boolean, lodging: Boolean, memos: Boolean): String {
         val me = uid()
         val trip = repo.getTrip(tripId) ?: throw NotFoundException()
         val s = ShareCodec.forExport(snapshot(trip), schedule, transport, lodging, memos)
         var code: String
         do { code = ShareCodec.newCopyCode() } while (db.collection(COPIES).document(code).get().await().exists())
-        val data = ShareCodec.toMap(s) + mapOf("ownerUid" to me, "fromName" to nickname, "createdAt" to FieldValue.serverTimestamp())
+        val now = System.currentTimeMillis()
+        val expires = now + COPY_DAYS * 24 * 60 * 60 * 1000
+        val data = ShareCodec.toMap(s) + mapOf("ownerUid" to me, "fromName" to nickname, "createdAt" to FieldValue.serverTimestamp(),
+            "expiresAt" to com.google.firebase.Timestamp(java.util.Date(expires)))
         db.collection(COPIES).document(code).set(data).await()
+        saveExported(listOf(ExportedCode(code, trip.title, now, expires)) + exportedCodes())
         return code
     }
 
@@ -303,8 +345,13 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
     suspend fun importCopy(rawCode: String): Long {
         val code = ShareCodec.normalize(rawCode)
         uid()
-        val doc = db.collection(COPIES).document(code).get().await()
+        val doc = try { db.collection(COPIES).document(code).get().await() }
+            catch (e: com.google.firebase.firestore.FirebaseFirestoreException) {
+                // 기한이 지난 코드는 보안 규칙이 읽기를 막음
+                if (e.code == com.google.firebase.firestore.FirebaseFirestoreException.Code.PERMISSION_DENIED) throw ExpiredException() else throw e
+            }
         if (!doc.exists()) throw NotFoundException()
+        doc.getTimestamp("expiresAt")?.let { if (it.toDate().time < System.currentTimeMillis()) throw ExpiredException() }
         val base = Trip(title = "", startDate = "", endDate = "")
         val s = ShareCodec.fromMap(doc.data ?: emptyMap(), base)
         val id = repo.insertSharedTrip(s.trip.copy(shareCode = null, ownedByMe = true, updatedAt = System.currentTimeMillis()),
@@ -377,19 +424,26 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
                 serverActivity[trip.id] = ActivityLog.fromList(snap.get("activity"))
                 if (snap.getString("updatedBy") == me) {   // 내가 올린 것
                     if (trip.id !in baseline) scope.launch { baseline[trip.id] = ShareCodec.fromMap(snap.data ?: return@launch, trip) }
+                    if (trip.id !in baseMap) snap.data?.let { baseMap[trip.id] = it }
+                    markSynced(trip.id)
                     return@addSnapshotListener
                 }
+                // 내가 바꾼 것을 올리려는 중이면 받지 않음 (올릴 때 서버 내용과 합침)
+                if (pushJobs[trip.id]?.isActive == true) return@addSnapshotListener
                 scope.launch { applyRemote(trip.id, snap.data ?: return@launch, inviter, others) }
             }
         }
     }
 
-    private suspend fun applyRemote(tripId: Long, data: Map<String, Any?>, inviter: String, others: List<String>) {
+    private suspend fun applyRemote(tripId: Long, data: Map<String, Any?>, inviter: String? = null, others: List<String>? = null) {
         val local = repo.getTrip(tripId) ?: return
-        val s = ShareCodec.fromMap(data, local.copy(inviterName = inviter, memberNames = others.joinToString(", ")))
+        val s = ShareCodec.fromMap(data, local.copy(inviterName = inviter ?: local.inviterName,
+            memberNames = others?.joinToString(", ") ?: local.memberNames))
         // 사진은 기기에만 있으므로 같은 이름 장소의 내 사진을 그대로 유지
         val photos = repo.getPlaces(tripId).filter { it.photoUri != null }.associate { it.name to it.photoUri }
         baseline[tripId] = s
+        baseMap[tripId] = data
+        markSynced(tripId)
         applying += tripId
         try {
             repo.replaceTripContents(s.trip, withLocalTypes(s).map { it.copy(photoUri = photos[it.name]) }, s.flights, s.lodgings)
@@ -411,16 +465,29 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
             runCatching {
                 val me = uid()
                 val now = snapshot(trip)
+                val localMap = ShareCodec.toMap(now)
                 // 지난번 맞춘 내용과 비교해 내가 바꾼 것을 활동 기록으로
                 val events = (baseline[tripId]?.let { ActivityLog.diff(it, now, me, nickname, System.currentTimeMillis()) } ?: emptyList()) +
                     pendingEvents.remove(tripId).orEmpty()
-                val activity = ActivityLog.append(serverActivity[tripId].orEmpty(), events)
-                val data = ShareCodec.toMap(now) + mapOf(
-                    "updatedBy" to me, "updatedAt" to FieldValue.serverTimestamp(),
-                    "activity" to activity.map { ActivityLog.toMap(it) })
-                db.collection(COLLECTION).document(code).set(data, SetOptions.merge()).await()
-                baseline[tripId] = now
+                // 서버 내용을 읽어 장소 단위로 합친 뒤 올림 (그사이 다른 사람이 바꾼 것을 지우지 않게)
+                val ref = db.collection(COLLECTION).document(code)
+                var merged: Map<String, Any?> = localMap
+                var activity: List<ActivityEvent> = emptyList()
+                db.runTransaction { tx ->
+                    val snap = tx.get(ref)
+                    merged = ShareMerge.merge(baseMap[tripId], localMap, snap.data)
+                    activity = ActivityLog.append(ActivityLog.fromList(snap.get("activity")), events)
+                    tx.set(ref, merged + mapOf(
+                        "updatedBy" to me, "updatedAt" to FieldValue.serverTimestamp(),
+                        "activity" to activity.map { ActivityLog.toMap(it) }), SetOptions.merge())
+                    null
+                }.await()
+                baseMap[tripId] = merged
                 serverActivity[tripId] = activity
+                markSynced(tripId)
+                // 다른 사람이 바꾼 것이 섞였으면 내 기기에도 반영
+                if (!ShareMerge.same(merged, localMap)) applyRemote(tripId, merged)
+                else baseline[tripId] = now
             }.onFailure { Log.w(TAG, "올리기 실패", it) }
         }
     }

@@ -2,12 +2,18 @@ package com.tripplanner.data
 
 import androidx.lifecycle.LiveData
 import androidx.room.withTransaction
+import kotlinx.coroutines.launch
 
 /**
  * 화면(ViewModel)은 DAO 를 직접 보지 않고 이 Repository 를 통해서만 데이터를 다룹니다.
  * 공유 중인 여행이 바뀌면 changeListener 로 알려서 서버(Firebase)에 올립니다.
  */
 class TripRepository(private val db: AppDatabase) {
+
+    companion object {
+        /** 지운 뒤 '실행취소'를 받을 수 있는 시간 (알림이 떠 있는 동안) */
+        const val UNDO_MS = 6000L
+    }
 
     private val dao = db.tripDao()
 
@@ -25,6 +31,62 @@ class TripRepository(private val db: AppDatabase) {
     suspend fun updateTrip(trip: Trip) { dao.updateTrip(trip); changed(trip.id) }
     suspend fun deleteTrip(trip: Trip) { deleteListener?.invoke(trip); dao.deleteTrip(trip) }
     suspend fun getAllTrips() = dao.getAllTrips()
+
+    // ---------- 지운 것 되돌리기 ----------
+
+    /** 지운 직후 '실행취소' (UNDO_MS 안에만). 시간이 지나면 commit 이 실행되어 서버 · 파일까지 정리 */
+    class Undo internal constructor(private val restore: suspend () -> Unit, private val job: kotlinx.coroutines.Job) {
+        /** 되돌림 (이미 확정됐으면 false) */
+        suspend fun undo(): Boolean {
+            if (!job.isActive) return false
+            job.cancel(); restore(); return true
+        }
+    }
+    private val trashScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
+    private fun later(commit: suspend () -> Unit) = trashScope.launch {
+        kotlinx.coroutines.delay(UNDO_MS)
+        kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { commit() }
+    }
+
+    /**
+     * 여행 지우기 (되돌릴 수 있게): 기기에서는 바로 지우고, 서버 백업 · 공유에서 빼기와 파일 정리(onCommit)는 UNDO_MS 뒤에.
+     * 되돌리면 같은 id 로 여행 · 장소 · 교통 · 숙소 · 자료를 그대로 다시 넣음.
+     */
+    suspend fun deleteTripUndoable(trip: Trip, onCommit: suspend () -> Unit = {}): Undo {
+        val places = dao.getPlaces(trip.id); val flights = dao.getFlights(trip.id)
+        val lodgings = dao.getLodgings(trip.id); val files = dao.getAttachments(trip.id)
+        dao.deleteTrip(trip)
+        val job = later { deleteListener?.invoke(trip); onCommit() }
+        return Undo({
+            db.withTransaction {
+                dao.insertTrip(trip)
+                places.forEach { dao.insertPlace(it) }; flights.forEach { dao.insertFlight(it) }
+                lodgings.forEach { dao.insertLodging(it) }; files.forEach { dao.insertAttachment(it) }
+            }
+        }, job)
+    }
+
+    /** 장소 지우기 (되돌릴 수 있게): 붙은 자료 파일은 UNDO_MS 뒤에 지움 */
+    suspend fun deletePlaceUndoable(p: Place): Undo {
+        val files = dao.getPlaceAttachments(p.id)
+        files.forEach { dao.deleteAttachment(it) }
+        dao.deletePlace(p); changed(p.tripId)
+        val job = later { files.forEach { deleteAttachmentFile(it) } }
+        return Undo({
+            db.withTransaction { dao.insertPlace(p); files.forEach { dao.insertAttachment(it) } }
+            changed(p.tripId)
+        }, job)
+    }
+
+    suspend fun deleteFlightUndoable(f: Flight): Undo {
+        deleteFlight(f)
+        return Undo({ dao.insertFlight(f); changed(f.tripId) }, later {})
+    }
+
+    suspend fun deleteLodgingUndoable(l: Lodging): Undo {
+        deleteLodging(l)
+        return Undo({ dao.insertLodging(l); changed(l.tripId) }, later {})
+    }
 
     // 비행기
     fun observeFlights(tripId: Long) = dao.observeFlights(tripId)
@@ -44,7 +106,7 @@ class TripRepository(private val db: AppDatabase) {
     suspend fun getPlace(id: Long) = dao.getPlace(id)
     suspend fun savePlace(place: Place) {
         // 날짜를 안 정했으면 후보 (확정은 늘 일차가 있음)
-        val p = if (place.status == PlaceStatus.CONFIRMED && place.day == null) place.copy(status = PlaceStatus.CANDIDATE, orderInDay = null) else place
+        val p = withSyncId(if (place.status == PlaceStatus.CONFIRMED && place.day == null) place.copy(status = PlaceStatus.CANDIDATE, orderInDay = null) else place)
         if (p.id == 0L) dao.insertPlace(p)
         else {
             // 이름을 바꾸면 하루의 시작 · 끝에 적힌 이름도 같이
@@ -57,6 +119,12 @@ class TripRepository(private val db: AppDatabase) {
         }
         changed(p.tripId)
     }
+    /** 동기화 id 가 없는 장소(예시 데이터 · 예전 버전)에 id 매기기 — 내용은 그대로라 다시 올리지 않음 */
+    suspend fun ensureSyncIds() {
+        val blank = dao.getAllTrips().flatMap { t -> dao.getPlaces(t.id) }.filter { it.syncId.isBlank() }
+        if (blank.isNotEmpty()) dao.updatePlaces(blank.map { withSyncId(it) })
+    }
+
     /** 예전 '일차 미정' 확정 장소 → 후보로 (앱 시작 때 한 번씩, 바뀐 여행은 공유 · 백업에도 반영) */
     suspend fun undatedToCandidates() {
         val fixed = dao.getAllTrips().flatMap { t -> dao.getPlaces(t.id) }
@@ -120,7 +188,7 @@ class TripRepository(private val db: AppDatabase) {
             val files = dao.getAttachments(trip.id).filter { it.placeId != null }
             dao.updateTrip(trip)
             dao.deletePlacesOf(trip.id); dao.deleteFlightsOf(trip.id); dao.deleteLodgingsOf(trip.id)
-            val newIds = places.associate { it.name to dao.insertPlace(it.copy(id = 0, tripId = trip.id)) }
+            val newIds = places.associate { it.name to dao.insertPlace(withSyncId(it).copy(id = 0, tripId = trip.id)) }
             flights.forEach { dao.insertFlight(it.copy(id = 0, tripId = trip.id)) }
             lodgings.forEach { dao.insertLodging(it.copy(id = 0, tripId = trip.id)) }
             dao.updateAttachments(files.map { a -> a.copy(placeId = newIds[oldNames[a.placeId]]) })
@@ -131,7 +199,7 @@ class TripRepository(private val db: AppDatabase) {
     suspend fun insertSharedTrip(trip: Trip, places: List<Place>, flights: List<Flight>, lodgings: List<Lodging>): Long =
         db.withTransaction {
             val id = dao.insertTrip(trip.copy(id = 0))
-            places.forEach { dao.insertPlace(it.copy(id = 0, tripId = id)) }
+            places.forEach { dao.insertPlace(withSyncId(it).copy(id = 0, tripId = id)) }
             flights.forEach { dao.insertFlight(it.copy(id = 0, tripId = id)) }
             lodgings.forEach { dao.insertLodging(it.copy(id = 0, tripId = id)) }
             id
@@ -145,4 +213,7 @@ class TripRepository(private val db: AppDatabase) {
             SampleData.insertAll(dao, cover)
         }
     }
+
+    /** 동기화 id 가 없으면 새로 매김 */
+    private fun withSyncId(p: Place) = if (p.syncId.isBlank()) p.copy(syncId = java.util.UUID.randomUUID().toString().replace("-", "")) else p
 }

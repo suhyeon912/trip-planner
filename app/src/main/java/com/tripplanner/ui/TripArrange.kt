@@ -26,10 +26,11 @@ sealed class TripRow {
 object TripArrange {
     private val collator: Collator = Collator.getInstance(Locale.KOREAN)
 
-    fun rows(list: List<TripWithCounts>, sort: TripSort, showPast: Boolean, today: LocalDate = LocalDate.now(),
+    fun rows(list: List<TripWithCounts>, sort: TripSort, showPast: Boolean, today: LocalDate? = null,
              filter: TripFilter = TripFilter.ALL): List<TripRow> {
         val shown = list.filter { matches(it, filter) }
-        val (past, active) = shown.partition { TripFormat.dday(it.trip, today)?.phase == TripFormat.Phase.PAST }
+        val (past, active) = shown.partition {
+            (if (today != null) TripFormat.dday(it.trip, today) else TripFormat.dday(it.trip))?.phase == TripFormat.Phase.PAST }
         val sorted = when (sort) {
             TripSort.NAME -> active.sortedWith { a, b -> collator.compare(a.trip.title, b.trip.title) }
             TripSort.RECENT -> active.sortedByDescending { it.trip.id }

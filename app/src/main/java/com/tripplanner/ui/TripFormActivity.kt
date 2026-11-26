@@ -54,6 +54,9 @@ class TripFormActivity : AppCompatActivity() {
     private lateinit var layoutPeriod: TpTextField
     private lateinit var inputPeriod: EditText
     private lateinit var tvNights: TextView
+    private lateinit var fieldZone: SelectField
+    /** 여행지 시간대 (빈 글자 = 기기 시간대) */
+    private var zone = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +74,15 @@ class TripFormActivity : AppCompatActivity() {
         layoutPeriod = findViewById(R.id.layoutPeriod)
         inputPeriod = findViewById(R.id.inputPeriod)
         tvNights = findViewById(R.id.tvNights)
+        fieldZone = findViewById(R.id.fieldZone)
+        fieldZone.label = getString(R.string.label_time_zone)
+        fieldZone.setIcon(R.drawable.ic_schedule)
+        fieldZone.setDropdown(true)
+        fieldZone.setOnClickListener { v ->
+            showSelect(v, listOf(SelectRow.Option(TimeZones.label(this, ""), selected = zone.isBlank()) { zone = ""; showZone() }) +
+                TimeZones.LIST.map { (id, _) -> SelectRow.Option(TimeZones.label(this, id), selected = zone == id) { zone = id; showZone() } },
+                widthDp = (v.width / resources.displayMetrics.density).toInt())
+        }
 
         inputName.doAfterTextChanged { if (!it.isNullOrBlank()) layoutName.error = null }
         inputPeriod.setOnClickListener { pickPeriod() }
@@ -93,8 +105,10 @@ class TripFormActivity : AppCompatActivity() {
             coverY = savedInstanceState.getFloat("coverY", 0.5f)
             coverScale = savedInstanceState.getFloat("coverScale", 1f)
             cameraFile = savedInstanceState.getString("camera")?.let { java.io.File(it) }
+            zone = savedInstanceState.getString("zone", "")
             showPeriod()
         }
+        showZone()
         showCover()
         if (tripId != 0L) lifecycleScope.launch {
             trip = repo.getTrip(tripId) ?: run { finish(); return@launch }
@@ -102,14 +116,16 @@ class TripFormActivity : AppCompatActivity() {
                 trip!!.let {
                     inputName.setText(it.title); start = it.startDate; end = it.endDate
                     cover = it.coverPhoto; coverY = it.coverY; coverScale = it.coverScale
+                    zone = it.timeZone
                 }
-                showPeriod(); showCover()
+                showPeriod(); showCover(); showZone()
             }
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putString("zone", zone)
         outState.putString("start", start); outState.putString("end", end)
         outState.putString("cover", cover); outState.putFloat("coverY", coverY); outState.putFloat("coverScale", coverScale)
         outState.putString("camera", cameraFile?.absolutePath)
@@ -179,6 +195,8 @@ class TripFormActivity : AppCompatActivity() {
             .joinToString(", ").ifBlank { null }
     }
 
+    private fun showZone() = fieldZone.setValue(TimeZones.label(this, zone))
+
     private fun save() {
         val title = inputName.text.toString().trim()
         val datesOk = runCatching { !LocalDate.parse(end).isBefore(LocalDate.parse(start)) }.getOrDefault(false)
@@ -190,12 +208,12 @@ class TripFormActivity : AppCompatActivity() {
             // 저장 직전에 다시 읽어서 그사이 바뀐 메모·공유 정보 등을 덮어쓰지 않게
             val old = trip?.let { repo.getTrip(it.id) ?: it }
             if (old == null) repo.addTrip(Trip(title = title, startDate = start, endDate = end,
-                coverPhoto = cover, coverY = coverY, coverScale = coverScale))
+                coverPhoto = cover, coverY = coverY, coverScale = coverScale, timeZone = zone))
             else {
                 // 표지를 바꾸거나 뺐으면 예전 사진 파일 정리
                 if (old.coverPhoto != null && old.coverPhoto != cover) Photos.delete(this@TripFormActivity, old.coverPhoto)
                 repo.updateTrip(old.copy(title = title, startDate = start, endDate = end,
-                    coverPhoto = cover, coverY = coverY, coverScale = coverScale))
+                    coverPhoto = cover, coverY = coverY, coverScale = coverScale, timeZone = zone))
             }
             finish()
         }

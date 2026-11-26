@@ -22,8 +22,8 @@ class TripListViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun deleteTrip(trip: Trip) = viewModelScope.launch {
-        repo.deleteTrip(trip)
-        Photos.delete(getApplication(), trip.coverPhoto)   // 표지 사진 파일도 정리
+    /** 지우기 → onDeleted(되돌리기). 표지 사진 파일 · 서버 정리는 되돌릴 시간이 지난 뒤 */
+    fun deleteTrip(trip: Trip, onDeleted: (com.tripplanner.data.TripRepository.Undo) -> Unit = {}) = viewModelScope.launch {
+        onDeleted(repo.deleteTripUndoable(trip) { Photos.delete(getApplication(), trip.coverPhoto) })
     }
 }

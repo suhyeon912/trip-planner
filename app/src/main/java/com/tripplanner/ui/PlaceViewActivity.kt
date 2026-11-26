@@ -219,7 +219,10 @@ class PlaceViewActivity : AppCompatActivity() {
             },
             SelectRow.Option(getString(R.string.action_delete), danger = true) {
                 confirmDelete(this, p.name, getString(R.string.place_delete_confirm)) {
-                    lifecycleScope.launch { repo.deletePlace(p); finish() }
+                    lifecycleScope.launch {
+                        PendingUndo.put(getString(R.string.place_deleted, p.name), repo.deletePlaceUndoable(p))
+                        finish()
+                    }
                 }
             }
         ), widthDp = 168)

@@ -295,6 +295,7 @@ fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
                         .onFailure {
                             wait.dismiss()
                             layout.error = if (it is ShareManager.NotFoundException) getString(R.string.join_not_found)
+                                           else if (it is ShareManager.ExpiredException) getString(R.string.import_expired)
                                            else if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
                                            else getString(R.string.import_failed, it.message ?: it.javaClass.simpleName)
                         }
@@ -394,5 +395,98 @@ fun AppCompatActivity.openRestore(onDone: (Int) -> Unit = {}) {
             }
         }
     }
+    dialog.show()
+}
+
+/**
+ * 복구 코드 권하기: 내가 만든 여행이 있는데 복구 코드를 아직 안 만들었으면 (앱을 켤 때 한 번, '나중에'는 7일 뒤 다시).
+ * 복구 코드가 없으면 폰을 잃어버린 뒤에는 여행을 되찾을 수 없어서.
+ */
+private var suggestedThisRun = false
+fun AppCompatActivity.maybeSuggestRecoveryCode() {
+    if (suggestedThisRun || !share.isConfigured || share.savedRecoveryCode != null) return
+    val prefs = getSharedPreferences("profile", android.content.Context.MODE_PRIVATE)
+    if (System.currentTimeMillis() < prefs.getLong("recovery_prompt_after", 0L)) return
+    suggestedThisRun = true
+    TpDialog.Builder(this)
+        .setTitle(R.string.recovery_suggest_title)
+        .setMessage(R.string.recovery_suggest_body)
+        .setPositiveButton(R.string.recovery_suggest_make) { _, _ -> openRecoveryCode() }
+        .setNegativeButton(R.string.later) { _, _ ->
+            prefs.edit().putLong("recovery_prompt_after", System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000).apply()
+        }
+        .show()
+}
+
+/** 설정 › 내보낸 일정 코드: 아직 기한이 남은 코드 목록 · 하나씩 지우기 */
+fun AppCompatActivity.openExportedCodes() {
+    if (!share.isConfigured) { notConfigured(); return }
+    val d = resources.displayMetrics.density
+    val box = android.widget.LinearLayout(this).apply {
+        orientation = android.widget.LinearLayout.VERTICAL
+        val side = resources.getDimensionPixelSize(R.dimen.space_xl)
+        setPadding(side, 0, side - (8 * d).toInt(), 0)
+    }
+    val dialog = TpDialog.Builder(this)
+        .setTitle(R.string.exported_title)
+        .setMessage(R.string.exported_intro)
+        .setCloseButton()
+        .setView(box)
+        .create()
+    fun render() {
+        box.removeAllViews()
+        val list = share.exportedCodes()
+        if (list.isEmpty()) {
+            box.addView(TextView(this).apply {
+                setText(R.string.exported_empty)
+                setTextAppearance(R.style.TextAppearance_TripPlanner_BodyMedium)
+                setTextColor(color(R.color.text_sub))
+                setPadding(0, (4 * d).toInt(), 0, (16 * d).toInt())
+            })
+            return
+        }
+        val fmt = java.text.SimpleDateFormat("M.d", java.util.Locale.KOREA)
+        list.forEach { c ->
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                minimumHeight = (56 * d).toInt()
+            }
+            val texts = android.widget.LinearLayout(this).apply { orientation = android.widget.LinearLayout.VERTICAL }
+            texts.addView(TextView(this).apply {
+                text = c.code; letterSpacing = 0.08f
+                setTextAppearance(R.style.TextAppearance_TripPlanner_TitleMedium)
+                setTextColor(color(R.color.on_surface))
+                contentDescription = c.code.toCharArray().joinToString(" ")
+            })
+            texts.addView(TextView(this).apply {
+                text = getString(R.string.exported_row_sub, c.title, fmt.format(java.util.Date(c.expiresAt)))
+                setTextAppearance(R.style.TextAppearance_TripPlanner_BodySmall)
+                setTextColor(color(R.color.text_sub))
+            })
+            row.addView(texts, android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            row.addView(com.tripplanner.ui.widget.TpButton(this, null, 0).apply {
+                text = getString(R.string.action_delete)
+                setTextAppearance(R.style.TextAppearance_TripPlanner_LabelLarge)
+                setTextColor(color(R.color.badge_red))
+                background = null
+                foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_r16)
+                minHeight = (48 * d).toInt(); minimumHeight = minHeight
+                setPaddingRelative((12 * d).toInt(), 0, (12 * d).toInt(), 0)
+                contentDescription = getString(R.string.exported_delete_a11y, c.code)
+                setOnClickListener {
+                    confirmDelete(this@openExportedCodes, c.code, getString(R.string.exported_delete_confirm)) {
+                        lifecycleScope.launch {
+                            runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.deleteCopy(c.code) } }
+                                .onSuccess { render() }
+                                .onFailure { e -> toast(getString(R.string.share_failed, e.message ?: e.javaClass.simpleName)) }
+                        }
+                    }
+                }
+            })
+            box.addView(row)
+        }
+    }
+    render()
     dialog.show()
 }

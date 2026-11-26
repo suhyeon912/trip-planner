@@ -141,7 +141,8 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
     }
 
     fun updateMemo(place: Place, memo: String) = save(place.copy(memo = memo))
-    fun deletePlace(place: Place) = viewModelScope.launch { repo.deletePlace(place) }
+    fun deletePlace(place: Place, onDeleted: (com.tripplanner.data.TripRepository.Undo) -> Unit = {}) =
+        viewModelScope.launch { onDeleted(repo.deletePlaceUndoable(place)) }
 
     fun updateNote(note: String) = viewModelScope.launch {
         trip.value?.let { repo.updateTrip(it.copy(note = note)) }
