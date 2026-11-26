@@ -116,7 +116,7 @@ git clone https://github.com/suhyeon912/trip-planner.git
 - 모든 여행을 서버에 자동 백업 (사진 · 예약·티켓 파일은 기기에만)
 - 설정 → 복구 코드: 앱을 지웠다 깔거나 폰을 바꿔도 코드로 내 여행을 다시 불러오기 (내 여행이 생기면 한 번 권함)
 - 여행 · 장소 · 교통편 · 숙소를 지운 뒤 알림의 '실행취소'로 되돌리기 (6초)
-- 여행지 시간대: D-day · '여행 중'을 현지 날짜로
+- 여행지 시간대: 자동 설정(여행 이름으로 추천, 예: 도쿄 → 일본) 또는 직접 고르기, D-day · '여행 중'을 현지 날짜로
 
 **설정**
 - 기본 정렬, 테마 (기기 설정 / 밝게 / 어둡게)
@@ -186,7 +186,7 @@ trip-planner/
 | `share/ActivityLogTest.kt` | 4 | 활동 기록: 바뀐 것 찾기 · 문서 변환 · 100개 제한 |
 | `ui/MapProviderTest.kt` | 4 | 카카오 / 구글 / OpenStreetMap 지도 고르기 |
 | `ui/PlaceSearchTest.kt` | 4 | 검색 결과의 종류 · 운영시간 · 브레이크 · 휴무일 |
-| `ui/TripFormatTest.kt` | 6 | 여행 날짜 표시 · 여행지 시간대 |
+| `ui/TripFormatTest.kt` | 7 | 여행 날짜 표시 · 여행지 시간대 · 이름으로 시간대 추천 |
 | `ui/TripArrangeTest.kt` | 3 | 메인 목록 배치 · 정렬 · 지난 여행 |
 | `ui/CoverPhotoTest.kt` | 2 | 표지 사진 보이는 범위 계산 |
 | `ui/GeocodingTest.kt` | 2 | 직접 쓴 주소 → 좌표 |

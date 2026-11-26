@@ -47,9 +47,20 @@ class TripFormatTest {
     }
 
     @Test fun zoneOf_tripZoneOrDevice() {
-        val t = com.tripplanner.data.Trip(title = "파리", startDate = "2026-12-01", endDate = "2026-12-05", timeZone = "Europe/Paris")
+        val t = com.tripplanner.data.Trip(title = "졸업 여행", startDate = "2026-12-01", endDate = "2026-12-05", timeZone = "Europe/Paris")
         org.junit.Assert.assertEquals("Europe/Paris", TripFormat.zoneOf(t).id)
         org.junit.Assert.assertEquals(java.time.ZoneId.systemDefault(), TripFormat.zoneOf(t.copy(timeZone = "")))
         org.junit.Assert.assertEquals(java.time.ZoneId.systemDefault(), TripFormat.zoneOf(t.copy(timeZone = "Nowhere/Zone")))
+    }
+
+    @Test fun autoZone_fromTripTitle() {
+        assertEquals("Asia/Tokyo", TimeZones.detect("도쿄 3박 4일")?.first)
+        assertEquals("Europe/Paris", TimeZones.detect("파리 신혼여행")?.first)
+        assertEquals("America/Los_Angeles", TimeZones.detect("LA 일주일")?.first)
+        assertEquals(null, TimeZones.detect("PLAN 정리"))           // LA 는 낱말일 때만
+        assertEquals(null, TimeZones.detect("세부 일정 정리"))
+        val t = com.tripplanner.data.Trip(title = "하와이 5일", startDate = "2026-12-01", endDate = "2026-12-05")
+        assertEquals("Pacific/Honolulu", TripFormat.zoneOf(t).id)       // 자동 설정
+        assertEquals("Asia/Seoul", TripFormat.zoneOf(t.copy(timeZone = "Asia/Seoul")).id)  // 직접 고른 것이 먼저
     }
 }

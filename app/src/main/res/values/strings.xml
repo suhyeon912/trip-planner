@@ -208,7 +208,7 @@
     <string name="exported_delete_a11y">%1$s 코드 지우기</string>
     <string name="exported_delete_confirm">위 일정 코드를 지우시겠습니까?</string>
     <string name="label_time_zone">여행지 시간대</string>
-    <string name="zone_device">휴대폰 시간 따라가기 (%1$s)</string>
+    <string name="zone_auto">자동 설정 (%1$s)</string>
     <string name="share_invite">공유·초대</string>
     <string name="join_with_code">코드로 참여</string>
     <string name="share_not_configured_title">공유 설정이 필요해요</string>

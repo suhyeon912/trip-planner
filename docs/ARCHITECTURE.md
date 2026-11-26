@@ -204,7 +204,7 @@ DB 구조를 바꾸면 `version`을 1 올리고 `MIGRATION_n_n+1`을 추가하�
 - `TripRepository.delete*Undoable`: 기기에서는 바로 지우고, 서버 백업 · 공유에서 빼기와 파일 정리는 6초(`UNDO_MS`) 뒤에. 그 안에 '실행취소'를 누르면 같은 id 로 다시 넣습니다.
 
 **여행지 시간대**
-- `Trip.timeZone`(IANA, DB 11, 비면 기기 시간대). D-day · '여행 중' · 지난 여행 판단을 현지 날짜로 합니다 (`TripFormat.zoneOf`).
+- `Trip.timeZone`(IANA, DB 11). 비면 **자동 설정**: 여행 이름의 나라 · 도시 낱말로 추천(`TimeZones.detect`, 예: 도쿄 → 일본), 없으면 휴대폰 시간대. D-day · '여행 중' · 지난 여행 판단을 현지 날짜로 합니다 (`TripFormat.zoneOf`).
 
 **닉네임**
 - 공유를 시작하거나 참여할 때 닉네임을 받아 문서의 `names`에 올립니다.

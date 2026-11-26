@@ -79,12 +79,12 @@ class TripFormActivity : AppCompatActivity() {
         fieldZone.setIcon(R.drawable.ic_schedule)
         fieldZone.setDropdown(true)
         fieldZone.setOnClickListener { v ->
-            showSelect(v, listOf(SelectRow.Option(TimeZones.label(this, ""), selected = zone.isBlank()) { zone = ""; showZone() }) +
+            showSelect(v, listOf(SelectRow.Option(TimeZones.label(this, "", inputName.text.toString()), selected = zone.isBlank()) { zone = ""; showZone() }) +
                 TimeZones.LIST.map { (id, _) -> SelectRow.Option(TimeZones.label(this, id), selected = zone == id) { zone = id; showZone() } },
                 widthDp = (v.width / resources.displayMetrics.density).toInt())
         }
 
-        inputName.doAfterTextChanged { if (!it.isNullOrBlank()) layoutName.error = null }
+        inputName.doAfterTextChanged { if (!it.isNullOrBlank()) layoutName.error = null; if (zone.isBlank()) showZone() }   // 자동 설정: 이름에 따라 추천
         inputPeriod.setOnClickListener { pickPeriod() }
 
         findViewById<View>(R.id.btnCoverUpload).setOnClickListener { chooseCover(it) }
@@ -195,7 +195,7 @@ class TripFormActivity : AppCompatActivity() {
             .joinToString(", ").ifBlank { null }
     }
 
-    private fun showZone() = fieldZone.setValue(TimeZones.label(this, zone))
+    private fun showZone() = fieldZone.setValue(TimeZones.label(this, zone, inputName.text.toString()))
 
     private fun save() {
         val title = inputName.text.toString().trim()
