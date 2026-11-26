@@ -34,7 +34,14 @@ object TimeZones {
         return "UTC" + (if (secs >= 0) "+" else "-") + Math.abs(h) + (if (m != 0) ":%02d".format(m) else "")
     }
 
+    /** 시간대 이름: 목록에 있으면 그 이름(한국 · 일본 …), 없으면 대표 도시 이름(예: 런던), 그것도 없으면 IANA 이름 */
+    fun placeName(id: String): String =
+        LIST.firstOrNull { it.first == id }?.second
+            ?: runCatching { android.icu.text.TimeZoneNames.getInstance(java.util.Locale.KOREAN).getExemplarLocationName(id) }.getOrNull()
+            ?: if (id == "UTC" || id.startsWith("Etc/") || id == "GMT") "세계 표준시" else id.substringAfterLast('/').replace('_', ' ')
+
+    /** "일본 · UTC+9", 기본값은 "휴대폰 시간 따라가기 (한국 · UTC+9)" */
     fun label(ctx: Context, id: String): String =
-        if (id.isBlank()) ctx.getString(R.string.zone_device, offset(ZoneId.systemDefault().id))
-        else (LIST.firstOrNull { it.first == id }?.second ?: id) + " · " + offset(id)
+        if (id.isBlank()) ZoneId.systemDefault().id.let { ctx.getString(R.string.zone_device, placeName(it) + " · " + offset(it)) }
+        else placeName(id) + " · " + offset(id)
 }
