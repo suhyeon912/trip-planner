@@ -160,8 +160,21 @@ class TravelFormActivity : AppCompatActivity() {
             f.setIcon(R.drawable.ic_calendar)
             f.hideEndIcon()
             f.setPlaceholder(getString(R.string.placeholder_date))
+            // 체크인 · 체크아웃은 각각 하루씩 고름. 체크아웃은 체크인 다음 날 이후여야 해서
+            // 순서가 어긋나면 반대쪽을 하루 차이로 맞춤 (예: 체크인을 체크아웃 뒤로 옮기면 체크아웃 = 체크인 + 1일)
+            val isIn = f === fieldCheckIn
             f.setOnClickListener {
-                Pickers.dateRange(this, getString(R.string.add_lodging), checkIn, checkOut) { s, e -> checkIn = s; checkOut = e; render() }
+                val current = if (isIn) checkIn.ifBlank { tripStart } else checkOut.ifBlank { Pickers.plusDays(checkIn, 1) ?: tripStart }
+                Pickers.date(this, getString(label), current) { d ->
+                    if (isIn) {
+                        checkIn = d
+                        if (checkOut.isBlank() || checkOut <= d) checkOut = Pickers.plusDays(d, 1) ?: d
+                    } else {
+                        checkOut = d
+                        if (checkIn.isBlank() || checkIn >= d) checkIn = Pickers.plusDays(d, -1) ?: d
+                    }
+                    render()
+                }
             }
         }
         // 체크인 · 체크아웃 시각: 휠 (기본 15:00 · 11:00, '선택 안 함'으로 지우기)

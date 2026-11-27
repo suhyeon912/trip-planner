@@ -25,6 +25,9 @@ object Pickers {
     fun date(activity: FragmentActivity, title: String, current: String, onPick: (String) -> Unit) =
         CalendarDialog.single(activity, title, parseDate(current)) { onPick(it.toString()) }
 
+    /** 날짜 + n일 ("2026-11-27", 1 → "2026-11-28"), 못 읽으면 null */
+    fun plusDays(date: String, days: Long): String? = parseDate(date)?.plusDays(days)?.toString()
+
     /** "yyyy-MM-dd[ HH:mm]" → 날짜 "yyyy-MM-dd" (없으면 null) */
     fun dateOf(s: String): String? = parseDate(s)?.toString()
 

@@ -258,7 +258,7 @@
                     android:layout_marginTop="@dimen/space_l"
                     android:text="@string/hint_check_in_at" />
 
-                <!-- 날짜(달력, 체크인 ~ 체크아웃을 한 번에) · 시각(휠) 따로 고르기 -->
+                <!-- 날짜(달력) · 시각(휠) 따로 고르기, 체크인 · 체크아웃 날짜도 각각 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
