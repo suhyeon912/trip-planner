@@ -96,7 +96,8 @@ class KakaoMapEngine(
                 map.removeCallbacks(readyTimeout)
                 val reason = if (error is MapAuthException)
                     ctx.getString(R.string.kakao_auth_failed, runCatching { KakaoMapSdk.INSTANCE.hashKey }.getOrNull() ?: "?")
-                else ctx.getString(R.string.kakao_failed) + " (" + error.javaClass.simpleName + ")"
+                else ctx.getString(R.string.kakao_failed) + " (" + error.javaClass.simpleName +
+                    (error.message?.takeIf { it.isNotBlank() }?.let { ": " + it.take(120) } ?: "") + ")"
                 onFail(reason)
             }
         }, object : KakaoMapReadyCallback() {

@@ -259,6 +259,9 @@
     <string name="legend_added">후보에서 추가</string>
     <string name="kakao_auth_failed">카카오맵 인증 실패로 기본 지도를 보여 줘요 · 키 해시 %1$s 를 카카오 콘솔에 등록하세요</string>
     <string name="kakao_timeout">카카오맵이 응답하지 않아 기본 지도를 보여 줘요 (Logcat: KakaoMapEngine)</string>
+    <string name="google_not_ready">Google 지도를 시작하지 못해 기본 지도를 보여 줘요 (Logcat: GoogleMapEngine)</string>
+    <string name="google_not_loaded">Google 지도를 그리지 못해 기본 지도를 보여 줘요 · 키 제한이나 기기 그래픽 문제일 수 있어요</string>
+    <string name="map_device_info">%1$s %2$s · Android %3$s (API %4$d) · OpenGL ES %5$s · %6$s</string>
     <string name="kakao_failed">카카오맵을 열 수 없어 기본 지도를 보여 줘요</string>
 
     <!-- 지도 열기 -->

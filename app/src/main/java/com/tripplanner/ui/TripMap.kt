@@ -160,7 +160,7 @@ class MapHost(
         provider = p
         val e: MapEngine = when (p) {
             MapProvider.KAKAO -> KakaoMapEngine(ctx, onTap) { reason -> fallback(MapProvider.KAKAO, reason) }
-            MapProvider.GOOGLE -> GoogleMapEngine(ctx, onTap)
+            MapProvider.GOOGLE -> GoogleMapEngine(ctx, onTap) { reason -> fallback(MapProvider.GOOGLE, reason) }
             MapProvider.OSM -> OsmMapEngine(ctx, onTap)
         }
         engine = e
@@ -182,7 +182,8 @@ class MapHost(
             if (provider != from) return@post
             failed += from
             switchTo(MapProvider.OSM)
-            notice.text = reason
+            // 기기를 직접 연결할 수 없을 때도 스크린샷 한 장으로 원인을 볼 수 있게 기기 정보를 함께
+            notice.text = reason + "\n" + deviceInfo(ctx)
             notice.visibility = View.VISIBLE
             last?.let { (pins, paths, _) -> engine?.render(pins, paths, true) }
         }
@@ -329,3 +330,14 @@ object PinIcons {
 internal fun List<MapPin>.distinctCoords() = map { it.lat to it.lng }.distinct()
 
 internal fun density(ctx: Context) = ctx.resources.displayMetrics.density
+
+/** 지도 오류 안내에 붙이는 기기 정보: 기종 · Android 버전 · OpenGL ES 버전 */
+fun deviceInfo(ctx: android.content.Context): String {
+    val gl = runCatching {
+        (ctx.getSystemService(android.content.Context.ACTIVITY_SERVICE) as android.app.ActivityManager)
+            .deviceConfigurationInfo.glEsVersion
+    }.getOrNull() ?: "?"
+    val abi = android.os.Build.SUPPORTED_ABIS.firstOrNull() ?: "?"
+    return ctx.getString(R.string.map_device_info, android.os.Build.MANUFACTURER, android.os.Build.MODEL,
+        android.os.Build.VERSION.RELEASE, android.os.Build.VERSION.SDK_INT, gl, abi)
+}
