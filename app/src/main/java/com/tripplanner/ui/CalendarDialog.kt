@@ -27,7 +27,7 @@ import java.time.YearMonth
  * 시안 기간 고르기: 전체 화면 달력 (MaterialDatePicker 대신).
  *  · 달을 세로로 이어서 보여 줌, 고른 날이 있는 달부터
  *  · 칸 44 높이 · 시작·끝은 채운 동그라미 · 사이는 띠 · 오늘은 테두리
- *  · 지난 날은 흐리게, 못 고름 (이미 고른 날이 지난 날이면 그날부터는 고를 수 있음)
+ *  · 지난 날도 고를 수 있음 (이미 다녀온 여행을 기록으로 정리할 때)
  *  · 처음 누른 날 = 시작, 다음 누른 날 = 끝 (시작보다 앞이면 다시 시작)
  * range = false 면 하루만 고름.
  */
@@ -49,7 +49,6 @@ class CalendarDialog private constructor(
     }
 
     private val today = LocalDate.now()
-    private val minDate = listOfNotNull(today, start).minOrNull()!!
     private sealed class Cell {
         data class Month(val ym: YearMonth) : Cell()
         object Blank : Cell()
@@ -80,13 +79,17 @@ class CalendarDialog private constructor(
         }
         buildWeekdays()
 
-        // 달: 고를 수 있는 첫 달부터 2년
-        val first = YearMonth.from(minDate)
-        for (m in 0 until 24) {
-            val ym = first.plusMonths(m.toLong())
+        // 달: 3년 전 (고른 날이 더 앞이면 그 달)부터 2년 뒤 (고른 날이 더 뒤면 그 달)까지
+        val now = YearMonth.from(today)
+        val picked = start?.let { YearMonth.from(it) } ?: now
+        val first = minOf(now.minusYears(3), picked)
+        val last = maxOf(now.plusMonths(23), picked.plusMonths(12))
+        var ym = first
+        while (!ym.isAfter(last)) {
             cells += Cell.Month(ym)
             repeat(ym.atDay(1).dayOfWeek.value % 7) { cells += Cell.Blank }   // 일요일 시작
             for (d in 1..ym.lengthOfMonth()) cells += Cell.Day(ym.atDay(d))
+            ym = ym.plusMonths(1)
         }
         grid = findViewById(R.id.calGrid)
         grid.layoutManager = GridLayoutManager(context, 7).apply {
@@ -162,13 +165,12 @@ class CalendarDialog private constructor(
                 Cell.Blank -> {}
                 is Cell.Day -> (holder.itemView as DayCellView).apply {
                     val s = start; val e = end
-                    val enabledDay = !c.date.isBefore(minDate)
                     bind(c.date.dayOfMonth,
                         isStart = s != null && c.date == s,
                         isEnd = e != null && c.date == e && e != s,
                         inBand = s != null && e != null && c.date.isAfter(s) && c.date.isBefore(e),
                         hasRange = s != null && e != null && e != s,
-                        isToday = c.date == today, enabledDay = enabledDay)
+                        isToday = c.date == today, enabledDay = true)
                     val state = when {
                         s != null && c.date == s -> context.getString(if (range) R.string.cal_start else R.string.cal_selected)
                         e != null && c.date == e -> context.getString(R.string.cal_end)
@@ -177,8 +179,8 @@ class CalendarDialog private constructor(
                     contentDescription = listOfNotNull("${c.date.year}년 ${c.date.monthValue}월 ${c.date.dayOfMonth}일 ${TimeUtil.koreanDayName(c.date)}요일",
                         if (c.date == today) context.getString(R.string.cal_today) else null).joinToString(", ")
                     ViewCompat.setStateDescription(this, state)
-                    isEnabled = enabledDay
-                    setOnClickListener(if (enabledDay) View.OnClickListener { tap(c.date) } else null)
+                    isEnabled = true
+                    setOnClickListener { tap(c.date) }
                 }
             }
         }
