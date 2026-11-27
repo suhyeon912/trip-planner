@@ -160,7 +160,10 @@ class MapHost(
         provider = p
         val e: MapEngine = when (p) {
             MapProvider.KAKAO -> KakaoMapEngine(ctx, onTap) { reason -> fallback(MapProvider.KAKAO, reason) }
-            MapProvider.GOOGLE -> GoogleMapEngine(ctx, onTap) { reason -> fallback(MapProvider.GOOGLE, reason) }
+            MapProvider.GOOGLE -> GoogleMapEngine(ctx, onTap,
+                onFail = { reason -> fallback(MapProvider.GOOGLE, reason) },
+                onSlow = { msg -> container.post { if (provider == MapProvider.GOOGLE) { notice.text = msg; notice.visibility = View.VISIBLE } } },
+                onLoaded = { container.post { if (provider == MapProvider.GOOGLE) notice.visibility = View.GONE } })
             MapProvider.OSM -> OsmMapEngine(ctx, onTap)
         }
         engine = e

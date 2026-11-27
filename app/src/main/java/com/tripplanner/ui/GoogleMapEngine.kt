@@ -21,18 +21,24 @@ import com.tripplanner.R
  * 키는 local.properties 의 MAPS_API_KEY 로 넣습니다 (매니페스트에 자동으로 들어감, 깃에 올라가지 않음).
  * Google Play 서비스가 없는 기기에서는 OpenStreetMap 으로 대신 표시.
  * 키가 거부되거나 기기에서 지도를 그리지 못하면 SDK 가 알려 주지 않고 빈 화면(로고만)으로 남아서,
- * 화면에 보이는 동안 일정 시간 안에 다 그려지지 않으면 onFail 로 알려 OpenStreetMap 으로 바꿉니다.
+ * 화면에 보이는 동안 늦어지면 onSlow 로 '불러오는 중' 안내를 띄우고(지도는 그대로 기다림),
+ * 그래도 오래 그려지지 않으면 onFail 로 알려 OpenStreetMap 으로 바꿉니다. 다 그려지면 onLoaded.
+ * (인터넷이나 기기가 느리면 Google 지도 앱도 한참 걸리므로 너무 일찍 포기하지 않음)
  */
 class GoogleMapEngine(
     private val ctx: Context,
     private val onTap: (Long?) -> Unit,
-    private val onFail: (String) -> Unit = {}
+    private val onFail: (String) -> Unit = {},
+    private val onSlow: (String) -> Unit = {},
+    private val onLoaded: () -> Unit = {}
 ) : MapEngine {
 
     companion object {
         private const val CHECK_MS = 1_000L
-        /** 화면에 보인 채로 이만큼 지나도 다 그려지지 않으면 기본 지도로 */
-        private const val LOAD_TIMEOUT_MS = 12_000L
+        /** 화면에 보인 채로 이만큼 지나면 '불러오는 중' 안내 */
+        private const val SLOW_MS = 8_000L
+        /** 이만큼 지나도 다 그려지지 않으면 기본 지도로 */
+        private const val LOAD_TIMEOUT_MS = 45_000L
 
         fun isAvailable(context: Context) = unavailableReason(context) == null
 
@@ -60,6 +66,7 @@ class GoogleMapEngine(
         override fun run() {
             if (loaded) return
             if (resumed && map.isShown && map.width > 0 && map.height > 0) waitedMs += CHECK_MS
+            if (waitedMs == SLOW_MS) onSlow(ctx.getString(R.string.google_slow))
             if (waitedMs >= LOAD_TIMEOUT_MS) {
                 android.util.Log.w("GoogleMapEngine", "지도 그리기 시간 초과 (ready=${google != null})")
                 onFail(ctx.getString(if (google == null) R.string.google_not_ready else R.string.google_not_loaded))
@@ -70,7 +77,11 @@ class GoogleMapEngine(
     }
 
     /** 다 그려짐 (콜백은 하나만 걸리므로 카메라 맞춤 콜백에서도 부름) */
-    private fun markLoaded() { loaded = true; map.removeCallbacks(watchdog) }
+    private fun markLoaded() {
+        if (loaded) return
+        loaded = true; map.removeCallbacks(watchdog)
+        if (waitedMs >= SLOW_MS) onLoaded()
+    }
 
     init {
         map.postDelayed(watchdog, CHECK_MS)
