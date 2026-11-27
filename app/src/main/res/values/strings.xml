@@ -229,8 +229,7 @@
     <string name="share_copied">초대 코드를 복사했어요</string>
     <string name="share_stop">공유 중지</string>
     <string name="share_stop_confirm">함께 보던 사람들의 기기에서 이 여행이 사라지고, 초대 코드가 새로 바뀌어요. 내 기기의 여행은 그대로예요.</string>
-    <string name="share_stopped">공유를 중지했어요 · 새 초대 코드 %1$s</string>
-    <string name="share_stopped_plain">공유를 중지했어요</string>
+    <string name="share_stopped">공유를 중지했어요</string>
     <string name="share_leave">나가기</string>
     <string name="share_leave_question">위 여행에서 나가시겠습니까?</string>
     <string name="share_leave_confirm">내 기기의 여행은 그대로 남고, 이후 바뀐 내용은 서로 반영되지 않아요.</string>

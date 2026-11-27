@@ -252,7 +252,8 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
                 val wait = progressDialog()
                 lifecycleScope.launch {
                     runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.stop(tripId) } }
-                        .onSuccess { wait.dismiss(); toast(it?.let { c -> getString(R.string.share_stopped, c) } ?: getString(R.string.share_stopped_plain)) }
+                        // 새 초대 코드는 다시 '초대하기'를 누르면 보임
+                        .onSuccess { wait.dismiss(); toast(getString(R.string.share_stopped)) }
                         .onFailure { wait.dismiss(); toast(if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
                             else getString(R.string.share_failed, it.message ?: it.javaClass.simpleName)) }
                 }
