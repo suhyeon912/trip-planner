@@ -35,6 +35,8 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
     private val viewModel: TripDetailViewModel by viewModels()
     private lateinit var tabs: TpTabs
     private lateinit var detailMap: TripDetailMap
+    /** 지금 목록이 보여 주는 것 (일차 · 탭 · 종류) — 바뀌면 맨 위로 */
+    private var shownView: Triple<Int?, PlaceStatus?, Int?>? = null
 
     /** 장소 정보에서 '여행 지도에서'를 누르면 그 장소가 보이게 지도를 열고 카드 표시 */
     private val placeView = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
@@ -274,7 +276,12 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
                 if (i < lm.findFirstCompletelyVisibleItemPosition() || i > lm.findLastCompletelyVisibleItemPosition()) rvDays.smoothScrollToPosition(i)
             }
             adapter.dragEnabled = onSchedule && (viewModel.selectedDay.value ?: 0) > 0
+            // 일차 · 탭 · 종류를 바꾸면 목록 맨 위부터 ('전체'로 돌아오면 교통 · 숙소 요약이 바로 보이게)
+            val view = Triple(viewModel.selectedDay.value, viewModel.currentTab.value, if (kinds) shownChips.firstOrNull { it.selected }?.key else null)
+            val changed = shownView != null && shownView != view
+            shownView = view
             adapter.submit(ui.items)
+            if (changed) rvPlaces.scrollToPosition(0)
             renderMap(); updateBottom()
         }
     }

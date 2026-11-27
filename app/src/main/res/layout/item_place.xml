@@ -22,10 +22,12 @@
         android:importantForAccessibility="noHideDescendants"
         android:orientation="vertical">
 
+        <!-- 위 · 아래 선이 남은 높이를 반씩 나눠 점이 카드 세로 가운데에 오게 (카드 위아래 여백이 같아서) -->
         <View
             android:id="@+id/lineAbove"
             android:layout_width="2dp"
-            android:layout_height="22dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:background="@color/outline_variant" />
 
         <TextView
