@@ -81,13 +81,23 @@ private fun AppCompatActivity.dialogBox(vararg rows: View) = android.widget.Line
     rows.forEach { addView(it) }
 }
 
-/** 공유 버튼 → 초대하기 / 일정 내보내기 */
+/**
+ * 공유 버튼 → 초대하기 / (다른 사람과 함께 보는 중이면) 활동 기록 보기 / 일정 내보내기.
+ * 함께 보는 중 = 내가 만든 여행에 다른 사람이 들어왔거나, 초대받은 여행.
+ */
 fun AppCompatActivity.openShareMenu(anchor: View, tripId: Long) {
     if (!share.isConfigured) { notConfigured(); return }
-    showSelect(anchor, listOf(
-        SelectRow.Option(getString(R.string.share_menu_together)) { openShareDialog(tripId) },
-        SelectRow.Option(getString(R.string.export_title)) { openExportDialog(tripId) }
-    ), widthDp = 200)
+    lifecycleScope.launch {
+        val t = repo.getTrip(tripId) ?: return@launch
+        val together = t.shareCode != null && (!t.ownedByMe || t.members.isNotEmpty())
+        showSelect(anchor, listOfNotNull(
+            SelectRow.Option(getString(R.string.share_menu_together)) { openShareDialog(tripId) },
+            if (together) SelectRow.Option(getString(R.string.activity_open)) {
+                startActivity(Intent(this@openShareMenu, ActivityLogActivity::class.java).putExtra(TripDetailActivity.EXTRA_TRIP_ID, tripId))
+            } else null,
+            SelectRow.Option(getString(R.string.export_title)) { openExportDialog(tripId) }
+        ), widthDp = 200)
+    }
 }
 
 /** 일정 내보내기: 일정(일차별 | 장소) · 교통 / 숙소 고르기 → 코드 만들기 (메모는 함께, 사진 · 자료 파일은 빠짐) */
@@ -218,7 +228,7 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
             box.visibility = View.VISIBLE
             names.take(4).forEachIndexed { i, n ->
                 box.addView(TextView(this@showCode).apply {
-                    text = n.take(1); gravity = android.view.Gravity.CENTER
+                    text = n.take(1); gravity = android.view.Gravity.CENTER; includeFontPadding = false
                     setTextColor(0xFFFFFFFF.toInt()); textSize = 13f
                     typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.pretendard_bold)
                     background = android.graphics.drawable.GradientDrawable().apply {
@@ -262,11 +272,8 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
                 positive = R.string.share_leave) { lifecycleScope.launch { runCatching { share.stop(tripId) } } }
         }
         .show()
-    // 활동 기록으로 가면 이 팝업은 닫음 (뒤로 오면 여행 화면 그대로)
-    view.findViewById<View>(R.id.btnActivity).setOnClickListener {
-        dialog.dismiss()
-        startActivity(Intent(this, ActivityLogActivity::class.java).putExtra(TripDetailActivity.EXTRA_TRIP_ID, tripId))
-    }
+    // 활동 기록은 공유 메뉴의 '활동 기록 보기'로 옮김
+    view.findViewById<View>(R.id.btnActivity).visibility = View.GONE
 }
 
 fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {

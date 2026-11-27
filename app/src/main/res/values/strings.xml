@@ -232,7 +232,7 @@
     <string name="share_stopped">공유를 중지했어요</string>
     <string name="share_leave">나가기</string>
     <string name="share_leave_question">위 여행에서 나가시겠습니까?</string>
-    <string name="share_leave_confirm">내 기기의 여행은 그대로 남고, 이후 바뀐 내용은 서로 반영되지 않아요.</string>
+    <string name="share_leave_confirm">나가면 이 여행은 내 기기에만 남아요. 다른 사람이 고친 내용은 더 이상 받지 않고, 내가 고친 내용도 다른 사람에게 보이지 않아요.</string>
     <string name="share_ended">방장이 공유를 중지해서 목록에서 빠졌어요: %1$s</string>
     <string name="share_message">[여행 플래너] \'%1$s\' 여행에 초대했어요. 앱 첫 화면 \'초대 · 일정 코드 입력\'에 %2$s 를 입력하세요.</string>
     <string name="share_failed">공유하지 못했어요: %1$s</string>
@@ -553,6 +553,7 @@
     <string name="error_link_url">주소를 입력하세요</string>
     <!-- 활동 기록 -->
     <string name="activity_log">활동 기록</string>
+    <string name="activity_open">활동 기록 보기</string>
     <string name="activity_empty">아직 기록이 없어요</string>
     <string name="activity_all">전체</string>
     <string name="activity_someone">누군가</string>

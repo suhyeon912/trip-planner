@@ -84,6 +84,7 @@ class ActivityLogActivity : AppCompatActivity() {
     private fun avatar(uid: String, name: String, size: Int) = TextView(this).apply {
         text = displayName(uid, name).take(1)
         gravity = Gravity.CENTER
+        includeFontPadding = false   // 글꼴 위아래 여백 때문에 글자가 아래로 치우치지 않게 (동그라미 정가운데)
         setTextColor(0xFFFFFFFF.toInt())
         textSize = if (size >= 32) 14f else 13f
         typeface = ResourcesCompat.getFont(context, R.font.pretendard_bold)
