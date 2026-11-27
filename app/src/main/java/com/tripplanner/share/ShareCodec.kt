@@ -96,7 +96,8 @@ object ShareCodec {
         },
         "lodgings" to s.lodgings.map { l ->
             mapOf("name" to l.name, "checkIn" to l.checkIn, "checkOut" to l.checkOut, "lat" to l.lat, "lng" to l.lng,
-                "address" to l.address, "addressDetail" to l.addressDetail, "locMemo" to l.locationMemo)
+                "address" to l.address, "addressDetail" to l.addressDetail, "locMemo" to l.locationMemo,
+                "inTime" to l.checkInTime, "outTime" to l.checkOutTime)
         }
     )
 
@@ -149,7 +150,8 @@ object ShareCodec {
             Lodging(tripId = base.id, name = l.str("name") ?: "", checkIn = l.str("checkIn") ?: "",
                 checkOut = l.str("checkOut") ?: "", lat = l.dbl("lat") ?: 0.0, lng = l.dbl("lng") ?: 0.0,
                 address = l.str("address") ?: "", addressDetail = l.str("addressDetail") ?: "",
-                locationMemo = l.str("locMemo") ?: "")
+                locationMemo = l.str("locMemo") ?: "",
+                checkInTime = l.str("inTime") ?: "", checkOutTime = l.str("outTime") ?: "")
         }
         return TripSnapshot(trip, places, flights, lodgings, remoteTypes = remoteTypes)
     }

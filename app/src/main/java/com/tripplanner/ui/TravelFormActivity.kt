@@ -44,6 +44,9 @@ class TravelFormActivity : AppCompatActivity() {
     private var arriveAt = ""
     private var checkIn = ""
     private var checkOut = ""
+    /** 체크인 · 체크아웃 시각 "HH:mm" (빈 글자 = 안 정함) */
+    private var checkInTime = ""
+    private var checkOutTime = ""
     private var lat = 0.0
     private var lng = 0.0
     /** 위치 칸에 보일 주소 (검색 결과 또는 저장된 주소) */
@@ -59,6 +62,8 @@ class TravelFormActivity : AppCompatActivity() {
     private lateinit var fieldLocation: SelectField
     private lateinit var fieldCheckIn: SelectField
     private lateinit var fieldCheckOut: SelectField
+    private lateinit var fieldCheckInTime: SelectField
+    private lateinit var fieldCheckOutTime: SelectField
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +91,8 @@ class TravelFormActivity : AppCompatActivity() {
         fieldLocation = findViewById(R.id.fieldLocation)
         fieldCheckIn = findViewById(R.id.fieldCheckIn)
         fieldCheckOut = findViewById(R.id.fieldCheckOut)
+        fieldCheckInTime = findViewById(R.id.fieldCheckInTime)
+        fieldCheckOutTime = findViewById(R.id.fieldCheckOutTime)
         setupFields()
         lifecycleScope.launch { tripStart = repo.getTrip(tripId)?.startDate.orEmpty() }
 
@@ -102,7 +109,8 @@ class TravelFormActivity : AppCompatActivity() {
                 input(R.id.inputTo).setText(f.toAirport)
             } ?: finish()
             else repo.getLodgings(tripId).firstOrNull { it.id == itemId }?.let { l ->
-                checkIn = l.checkIn; checkOut = l.checkOut; lat = l.lat; lng = l.lng; address = l.address
+                checkIn = l.checkIn; checkOut = l.checkOut
+                checkInTime = l.checkInTime; checkOutTime = l.checkOutTime; lat = l.lat; lng = l.lng; address = l.address
                 input(R.id.inputLodgingName).setText(l.name)
                 input(R.id.inputAddressDetail).setText(l.addressDetail)
                 input(R.id.inputLocationMemo).setText(l.locationMemo)
@@ -148,12 +156,28 @@ class TravelFormActivity : AppCompatActivity() {
         fieldLocation.setPlaceholder(getString(R.string.placeholder_location))
         fieldLocation.setOnClickListener { pickLocation(it) }
         for ((f, label) in listOf(fieldCheckIn to R.string.hint_check_in, fieldCheckOut to R.string.hint_check_out)) {
-            f.label = getString(label)
+            f.label = getString(R.string.date_of, getString(label))
             f.setIcon(R.drawable.ic_calendar)
             f.hideEndIcon()
-            f.setPlaceholder(getString(R.string.placeholder_pick_date))
+            f.setPlaceholder(getString(R.string.placeholder_date))
             f.setOnClickListener {
                 Pickers.dateRange(this, getString(R.string.add_lodging), checkIn, checkOut) { s, e -> checkIn = s; checkOut = e; render() }
+            }
+        }
+        // 체크인 · 체크아웃 시각: 휠 (기본 15:00 · 11:00, '선택 안 함'으로 지우기)
+        for ((f, labelRes, def) in listOf(Triple(fieldCheckInTime, R.string.hint_check_in, 15 * 60), Triple(fieldCheckOutTime, R.string.hint_check_out, 11 * 60))) {
+            val label = getString(labelRes)
+            f.label = getString(R.string.time_of, label); f.setIcon(R.drawable.ic_schedule)
+            f.hideEndIcon()
+            f.setPlaceholder(getString(R.string.time_placeholder))
+            val isIn = f === fieldCheckInTime
+            f.setOnClickListener { v ->
+                val cur = com.tripplanner.route.TimeUtil.parseTime(if (isIn) checkInTime else checkOutTime)
+                WheelPopup.time(v, label, cur, clearLabel = getString(R.string.time_clear), defaultMinutes = def) { m ->
+                    val t = m?.let { com.tripplanner.route.TimeUtil.format(it) } ?: ""
+                    if (isIn) checkInTime = t else checkOutTime = t
+                    render()
+                }
             }
         }
         input(R.id.inputNumber).doAfterTextChanged { if (!it.isNullOrBlank()) findViewById<TpTextField>(R.id.layoutNumber).error = null }
@@ -176,6 +200,8 @@ class TravelFormActivity : AppCompatActivity() {
         (input(R.id.inputTo).parent.parent as? TpTextField ?: input(R.id.inputTo).parent as? TpTextField)?.placeholderText = getString(hints.to)
         fieldCheckIn.setValue(checkIn.takeIf { it.isNotBlank() }?.let { TripFormat.dateWithDay(it) })
         fieldCheckOut.setValue(checkOut.takeIf { it.isNotBlank() }?.let { TripFormat.dateWithDay(it) })
+        fieldCheckInTime.setValue(checkInTime.takeIf { it.isNotBlank() })
+        fieldCheckOutTime.setValue(checkOutTime.takeIf { it.isNotBlank() })
         val hasLoc = lat != 0.0 || lng != 0.0
         fieldLocation.setValue(when {
             address.isNotBlank() -> address
@@ -232,7 +258,7 @@ class TravelFormActivity : AppCompatActivity() {
                     input(R.id.inputLodgingName).requestFocus(); return@launch
                 }
                 repo.saveLodging(Lodging(id = itemId, tripId = tripId, name = name,
-                    checkIn = checkIn, checkOut = checkOut, lat = lat, lng = lng, address = address,
+                    checkIn = checkIn, checkOut = checkOut, checkInTime = checkInTime, checkOutTime = checkOutTime, lat = lat, lng = lng, address = address,
                     addressDetail = input(R.id.inputAddressDetail).text.toString().trim(),
                     locationMemo = input(R.id.inputLocationMemo).text.toString().trim()))
             }
@@ -245,6 +271,7 @@ class TravelFormActivity : AppCompatActivity() {
         outState.putString("mode", mode.name)
         outState.putString("depart", departAt); outState.putString("arrive", arriveAt)
         outState.putString("in", checkIn); outState.putString("out", checkOut)
+        outState.putString("inTime", checkInTime); outState.putString("outTime", checkOutTime)
         outState.putDouble("lat", lat); outState.putDouble("lng", lng)
         outState.putString("address", address)
     }
@@ -253,6 +280,7 @@ class TravelFormActivity : AppCompatActivity() {
         mode = runCatching { TransportMode.valueOf(b.getString("mode") ?: "") }.getOrDefault(TransportMode.FLIGHT)
         departAt = b.getString("depart", ""); arriveAt = b.getString("arrive", "")
         checkIn = b.getString("in", ""); checkOut = b.getString("out", "")
+        checkInTime = b.getString("inTime", ""); checkOutTime = b.getString("outTime", "")
         lat = b.getDouble("lat"); lng = b.getDouble("lng"); address = b.getString("address", "")
     }
 }

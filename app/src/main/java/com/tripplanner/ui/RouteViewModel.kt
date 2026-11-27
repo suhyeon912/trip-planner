@@ -216,11 +216,14 @@ class RouteViewModel(app: Application, private val state: SavedStateHandle) : An
 
         val todays = places.filter { it.status == PlaceStatus.CONFIRMED && it.day == day }
         val withLoc = todays.filter { it.hasLocation }
-        val notes = todays.filterNot { it.hasLocation }.map { ctx.getString(R.string.note_no_location, it.name) }
+        val notes = todays.filterNot { it.hasLocation }.map { ctx.getString(R.string.note_no_location, it.name) }.toMutableList()
 
-        // 하루의 출발 · 도착: 그날 순서의 첫 · 마지막 장소 (경로 안은 가운데 순서만 바꿈)
-        val endpoints = DayEndpoints.of(todays)
+        // 하루의 출발 · 도착: 숙소(체크인 · 체크아웃 날짜로 자동), 없는 쪽은 그날 순서의 첫 · 마지막 장소
+        // (경로 안은 출발 · 도착을 그 자리에 두고 가운데 순서만 바꿈)
+        val endpoints = DayEndpoints.of(todays, t, day, lodgings)
         val ends = endpoints.ends
+        listOfNotNull(endpoints.startLodging, endpoints.endLodging).distinct().filter { it.lat == 0.0 && it.lng == 0.0 }
+            .forEach { notes += ctx.getString(R.string.note_lodging_no_location, it.name) }
 
         if (withLoc.isEmpty()) {
             val empty = if (todays.isEmpty())

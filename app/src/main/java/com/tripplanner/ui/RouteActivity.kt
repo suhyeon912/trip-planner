@@ -165,7 +165,7 @@ class RouteActivity : AppCompatActivity() {
 
             val option = viewModel.selectedOption()
             // 출발 · 도착은 첫 · 마지막 장소 (따로 숙소 줄 없음)
-            optionAdapter.submit(s.options, option?.key, hasHome = false)
+            optionAdapter.submit(s.options, option?.key, hasHome = s.endpoints.ends.end != null)
             stopAdapter.submit(option, s.endpoints.ends, s.startMinutes)
             val startLabel = TimeUtil.format(s.startMinutes)
             tvStartTime.setTextFading(startLabel)

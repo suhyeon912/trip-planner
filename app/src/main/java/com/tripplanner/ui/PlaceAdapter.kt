@@ -24,6 +24,10 @@ sealed class DetailItem {
     data class PlaceRow(val place: Place, val order: String?, val isFirst: Boolean, val isLast: Boolean, val timeline: Boolean,
                         /** 붙은 예약·티켓 자료 수 ('티켓 n' 뱃지) */
                         val files: Int = 0) : DetailItem()
+    /** 그날 출발 · 도착 숙소 (체크인 · 체크아웃 날짜로 자동, 끌어서 옮기지 않음) */
+    data class LodgingRow(val lodging: com.tripplanner.data.Lodging, val day: Int, val isStart: Boolean,
+                          /** 그날이 체크아웃(출발) · 체크인(도착) 날이면 그 시각 "11:00", 아니면 빈 글자 */
+                          val time: String = "") : DetailItem()
     /** '전체' 맨 위 교통 · 숙소 요약 */
     data class Summary(val lines: List<SummaryLine>) : DetailItem()
     /** 맨 아래 여행 메모 */
@@ -61,6 +65,7 @@ class PlaceAdapter(
         private const val TYPE_SUMMARY = 3
         private const val TYPE_MEMO = 4
         private const val TYPE_EMPTY = 5
+        private const val TYPE_LODGING = 6
         /** 카드에 보이는 뱃지는 최대 2개, 넘치면 +n */
         private const val MAX_BADGES = 2
     }
@@ -108,6 +113,7 @@ class PlaceAdapter(
         is DetailItem.Summary -> b is DetailItem.Summary
         is DetailItem.Memo -> b is DetailItem.Memo
         is DetailItem.Empty -> b is DetailItem.Empty && a.state == b.state
+        is DetailItem.LodgingRow -> b is DetailItem.LodgingRow && a.lodging.id == b.lodging.id && a.day == b.day && a.isStart == b.isStart
     }
 
     override fun getItemViewType(position: Int) = when (items[position]) {
@@ -116,6 +122,7 @@ class PlaceAdapter(
         is DetailItem.Summary -> TYPE_SUMMARY
         is DetailItem.Memo -> TYPE_MEMO
         is DetailItem.Empty -> TYPE_EMPTY
+        is DetailItem.LodgingRow -> TYPE_LODGING
     }
 
     override fun getItemCount() = items.size
@@ -147,6 +154,19 @@ class PlaceAdapter(
         val note: TextView = v.findViewById(R.id.tvMemoText)
     }
     class EmptyHolder(v: View) : RecyclerView.ViewHolder(v)
+    /** 숙소 줄: 장소 카드와 같은 모양 (끌기 대상이 아니라 PlaceHolder 와 다른 클래스) */
+    class LodgingHolder(v: View) : RecyclerView.ViewHolder(v) {
+        val lineAbove: View = v.findViewById(R.id.lineAbove)
+        val lineBelow: View = v.findViewById(R.id.lineBelow)
+        val dot: TextView = v.findViewById(R.id.tvDot)
+        val card: View = v.findViewById(R.id.card)
+        val name: TextView = v.findViewById(R.id.tvPlaceName)
+        val summary: TextView = v.findViewById(R.id.tvSummary)
+        val badges: LinearLayout = v.findViewById(R.id.badges)
+        val confirm: Button = v.findViewById(R.id.btnConfirm)
+        val thumb: ImageView = v.findViewById(R.id.ivThumb)
+        val drag: ImageView = v.findViewById(R.id.ivDrag)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inf = LayoutInflater.from(parent.context)
@@ -158,6 +178,7 @@ class PlaceAdapter(
                 setPadding(paddingLeft, (40 * resources.displayMetrics.density).toInt(), paddingRight,
                     (24 * resources.displayMetrics.density).toInt())
             })
+            TYPE_LODGING -> LodgingHolder(inf.inflate(R.layout.item_place, parent, false))
             else -> PlaceHolder(inf.inflate(R.layout.item_place, parent, false))
         }
     }
@@ -214,8 +235,44 @@ class PlaceAdapter(
             }
             is DetailItem.Empty -> bindEmptyState(holder.itemView, item.state) { listener.onEmptyAction(it) }
             is DetailItem.PlaceRow -> bindPlace(holder as PlaceHolder, item)
+            is DetailItem.LodgingRow -> bindLodging(holder as LodgingHolder, item)
         }
     }
+
+    /** 숙소 줄 (시안 Detail: 숙소 · 출발 / 숙소 · 도착), 누르면 교통 · 숙소 화면 */
+    private fun bindLodging(h: LodgingHolder, row: DetailItem.LodgingRow) {
+        val ctx = h.itemView.context
+        val l = row.lodging
+        // 타임라인: 출발 숙소는 맨 위(위 선 없음), 도착 숙소는 맨 아래(아래 선 없음)
+        h.lineAbove.visibility = if (row.isStart) View.INVISIBLE else View.VISIBLE
+        h.lineBelow.visibility = if (row.isStart) View.VISIBLE else View.INVISIBLE
+        h.dot.text = ""
+        h.dot.backgroundTintList = null
+        h.dot.setBackgroundResource(R.drawable.bg_timeline_lodging)
+        h.name.text = l.name
+        // 체크아웃 날 출발 · 체크인 날 도착이면 그 시각도 (예: 숙소 · 출발 · 체크아웃 11:00)
+        val time = row.time.takeIf { it.isNotBlank() }?.let { ctx.getString(if (row.isStart) R.string.lodging_checkout_at else R.string.lodging_checkin_at, it) }
+        h.summary.text = listOfNotNull(ctx.getString(if (row.isStart) R.string.lodging_depart else R.string.lodging_arrive), time).joinToString(" · ")
+        h.summary.visibility = View.VISIBLE
+        h.summary.textSize = 14f
+        Thumbs.bind(h.thumb, null, R.drawable.ic_hotel, R.color.surface_container)
+        h.badges.removeAllViews()
+        if (l.lat == 0.0 && l.lng == 0.0) {
+            val tv = LayoutInflater.from(ctx).inflate(R.layout.view_badge, h.badges, false) as TextView
+            tv.text = ctx.getString(R.string.badge_no_location)
+            tv.backgroundTintList = ColorStateList.valueOf(ctx.color(R.color.warn_bg))
+            tv.setTextColor(ctx.color(R.color.warn_text))
+            h.badges.addView(tv)
+            h.badges.visibility = View.VISIBLE
+        } else h.badges.visibility = View.GONE
+        h.drag.visibility = View.GONE
+        h.confirm.visibility = View.GONE
+        h.card.contentDescription = ctx.getString(R.string.lodging_row_a11y, l.name, h.summary.text)
+        h.card.setOnClickListener { listener.onOpenTravel() }
+        h.card.setOnLongClickListener(null)
+        h.card.isLongClickable = false
+    }
+
 
     /** 왼쪽 타임라인 열: 위 선 · 순서 점 · 아래 선 */
     private fun bindTimeline(h: PlaceHolder, row: DetailItem.PlaceRow) {

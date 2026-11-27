@@ -253,45 +253,53 @@
                         android:inputType="text" />
                 </com.tripplanner.ui.widget.TpTextField>
 
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:text="@string/hint_check_in_at" />
+
+                <!-- 날짜(달력, 체크인 ~ 체크아웃을 한 번에) · 시각(휠) 따로 고르기 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_l"
-                    android:baselineAligned="false"
                     android:orientation="horizontal">
 
-                    <LinearLayout
+                    <com.tripplanner.ui.SelectField
+                        android:id="@+id/fieldCheckIn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:layout_weight="1.2" />
 
-                        <TextView
-                            style="@style/Widget.TripPlanner.FieldLabel"
-                            android:text="@string/hint_check_in" />
-
-                        <com.tripplanner.ui.SelectField
-                            android:id="@+id/fieldCheckIn"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <LinearLayout
+                    <com.tripplanner.ui.SelectField
+                        android:id="@+id/fieldCheckInTime"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/space_s"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:layout_weight="1" />
+                </LinearLayout>
 
-                        <TextView
-                            style="@style/Widget.TripPlanner.FieldLabel"
-                            android:text="@string/hint_check_out" />
+                <TextView
+                    style="@style/Widget.TripPlanner.FieldLabel"
+                    android:layout_marginTop="@dimen/space_l"
+                    android:text="@string/hint_check_out_at" />
 
-                        <com.tripplanner.ui.SelectField
-                            android:id="@+id/fieldCheckOut"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.tripplanner.ui.SelectField
+                        android:id="@+id/fieldCheckOut"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.2" />
+
+                    <com.tripplanner.ui.SelectField
+                        android:id="@+id/fieldCheckOutTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_s"
+                        android:layout_weight="1" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

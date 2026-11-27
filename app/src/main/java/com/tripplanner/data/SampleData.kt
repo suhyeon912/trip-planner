@@ -32,7 +32,7 @@ object SampleData {
         dao.insertFlight(Flight(tripId = t, flightNo = "KE2708", fromAirport = "하네다", toAirport = "김포",
             departAt = "2026-11-23 12:40", arriveAt = "2026-11-23 15:20"))
         dao.insertLodging(Lodging(tripId = t, name = "호텔 그레이스리 아사쿠사", checkIn = "2026-11-20",
-            checkOut = "2026-11-23", lat = 35.7110, lng = 139.7963, address = "도쿄도 다이토구 아사쿠사"))
+            checkOut = "2026-11-23", checkInTime = "15:00", checkOutTime = "11:00", lat = 35.7110, lng = 139.7963, address = "도쿄도 다이토구 아사쿠사"))
         listOf(
             // 1일차 (시안 순서: 스카이트리 → 츠지한 → 긴자 식스 → 블루보틀 → 쓰키지)
             Place(tripId = t, name = "도쿄 스카이트리", category = SIGHT, status = CONFIRMED, openingHours = "10:00 ~ 21:00",
@@ -78,7 +78,7 @@ object SampleData {
         dao.insertFlight(Flight(tripId = t, flightNo = "CI160", fromAirport = "타오위안", toAirport = "인천",
             departAt = "2026-12-27 11:40", arriveAt = "2026-12-27 15:05"))
         dao.insertLodging(Lodging(tripId = t, name = "시먼딩 예시 호텔", checkIn = "2026-12-25",
-            checkOut = "2026-12-27", lat = 25.0422, lng = 121.5079, address = "타이베이시 완화구 시먼딩"))
+            checkOut = "2026-12-27", checkInTime = "15:00", checkOutTime = "11:00", lat = 25.0422, lng = 121.5079, address = "타이베이시 완화구 시먼딩"))
         listOf(
             Place(tripId = t, name = "타이베이 101", category = SIGHT, status = CONFIRMED, openingHours = "10:00 ~ 21:00",
                 memo = "전망대는 해 질 무렵에", lat = 25.0340, lng = 121.5645, day = 1, orderInDay = 1, stayMinutes = 90),
@@ -107,7 +107,7 @@ object SampleData {
         val t = dao.insertTrip(Trip(title = "부산 2박 3일", startDate = "2027-02-12", endDate = "2027-02-14",
             note = "· KTX 왕복 예매\n· 밀면 먹기\n· 광안대교 야경", coverPhoto = coverPath))
         dao.insertLodging(Lodging(tripId = t, name = "서면 예시 호텔", checkIn = "2027-02-12",
-            checkOut = "2027-02-14", lat = 35.1557, lng = 129.0590, address = "부산 부산진구 서면"))
+            checkOut = "2027-02-14", checkInTime = "15:00", checkOutTime = "11:00", lat = 35.1557, lng = 129.0590, address = "부산 부산진구 서면"))
         dao.insertFlight(Flight(tripId = t, flightNo = "KTX 101", fromAirport = "서울역", toAirport = "부산역",
             departAt = "2027-02-12 07:00", arriveAt = "2027-02-12 09:40", mode = TransportMode.TRAIN))
         dao.insertFlight(Flight(tripId = t, flightNo = "KTX 170", fromAirport = "부산역", toAirport = "서울역",
@@ -141,7 +141,7 @@ object SampleData {
         dao.insertFlight(Flight(tripId = t, flightNo = "KE722", fromAirport = "간사이", toAirport = "김포",
             departAt = "2026-08-17 12:00", arriveAt = "2026-08-17 13:55"))
         dao.insertLodging(Lodging(tripId = t, name = "난바 예시 호텔", checkIn = "2026-08-14",
-            checkOut = "2026-08-17", lat = 34.6662, lng = 135.5008, address = "오사카시 주오구 난바"))
+            checkOut = "2026-08-17", checkInTime = "15:00", checkOutTime = "11:00", lat = 34.6662, lng = 135.5008, address = "오사카시 주오구 난바"))
         listOf(
             Place(tripId = t, name = "오사카성", category = SIGHT, status = CONFIRMED, openingHours = "09:00 ~ 17:00",
                 lat = 34.6873, lng = 135.5262, day = 1, orderInDay = 1, stayMinutes = 90),

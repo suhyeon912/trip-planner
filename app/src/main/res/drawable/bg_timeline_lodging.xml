@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 타임라인 점: 그날 출발 · 도착 숙소 (시안 Detail: 진한 둥근 네모 28 · 모서리 9 + 침대 아이콘 16) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="9dp" />
+            <solid android:color="@color/on_surface" />
+        </shape>
+    </item>
+    <item android:width="16dp" android:height="16dp" android:gravity="center" android:drawable="@drawable/ic_hotel_dot" />
+</layer-list>

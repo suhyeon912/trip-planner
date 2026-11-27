@@ -135,6 +135,8 @@
     <string name="hint_lodging_name">숙소 이름 *</string>
     <string name="hint_check_in">체크인</string>
     <string name="hint_check_out">체크아웃</string>
+    <string name="hint_check_in_at">체크인 날짜 · 시각</string>
+    <string name="hint_check_out_at">체크아웃 날짜 · 시각</string>
     <string name="error_lodging_name">숙소 이름을 입력하세요</string>
 
     <!-- 경로 제안 -->
@@ -179,6 +181,12 @@
     <string name="stop_wait">문 열 때까지 %1$s 기다려요</string>
     <string name="added_from_candidates">후보에서 추가</string>
     <string name="note_no_location">%1$s: 위치(위도·경도)가 없어 제외</string>
+    <string name="note_lodging_no_location">숙소 %1$s: 위치가 없어 출발 · 도착에서 제외</string>
+    <string name="lodging_depart">숙소 · 출발</string>
+    <string name="lodging_arrive">숙소 · 도착</string>
+    <string name="lodging_checkout_at">체크아웃 %1$s</string>
+    <string name="lodging_checkin_at">체크인 %1$s</string>
+    <string name="lodging_row_a11y">%1$s, %2$s</string>
     <string name="empty_route_day_title">%1$d일차에 확정된 장소가 없어요</string>
     <string name="empty_route_day_body">여행 상세에서 장소를 확정하고 일차를 정해 주세요</string>
     <string name="empty_route_day_action">장소 확정하러 가기</string>

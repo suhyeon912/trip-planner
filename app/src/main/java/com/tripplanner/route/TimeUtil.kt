@@ -34,6 +34,13 @@ object TimeUtil {
         return "%02d:%02d ~ %02d:%02d".format(a, am, b, bm)
     }
 
+    /** "15:00" → 900분 (형식이 아니면 null) */
+    fun parseTime(text: String?): Int? {
+        val m = Regex("^\\s*(\\d{1,2}):(\\d{2})\\s*$").find(text ?: return null) ?: return null
+        val h = m.groupValues[1].toInt(); val mm = m.groupValues[2].toInt()
+        return if (h in 0..23 && mm in 0..59) h * 60 + mm else null
+    }
+
     fun format(minutes: Int): String {
         val m = ((minutes % 1440) + 1440) % 1440
         return "%02d:%02d".format(m / 60, m % 60)

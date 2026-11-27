@@ -87,7 +87,7 @@ git clone https://github.com/suhyeon912/trip-planner.git
 - 일정 / 후보 탭, 일차 칩
 - '전체'의 교통 · 숙소 · 예약·티켓 요약
 - 장소 순서 끌어서 바꾸기 (손잡이 ⠿)
-- 하루의 출발 · 도착 = 그날 넣은 순서의 첫 장소 · 마지막 장소 (숙소에서 출발해 돌아오는 날은 숙소를 1번 · 마지막에 장소로 넣기)
+- 하루의 출발 · 도착: 숙소는 체크인 · 체크아웃 날짜로 자동 (그날 묵는 숙소 = 도착, 전날 묵은 숙소 = 출발), 숙소가 없는 쪽은 그날 넣은 순서의 첫 · 마지막 장소 (집 · 공항 등)
 - 목록 ↔ 지도 전환: n일차는 점마다 도착–떠남 시각
 
 **장소**
@@ -134,7 +134,7 @@ git clone https://github.com/suhyeon912/trip-planner.git
 |---|---|
 | 언어 · UI | Kotlin, XML Views (AppCompat) + 자체 컴포넌트 `ui/widget` (Material 컴포넌트 사용 안 함) |
 | 구조 | MVVM: Activity → ViewModel (LiveData) → Repository → Room DAO |
-| DB | Room (KSP), DB 버전 10, 마이그레이션 포함 |
+| DB | Room (KSP), DB 버전 12, 마이그레이션 포함 |
 | 지도 | 카카오맵 SDK v2 · Google Maps SDK · osmdroid (OpenStreetMap) |
 | 검색 · 길찾기 | 카카오 로컬 API (국내 검색) · Google Places API (New) (해외 검색) · Google Routes API (이동 시간 · 노선) |
 | 공유 | Firebase Authentication (익명) + Cloud Firestore |
@@ -186,6 +186,7 @@ trip-planner/
 | `share/ActivityLogTest.kt` | 4 | 활동 기록: 바뀐 것 찾기 · 문서 변환 · 100개 제한 |
 | `ui/MapProviderTest.kt` | 4 | 카카오 / 구글 / OpenStreetMap 지도 고르기 |
 | `ui/PlaceSearchTest.kt` | 4 | 검색 결과의 종류 · 운영시간 · 브레이크 · 휴무일 |
+| `ui/DayEndpointsTest.kt` | 6 | 하루의 출발 · 도착 (숙소 자동 · 공항 · 숙소 바꾸는 날 · 예전 방식) |
 | `ui/TripFormatTest.kt` | 7 | 여행 날짜 표시 · 여행지 시간대 · 이름으로 시간대 추천 |
 | `ui/TripArrangeTest.kt` | 3 | 메인 목록 배치 · 정렬 · 지난 여행 |
 | `ui/CoverPhotoTest.kt` | 2 | 표지 사진 보이는 범위 계산 |
@@ -208,7 +209,7 @@ trip-planner/
 
 - [x] 길찾기 API 연결 (Google Routes API: 실제 이동 시간 · 노선 이름 · 환승 수, 안 되는 구간은 어림)
 - [ ] 국내 도보 · 차 길찾기 (Google이 한국은 지원하지 않음 → 필요하면 TMAP · 카카오모빌리티 등)
-- [x] 하루의 출발 · 도착 = 첫 · 마지막 장소 (숙소도 장소로 넣기)
+- [x] 하루의 출발 · 도착: 숙소는 체크인 · 체크아웃으로 자동, 나머지는 첫 · 마지막 장소
 - [ ] 예약·티켓 파일 공유 (Firebase Storage, Blaze 요금제 필요) — 지금은 기기에만 저장
 - [ ] LLM API로 경로 설명 · 추천
 - [x] 디자인 시안 반영 (화면 · 컴포넌트 · 모션)

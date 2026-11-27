@@ -193,7 +193,8 @@ class TripDetailActivity : AppCompatActivity(), PlaceAdapter.Listener, TripDetai
             val day = viewModel.selectedDay.value ?: TripDetailViewModel.DAY_ALL
             // n일차: 그날 장소만 (숙소에서 출발하는 날은 숙소도 장소로 들어 있음) / 전체: 숙소도 점으로
             val ends = if (day > 0) viewModel.endpoints(day) else null
-            val lodgings = if (ends != null) emptyList() else viewModel.lodgings.value.orEmpty()
+            // n일차는 그날 출발 · 도착 숙소만 점으로 (전체는 모든 숙소)
+            val lodgings = if (ends != null) listOfNotNull(ends.startLodging, ends.endLodging).distinct() else viewModel.lodgings.value.orEmpty()
             val (places, candidates) = viewModel.mapPlaces()
             legModes.reload()   // 경로 제안에서 바꿨을 수 있음
             // 구간 시간: 경로 제안에서 받아 둔 길찾기 결과가 있으면 그것 (같은 시각이 보이게), 없으면 어림

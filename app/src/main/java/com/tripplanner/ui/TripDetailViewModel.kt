@@ -222,11 +222,21 @@ class TripDetailViewModel(app: Application, private val state: SavedStateHandle)
         return DetailUi(items, empty, chips, confirmed.size, candidates.size)
     }
 
-    /** 그날 출발 · 도착 = 그날 순서의 첫 · 마지막 장소 */
-    fun endpoints(day: Int): DayEndpoints = DayEndpoints.of(dayPlaces(day))
+    /** 그날 출발 · 도착: 숙소(체크인 · 체크아웃 날짜로 자동), 없는 쪽은 그날 순서의 첫 · 마지막 장소 */
+    fun endpoints(day: Int): DayEndpoints = DayEndpoints.of(dayPlaces(day), trip.value, day, lodgings.value.orEmpty())
 
-    /** 그날 타임라인: 넣은 순서대로 (첫 장소에서 출발, 마지막 장소에서 끝) */
-    private fun dayTimeline(day: Int, list: List<Place>): List<DetailItem> = rows(list, timeline = true)
+    /** 그날 타임라인: (출발 숙소) → 넣은 순서대로 장소 → (도착 숙소) */
+    private fun dayTimeline(day: Int, list: List<Place>): List<DetailItem> {
+        val e = DayEndpoints.of(list, trip.value, day, lodgings.value.orEmpty())
+        val date = trip.value?.startDate?.let { TimeUtil.dateOfDay(it, day) }?.toString()
+        // 체크아웃 날 출발이면 체크아웃 시각, 체크인 날 도착이면 체크인 시각
+        val start = e.startLodging?.let { DetailItem.LodgingRow(it, day, isStart = true, time = if (it.checkOut == date) it.checkOutTime else "") }
+        val end = e.endLodging?.let { DetailItem.LodgingRow(it, day, isStart = false, time = if (it.checkIn == date) it.checkInTime else "") }
+        val places = rows(list, timeline = true).map { r ->
+            r.copy(isFirst = r.isFirst && start == null, isLast = r.isLast && end == null)
+        }
+        return listOfNotNull(start) + places + listOfNotNull(end)
+    }
 
     /** "11월 20일 (금)" — 날짜를 못 읽으면 빈 글자 */
     private fun headerDate(day: Int): String {

@@ -99,7 +99,10 @@ data class Lodging(
     /** 주소 (검색 결과 또는 직접 입력) · 상세 주소 · 위치 메모 — DB 4 */
     @ColumnInfo(defaultValue = "") val address: String = "",
     @ColumnInfo(defaultValue = "") val addressDetail: String = "",
-    @ColumnInfo(defaultValue = "") val locationMemo: String = ""
+    @ColumnInfo(defaultValue = "") val locationMemo: String = "",
+    /** 체크인 · 체크아웃 시각 "HH:mm" (안 정했으면 빈 글자) — DB 12 */
+    @ColumnInfo(defaultValue = "") val checkInTime: String = "",
+    @ColumnInfo(defaultValue = "") val checkOutTime: String = ""
 )
 
 @Entity(
