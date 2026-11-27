@@ -150,7 +150,7 @@ class ActivityLogActivity : AppCompatActivity() {
             setPadding(if (uid == null) dp(14) else dp(4), 0, dp(14), 0)
             background = GradientDrawable().apply {
                 cornerRadius = 20 * d
-                setColor(color(if (sel) R.color.on_surface else R.color.card_bg))
+                setColor(color(if (sel) R.color.primary else R.color.card_bg))   // 고른 칩은 다른 화면과 같은 파랑
                 if (!sel) setStroke(dp(1), color(R.color.outline_variant))
             }
             foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_pill_primary)
@@ -165,7 +165,7 @@ class ActivityLogActivity : AppCompatActivity() {
         chip.addView(TextView(this).apply {
             text = label
             setTextAppearance(R.style.TextAppearance_TripPlanner_LabelLarge)
-            setTextColor(color(if (sel) R.color.background else R.color.on_surface))
+            setTextColor(color(if (sel) R.color.on_primary else R.color.on_surface))
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         })
         chipRow.addView(chip, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(40)).apply {
