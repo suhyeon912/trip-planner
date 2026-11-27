@@ -140,7 +140,7 @@ class RouteStopAdapter(
     private val legInfo: (Long, Long, Double) -> LegInfo = { _, _, km ->
         RoutePlanner.defaultMode(km).let { LegInfo(it, RoutePlanner.modeMinutes(it, km), km) } },
     /** 구간 알약을 누르면: 이 구간 · 이 구간부터 끝까지 · 누른 알약 */
-    private val onLeg: (leg: Pair<Long, Long>, rest: List<Pair<Long, Long>>, km: Double, View) -> Unit = { _, _, _, _ -> },
+    private val onLeg: (leg: Pair<Long, Long>, km: Double, View) -> Unit = { _, _, _ -> },
     /** 시작(start) · 끝 줄을 누르면 바꾸기 */
     private val onEndpoint: (start: Boolean, View) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -228,9 +228,7 @@ class RouteStopAdapter(
                 val more = ContextCompat.getDrawable(ctx, R.drawable.ic_expand_more)?.mutate()?.apply { setBounds(0, 0, s, s); setTint(ctx.color(R.color.text_sub)) }
                 setCompoundDrawablesRelative(d, null, more, null)
                 contentDescription = ctx.getString(R.string.leg_mode_a11y, line)
-                val legs = rows.filterIsInstance<Row.Leg>()
-                val i = legs.indexOf(row)
-                setOnClickListener { onLeg(row.from to row.to, legs.drop(i).map { it.from to it.to }, row.km, it) }
+                setOnClickListener { onLeg(row.from to row.to, row.km, it) }
             }
             is Row.Home -> (holder as StopHolder).apply {
                 arrive.time(TimeUtil.format(row.time))

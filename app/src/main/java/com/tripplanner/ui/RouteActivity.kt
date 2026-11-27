@@ -107,7 +107,7 @@ class RouteActivity : AppCompatActivity() {
                 viewModel.setLeaveTime(visit.stop.id, visit.arrive, leave)
             }
         }, legInfo = { f, t, km -> viewModel.legInfo(f, t, km) },
-            onLeg = { leg, rest, km, pill -> showLegModes(pill, leg, rest, km) })
+            onLeg = { leg, km, pill -> showLegModes(pill, leg, km) })
         findViewById<RecyclerView>(R.id.rvStops).apply {
             layoutManager = LinearLayoutManager(this@RouteActivity)
             adapter = stopAdapter
@@ -219,13 +219,11 @@ class RouteActivity : AppCompatActivity() {
     }
 
     /** 남은 구간도 같게 (화면을 닫을 때까지 기억) */
-    private var sameForRest = false
-
     /**
      * 구간 이동 수단 (시안 RouteLegMode): 누른 알약 아래 팝오버
-     *  도보 · 대중교통 · 택시·차 (각각 어림 시간) / 남은 구간도 같게 (스위치)
+     *  도보 · 대중교통 · 택시·차 (각각 어림 시간), 고르면 이 구간만 바뀜
      */
-    private fun showLegModes(anchor: View, leg: Pair<Long, Long>, rest: List<Pair<Long, Long>>, km: Double) {
+    private fun showLegModes(anchor: View, leg: Pair<Long, Long>, km: Double) {
         val d = resources.displayMetrics.density
         fun dp(v: Int) = (v * d).toInt()
         val current = viewModel.legMode(leg.first, leg.second, km)
@@ -236,7 +234,6 @@ class RouteActivity : AppCompatActivity() {
             setPadding(0, dp(8), 0, dp(8))
         }
         lateinit var popup: android.widget.PopupWindow
-        lateinit var sw: com.tripplanner.ui.widget.TpSwitch
         com.tripplanner.route.LegMode.entries.forEach { mode ->
             val sel = mode == current
             box.addView(android.widget.LinearLayout(this).apply {
@@ -264,42 +261,11 @@ class RouteActivity : AppCompatActivity() {
                 androidx.core.view.ViewCompat.setStateDescription(this, if (sel) getString(R.string.state_selected) else null)
                 setOnClickListener {
                     Haptics.confirm(it)
-                    viewModel.setLegMode(if (sw.isChecked) rest else listOf(leg), mode)
+                    viewModel.setLegMode(listOf(leg), mode)
                     popup.dismiss()
                 }
             })
         }
-        box.addView(View(this).apply { setBackgroundColor(color(R.color.outline_variant)) },
-            android.widget.LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, 1).apply { topMargin = dp(4); bottomMargin = dp(4) })
-        val switchRow = android.widget.LinearLayout(this).apply {
-            orientation = android.widget.LinearLayout.HORIZONTAL
-            gravity = android.view.Gravity.CENTER_VERTICAL
-            setPadding(dp(16), 0, dp(12), 0)
-            minimumHeight = dp(56)
-            isClickable = true; isFocusable = true
-            foreground = androidx.core.content.ContextCompat.getDrawable(context, R.drawable.press_overlay)
-        }
-        switchRow.addView(TextView(this).apply {
-            setText(R.string.leg_same_rest)
-            setTextAppearance(R.style.TextAppearance_TripPlanner_BodyLarge)
-            setTextColor(color(R.color.on_surface))
-        }, android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        sw = com.tripplanner.ui.widget.TpSwitch(this).apply {
-            isChecked = sameForRest
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            setOnCheckedChangeListener { _, c -> sameForRest = c }
-        }
-        switchRow.addView(sw)
-        switchRow.contentDescription = getString(R.string.leg_same_rest)
-        switchRow.accessibilityDelegate = object : View.AccessibilityDelegate() {
-            override fun onInitializeAccessibilityNodeInfo(host: View, info: android.view.accessibility.AccessibilityNodeInfo) {
-                super.onInitializeAccessibilityNodeInfo(host, info)
-                info.className = android.widget.Switch::class.java.name
-                info.isCheckable = true; info.isChecked = sw.isChecked
-            }
-        }
-        switchRow.setOnClickListener { sw.toggle() }
-        box.addView(switchRow)
 
         val width = minOf(dp(280), resources.displayMetrics.widthPixels - dp(32))
         popup = android.widget.PopupWindow(box, width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, true)

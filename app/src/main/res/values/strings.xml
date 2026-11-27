@@ -574,7 +574,6 @@
     <string name="leg_mode_line">%1$s · %2$s · %3$.1fkm</string>
     <string name="leg_mode_a11y">%1$s, 이동 수단 바꾸기</string>
     <string name="leg_about">약 %1$s</string>
-    <string name="leg_same_rest">남은 구간도 같게</string>
     <string name="leg_mode_title">이동 수단</string>
     <string name="map_card_times">%1$s 도착 · %2$s 떠남</string>
     <string name="count_items">%1$d개</string>
