@@ -210,7 +210,7 @@
     <string name="label_time_zone">여행지 시간대</string>
     <string name="zone_auto">자동 설정 (%1$s)</string>
     <string name="share_invite">공유·초대</string>
-    <string name="join_with_code">코드로 참여</string>
+    <string name="join_with_code">초대 · 일정 코드 입력</string>
     <string name="share_not_configured_title">공유 설정이 필요해요</string>
     <string name="share_not_configured">Firebase 설정 파일(app/google-services.json)을 넣고 다시 빌드하면 친구와 여행을 함께 편집할 수 있어요. 자세한 방법은 README 의 \'공유·초대\'를 참고하세요.</string>
     <string name="share_intro">초대 코드를 받은 친구와 이 여행을 함께 보고 고쳐요. 함께 보는 사람에게 보일 닉네임을 정해 주세요. 사진은 기기에만 남아요.</string>
@@ -221,9 +221,11 @@
     <string name="share_copied">초대 코드를 복사했어요</string>
     <string name="share_stop">공유 중지</string>
     <string name="share_stop_confirm">내 기기의 여행은 그대로 남고, 이후 바뀐 내용은 서로 반영되지 않아요. 백업은 새 코드로 계속돼요.</string>
-    <string name="share_message">[여행 플래너] \'%1$s\' 여행에 초대했어요. 앱 첫 화면 \'코드로 참여\'에 %2$s 를 입력하세요.</string>
+    <string name="share_message">[여행 플래너] \'%1$s\' 여행에 초대했어요. 앱 첫 화면 \'초대 · 일정 코드 입력\'에 %2$s 를 입력하세요.</string>
     <string name="share_failed">공유하지 못했어요: %1$s</string>
-    <string name="join_title">코드로 참여</string>
+    <string name="join_title">초대 · 일정 코드 입력</string>
+    <string name="join_nickname_title">내 닉네임</string>
+    <string name="join_nickname_label">닉네임</string>
     <string name="join_button">참여</string>
     <string name="join_invalid">초대 코드 6자리 또는 일정 코드 8자리를 확인해 주세요</string>
     <string name="join_not_found">이 코드의 여행을 찾을 수 없어요</string>
@@ -458,7 +460,6 @@
     <string name="share_new_title">여행 공유</string>
     <string name="share_start">공유 시작</string>
     <string name="share_stop_question">위 여행의 공유를 중지하시겠습니까?</string>
-    <string name="join_intro">초대 코드(6자리)는 같은 여행을 함께 편집하고, 일정 코드(8자리)는 내 여행으로 새로 가져와요.</string>
     <string name="import_button">가져오기</string>
     <string name="import_done">일정을 새 여행으로 가져왔어요</string>
     <string name="import_failed">가져오지 못했어요: %1$s</string>
@@ -473,8 +474,8 @@
     <string name="export_code_title">일정 코드</string>
     <string name="export_code_note">지금 내용 그대로 복사돼요. 30일 동안 쓸 수 있고, 설정 › 내보낸 일정 코드에서 지울 수 있어요.</string>
     <string name="share_copied_copy">일정 코드를 복사했어요</string>
-    <string name="export_message">[여행 플래너] \'%1$s\' 일정이에요. 앱 첫 화면 \'코드로 참여\'에 %2$s 를 입력하면 내 여행으로 가져올 수 있어요.</string>
-    <string name="join_label">초대 코드 · 일정 코드 *</string>
+    <string name="export_message">[여행 플래너] \'%1$s\' 일정이에요. 앱 첫 화면 \'초대 · 일정 코드 입력\'에 %2$s 를 입력하면 내 여행으로 가져올 수 있어요.</string>
+    <string name="join_label">코드</string>
     <!-- 운영 정보 다시 가져오기 -->
     <string name="refresh_hours">다시 가져오기</string>
     <string name="refresh_hours_done">운영 정보를 새로 가져왔어요</string>

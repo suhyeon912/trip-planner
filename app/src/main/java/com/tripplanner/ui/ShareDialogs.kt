@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
  *  - 여행 상세 툴바 → openShareMenu: '초대하기'(openShareDialog) / '일정 내보내기'(openExportDialog)
  *  - openShareDialog: 코드 만들기 / 코드 보기·보내기·복사 / 그만두기
  *  - openExportDialog: 일정(일차별 | 장소) · 교통 / 숙소 고르기 → 8자리 일정 코드 (받은 사람 앱에 새 여행으로 복사)
- *  - 여행 목록 툴바 · 설정 → openJoinDialog: 코드 입력 → 6자리면 참여, 8자리면 일정 가져오기 → 그 여행 열기
+ *  - 여행 목록 툴바 · 설정 → openJoinDialog: 코드 입력 → 6자리면 닉네임 팝업 후 참여, 8자리면 일정 가져오기 → 그 여행 열기
  */
 
 private val AppCompatActivity.share: ShareManager get() = (application as TripPlannerApp).share
@@ -263,25 +263,21 @@ fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
     val (row, input, layout) = labeledField(getString(R.string.join_label), "")
     input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
     input.filters = arrayOf(InputFilter.AllCaps(), InputFilter.LengthFilter(8))
-    val (nameRow, nameInput, nameLayout) = labeledField(getString(R.string.label_nickname), share.nickname)
-    val box = dialogBox(row, nameRow)
     val dialog = TpDialog.Builder(this)
         .setTitle(R.string.join_title)
-        .setMessage(R.string.join_intro)
-        .setView(box)
+        .setView(dialogBox(row))
         .setPositiveButton(R.string.join_button, null)
         .setNegativeButton(R.string.action_cancel, null)
         .create()
+    focusOnShow(dialog, input)
     dialog.setOnShowListener {
-        // 8자리(일정 코드)면 닉네임이 필요 없고 버튼은 '가져오기'
+        // 8자리(일정 코드)면 버튼은 '가져오기'
         fun isCopy() = ShareCodec.isCopyCode(ShareCodec.normalize(input.text?.toString().orEmpty()))
         input.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
             override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
-                val copy = isCopy()
-                nameRow.visibility = if (copy) View.GONE else View.VISIBLE
-                dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setText(if (copy) R.string.import_button else R.string.join_button)
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setText(if (isCopy()) R.string.import_button else R.string.join_button)
             }
         })
         dialog.getButton(DialogInterface.BUTTON_POSITIVE)!!.setOnClickListener {
@@ -304,24 +300,51 @@ fun AppCompatActivity.openJoinDialog(onJoined: (Long) -> Unit) {
             }
             if (!ShareCodec.isValidCode(code)) { layout.error = getString(R.string.join_invalid); return@setOnClickListener }
             layout.error = null
-            val name = nameInput.text?.toString()?.trim().orEmpty()
-            if (name.isEmpty()) { nameLayout.error = getString(R.string.error_nickname); return@setOnClickListener }
-            nameLayout.error = null
-            share.nickname = name
-            val wait = progressDialog()
-            lifecycleScope.launch {
-                runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.join(code) } }
-                    .onSuccess { wait.dismiss(); dialog.dismiss(); onJoined(it) }
-                    .onFailure {
-                        wait.dismiss()
-                        layout.error = if (it is ShareManager.NotFoundException) getString(R.string.join_not_found)
-                                       else if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
-                                       else getString(R.string.join_failed, it.message ?: it.javaClass.simpleName)
-                    }
+            // 초대 코드: 닉네임 팝업을 위에 띄움 → 참여. 코드가 틀리면 닉네임 팝업을 닫고 코드 칸에 오류
+            askJoinNickname { nameDialog ->
+                val wait = progressDialog()
+                lifecycleScope.launch {
+                    runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.join(code) } }
+                        .onSuccess { wait.dismiss(); nameDialog.dismiss(); dialog.dismiss(); onJoined(it) }
+                        .onFailure {
+                            wait.dismiss(); nameDialog.dismiss()
+                            layout.error = if (it is ShareManager.NotFoundException) getString(R.string.join_not_found)
+                                           else if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
+                                           else getString(R.string.join_failed, it.message ?: it.javaClass.simpleName)
+                        }
+                }
             }
         }
     }
     dialog.show()
+}
+
+/** 초대 코드로 참여할 때 내 닉네임 (저장된 이름이 미리 채워짐, 바로 입력할 수 있게 포커스) → onOk(닉네임 팝업) */
+private fun AppCompatActivity.askJoinNickname(onOk: (TpDialog) -> Unit) {
+    val (row, input, layout) = labeledField(getString(R.string.join_nickname_label), share.nickname)
+    val dialog = TpDialog.Builder(this)
+        .setTitle(R.string.join_nickname_title)
+        .setView(dialogBox(row))
+        .setPositiveButton(R.string.join_button, null)
+        .setNegativeButton(R.string.action_cancel, null)
+        .create()
+    focusOnShow(dialog, input)
+    dialog.setOnShowListener {
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE)!!.setOnClickListener {
+            val name = input.text?.toString()?.trim().orEmpty()
+            if (name.isEmpty()) { layout.error = getString(R.string.error_nickname); return@setOnClickListener }
+            layout.error = null
+            share.nickname = name
+            onOk(dialog)
+        }
+    }
+    dialog.show()
+}
+
+/** 팝업이 열리면 입력칸에 커서를 두고 키보드를 올림 (채워진 글자는 끝으로) */
+private fun focusOnShow(dialog: TpDialog, input: EditText) {
+    dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+    input.post { input.requestFocus(); input.setSelection(input.text?.length ?: 0) }
 }
 
 private fun AppCompatActivity.toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
