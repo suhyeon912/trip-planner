@@ -32,6 +32,12 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (viewModel.trips.value != null) showRows()
+        // 방장이 공유를 중지해서 내 기기에서 빠진 여행이 있으면 한 번 알려 줌
+        val share = (application as com.tripplanner.TripPlannerApp).share
+        share.endedTitles().takeIf { it.isNotEmpty() }?.let { titles ->
+            share.clearEnded()
+            showSnack(getString(R.string.share_ended, titles.joinToString(", ")))
+        }
     }
 
     /** 탭: 전체 / 내 여행 / 초대받은 (회전해도 유지) */

@@ -82,18 +82,7 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         if (!isConfigured) return
         repo.changeListener = { tripId -> schedulePush(tripId) }
         repo.deleteListener = { trip -> scope.launch { forget(trip) } }
-        // 자료 파일은 올리지 않지만 '올렸어요' 기록은 남김
-        repo.attachmentListener = { a ->
-            scope.launch {
-                val trip = repo.getTrip(a.tripId)
-                if (trip?.shareCode != null) {
-                    val me = runCatching { uid() }.getOrNull() ?: return@launch
-                    pendingEvents.getOrPut(a.tripId) { mutableListOf() } +=
-                        ActivityEvent(me, nickname, ActivityEvent.Type.FILE, a.name, at = System.currentTimeMillis())
-                    schedulePush(a.tripId)
-                }
-            }
-        }
+        // 자료 파일은 기기에만 있어서 다른 사람에게 보이지 않음 → 활동 기록에도 남기지 않음
         scope.launch {
             runCatching { repo.getSharedTrips().forEach { listen(it) } }
                 .onFailure { Log.w(TAG, "공유 여행 불러오기 실패", it) }
@@ -360,22 +349,59 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
         return id
     }
 
-    /** 공유 그만두기: 내 기기의 여행은 그대로 두고 연결만 끊음 */
-    suspend fun stop(tripId: Long) {
-        val trip = repo.getTrip(tripId) ?: return
-        val code = trip.shareCode ?: return
-        listeners.remove(tripId)?.remove()
-        runCatching {
-            val me = uid()
-            val ref = db.collection(COLLECTION).document(code)
-            runCatching { ref.update(mapOf("members" to FieldValue.arrayRemove(me), "names.$me" to FieldValue.delete())).await() }
-                .onFailure { ref.update("members", FieldValue.arrayRemove(me)).await() }
+    /**
+     * 공유 중지.
+     *  · 방장(여행을 만든 사람): 서버 문서를 지워 함께 보던 사람들 기기에서 이 여행이 빠지게 하고,
+     *    새 초대 코드로 다시 백업 (예전 코드로는 더 참여할 수 없음) → 새 코드
+     *  · 초대받은 사람: 나만 빠짐 (내 기기의 여행은 그대로) → null
+     */
+    suspend fun stop(tripId: Long): String? {
+        val trip = repo.getTrip(tripId) ?: return null
+        val code = trip.shareCode ?: return null
+        val me = uid()
+        val ref = db.collection(COLLECTION).document(code)
+        if (trip.ownedByMe) {
+            // 서버에서 먼저 지워져야 다른 사람 기기에서 빠짐 (실패하면 그대로 둠)
+            val owner = ref.get().await().getString("ownerUid")
+            if (owner != null && owner != me) throw IllegalStateException("not owner")
+            pushJobs.remove(tripId)?.cancel()
+            listeners.remove(tripId)?.remove()
+            ref.delete().await()
+            baseline.remove(tripId); baseMap.remove(tripId); serverActivity.remove(tripId); pendingEvents.remove(tripId)
+            repo.setShareCode(trip, null)
+            repo.setMembers(tripId, "", "")
+            return share(tripId)
         }
+        listeners.remove(tripId)?.remove()
+        runCatching { ref.update(mapOf("members" to FieldValue.arrayRemove(me), "names.$me" to FieldValue.delete())).await() }
+            .onFailure { ref.update("members", FieldValue.arrayRemove(me)).await() }
         repo.setShareCode(trip, null)
+        return null
     }
 
+    /**
+     * 방장이 공유를 멈춤 (서버 문서가 없어지거나 멤버에서 내가 빠짐) → 초대받은 내 기기에서 이 여행을 지움.
+     * 다음에 목록 화면을 열 때 한 번 알려 줌.
+     */
+    private suspend fun endedByOwner(tripId: Long) {
+        listeners.remove(tripId)?.remove()
+        pushJobs.remove(tripId)?.cancel()
+        val trip = repo.getTrip(tripId) ?: return
+        if (trip.ownedByMe) return
+        baseline.remove(tripId); baseMap.remove(tripId); serverActivity.remove(tripId); pendingEvents.remove(tripId)
+        repo.setShareCode(trip, null)          // 지울 때 서버를 다시 건드리지 않게
+        repo.deleteTrip(trip.copy(shareCode = null))
+        com.tripplanner.ui.Photos.delete(context, trip.coverPhoto)
+        val list = endedTitles() + trip.title
+        profile.edit().putString("ended_trips", list.joinToString("\n")).apply()
+    }
+
+    /** 방장이 공유를 멈춰서 내 기기에서 빠진 여행 이름들 (보여 준 뒤 clearEnded) */
+    fun endedTitles(): List<String> = profile.getString("ended_trips", null)?.split("\n")?.filter { it.isNotBlank() }.orEmpty()
+    fun clearEnded() { profile.edit().remove("ended_trips").apply() }
+
     /** 활동 기록 화면: 멤버 (uid → 이름, 들어온 순서) · 기록 (최근 것이 위). 그만 볼 때 remove() */
-    fun observeActivity(code: String, onUpdate: (members: List<Pair<String, String>>, events: List<ActivityEvent>, me: String) -> Unit): ListenerRegistration? {
+    fun observeActivity(code: String, onUpdate: (members: List<Pair<String, String>>, events: List<ActivityEvent>, me: String, owner: String?) -> Unit): ListenerRegistration? {
         if (!isConfigured) return null
         var reg: ListenerRegistration? = null
         var stopped = false
@@ -387,7 +413,9 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
                 @Suppress("UNCHECKED_CAST")
                 val names = (snap.get("names") as? Map<String, Any?>).orEmpty().mapValues { it.value as? String ?: "" }
                 val members = (snap.get("members") as? List<*>)?.mapNotNull { it as? String }.orEmpty().map { it to names[it].orEmpty() }
-                onUpdate(members, ActivityLog.fromList(snap.get("activity")).sortedByDescending { it.at }, me)
+                // 파일 올림 기록(예전 버전)은 다른 사람에게 파일이 보이지 않아서 빼고 보여 줌
+                onUpdate(members, ActivityLog.fromList(snap.get("activity")).filter { it.type != ActivityEvent.Type.FILE }
+                    .sortedByDescending { it.at }, me, snap.getString("ownerUid"))
             }
         }
         return object : ListenerRegistration { override fun remove() { stopped = true; reg?.remove() } }
@@ -417,7 +445,14 @@ class ShareManager(private val context: Context, private val repo: TripRepositor
             val me = runCatching { uid() }.getOrNull() ?: return@launch
             listeners[trip.id] = db.collection(COLLECTION).document(code).addSnapshotListener { snap, err ->
                 if (err != null) { Log.w(TAG, "동기화 오류", err); return@addSnapshotListener }
-                if (snap == null || !snap.exists() || snap.metadata.hasPendingWrites()) return@addSnapshotListener
+                if (snap == null || snap.metadata.hasPendingWrites()) return@addSnapshotListener
+                // 방장이 공유를 멈춤: 문서가 없어졌거나 멤버에서 내가 빠짐 (서버에서 확인된 것만, 기기 캐시는 믿지 않음)
+                if (!snap.metadata.isFromCache && !trip.ownedByMe &&
+                    (!snap.exists() || (snap.get("members") as? List<*>)?.contains(me) == false)) {
+                    scope.launch { endedByOwner(trip.id) }
+                    return@addSnapshotListener
+                }
+                if (!snap.exists()) return@addSnapshotListener
                 // 함께 보는 사람 이름은 매번 맞춤 (참여·나가기는 updatedBy 가 바뀌지 않음)
                 val (inviter, others) = ShareCodec.memberInfo(snap.data ?: emptyMap(), me)
                 scope.launch { repo.setMembers(trip.id, inviter, others.joinToString(", ")) }

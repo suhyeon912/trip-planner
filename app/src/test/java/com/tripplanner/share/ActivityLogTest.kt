@@ -53,4 +53,39 @@ class ActivityLogTest {
         val capped = ActivityLog.append(emptyList(), many)
         assertEquals(ActivityLog.MAX, capped.size); assertEquals(150L, capped.last().at)
     }
+
+    @Test fun reorder_thirdToFirst_whenOrdersWereEmpty() {
+        // 순서를 한 번도 안 정한 날(순서 없음 → 넣은 순서)에서 3번째를 1번째로: 옮긴 건 C (마지막 장소 아님)
+        val before = snap(p("A").copy(id = 1), p("B").copy(id = 2), p("C").copy(id = 3), p("D").copy(id = 4))
+        val after = snap(p("A", order = 2).copy(id = 1), p("B", order = 3).copy(id = 2), p("C", order = 1).copy(id = 3), p("D", order = 4).copy(id = 4))
+        val e = ActivityLog.diff(before, after, "u1", "민지", 1)
+        assertEquals(1, e.size)
+        assertEquals("C", e[0].target); assertEquals(1, e[0].order); assertEquals(1, e[0].day)
+    }
+
+    @Test fun reorder_lastToMiddle() {
+        val before = snap(p("A", order = 1), p("B", order = 2), p("C", order = 3), p("D", order = 4))
+        val after = snap(p("A", order = 1), p("D", order = 2), p("B", order = 3), p("C", order = 4))
+        val e = ActivityLog.diff(before, after, "u1", "민지", 1)
+        assertEquals(listOf(Type.PLACE_MOVE to "D"), e.map { it.type to it.target }); assertEquals(2, e[0].order)
+    }
+
+    @Test fun moveToOtherDay() {
+        val before = snap(p("A", day = 1, order = 1), p("B", day = 2, order = 1))
+        val after = snap(p("A", day = 2, order = 2), p("B", day = 2, order = 1))
+        val e = ActivityLog.diff(before, after, "u1", "민지", 1)
+        assertEquals(listOf(Type.PLACE_MOVE to "A"), e.map { it.type to it.target }); assertEquals(2, e[0].day); assertEquals(2, e[0].order)
+    }
+
+    @Test fun tripTitleDatesNote() {
+        val a = TripSnapshot(trip, emptyList(), emptyList(), emptyList())
+        val b = TripSnapshot(trip.copy(title = "도쿄 졸업 여행", endDate = "2026-11-24", note = "야경"), emptyList(), emptyList(), emptyList())
+        assertEquals(listOf(Type.TRIP_TITLE to "도쿄 졸업 여행", Type.TRIP_DATES to "", Type.TRIP_NOTE to ""), diff(a, b))
+    }
+
+    @Test fun movedOne_basics() {
+        assertEquals("C", ActivityLog.movedOne(listOf("A", "B", "C"), listOf("C", "A", "B")))
+        assertEquals("A", ActivityLog.movedOne(listOf("A", "B", "C"), listOf("B", "C", "A")))
+        assertEquals(null, ActivityLog.movedOne(listOf("A", "B"), listOf("A", "B")))
+    }
 }

@@ -186,18 +186,18 @@ fun AppCompatActivity.openShareDialog(tripId: Long) {
                     val wait = progressDialog()
                     lifecycleScope.launch {
                         runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.share(tripId) } }
-                            .onSuccess { wait.dismiss(); showCode(trip.title, it, tripId) }
+                            .onSuccess { wait.dismiss(); showCode(trip.title, it, tripId, trip.ownedByMe) }
                             .onFailure { wait.dismiss(); toast(if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
                     else getString(R.string.share_failed, it.message ?: it.javaClass.simpleName)) }
                     }
                 }
             }
             dialog.show()
-        } else showCode(trip.title, code, tripId)
+        } else showCode(trip.title, code, tripId, trip.ownedByMe)
     }
 }
 
-private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long) {
+private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long, owner: Boolean) {
     val view = LayoutInflater.from(this).inflate(R.layout.view_share_code, null)
     view.findViewById<TextView>(R.id.tvCode).apply {
         text = code
@@ -235,7 +235,7 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
         toast(getString(R.string.share_copied))
     }
 
-    // 버튼: 왼쪽 '공유 중지'(빨간 글자) · 오른쪽 '코드 보내기'(채움) · 오른쪽 위 X
+    // 버튼: 왼쪽 '공유 중지'(방장) · '나가기'(초대받은 사람) (빨간 글자) · 오른쪽 '코드 보내기'(채움) · 오른쪽 위 X
     val dialog = TpDialog.Builder(this)
         .setTitle(R.string.share_code_title)
         .setCloseButton()
@@ -246,9 +246,19 @@ private fun AppCompatActivity.showCode(title: String, code: String, tripId: Long
                 putExtra(Intent.EXTRA_TEXT, getString(R.string.share_message, title, code))
             }, getString(R.string.share_send)))
         }
-        .setNeutralButton(R.string.share_stop) { _, _ ->
-            confirmDelete(this, title, getString(R.string.share_stop_question), getString(R.string.share_stop_confirm),
-                positive = R.string.share_stop) { lifecycleScope.launch { share.stop(tripId) } }
+        .setNeutralButton(if (owner) R.string.share_stop else R.string.share_leave) { _, _ ->
+            if (owner) confirmDelete(this, title, getString(R.string.share_stop_question), getString(R.string.share_stop_confirm),
+                positive = R.string.share_stop) {
+                val wait = progressDialog()
+                lifecycleScope.launch {
+                    runCatching { kotlinx.coroutines.withTimeout(SHARE_TIMEOUT_MS) { share.stop(tripId) } }
+                        .onSuccess { wait.dismiss(); toast(it?.let { c -> getString(R.string.share_stopped, c) } ?: getString(R.string.share_stopped_plain)) }
+                        .onFailure { wait.dismiss(); toast(if (it is kotlinx.coroutines.TimeoutCancellationException) getString(R.string.share_timeout)
+                            else getString(R.string.share_failed, it.message ?: it.javaClass.simpleName)) }
+                }
+            }
+            else confirmDelete(this, title, getString(R.string.share_leave_question), getString(R.string.share_leave_confirm),
+                positive = R.string.share_leave) { lifecycleScope.launch { runCatching { share.stop(tripId) } } }
         }
         .show()
     // 활동 기록으로 가면 이 팝업은 닫음 (뒤로 오면 여행 화면 그대로)

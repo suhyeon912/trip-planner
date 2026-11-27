@@ -183,7 +183,7 @@ trip-planner/
 | `share/ShareMergeTest.kt` | 4 | 함께 편집 합치기 (장소 단위 · 지우기 · 예전 문서) |
 | `share/ShareCodecTest.kt` | 10 | 공유 문서 변환 (링크 · 내가 만든 종류 포함) · 일정 코드 · 내보낼 내용 고르기 |
 | `share/RecoveryCodeTest.kt` | 3 | 복구 코드 만들기 · 읽기 · 로그인용 주소 |
-| `share/ActivityLogTest.kt` | 4 | 활동 기록: 바뀐 것 찾기 · 문서 변환 · 100개 제한 |
+| `share/ActivityLogTest.kt` | 9 | 활동 기록: 바뀐 것 찾기 (끌어서 옮긴 장소 · 다른 날로 · 여행 이름 · 기간 · 메모) · 문서 변환 · 100개 제한 |
 | `ui/MapProviderTest.kt` | 4 | 카카오 / 구글 / OpenStreetMap 지도 고르기 |
 | `ui/PlaceSearchTest.kt` | 4 | 검색 결과의 종류 · 운영시간 · 브레이크 · 휴무일 |
 | `ui/DayEndpointsTest.kt` | 6 | 하루의 출발 · 도착 (숙소 자동 · 공항 · 숙소 바꾸는 날 · 예전 방식) |

@@ -228,7 +228,13 @@
     <string name="share_copy">복사</string>
     <string name="share_copied">초대 코드를 복사했어요</string>
     <string name="share_stop">공유 중지</string>
-    <string name="share_stop_confirm">내 기기의 여행은 그대로 남고, 이후 바뀐 내용은 서로 반영되지 않아요. 백업은 새 코드로 계속돼요.</string>
+    <string name="share_stop_confirm">함께 보던 사람들의 기기에서 이 여행이 사라지고, 초대 코드가 새로 바뀌어요. 내 기기의 여행은 그대로예요.</string>
+    <string name="share_stopped">공유를 중지했어요 · 새 초대 코드 %1$s</string>
+    <string name="share_stopped_plain">공유를 중지했어요</string>
+    <string name="share_leave">나가기</string>
+    <string name="share_leave_question">위 여행에서 나가시겠습니까?</string>
+    <string name="share_leave_confirm">내 기기의 여행은 그대로 남고, 이후 바뀐 내용은 서로 반영되지 않아요.</string>
+    <string name="share_ended">방장이 공유를 중지해서 목록에서 빠졌어요: %1$s</string>
     <string name="share_message">[여행 플래너] \'%1$s\' 여행에 초대했어요. 앱 첫 화면 \'초대 · 일정 코드 입력\'에 %2$s 를 입력하세요.</string>
     <string name="share_failed">공유하지 못했어요: %1$s</string>
     <string name="join_title">초대 · 일정 코드 입력</string>
@@ -567,6 +573,11 @@
     <string name="activity_hours">운영시간을 변경했어요</string>
     <string name="activity_edit">정보를 변경했어요</string>
     <string name="activity_delete">삭제했어요</string>
+    <string name="activity_trip_title_pre">"여행 이름을 "</string>
+    <string name="activity_trip_title_post">" 변경했어요"</string>
+    <string name="activity_owner_suffix">" · 방장"</string>
+    <string name="activity_trip_dates">여행 기간을 변경했어요</string>
+    <string name="activity_trip_note">여행 메모를 변경했어요</string>
     <!-- 경로 구간 이동 수단 -->
     <string name="leg_walk">도보</string>
     <string name="leg_transit">대중교통</string>

@@ -41,6 +41,8 @@ class ActivityLogActivity : AppCompatActivity() {
     private var members: List<Pair<String, String>> = emptyList()
     private var events: List<ActivityEvent> = emptyList()
     private var me = ""
+    /** 방장 uid (여행을 만든 사람) */
+    private var owner: String? = null
     /** 고른 사람 uid (null = 전체) */
     private var filter: String? = null
     private val d by lazy { resources.displayMetrics.density }
@@ -59,8 +61,8 @@ class ActivityLogActivity : AppCompatActivity() {
             val trip = app.repository.getTrip(tripId) ?: run { finish(); return@launch }
             toolbar.subtitle = trip.title
             val code = trip.shareCode ?: run { finish(); return@launch }
-            registration = app.share.observeActivity(code) { m, e, myUid ->
-                members = m; events = e; me = myUid
+            registration = app.share.observeActivity(code) { m, e, myUid, ownerUid ->
+                members = m; events = e; me = myUid; owner = ownerUid
                 render()
             }
             render()
@@ -98,7 +100,8 @@ class ActivityLogActivity : AppCompatActivity() {
         content.addView(scroller, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             .apply { topMargin = dp(4) })
         chip(null, getString(R.string.activity_all))
-        members.forEach { (uid, name) -> chip(uid, displayName(uid, name)) }
+        // 방장(여행을 만든 사람)은 이름 옆에 '방장'
+        members.forEach { (uid, name) -> chip(uid, displayName(uid, name) + if (uid == owner) getString(R.string.activity_owner_suffix) else "") }
 
         val shown = events.filter { filter == null || it.uid == filter }
         if (shown.isEmpty()) {
@@ -205,6 +208,9 @@ class ActivityLogActivity : AppCompatActivity() {
             ActivityEvent.Type.JOIN -> b.append(getString(R.string.activity_join))
             ActivityEvent.Type.TRAVEL -> b.append(getString(R.string.activity_travel))
             ActivityEvent.Type.FILE -> { strong(e.target); b.append(Josa.eulReul(e.target)); b.append(getString(R.string.activity_file)) }
+            ActivityEvent.Type.TRIP_TITLE -> { b.append(getString(R.string.activity_trip_title_pre)); strong(e.target); b.append(Josa.euroRo(e.target)); b.append(getString(R.string.activity_trip_title_post)) }
+            ActivityEvent.Type.TRIP_DATES -> b.append(getString(R.string.activity_trip_dates))
+            ActivityEvent.Type.TRIP_NOTE -> b.append(getString(R.string.activity_trip_note))
             else -> {
                 strong(e.target); b.append(" ")
                 b.append(when (e.type) {
@@ -233,5 +239,13 @@ object Josa {
         val c = word.trimEnd().lastOrNull() ?: return "를"
         if (c !in '가'..'힣') return if (c.isDigit() && c in "0136789") "을" else "를"
         return if ((c - '가') % 28 != 0) "을" else "를"
+    }
+
+    /** 받침이 있으면 '으로', 없거나 ㄹ 받침이면 '로' */
+    fun euroRo(word: String): String {
+        val c = word.trimEnd().lastOrNull() ?: return "로"
+        if (c !in '가'..'힣') return if (c.isDigit() && c in "0136") "으로" else "로"
+        val jong = (c - '가') % 28
+        return if (jong != 0 && jong != 8) "으로" else "로"
     }
 }
